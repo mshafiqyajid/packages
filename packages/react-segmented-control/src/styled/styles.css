@@ -1,0 +1,313 @@
+/* ============================================================================
+ * react-segmented-control — styled component
+ *
+ * Themable via CSS variables. The sliding indicator uses
+ * --rsc-indicator-x / --rsc-indicator-width set by the hook on the track.
+ * ========================================================================== */
+
+.rsc-root {
+  --rsc-fg: #18181b;
+  --rsc-fg-muted: #71717a;
+  --rsc-bg-track: #f4f4f5;
+  --rsc-bg-indicator: #ffffff;
+  --rsc-fg-active: #18181b;
+  --rsc-fg-inactive: #52525b;
+  --rsc-border-track: transparent;
+  --rsc-ring: rgba(99, 102, 241, 0.4);
+  --rsc-shadow-indicator: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+
+  --rsc-radius: 9px;
+  --rsc-radius-inner: 7px;
+  --rsc-padding: 3px;
+  --rsc-segment-padding-y: 0.4rem;
+  --rsc-segment-padding-x: 0.85rem;
+  --rsc-font-size: 0.85rem;
+  --rsc-font-weight: 500;
+  --rsc-min-width: 0;
+
+  --rsc-duration: 320ms;
+  --rsc-duration-fast: 180ms;
+  --rsc-ease: cubic-bezier(0.32, 0.72, 0, 1);
+  --rsc-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  display: inline-flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-family: inherit;
+  color: var(--rsc-fg);
+}
+
+.rsc-label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--rsc-fg);
+}
+
+.rsc-hint {
+  font-size: 0.78rem;
+  color: var(--rsc-fg-muted);
+}
+
+/* ============================================================================
+ * Track
+ * ========================================================================== */
+.rsc-track {
+  position: relative;
+  display: inline-flex;
+  align-items: stretch;
+  background: var(--rsc-bg-track);
+  border: 1px solid var(--rsc-border-track);
+  border-radius: var(--rsc-radius);
+  padding: var(--rsc-padding);
+  gap: 2px;
+  isolation: isolate;
+  width: max-content;
+}
+
+.rsc-track[data-full-width="true"] {
+  width: 100%;
+}
+
+.rsc-track[data-full-width="true"] > button[role="radio"] {
+  flex: 1;
+  min-width: 0;
+}
+
+.rsc-track[aria-disabled="true"] {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* ============================================================================
+ * Sliding indicator
+ * ========================================================================== */
+.rsc-indicator {
+  position: absolute;
+  top: var(--rsc-padding);
+  bottom: var(--rsc-padding);
+  left: 0;
+  width: var(--rsc-indicator-width, 0);
+  transform: translateX(var(--rsc-indicator-x, 0));
+  background: var(--rsc-bg-indicator);
+  border-radius: var(--rsc-radius-inner);
+  box-shadow: var(--rsc-shadow-indicator);
+  pointer-events: none;
+  z-index: 0;
+  transition:
+    transform var(--rsc-duration) var(--rsc-ease-spring),
+    width var(--rsc-duration) var(--rsc-ease-spring),
+    background-color var(--rsc-duration) var(--rsc-ease);
+}
+
+/* Hide indicator on first paint (before the layout effect measures). */
+.rsc-track[style*="--rsc-indicator-ready: 0"] .rsc-indicator {
+  opacity: 0;
+}
+
+/* ============================================================================
+ * Segments
+ * ========================================================================== */
+.rsc-track > button[role="radio"] {
+  position: relative;
+  z-index: 1;
+  background: transparent;
+  border: none;
+  border-radius: var(--rsc-radius-inner);
+  padding: var(--rsc-segment-padding-y) var(--rsc-segment-padding-x);
+  font: inherit;
+  font-size: var(--rsc-font-size);
+  font-weight: var(--rsc-font-weight);
+  line-height: 1.2;
+  color: var(--rsc-fg-inactive);
+  cursor: pointer;
+  white-space: nowrap;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+  min-width: var(--rsc-min-width);
+  transition:
+    color var(--rsc-duration-fast) var(--rsc-ease),
+    transform var(--rsc-duration-fast) var(--rsc-ease);
+}
+
+.rsc-track > button[role="radio"]:hover:not(:disabled):not([aria-checked="true"]) {
+  color: var(--rsc-fg);
+}
+
+.rsc-track > button[role="radio"]:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.rsc-track > button[role="radio"][aria-checked="true"] {
+  color: var(--rsc-fg-active);
+}
+
+.rsc-track > button[role="radio"]:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.rsc-track > button[role="radio"]:focus-visible {
+  box-shadow: 0 0 0 3px var(--rsc-ring);
+}
+
+/* ============================================================================
+ * Sizes
+ * ========================================================================== */
+.rsc-track[data-size="sm"] {
+  --rsc-segment-padding-y: 0.25rem;
+  --rsc-segment-padding-x: 0.6rem;
+  --rsc-font-size: 0.78rem;
+  --rsc-radius: 7px;
+  --rsc-radius-inner: 5px;
+  --rsc-padding: 2px;
+}
+
+.rsc-track[data-size="lg"] {
+  --rsc-segment-padding-y: 0.55rem;
+  --rsc-segment-padding-x: 1.2rem;
+  --rsc-font-size: 0.95rem;
+  --rsc-radius: 11px;
+  --rsc-radius-inner: 9px;
+  --rsc-padding: 4px;
+}
+
+/* ============================================================================
+ * Variants
+ * ========================================================================== */
+
+/* solid (default) — track + sliding white pill above */
+
+.rsc-track[data-variant="pill"] {
+  --rsc-radius: 999px;
+  --rsc-radius-inner: 999px;
+}
+
+.rsc-track[data-variant="underline"] {
+  background: transparent;
+  border-bottom: 1px solid color-mix(in srgb, var(--rsc-fg) 15%, transparent);
+  border-radius: 0;
+  padding: 0;
+  gap: 0;
+}
+
+.rsc-track[data-variant="underline"] .rsc-indicator {
+  top: auto;
+  bottom: -1px;
+  height: 2px;
+  background: var(--rsc-bg-indicator-underline, var(--rsc-fg-active));
+  border-radius: 2px 2px 0 0;
+  box-shadow: none;
+}
+
+.rsc-track[data-variant="underline"] > button[role="radio"] {
+  border-radius: 0;
+  padding-bottom: calc(var(--rsc-segment-padding-y) + 4px);
+}
+
+/* ============================================================================
+ * Tones — doubled selector for theme-override resilience
+ * ========================================================================== */
+.rsc-track[data-tone="primary"][data-tone] {
+  --rsc-fg-active: #18181b;
+  --rsc-bg-indicator-underline: #6366f1;
+  --rsc-ring: rgba(99, 102, 241, 0.4);
+}
+
+.rsc-track[data-tone="primary"][data-tone][data-variant="pill"],
+.rsc-track[data-tone="primary"][data-tone][data-variant="solid"] {
+  --rsc-bg-indicator: #6366f1;
+  --rsc-fg-active: #ffffff;
+  --rsc-shadow-indicator: 0 4px 12px -2px rgba(99, 102, 241, 0.45);
+}
+
+.rsc-track[data-tone="success"][data-tone] {
+  --rsc-bg-indicator-underline: #16a34a;
+  --rsc-ring: rgba(34, 197, 94, 0.4);
+}
+
+.rsc-track[data-tone="success"][data-tone][data-variant="pill"],
+.rsc-track[data-tone="success"][data-tone][data-variant="solid"] {
+  --rsc-bg-indicator: #16a34a;
+  --rsc-fg-active: #ffffff;
+  --rsc-shadow-indicator: 0 4px 12px -2px rgba(34, 197, 94, 0.45);
+}
+
+.rsc-track[data-tone="danger"][data-tone] {
+  --rsc-bg-indicator-underline: #dc2626;
+  --rsc-ring: rgba(239, 68, 68, 0.4);
+}
+
+.rsc-track[data-tone="danger"][data-tone][data-variant="pill"],
+.rsc-track[data-tone="danger"][data-tone][data-variant="solid"] {
+  --rsc-bg-indicator: #dc2626;
+  --rsc-fg-active: #ffffff;
+  --rsc-shadow-indicator: 0 4px 12px -2px rgba(239, 68, 68, 0.45);
+}
+
+/* ============================================================================
+ * Dark mode (auto + explicit override)
+ * ========================================================================== */
+@media (prefers-color-scheme: dark) {
+  .rsc-root {
+    --rsc-fg: #fafafa;
+    --rsc-fg-muted: #a1a1aa;
+    --rsc-bg-track: #27272a;
+    --rsc-bg-indicator: #3f3f46;
+    --rsc-fg-active: #fafafa;
+    --rsc-fg-inactive: #a1a1aa;
+    --rsc-shadow-indicator: 0 1px 3px rgba(0, 0, 0, 0.5), 0 1px 2px rgba(0, 0, 0, 0.4);
+    --rsc-ring: rgba(129, 140, 248, 0.5);
+  }
+
+  .rsc-track[data-tone="primary"][data-tone][data-variant="pill"],
+  .rsc-track[data-tone="primary"][data-tone][data-variant="solid"] {
+    --rsc-bg-indicator: #818cf8;
+    --rsc-fg-active: #0f172a;
+    --rsc-shadow-indicator: 0 4px 14px -2px rgba(129, 140, 248, 0.5);
+  }
+
+  .rsc-track[data-tone="success"][data-tone][data-variant="pill"],
+  .rsc-track[data-tone="success"][data-tone][data-variant="solid"] {
+    --rsc-bg-indicator: #22c55e;
+    --rsc-fg-active: #052e16;
+  }
+
+  .rsc-track[data-tone="danger"][data-tone][data-variant="pill"],
+  .rsc-track[data-tone="danger"][data-tone][data-variant="solid"] {
+    --rsc-bg-indicator: #f87171;
+    --rsc-fg-active: #450a0a;
+  }
+}
+
+[data-rsc-theme="dark"] .rsc-root {
+  --rsc-fg: #fafafa;
+  --rsc-fg-muted: #a1a1aa;
+  --rsc-bg-track: #27272a;
+  --rsc-bg-indicator: #3f3f46;
+  --rsc-fg-active: #fafafa;
+  --rsc-fg-inactive: #a1a1aa;
+  --rsc-shadow-indicator: 0 1px 3px rgba(0, 0, 0, 0.5), 0 1px 2px rgba(0, 0, 0, 0.4);
+  --rsc-ring: rgba(129, 140, 248, 0.5);
+}
+
+[data-rsc-theme="light"] .rsc-root {
+  --rsc-fg: #18181b;
+  --rsc-fg-muted: #71717a;
+  --rsc-bg-track: #f4f4f5;
+  --rsc-bg-indicator: #ffffff;
+  --rsc-fg-active: #18181b;
+  --rsc-fg-inactive: #52525b;
+  --rsc-shadow-indicator: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --rsc-ring: rgba(99, 102, 241, 0.4);
+}
+
+/* ============================================================================
+ * Reduced motion
+ * ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .rsc-indicator,
+  .rsc-track > button[role="radio"] {
+    transition-duration: 0ms !important;
+  }
+}

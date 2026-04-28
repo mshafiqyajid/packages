@@ -15,6 +15,7 @@
     "typecheck": "npm run typecheck --workspaces --if-present",
     "playground:copy-button": "npm run playground --workspace=@mshafiqyajid/react-copy-button",
     "playground:otp-input": "npm run playground --workspace=@mshafiqyajid/react-otp-input",
+    "playground:segmented-control": "npm run playground --workspace=@mshafiqyajid/react-segmented-control",
     "changeset": "changeset",
     "release": "npm run build && changeset publish"
   },
