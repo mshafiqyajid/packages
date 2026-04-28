@@ -1,0 +1,280 @@
+/* ============================================================================
+ * react-otp-input — styled component
+ *
+ * Themable via CSS variables. Override globally on `:root` or scope to a
+ * wrapper class. Tones win over theme via doubled-attribute specificity.
+ * ========================================================================== */
+
+.rotp-root {
+  --rotp-fg: #18181b;
+  --rotp-fg-muted: #71717a;
+  --rotp-bg: #ffffff;
+  --rotp-bg-active: #ffffff;
+  --rotp-border: #e4e4e7;
+  --rotp-border-hover: #d4d4d8;
+  --rotp-border-active: #6366f1;
+  --rotp-border-filled: #18181b;
+  --rotp-ring: rgba(99, 102, 241, 0.35);
+  --rotp-error-fg: #dc2626;
+  --rotp-radius: 8px;
+
+  --rotp-slot-size: 2.75rem;
+  --rotp-slot-font-size: 1.125rem;
+  --rotp-gap: 0.5rem;
+
+  --rotp-duration: 200ms;
+  --rotp-duration-fast: 120ms;
+  --rotp-ease: cubic-bezier(0.32, 0.72, 0, 1);
+  --rotp-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  display: inline-flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  color: var(--rotp-fg);
+  font-family: inherit;
+}
+
+.rotp-label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--rotp-fg);
+}
+
+.rotp-group {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--rotp-gap);
+}
+
+.rotp-sep {
+  color: var(--rotp-fg-muted);
+  font-size: 1.25em;
+  user-select: none;
+  margin: 0 0.1rem;
+}
+
+.rotp-hint {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--rotp-fg-muted);
+}
+
+.rotp-error {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--rotp-error-fg);
+  font-weight: 500;
+  animation: rotp-error-shake 320ms var(--rotp-ease);
+}
+
+@keyframes rotp-error-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-3px); }
+  40% { transform: translateX(3px); }
+  60% { transform: translateX(-2px); }
+  80% { transform: translateX(2px); }
+}
+
+/* ============================================================================
+ * Slot — base + solid variant
+ * ========================================================================== */
+.rotp-slot {
+  width: var(--rotp-slot-size);
+  height: var(--rotp-slot-size);
+  font: inherit;
+  font-size: var(--rotp-slot-font-size);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  color: var(--rotp-fg);
+  background: var(--rotp-bg);
+  border: 1px solid var(--rotp-border);
+  border-radius: var(--rotp-radius);
+  outline: none;
+  padding: 0;
+  caret-color: var(--rotp-border-active);
+  transition:
+    background-color var(--rotp-duration) var(--rotp-ease),
+    border-color var(--rotp-duration) var(--rotp-ease),
+    box-shadow var(--rotp-duration) var(--rotp-ease),
+    transform var(--rotp-duration) var(--rotp-ease-spring),
+    color var(--rotp-duration) var(--rotp-ease);
+}
+
+.rotp-slot:hover:not(:disabled):not(:focus-visible) {
+  border-color: var(--rotp-border-hover);
+}
+
+.rotp-slot:focus-visible,
+.rotp-slot[data-active="true"]:focus {
+  border-color: var(--rotp-border-active);
+  box-shadow: 0 0 0 3px var(--rotp-ring);
+  animation: rotp-focus-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes rotp-focus-pulse {
+  0%, 100% { box-shadow: 0 0 0 3px var(--rotp-ring); }
+  50% { box-shadow: 0 0 0 5px color-mix(in srgb, var(--rotp-ring) 50%, transparent); }
+}
+
+.rotp-slot[data-filled="true"] {
+  border-color: var(--rotp-border-filled);
+  animation: rotp-fill-pop 220ms var(--rotp-ease-spring);
+}
+
+@keyframes rotp-fill-pop {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
+.rotp-slot:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.rotp-slot::selection {
+  background: color-mix(in srgb, var(--rotp-border-active) 22%, transparent);
+}
+
+/* ============================================================================
+ * Variants
+ * ========================================================================== */
+.rotp-group[data-variant="outline"] .rotp-slot {
+  background: transparent;
+  border-width: 1.5px;
+}
+
+.rotp-group[data-variant="underline"] .rotp-slot {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid var(--rotp-border);
+  border-radius: 0;
+}
+
+.rotp-group[data-variant="underline"] .rotp-slot:focus-visible,
+.rotp-group[data-variant="underline"] .rotp-slot[data-active="true"]:focus {
+  border-bottom-color: var(--rotp-border-active);
+  box-shadow: 0 1px 0 0 var(--rotp-border-active);
+  animation: rotp-underline-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes rotp-underline-pulse {
+  0%, 100% { box-shadow: 0 1px 0 0 var(--rotp-border-active); }
+  50% { box-shadow: 0 2px 0 0 var(--rotp-border-active), 0 0 12px var(--rotp-ring); }
+}
+
+.rotp-group[data-variant="underline"] .rotp-slot[data-filled="true"] {
+  border-bottom-color: var(--rotp-border-filled);
+}
+
+/* ============================================================================
+ * Sizes
+ * ========================================================================== */
+.rotp-group[data-size="sm"] {
+  --rotp-slot-size: 2.25rem;
+  --rotp-slot-font-size: 1rem;
+  --rotp-gap: 0.4rem;
+  --rotp-radius: 6px;
+}
+
+.rotp-group[data-size="lg"] {
+  --rotp-slot-size: 3.25rem;
+  --rotp-slot-font-size: 1.4rem;
+  --rotp-gap: 0.6rem;
+  --rotp-radius: 10px;
+}
+
+/* ============================================================================
+ * Tones — doubled selector for specificity (wins against [data-rotp-theme])
+ * ========================================================================== */
+.rotp-group[data-tone="primary"][data-tone] {
+  --rotp-border-active: #6366f1;
+  --rotp-border-filled: #6366f1;
+  --rotp-ring: rgba(99, 102, 241, 0.4);
+}
+
+.rotp-group[data-tone="success"][data-tone] {
+  --rotp-border-active: #16a34a;
+  --rotp-border-filled: #16a34a;
+  --rotp-ring: rgba(34, 197, 94, 0.4);
+}
+
+.rotp-group[data-tone="danger"][data-tone] {
+  --rotp-border-active: #dc2626;
+  --rotp-border-filled: #dc2626;
+  --rotp-ring: rgba(239, 68, 68, 0.4);
+}
+
+/* ============================================================================
+ * Dark mode (auto + explicit override)
+ * ========================================================================== */
+@media (prefers-color-scheme: dark) {
+  .rotp-root {
+    --rotp-fg: #fafafa;
+    --rotp-fg-muted: #a1a1aa;
+    --rotp-bg: #18181b;
+    --rotp-bg-active: #27272a;
+    --rotp-border: #3f3f46;
+    --rotp-border-hover: #52525b;
+    --rotp-border-active: #818cf8;
+    --rotp-border-filled: #fafafa;
+    --rotp-ring: rgba(129, 140, 248, 0.4);
+    --rotp-error-fg: #f87171;
+  }
+
+  .rotp-group[data-tone="primary"][data-tone] {
+    --rotp-border-active: #818cf8;
+    --rotp-border-filled: #818cf8;
+    --rotp-ring: rgba(129, 140, 248, 0.45);
+  }
+
+  .rotp-group[data-tone="success"][data-tone] {
+    --rotp-border-active: #4ade80;
+    --rotp-border-filled: #4ade80;
+    --rotp-ring: rgba(74, 222, 128, 0.45);
+  }
+
+  .rotp-group[data-tone="danger"][data-tone] {
+    --rotp-border-active: #f87171;
+    --rotp-border-filled: #f87171;
+    --rotp-ring: rgba(248, 113, 113, 0.45);
+  }
+}
+
+[data-rotp-theme="dark"] .rotp-root {
+  --rotp-fg: #fafafa;
+  --rotp-fg-muted: #a1a1aa;
+  --rotp-bg: #18181b;
+  --rotp-bg-active: #27272a;
+  --rotp-border: #3f3f46;
+  --rotp-border-hover: #52525b;
+  --rotp-border-active: #818cf8;
+  --rotp-border-filled: #fafafa;
+  --rotp-ring: rgba(129, 140, 248, 0.4);
+  --rotp-error-fg: #f87171;
+}
+
+[data-rotp-theme="light"] .rotp-root {
+  --rotp-fg: #18181b;
+  --rotp-fg-muted: #71717a;
+  --rotp-bg: #ffffff;
+  --rotp-bg-active: #ffffff;
+  --rotp-border: #e4e4e7;
+  --rotp-border-hover: #d4d4d8;
+  --rotp-border-active: #6366f1;
+  --rotp-border-filled: #18181b;
+  --rotp-ring: rgba(99, 102, 241, 0.35);
+  --rotp-error-fg: #dc2626;
+}
+
+/* ============================================================================
+ * Reduced motion
+ * ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .rotp-slot,
+  .rotp-error {
+    transition-duration: 0ms !important;
+    animation: none !important;
+  }
+}

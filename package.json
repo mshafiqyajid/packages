@@ -13,7 +13,8 @@
     "build": "npm run build --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
-    "playground": "npm run playground --workspace=@mshafiqyajid/react-copy-button",
+    "playground:copy-button": "npm run playground --workspace=@mshafiqyajid/react-copy-button",
+    "playground:otp-input": "npm run playground --workspace=@mshafiqyajid/react-otp-input",
     "changeset": "changeset",
     "release": "npm run build && changeset publish"
   },
