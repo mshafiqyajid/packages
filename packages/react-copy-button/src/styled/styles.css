@@ -1,0 +1,675 @@
+/* ============================================================================
+ * @shafiqyajid/react-copy-button — styled component
+ *
+ * Themed via CSS variables. Any variable below can be overridden globally
+ * (`:root { --rcb-bg: ... }`) or scoped to a class wrapped around the button.
+ * ========================================================================== */
+
+.rcb-button {
+  /* ---- tone palette (defaults to "neutral") ---- */
+  --rcb-bg: #18181b;
+  --rcb-bg-hover: #27272a;
+  --rcb-bg-active: #09090b;
+  --rcb-fg: #fafafa;
+  --rcb-border: transparent;
+  --rcb-border-width: 1px;
+  --rcb-ring: rgba(99, 102, 241, 0.55);
+  --rcb-success-bg: #16a34a;
+  --rcb-success-fg: #ffffff;
+  --rcb-success-border: transparent;
+  --rcb-success-glow: rgba(34, 197, 94, 0.45);
+
+  /* ---- shape ---- */
+  --rcb-radius: 8px;
+  --rcb-padding-y: 0.5rem;
+  --rcb-padding-x: 0.95rem;
+  --rcb-gap: 0.5rem;
+
+  /* ---- typography ---- */
+  --rcb-font-size: 0.875rem;
+  --rcb-font-weight: 500;
+  --rcb-letter-spacing: 0;
+  --rcb-line-height: 1.2;
+
+  /* ---- elevation ---- */
+  --rcb-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --rcb-shadow-hover: 0 6px 18px -4px rgba(0, 0, 0, 0.18);
+  --rcb-shadow-active: 0 1px 1px rgba(0, 0, 0, 0.12) inset;
+  --rcb-shadow-focus: 0 0 0 3px var(--rcb-ring);
+
+  /* ---- motion ---- */
+  --rcb-duration: 240ms;
+  --rcb-duration-fast: 120ms;
+  --rcb-ease: cubic-bezier(0.32, 0.72, 0, 1);
+  --rcb-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* ---- icon ---- */
+  --rcb-icon-size: 1em;
+  --rcb-spinner-size: 1em;
+
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--rcb-gap);
+  border: var(--rcb-border-width) solid var(--rcb-border);
+  border-radius: var(--rcb-radius);
+  padding: var(--rcb-padding-y) var(--rcb-padding-x);
+  font: inherit;
+  font-size: var(--rcb-font-size);
+  font-weight: var(--rcb-font-weight);
+  letter-spacing: var(--rcb-letter-spacing);
+  line-height: var(--rcb-line-height);
+  background: var(--rcb-bg);
+  color: var(--rcb-fg);
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+  box-shadow: var(--rcb-shadow);
+  transform-origin: center center;
+  will-change: transform, box-shadow, background-color;
+  transition:
+    background-color var(--rcb-duration) var(--rcb-ease),
+    color var(--rcb-duration) var(--rcb-ease),
+    border-color var(--rcb-duration) var(--rcb-ease),
+    transform var(--rcb-duration) var(--rcb-ease-spring),
+    box-shadow var(--rcb-duration) var(--rcb-ease),
+    opacity var(--rcb-duration) var(--rcb-ease);
+}
+
+/* ---- hover: subtle lift + lean ---- */
+.rcb-button:hover:not(:disabled):not([data-copied="true"]) {
+  background: var(--rcb-bg-hover);
+  box-shadow: var(--rcb-shadow-hover);
+  transform: translateY(-2px);
+}
+
+/* ---- press: satisfying squish ---- */
+.rcb-button:active:not(:disabled) {
+  background: var(--rcb-bg-active);
+  transform: translateY(0) scale(0.96);
+  box-shadow: var(--rcb-shadow-active);
+  transition:
+    background-color var(--rcb-duration-fast) var(--rcb-ease),
+    transform var(--rcb-duration-fast) cubic-bezier(0.4, 0, 1, 1),
+    box-shadow var(--rcb-duration-fast) var(--rcb-ease);
+}
+
+/* ---- focus: breathing ring ---- */
+.rcb-button:focus-visible {
+  outline: none;
+  box-shadow: var(--rcb-shadow-focus), var(--rcb-shadow);
+  animation: rcb-focus-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes rcb-focus-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 3px var(--rcb-ring), var(--rcb-shadow);
+  }
+  50% {
+    box-shadow: 0 0 0 5px color-mix(in srgb, var(--rcb-ring) 50%, transparent), var(--rcb-shadow);
+  }
+}
+
+.rcb-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: var(--rcb-shadow);
+  animation: none;
+}
+
+/* ============================================================================
+ * Copied state — multi-stage celebration
+ * ========================================================================== */
+.rcb-button[data-copied="true"] {
+  background: var(--rcb-success-bg);
+  color: var(--rcb-success-fg);
+  border-color: var(--rcb-success-border);
+  animation: rcb-success-bounce 520ms var(--rcb-ease-spring);
+  box-shadow:
+    0 0 0 0 var(--rcb-success-glow),
+    var(--rcb-shadow);
+}
+
+@keyframes rcb-success-bounce {
+  0%   { transform: scale(1); }
+  25%  { transform: scale(1.08); }
+  55%  { transform: scale(0.97); }
+  80%  { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+
+/* ---- ring pulse on success ---- */
+.rcb-button[data-copied="true"]::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  pointer-events: none;
+  border: 2px solid var(--rcb-success-glow);
+  opacity: 0;
+  animation: rcb-ring-pulse 700ms var(--rcb-ease) forwards;
+}
+
+@keyframes rcb-ring-pulse {
+  0% {
+    opacity: 0.85;
+    transform: scale(0.95);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.25);
+  }
+}
+
+/* ============================================================================
+ * Sparkle burst
+ * ========================================================================== */
+.rcb-button__sparkles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.rcb-button__sparkle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  background: var(--rcb-success-glow);
+  border-radius: 50%;
+  opacity: 0;
+  transform: translate(-50%, -50%);
+}
+
+.rcb-button[data-copied="true"] .rcb-button__sparkle {
+  animation: rcb-sparkle 720ms var(--rcb-ease) forwards;
+}
+
+.rcb-button__sparkle:nth-child(1) { --rcb-sx: 18px;  --rcb-sy: -22px; animation-delay: 0ms; }
+.rcb-button__sparkle:nth-child(2) { --rcb-sx: -22px; --rcb-sy: -16px; animation-delay: 30ms; }
+.rcb-button__sparkle:nth-child(3) { --rcb-sx: 24px;  --rcb-sy: 14px;  animation-delay: 60ms; }
+.rcb-button__sparkle:nth-child(4) { --rcb-sx: -20px; --rcb-sy: 18px;  animation-delay: 90ms; }
+.rcb-button__sparkle:nth-child(5) { --rcb-sx: 0;     --rcb-sy: -28px; animation-delay: 0ms; }
+.rcb-button__sparkle:nth-child(6) { --rcb-sx: 0;     --rcb-sy: 28px;  animation-delay: 120ms; }
+
+@keyframes rcb-sparkle {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0);
+  }
+  20% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.4);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(
+      calc(-50% + var(--rcb-sx, 0)),
+      calc(-50% + var(--rcb-sy, 0))
+    ) scale(0.4);
+  }
+}
+
+/* ============================================================================
+ * Icon morph (copy <-> check)
+ * Check uses stroke-dashoffset draw-in for a "writing itself" feel.
+ * ========================================================================== */
+.rcb-button__icon {
+  display: inline-flex;
+  width: var(--rcb-icon-size);
+  height: var(--rcb-icon-size);
+  position: relative;
+  flex-shrink: 0;
+}
+
+.rcb-button__icon svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transition:
+    opacity var(--rcb-duration) var(--rcb-ease),
+    transform var(--rcb-duration) var(--rcb-ease-spring);
+}
+
+.rcb-button__icon-copy {
+  opacity: 1;
+  transform: scale(1) rotate(0deg);
+}
+
+.rcb-button__icon-check {
+  opacity: 0;
+  transform: scale(0.5) rotate(-45deg);
+}
+
+.rcb-button[data-copied="true"] .rcb-button__icon-copy {
+  opacity: 0;
+  transform: scale(0.5) rotate(45deg);
+  transition-duration: var(--rcb-duration-fast);
+}
+
+.rcb-button[data-copied="true"] .rcb-button__icon-check {
+  opacity: 1;
+  transform: scale(1) rotate(0deg);
+  transition-delay: 80ms;
+}
+
+/* ---- check draw-in ---- */
+.rcb-button__icon-check polyline {
+  stroke-dasharray: 24;
+  stroke-dashoffset: 24;
+  transition: stroke-dashoffset 380ms cubic-bezier(0.65, 0, 0.35, 1) 100ms;
+}
+
+.rcb-button[data-copied="true"] .rcb-button__icon-check polyline {
+  stroke-dashoffset: 0;
+}
+
+/* ============================================================================
+ * Label — both states stacked via grid so width = max(copy, copied)
+ * ========================================================================== */
+.rcb-button__label {
+  display: inline-grid;
+  grid-template-areas: "label";
+  align-items: center;
+  justify-items: center;
+}
+
+.rcb-button__label > span {
+  grid-area: label;
+  display: inline-block;
+  transition:
+    opacity var(--rcb-duration-fast) var(--rcb-ease),
+    transform var(--rcb-duration) var(--rcb-ease-spring);
+}
+
+.rcb-button__label-copy {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.rcb-button__label-copied {
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+}
+
+.rcb-button[data-copied="true"] .rcb-button__label-copy {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+
+.rcb-button[data-copied="true"] .rcb-button__label-copied {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 60ms;
+}
+
+/* ============================================================================
+ * Loading spinner — dual-arc
+ * ========================================================================== */
+.rcb-button[data-loading="true"] .rcb-button__icon-copy,
+.rcb-button[data-loading="true"] .rcb-button__icon-check {
+  opacity: 0;
+}
+
+.rcb-button__spinner {
+  display: inline-flex;
+  width: var(--rcb-spinner-size);
+  height: var(--rcb-spinner-size);
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--rcb-duration) var(--rcb-ease);
+}
+
+.rcb-button[data-loading="true"] .rcb-button__spinner {
+  opacity: 1;
+}
+
+.rcb-button__spinner svg {
+  width: 100%;
+  height: 100%;
+  animation: rcb-spin 0.85s cubic-bezier(0.5, 0.1, 0.5, 0.9) infinite;
+}
+
+.rcb-button__spinner svg .rcb-spin-arc-2 {
+  animation: rcb-spin-counter 1.4s linear infinite;
+  transform-origin: center;
+}
+
+@keyframes rcb-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes rcb-spin-counter {
+  to { transform: rotate(-360deg); }
+}
+
+/* ============================================================================
+ * Sizes
+ * ========================================================================== */
+.rcb-button[data-size="sm"] {
+  --rcb-padding-y: 0.3rem;
+  --rcb-padding-x: 0.65rem;
+  --rcb-font-size: 0.8rem;
+  --rcb-radius: 6px;
+  --rcb-gap: 0.35rem;
+}
+
+.rcb-button[data-size="lg"] {
+  --rcb-padding-y: 0.7rem;
+  --rcb-padding-x: 1.25rem;
+  --rcb-font-size: 0.95rem;
+  --rcb-radius: 10px;
+  --rcb-gap: 0.6rem;
+}
+
+.rcb-button[data-size="icon"] {
+  --rcb-padding-y: 0;
+  --rcb-padding-x: 0;
+  width: 2.25rem;
+  height: 2.25rem;
+}
+
+.rcb-button[data-size="icon"][data-density="sm"] {
+  width: 1.75rem;
+  height: 1.75rem;
+}
+
+.rcb-button[data-size="icon"][data-density="lg"] {
+  width: 2.75rem;
+  height: 2.75rem;
+}
+
+/* ============================================================================
+ * Variants
+ * ========================================================================== */
+
+/* solid (default) — uses tone palette as-is */
+
+.rcb-button[data-variant="outline"] {
+  background: transparent;
+  color: var(--rcb-bg);
+  border-color: currentColor;
+  box-shadow: none;
+}
+
+.rcb-button[data-variant="outline"]:hover:not(:disabled):not([data-copied="true"]) {
+  background: color-mix(in srgb, var(--rcb-bg) 8%, transparent);
+  box-shadow: none;
+  transform: translateY(-2px);
+}
+
+.rcb-button[data-variant="outline"]:active:not(:disabled) {
+  background: color-mix(in srgb, var(--rcb-bg) 14%, transparent);
+}
+
+.rcb-button[data-variant="outline"][data-copied="true"] {
+  background: var(--rcb-success-bg);
+  color: var(--rcb-success-fg);
+  border-color: var(--rcb-success-bg);
+}
+
+.rcb-button[data-variant="ghost"] {
+  background: transparent;
+  color: var(--rcb-bg);
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.rcb-button[data-variant="ghost"]:hover:not(:disabled):not([data-copied="true"]) {
+  background: color-mix(in srgb, var(--rcb-bg) 10%, transparent);
+  box-shadow: none;
+  transform: translateY(-2px);
+}
+
+.rcb-button[data-variant="ghost"]:active:not(:disabled) {
+  background: color-mix(in srgb, var(--rcb-bg) 18%, transparent);
+}
+
+.rcb-button[data-variant="ghost"][data-copied="true"] {
+  background: color-mix(in srgb, var(--rcb-success-bg) 18%, transparent);
+  color: var(--rcb-success-bg);
+}
+
+.rcb-button[data-variant="subtle"] {
+  background: color-mix(in srgb, var(--rcb-bg) 12%, transparent);
+  color: var(--rcb-bg);
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.rcb-button[data-variant="subtle"]:hover:not(:disabled):not([data-copied="true"]) {
+  background: color-mix(in srgb, var(--rcb-bg) 18%, transparent);
+  box-shadow: none;
+  transform: translateY(-2px);
+}
+
+.rcb-button[data-variant="subtle"]:active:not(:disabled) {
+  background: color-mix(in srgb, var(--rcb-bg) 26%, transparent);
+}
+
+.rcb-button[data-variant="subtle"][data-copied="true"] {
+  background: color-mix(in srgb, var(--rcb-success-bg) 18%, transparent);
+  color: var(--rcb-success-bg);
+}
+
+/* ============================================================================
+ * Tones
+ *
+ * Tones must override the dark-mode and [data-rcb-theme] palettes, which
+ * also use a [attr] selector (specificity 0,2,0). To win the tie regardless
+ * of source order, we double up the attribute selector for tones — this
+ * gives them specificity 0,3,0.
+ * ========================================================================== */
+.rcb-button[data-tone="primary"][data-tone] {
+  --rcb-bg: #6366f1;
+  --rcb-bg-hover: #4f46e5;
+  --rcb-bg-active: #4338ca;
+  --rcb-fg: #ffffff;
+  --rcb-ring: rgba(99, 102, 241, 0.55);
+}
+
+.rcb-button[data-tone="success"][data-tone] {
+  --rcb-bg: #16a34a;
+  --rcb-bg-hover: #15803d;
+  --rcb-bg-active: #166534;
+  --rcb-fg: #ffffff;
+  --rcb-ring: rgba(34, 197, 94, 0.55);
+}
+
+.rcb-button[data-tone="danger"][data-tone] {
+  --rcb-bg: #dc2626;
+  --rcb-bg-hover: #b91c1c;
+  --rcb-bg-active: #991b1b;
+  --rcb-fg: #ffffff;
+  --rcb-ring: rgba(239, 68, 68, 0.55);
+}
+
+/* ============================================================================
+ * Layout helpers
+ * ========================================================================== */
+.rcb-button[data-full-width="true"] {
+  width: 100%;
+}
+
+.rcb-button[data-icon-position="right"] {
+  flex-direction: row-reverse;
+}
+
+/* ============================================================================
+ * Tooltip — bouncy scale-in
+ * ========================================================================== */
+.rcb-tooltip-wrapper {
+  position: relative;
+  display: inline-flex;
+}
+
+.rcb-tooltip-wrapper[data-full-width="true"] {
+  display: flex;
+  width: 100%;
+}
+
+.rcb-tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) scale(0.85) translateY(4px);
+  transform-origin: center bottom;
+  padding: 0.35rem 0.6rem;
+  background: #18181b;
+  color: #fafafa;
+  font-size: 0.72rem;
+  font-weight: 500;
+  border-radius: 6px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  box-shadow: 0 4px 14px -2px rgba(0, 0, 0, 0.25);
+  transition:
+    opacity 180ms var(--rcb-ease, ease),
+    transform 220ms var(--rcb-ease-spring, ease);
+  z-index: 50;
+}
+
+.rcb-tooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 4px solid transparent;
+  border-top-color: #18181b;
+}
+
+.rcb-tooltip-wrapper:hover .rcb-tooltip,
+.rcb-tooltip-wrapper:focus-within .rcb-tooltip {
+  opacity: 1;
+  transform: translateX(-50%) scale(1) translateY(0);
+}
+
+/* ============================================================================
+ * Dark mode
+ * ========================================================================== */
+@media (prefers-color-scheme: dark) {
+  .rcb-button {
+    --rcb-bg: #fafafa;
+    --rcb-bg-hover: #e4e4e7;
+    --rcb-bg-active: #d4d4d8;
+    --rcb-fg: #18181b;
+    --rcb-ring: rgba(129, 140, 248, 0.65);
+    --rcb-success-bg: #22c55e;
+    --rcb-success-fg: #052e16;
+    --rcb-success-glow: rgba(74, 222, 128, 0.6);
+    --rcb-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --rcb-shadow-hover: 0 6px 18px -4px rgba(0, 0, 0, 0.55);
+  }
+
+  .rcb-button[data-tone="primary"][data-tone] {
+    --rcb-bg: #818cf8;
+    --rcb-bg-hover: #a5b4fc;
+    --rcb-bg-active: #6366f1;
+    --rcb-fg: #0f172a;
+  }
+
+  .rcb-button[data-tone="success"][data-tone] {
+    --rcb-bg: #22c55e;
+    --rcb-bg-hover: #4ade80;
+    --rcb-bg-active: #16a34a;
+    --rcb-fg: #052e16;
+  }
+
+  .rcb-button[data-tone="danger"][data-tone] {
+    --rcb-bg: #f87171;
+    --rcb-bg-hover: #fca5a5;
+    --rcb-bg-active: #ef4444;
+    --rcb-fg: #450a0a;
+  }
+
+  .rcb-tooltip {
+    background: #fafafa;
+    color: #18181b;
+    box-shadow: 0 4px 14px -2px rgba(0, 0, 0, 0.5);
+  }
+  .rcb-tooltip::after {
+    border-top-color: #fafafa;
+  }
+}
+
+[data-rcb-theme="dark"] .rcb-button {
+  --rcb-bg: #fafafa;
+  --rcb-bg-hover: #e4e4e7;
+  --rcb-bg-active: #d4d4d8;
+  --rcb-fg: #18181b;
+  --rcb-ring: rgba(129, 140, 248, 0.65);
+  --rcb-success-bg: #22c55e;
+  --rcb-success-fg: #052e16;
+  --rcb-success-glow: rgba(74, 222, 128, 0.6);
+  --rcb-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --rcb-shadow-hover: 0 6px 18px -4px rgba(0, 0, 0, 0.55);
+}
+
+[data-rcb-theme="light"] .rcb-button {
+  --rcb-bg: #18181b;
+  --rcb-bg-hover: #27272a;
+  --rcb-bg-active: #09090b;
+  --rcb-fg: #fafafa;
+  --rcb-ring: rgba(99, 102, 241, 0.55);
+  --rcb-success-bg: #16a34a;
+  --rcb-success-fg: #ffffff;
+  --rcb-success-glow: rgba(34, 197, 94, 0.45);
+  --rcb-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --rcb-shadow-hover: 0 6px 18px -4px rgba(0, 0, 0, 0.18);
+}
+
+/* ============================================================================
+ * Reduced motion — turn it all off
+ * ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .rcb-button,
+  .rcb-button__icon svg,
+  .rcb-button__label > span,
+  .rcb-button__icon-check polyline,
+  .rcb-tooltip,
+  .rcb-button::before {
+    transition-duration: 0ms !important;
+    animation: none !important;
+  }
+  .rcb-button:hover:not(:disabled),
+  .rcb-button:active:not(:disabled) {
+    transform: none;
+  }
+  .rcb-button[data-copied="true"] .rcb-button__sparkle {
+    animation: none;
+    opacity: 0;
+  }
+  .rcb-button__icon-check polyline {
+    stroke-dashoffset: 0;
+  }
+  .rcb-button__spinner svg {
+    animation-duration: 1.5s;
+  }
+}
+
+/* ============================================================================
+ * Live region (visually hidden, read by screen readers)
+ * ========================================================================== */
+.rcb-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

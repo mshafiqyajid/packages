@@ -1,0 +1,9 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "types": ["node", "vitest/globals", "@testing-library/jest-dom"],
+    "outDir": "dist"
+  },
+  "include": ["src", "playground", "vitest.setup.ts"],
+  "exclude": ["dist", "node_modules"]
+}
