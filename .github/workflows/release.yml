@@ -22,7 +22,7 @@ jobs:
           node-version: 20
           cache: npm
           registry-url: https://registry.npmjs.org
-      - run: npm ci
+      - run: npm install --no-audit --no-fund
       - run: npm run build
       - name: Create release PR or publish
         uses: changesets/action@v1
