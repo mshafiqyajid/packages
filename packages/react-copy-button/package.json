@@ -1,5 +1,5 @@
 {
-  "name": "@shafiqyajid/react-copy-button",
+  "name": "@mshafiqyajid/react-copy-button",
   "version": "0.1.0",
   "description": "Headless copy-to-clipboard hook and styled button primitive for React. Zero dependencies, SSR-safe, fully typed.",
   "keywords": [

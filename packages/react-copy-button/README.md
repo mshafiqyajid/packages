@@ -1,4 +1,4 @@
-# @shafiqyajid/react-copy-button
+# @mshafiqyajid/react-copy-button
 
 A tiny, beautifully styled copy-to-clipboard toolkit for React. Comes in two flavors:
 
@@ -10,7 +10,7 @@ Zero dependencies. SSR-safe. Fully typed. ESM + CJS.
 ## Install
 
 ```bash
-npm install @shafiqyajid/react-copy-button
+npm install @mshafiqyajid/react-copy-button
 ```
 
 Peer dependency: `react >= 17`.
@@ -20,8 +20,8 @@ Peer dependency: `react >= 17`.
 ### Styled (recommended)
 
 ```tsx
-import { CopyButtonStyled } from "@shafiqyajid/react-copy-button/styled";
-import "@shafiqyajid/react-copy-button/styles.css";
+import { CopyButtonStyled } from "@mshafiqyajid/react-copy-button/styled";
+import "@mshafiqyajid/react-copy-button/styles.css";
 
 export function Example() {
   return <CopyButtonStyled text="hello world" tone="primary" />;
@@ -31,7 +31,7 @@ export function Example() {
 ### Headless
 
 ```tsx
-import { CopyButton } from "@shafiqyajid/react-copy-button";
+import { CopyButton } from "@mshafiqyajid/react-copy-button";
 
 export function Example() {
   return (
@@ -45,7 +45,7 @@ export function Example() {
 ### Hook
 
 ```tsx
-import { useCopyToClipboard } from "@shafiqyajid/react-copy-button";
+import { useCopyToClipboard } from "@mshafiqyajid/react-copy-button";
 
 function MyButton() {
   const { copy, copied } = useCopyToClipboard({ resetAfter: 2000 });

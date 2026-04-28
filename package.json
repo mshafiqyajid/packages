@@ -1,8 +1,8 @@
 {
-  "name": "shafiqyajid-packages",
+  "name": "mshafiqyajid-packages",
   "version": "0.0.0",
   "private": true,
-  "description": "Monorepo for @shafiqyajid/* npm packages.",
+  "description": "Monorepo for @mshafiqyajid/* npm packages.",
   "license": "MIT",
   "author": "Shafiq Yajid",
   "type": "module",
@@ -13,7 +13,7 @@
     "build": "npm run build --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
-    "playground": "npm run playground --workspace=@shafiqyajid/react-copy-button",
+    "playground": "npm run playground --workspace=@mshafiqyajid/react-copy-button",
     "changeset": "changeset",
     "release": "npm run build && changeset publish"
   },

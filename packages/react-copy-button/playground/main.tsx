@@ -297,7 +297,7 @@ function App() {
         </p>
         <div className="hero__install">
           <span className="hero__install-prompt">$</span>
-          <span>npm install @shafiqyajid/react-copy-button</span>
+          <span>npm install @mshafiqyajid/react-copy-button</span>
         </div>
       </header>
 
@@ -488,7 +488,7 @@ function App() {
       <footer className="footer">
         Made by{" "}
         <a href="https://github.com/mshafiqyajid" target="_blank" rel="noreferrer">
-          @shafiqyajid
+          @mshafiqyajid
         </a>
         . MIT licensed.
       </footer>
