@@ -10,8 +10,3 @@ coverage
 .idea
 .vscode/*
 !.vscode/extensions.json
-
-# Private notes for me + AI agents — never publish
-_local-docs/
-.claude/
-
