@@ -260,23 +260,27 @@
     --rsc-ring: rgba(129, 140, 248, 0.5);
   }
 
+  /* Tones keep their saturated palette in dark mode for accessible contrast.
+     White text on saturated indigo/green/red passes WCAG AA across modes. */
   .rsc-track[data-tone="primary"][data-tone][data-variant="pill"],
   .rsc-track[data-tone="primary"][data-tone][data-variant="solid"] {
-    --rsc-bg-indicator: #818cf8;
-    --rsc-fg-active: #0f172a;
-    --rsc-shadow-indicator: 0 4px 14px -2px rgba(129, 140, 248, 0.5);
+    --rsc-bg-indicator: #6366f1;
+    --rsc-fg-active: #ffffff;
+    --rsc-shadow-indicator: 0 4px 14px -2px rgba(99, 102, 241, 0.5);
   }
 
   .rsc-track[data-tone="success"][data-tone][data-variant="pill"],
   .rsc-track[data-tone="success"][data-tone][data-variant="solid"] {
-    --rsc-bg-indicator: #22c55e;
-    --rsc-fg-active: #052e16;
+    --rsc-bg-indicator: #16a34a;
+    --rsc-fg-active: #ffffff;
+    --rsc-shadow-indicator: 0 4px 12px -2px rgba(34, 197, 94, 0.45);
   }
 
   .rsc-track[data-tone="danger"][data-tone][data-variant="pill"],
   .rsc-track[data-tone="danger"][data-tone][data-variant="solid"] {
-    --rsc-bg-indicator: #f87171;
-    --rsc-fg-active: #450a0a;
+    --rsc-bg-indicator: #dc2626;
+    --rsc-fg-active: #ffffff;
+    --rsc-shadow-indicator: 0 4px 12px -2px rgba(239, 68, 68, 0.45);
   }
 }
 
