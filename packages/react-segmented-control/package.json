@@ -1,6 +1,6 @@
 {
   "name": "@mshafiqyajid/react-segmented-control",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Headless segmented-control hook and styled component for React. Buttery sliding indicator, full keyboard nav, themable, SSR-safe, fully typed.",
   "keywords": [
     "react",
