@@ -129,9 +129,13 @@ export function useSegmentedControl<TValue>(
     ready: false,
   });
 
+  // Selected index is the only effect dep we need from `options` — using
+  // `options` directly causes an infinite loop when callers pass inline
+  // array literals (every render mints a new array identity).
+  const selectedIndex = options.findIndex((o) => equals(o.value, value));
+
   // Resize observer: keep indicator measurement in sync with layout changes.
   useIsoLayoutEffect(() => {
-    const selectedIndex = options.findIndex((o) => equals(o.value, value));
     const node = buttonRefs.current[selectedIndex];
     if (!node) return;
 
@@ -140,11 +144,15 @@ export function useSegmentedControl<TValue>(
       if (!parent) return;
       const parentRect = parent.getBoundingClientRect();
       const rect = node.getBoundingClientRect();
-      setIndicator({
-        x: rect.left - parentRect.left,
-        w: rect.width,
-        ready: true,
-      });
+      const x = rect.left - parentRect.left;
+      const w = rect.width;
+      // Bail if values haven't changed — guards against infinite loops if a
+      // parent re-renders constantly with the same layout.
+      setIndicator((prev) =>
+        prev.ready && prev.x === x && prev.w === w
+          ? prev
+          : { x, w, ready: true },
+      );
     };
 
     measure();
@@ -154,7 +162,7 @@ export function useSegmentedControl<TValue>(
     ro.observe(node);
     if (node.offsetParent) ro.observe(node.offsetParent as Element);
     return () => ro.disconnect();
-  }, [options, value, equals]);
+  }, [selectedIndex]);
 
   const setValue = useCallback(
     (next: TValue) => {
