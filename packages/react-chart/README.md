@@ -1,5 +1,7 @@
 # @mshafiqyajid/react-chart
 
+**[Full docs →](https://docs.shafiqyajid.com/react/chart/)**
+
 Lightweight SVG-based line, bar, and pie charts for React. Zero runtime dependencies — pure SVG math.
 
 ## Installation

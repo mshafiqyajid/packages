@@ -1,5 +1,7 @@
 # @mshafiqyajid/react-color-input
 
+**[Full docs →](https://docs.shafiqyajid.com/react/color-input/)**
+
 A headless color input hook and styled component for React. Provides a text input combined with a color swatch that opens a popover picker — hue slider, gradient canvas, hex input, and preset swatches.
 
 ## Installation
