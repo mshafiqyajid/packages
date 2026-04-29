@@ -172,3 +172,29 @@ const packages = [
   .sidebar__link--active .sidebar__version { color: var(--accent); opacity: 0.7; }
   @media (max-width: 768px) { .sidebar { display: none; } }
 </style>
+
+<script is:inline>
+  (function () {
+    const KEY = "sidebar-scroll";
+    const el = document.getElementById("sidebar");
+    if (!el) return;
+
+    // Restore saved position, or scroll active link into view
+    const saved = sessionStorage.getItem(KEY);
+    if (saved) {
+      el.scrollTop = parseInt(saved, 10);
+    } else {
+      const active = el.querySelector(".sidebar__link--active");
+      if (active) active.scrollIntoView({ block: "nearest" });
+    }
+
+    // Save on scroll (debounced)
+    let t;
+    el.addEventListener("scroll", function () {
+      clearTimeout(t);
+      t = setTimeout(function () {
+        sessionStorage.setItem(KEY, el.scrollTop);
+      }, 100);
+    }, { passive: true });
+  })();
+</script>
