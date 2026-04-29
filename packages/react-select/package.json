@@ -1,6 +1,6 @@
 {
   "name": "@mshafiqyajid/react-select",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Headless select hook and styled dropdown component for React. Accessible, keyboard-friendly, multi-select, searchable, portalled, fully typed.",
   "keywords": [
     "react",
