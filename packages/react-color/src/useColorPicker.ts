@@ -30,7 +30,7 @@ export interface UseColorPickerResult {
   setHsva: (next: HsvaColor) => void;
   /** Props for the saturation-brightness 2D field. */
   saturationFieldProps: {
-    ref: RefObject<HTMLDivElement | null>;
+    ref: RefObject<HTMLDivElement>;
     style: CSSProperties;
     onPointerDown: (e: PointerEvent<HTMLDivElement>) => void;
   };
@@ -38,14 +38,14 @@ export interface UseColorPickerResult {
   sbPosition: { left: number; top: number };
   /** Props for the hue slider (horizontal). */
   hueSliderProps: {
-    ref: RefObject<HTMLDivElement | null>;
+    ref: RefObject<HTMLDivElement>;
     onPointerDown: (e: PointerEvent<HTMLDivElement>) => void;
   };
   /** Hue position as % (0-100). */
   huePosition: number;
   /** Props for the alpha slider (horizontal). */
   alphaSliderProps: {
-    ref: RefObject<HTMLDivElement | null>;
+    ref: RefObject<HTMLDivElement>;
     onPointerDown: (e: PointerEvent<HTMLDivElement>) => void;
   };
   /** Alpha position as % (0-100). */
@@ -92,7 +92,7 @@ export function useColorPicker(options: UseColorPickerOptions = {}): UseColorPic
   const setHsva = useCallback((next: HsvaColor) => commit(next), [commit]);
 
   // Saturation-Brightness 2D field
-  const sbRef = useRef<HTMLDivElement | null>(null);
+  const sbRef = useRef<HTMLDivElement>(null);
 
   const handleSbPointerDown = useCallback(
     (e: PointerEvent<HTMLDivElement>) => {
@@ -119,7 +119,7 @@ export function useColorPicker(options: UseColorPickerOptions = {}): UseColorPic
   );
 
   // Hue slider
-  const hueRef = useRef<HTMLDivElement | null>(null);
+  const hueRef = useRef<HTMLDivElement>(null);
 
   const handleHuePointerDown = useCallback(
     (e: PointerEvent<HTMLDivElement>) => {
@@ -144,7 +144,7 @@ export function useColorPicker(options: UseColorPickerOptions = {}): UseColorPic
   );
 
   // Alpha slider
-  const alphaRef = useRef<HTMLDivElement | null>(null);
+  const alphaRef = useRef<HTMLDivElement>(null);
 
   const handleAlphaPointerDown = useCallback(
     (e: PointerEvent<HTMLDivElement>) => {
