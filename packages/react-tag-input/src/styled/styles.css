@@ -115,17 +115,20 @@
   gap: 0.5rem;
 }
 
-/* Tone border-focus */
+/* Tone border — resting + focus */
+.rti-wrapper[data-tone="primary"] { border-color: #6366f1; }
 .rti-wrapper[data-tone="primary"]:focus-within {
   border-color: #6366f1;
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.18);
 }
 
+.rti-wrapper[data-tone="success"] { border-color: #16a34a; }
 .rti-wrapper[data-tone="success"]:focus-within {
   border-color: #16a34a;
   box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.18);
 }
 
+.rti-wrapper[data-tone="danger"] { border-color: #dc2626; }
 .rti-wrapper[data-tone="danger"]:focus-within,
 .rti-wrapper[data-error="true"]:focus-within {
   border-color: #dc2626;

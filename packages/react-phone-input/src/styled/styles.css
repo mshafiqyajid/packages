@@ -82,12 +82,14 @@
   background: var(--rphi-selector-bg);
 }
 
-/* Tone overrides on focus */
-.rphi-root[data-tone="primary"][data-tone] .rphi-field:focus-within {
+/* Tone overrides */
+.rphi-root[data-tone="primary"][data-tone] .rphi-field {
+  --rphi-border: #6366f1;
   --rphi-border-focus: #6366f1;
 }
 
-.rphi-root[data-tone="success"][data-tone] .rphi-field:focus-within {
+.rphi-root[data-tone="success"][data-tone] .rphi-field {
+  --rphi-border: #16a34a;
   --rphi-border-focus: #16a34a;
   box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.15);
 }
@@ -298,7 +300,13 @@
   --rphi-error-fg: #f87171;
 }
 
-[data-theme="dark"] .rphi-root[data-tone="success"][data-tone] .rphi-field:focus-within {
+[data-theme="dark"] .rphi-root[data-tone="primary"][data-tone] .rphi-field {
+  --rphi-border: #818cf8;
+  --rphi-border-focus: #818cf8;
+}
+
+[data-theme="dark"] .rphi-root[data-tone="success"][data-tone] .rphi-field {
+  --rphi-border: #4ade80;
   --rphi-border-focus: #4ade80;
   box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.15);
 }

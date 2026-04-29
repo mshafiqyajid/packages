@@ -190,12 +190,14 @@
 /* ============================================================================
  * Tones — doubled attribute specificity to beat theme selectors
  * ========================================================================== */
-.rni-root[data-tone="primary"][data-tone] .rni-control:focus-within {
+.rni-root[data-tone="primary"][data-tone] .rni-control {
+  --rni-border: #6366f1;
   --rni-border-focus: #6366f1;
   --rni-shadow-focus: 0 0 0 3px rgba(99, 102, 241, 0.18);
 }
 
-.rni-root[data-tone="success"][data-tone] .rni-control:focus-within {
+.rni-root[data-tone="success"][data-tone] .rni-control {
+  --rni-border: #16a34a;
   --rni-border-focus: #16a34a;
   --rni-shadow-focus: 0 0 0 3px rgba(22, 163, 74, 0.18);
 }
@@ -269,12 +271,14 @@
   --rni-error-shadow: 0 0 0 3px rgba(248, 113, 113, 0.22);
 }
 
-[data-theme="dark"] .rni-root[data-tone="primary"][data-tone] .rni-control:focus-within {
+[data-theme="dark"] .rni-root[data-tone="primary"][data-tone] .rni-control {
+  --rni-border: #818cf8;
   --rni-border-focus: #818cf8;
   --rni-shadow-focus: 0 0 0 3px rgba(129, 140, 248, 0.22);
 }
 
-[data-theme="dark"] .rni-root[data-tone="success"][data-tone] .rni-control:focus-within {
+[data-theme="dark"] .rni-root[data-tone="success"][data-tone] .rni-control {
+  --rni-border: #4ade80;
   --rni-border-focus: #4ade80;
   --rni-shadow-focus: 0 0 0 3px rgba(74, 222, 128, 0.22);
 }

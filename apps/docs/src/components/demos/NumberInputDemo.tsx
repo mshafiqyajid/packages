@@ -12,7 +12,7 @@ function NumberInputWrapper({ size, tone, format, disabled, showStepper }: { siz
       size={size as "sm" | "md" | "lg"}
       tone={tone as "neutral" | "primary" | "success" | "danger"}
       format={format as "decimal" | "currency" | "percent"}
-      prefix="RM"
+      currency={format === "currency" ? "MYR" : undefined}
       showStepper={showStepper}
       label="Amount"
       style={{ width: "100%", maxWidth: 280 } as React.CSSProperties}
