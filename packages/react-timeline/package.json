@@ -1,6 +1,6 @@
 {
   "name": "@mshafiqyajid/react-timeline",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Headless timeline hook and styled component for React. Vertical/horizontal event list with connectors, status indicators, and full TypeScript support.",
   "keywords": [
     "react",
