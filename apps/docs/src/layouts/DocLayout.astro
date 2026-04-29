@@ -71,29 +71,28 @@ const editPath = pkg
       .main {
         flex: 1;
         min-width: 0;
-        padding: 2.5rem 2rem 4rem;
-        max-width: 800px;
+        padding: 2.5rem 2.5rem 5rem;
+        max-width: 820px;
       }
-      @media (max-width: 768px) {
-        .main { padding: 1.5rem 1rem 3rem; }
-      }
+      @media (max-width: 900px) { .main { padding: 2rem 1.5rem 4rem; } }
+      @media (max-width: 640px) { .main { padding: 1.5rem 1rem 3rem; } }
       .edit-page {
         display: inline-flex;
         align-items: center;
         gap: 0.4rem;
-        margin-top: 3rem;
-        padding: 0.4rem 0.75rem;
-        font-size: 0.82rem;
-        color: var(--fg-muted);
-        background: var(--bg-subtle);
+        margin-top: 3.5rem;
+        padding: 0.35rem 0.7rem;
+        font-size: 0.78rem;
+        color: var(--fg-subtle);
+        background: transparent;
         border: 1px solid var(--border);
         border-radius: var(--radius);
         text-decoration: none;
-        transition: color 140ms, border-color 140ms;
+        transition: color 140ms ease, border-color 140ms ease;
       }
       .edit-page:hover {
         color: var(--accent);
-        border-color: var(--accent);
+        border-color: color-mix(in srgb, var(--accent) 50%, transparent);
         text-decoration: none;
       }
     </style>
