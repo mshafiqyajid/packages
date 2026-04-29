@@ -1,0 +1,84 @@
+{
+  "name": "@mshafiqyajid/react-modal",
+  "version": "0.0.0",
+  "description": "Headless modal hook and styled component for React. Accessible, focus-trapped, scroll-locked, animated, SSR-safe, fully typed.",
+  "keywords": [
+    "react",
+    "modal",
+    "dialog",
+    "drawer",
+    "accessible",
+    "headless",
+    "hook",
+    "typescript"
+  ],
+  "license": "MIT",
+  "author": "Shafiq Yajid",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mshafiqyajid/packages.git",
+    "directory": "packages/react-modal"
+  },
+  "bugs": {
+    "url": "https://github.com/mshafiqyajid/packages/issues"
+  },
+  "homepage": "https://docs.shafiqyajid.com/react/modal/",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./styled": {
+      "types": "./dist/styled.d.ts",
+      "import": "./dist/styled.js",
+      "require": "./dist/styled.cjs"
+    },
+    "./styles.css": "./dist/styles.css",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
+  },
+  "peerDependencies": {
+    "react": ">=17.0.0"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.4.0",
+    "@testing-library/react": "^16.0.0",
+    "@testing-library/user-event": "^14.5.0",
+    "@types/node": "^22.0.0",
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.0",
+    "jsdom": "^25.0.0",
+    "react": "^18.3.0",
+    "react-dom": "^18.3.0",
+    "tsup": "^8.3.0",
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

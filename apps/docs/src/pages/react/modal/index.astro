@@ -1,0 +1,97 @@
+---
+import DocLayout from "~/layouts/DocLayout.astro";
+import PackagePageShell from "~/components/PackagePageShell.astro";
+import H2 from "~/components/H2.astro";
+import CodeBlock from "~/components/CodeBlock.astro";
+import ModalDemo from "~/components/demos/ModalDemo";
+---
+
+<DocLayout title="react-modal" description="Accessible modal dialog and drawer with focus trap, scroll lock, and smooth animations." pkg="modal">
+  <PackagePageShell name="react-modal" version="0.1.0" description="Headless modal hook and styled dialog/drawer for React. Focus trap, scroll lock, Escape to close, four drawer positions, four sizes, smooth enter/exit animations, ARIA-compliant." size="~11 KB">
+
+    <div class="pkg-section">
+      <H2>Playground</H2>
+      <ModalDemo client:load />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Install</H2>
+      <CodeBlock lang="bash" code="npm install @mshafiqyajid/react-modal" />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Quick start</H2>
+      <CodeBlock lang="tsx" code={`import { ModalStyled } from "@mshafiqyajid/react-modal/styled";
+import "@mshafiqyajid/react-modal/styles.css";
+
+const [open, setOpen] = useState(false);
+
+<button onClick={() => setOpen(true)}>Open</button>
+
+<ModalStyled
+  isOpen={open}
+  onClose={() => setOpen(false)}
+  title="Confirm action"
+  footer={
+    <>
+      <button onClick={() => setOpen(false)}>Cancel</button>
+      <button onClick={() => setOpen(false)}>Confirm</button>
+    </>
+  }
+>
+  <p>Are you sure you want to proceed?</p>
+</ModalStyled>`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Drawer variants</H2>
+      <CodeBlock lang="tsx" code={`<ModalStyled variant="drawer-right" title="Settings" isOpen={open} onClose={close}>
+  <p>Drawer content</p>
+</ModalStyled>
+
+<ModalStyled variant="drawer-bottom" title="Options" isOpen={open} onClose={close}>
+  <p>Bottom sheet content</p>
+</ModalStyled>`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Headless</H2>
+      <CodeBlock lang="tsx" code={`import { useModal } from "@mshafiqyajid/react-modal";
+
+const { isOpen, open, close, modalProps, overlayProps } = useModal();
+
+<button onClick={open}>Open</button>
+
+{isOpen && (
+  <div {...overlayProps}>
+    <div {...modalProps} role="dialog" aria-modal="true">
+      <button onClick={close}>Close</button>
+      Content
+    </div>
+  </div>
+)}`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>API</H2>
+      <table class="props-table">
+        <thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>isOpen</td><td>boolean</td><td>—</td><td>Controls visibility</td></tr>
+          <tr><td>onClose</td><td>() =&gt; void</td><td>—</td><td>Called when modal requests close</td></tr>
+          <tr><td>title</td><td>ReactNode</td><td>—</td><td>Header title — omit to hide header entirely</td></tr>
+          <tr><td>footer</td><td>ReactNode</td><td>—</td><td>Footer content — omit to hide footer</td></tr>
+          <tr><td>size</td><td>"sm" | "md" | "lg" | "full"</td><td>"md"</td><td>Dialog width / drawer width</td></tr>
+          <tr><td>variant</td><td>"dialog" | "drawer-left" | "drawer-right" | "drawer-bottom"</td><td>"dialog"</td><td>Layout variant</td></tr>
+          <tr><td>blur</td><td>"none" | "sm" | "md" | "lg"</td><td>"md"</td><td>Backdrop blur intensity</td></tr>
+          <tr><td>padding</td><td>"none" | "sm" | "md" | "lg"</td><td>"md"</td><td>Body padding</td></tr>
+          <tr><td>scrollable</td><td>boolean</td><td>true</td><td>Allow body to scroll when content overflows</td></tr>
+          <tr><td>overlayColor</td><td>string</td><td>—</td><td>Custom backdrop color e.g. <code>"rgba(0,0,0,0.6)"</code></td></tr>
+          <tr><td>closeOnOverlayClick</td><td>boolean</td><td>true</td><td>Close when clicking the backdrop</td></tr>
+          <tr><td>closeOnEsc</td><td>boolean</td><td>true</td><td>Close on Escape key</td></tr>
+          <tr><td>showCloseButton</td><td>boolean</td><td>true</td><td>Show the × button in the header</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </PackagePageShell>
+</DocLayout>

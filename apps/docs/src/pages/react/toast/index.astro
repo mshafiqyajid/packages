@@ -1,0 +1,117 @@
+---
+import DocLayout from "~/layouts/DocLayout.astro";
+import PackagePageShell from "~/components/PackagePageShell.astro";
+import H2 from "~/components/H2.astro";
+import CodeBlock from "~/components/CodeBlock.astro";
+import ToastDemo from "~/components/demos/ToastDemo";
+---
+
+<DocLayout title="react-toast" description="Toast notifications with queue, positions, type variants, progress bar, and animated entry/exit." pkg="toast">
+  <PackagePageShell name="react-toast" version="0.1.0" description="Toast notification system for React. Singleton store — no context wrapping needed. Six positions, five types, progress bar, animated entry/exit, auto-dismiss, max queue cap." size="~10 KB">
+
+    <div class="pkg-section">
+      <H2>Playground</H2>
+      <ToastDemo client:load />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Install</H2>
+      <CodeBlock lang="bash" code="npm install @mshafiqyajid/react-toast" />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Quick start</H2>
+      <CodeBlock lang="tsx" code={`// 1. Add ToastProvider once in your app root
+import { ToastProvider } from "@mshafiqyajid/react-toast/styled";
+import "@mshafiqyajid/react-toast/styles.css";
+
+export default function App() {
+  return (
+    <>
+      <ToastProvider position="bottom-right" />
+      {/* rest of your app */}
+    </>
+  );
+}
+
+// 2. Call toast() anywhere in your app
+import { useToast } from "@mshafiqyajid/react-toast";
+
+function SaveButton() {
+  const { toast } = useToast();
+  return (
+    <button onClick={() => toast.success("Saved!")}>Save</button>
+  );
+}`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Toast types</H2>
+      <CodeBlock lang="tsx" code={`const { toast } = useToast();
+
+toast("Neutral message");
+toast.success("Saved successfully!");
+toast.error("Something went wrong.");
+toast.warning("Check your input.");
+toast.info("New update available.");`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Title</H2>
+      <p>Add a bold title above the message with the <code>title</code> option.</p>
+      <CodeBlock lang="tsx" code={`toast.success("Your file has been uploaded.", { title: "Upload complete" });
+toast.error("Please check your connection.", { title: "Request failed" });`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Action button</H2>
+      <p>Add an inline action button with the <code>action</code> option. Clicking it dismisses the toast automatically.</p>
+      <CodeBlock lang="tsx" code={`toast("File moved to trash.", {
+  action: {
+    label: "Undo",
+    onClick: () => restoreFile(),
+  },
+});`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Custom duration</H2>
+      <CodeBlock lang="tsx" code={`toast.success("Quick!", { duration: 2000 });
+toast.error("Persistent error", { duration: Infinity });`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Dismiss</H2>
+      <CodeBlock lang="tsx" code={`const { toast, dismiss, dismissAll } = useToast();
+const id = toast.info("Loading…");
+// later:
+dismiss(id);
+dismissAll();`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>API — ToastProvider</H2>
+      <table class="props-table">
+        <thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>position</td><td>"top-left" | "top-center" | "top-right" | "bottom-left" | "bottom-center" | "bottom-right"</td><td>"bottom-right"</td><td>Where toasts appear</td></tr>
+          <tr><td>maxToasts</td><td>number</td><td>5</td><td>Max toasts shown at once</td></tr>
+          <tr><td>duration</td><td>number</td><td>4000</td><td>Default auto-dismiss duration in ms</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pkg-section">
+      <H2>API — toast() options</H2>
+      <table class="props-table">
+        <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>type</td><td>"neutral" | "success" | "error" | "warning" | "info"</td><td>"neutral"</td><td>Toast type (sets colour and icon)</td></tr>
+          <tr><td>title</td><td>string</td><td>—</td><td>Bold title shown above the message</td></tr>
+          <tr><td>duration</td><td>number</td><td>4000</td><td>Auto-dismiss delay in ms. Use <code>Infinity</code> to persist</td></tr>
+          <tr><td>action</td><td>{`{ label: string; onClick: () => void }`}</td><td>—</td><td>Inline action button inside the toast</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </PackagePageShell>
+</DocLayout>

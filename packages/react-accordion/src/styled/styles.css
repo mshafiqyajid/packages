@@ -1,0 +1,220 @@
+/* ============================================================================
+ * react-accordion — styled component
+ *
+ * Height animation uses the CSS grid-template-rows trick:
+ *   grid-template-rows: 0fr  →  1fr
+ * giving a smooth expand/collapse without JavaScript height measurements.
+ *
+ * Dark mode via [data-theme="dark"] ancestor or
+ * [data-racc-theme="dark"] on any ancestor.
+ * ========================================================================== */
+
+/* ============================================================================
+ * CSS variables (light defaults)
+ * ========================================================================== */
+.racc-root {
+  --racc-bg: #ffffff;
+  --racc-border: #e4e4e7;
+  --racc-trigger-bg: #ffffff;
+  --racc-trigger-bg-hover: #f4f4f5;
+  --racc-trigger-bg-open: #f4f4f5;
+  --racc-trigger-fg: #18181b;
+  --racc-trigger-fg-muted: #71717a;
+  --racc-panel-bg: #ffffff;
+  --racc-panel-fg: #3f3f46;
+  --racc-focus-ring: #6366f1;
+  --racc-radius: 8px;
+  --racc-duration: 220ms;
+  --racc-ease: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --racc-trigger-px: 1rem;
+  --racc-trigger-py: 0.875rem;
+  --racc-trigger-font-size: 0.9375rem;
+  --racc-trigger-font-weight: 500;
+  --racc-panel-px: 1rem;
+  --racc-panel-py: 0.875rem;
+  --racc-panel-font-size: 0.9375rem;
+
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--racc-border);
+  border-radius: var(--racc-radius);
+  background: var(--racc-bg);
+  overflow: hidden;
+  font-family: inherit;
+}
+
+/* ============================================================================
+ * Item
+ * ========================================================================== */
+.racc-item {
+  border-bottom: 1px solid var(--racc-border);
+}
+
+.racc-item:last-child {
+  border-bottom: none;
+}
+
+/* ============================================================================
+ * Trigger (button)
+ * ========================================================================== */
+.racc-trigger {
+  all: unset;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: var(--racc-trigger-py) var(--racc-trigger-px);
+  background: var(--racc-trigger-bg);
+  color: var(--racc-trigger-fg);
+  font-size: var(--racc-trigger-font-size);
+  font-weight: var(--racc-trigger-font-weight);
+  line-height: 1.4;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition:
+    background-color var(--racc-duration) var(--racc-ease),
+    color var(--racc-duration) var(--racc-ease);
+}
+
+.racc-trigger:hover {
+  background: var(--racc-trigger-bg-hover);
+}
+
+.racc-item[data-open="true"] .racc-trigger {
+  background: var(--racc-trigger-bg-open);
+}
+
+.racc-trigger:focus-visible {
+  outline: 2px solid var(--racc-focus-ring);
+  outline-offset: -2px;
+}
+
+.racc-trigger-text {
+  flex: 1;
+  text-align: left;
+}
+
+/* ============================================================================
+ * Chevron icon
+ * ========================================================================== */
+.racc-chevron {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-left: 0.5rem;
+  color: var(--racc-trigger-fg-muted);
+  transition: transform var(--racc-duration) var(--racc-ease);
+}
+
+.racc-item[data-open="true"] .racc-chevron {
+  transform: rotate(180deg);
+}
+
+/* ============================================================================
+ * Panel — grid-template-rows animation
+ * ========================================================================== */
+.racc-panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--racc-duration) var(--racc-ease);
+  background: var(--racc-panel-bg);
+}
+
+.racc-panel[data-open="true"] {
+  grid-template-rows: 1fr;
+}
+
+.racc-panel-inner {
+  overflow: hidden;
+  color: var(--racc-panel-fg);
+  font-size: var(--racc-panel-font-size);
+  line-height: 1.6;
+}
+
+.racc-panel[data-open="true"] .racc-panel-inner {
+  padding: var(--racc-panel-py) var(--racc-panel-px);
+  padding-top: 0;
+}
+
+/* ============================================================================
+ * Sizes
+ * ========================================================================== */
+.racc-root[data-size="sm"] {
+  --racc-trigger-px: 0.75rem;
+  --racc-trigger-py: 0.625rem;
+  --racc-trigger-font-size: 0.8125rem;
+  --racc-panel-px: 0.75rem;
+  --racc-panel-py: 0.625rem;
+  --racc-panel-font-size: 0.8125rem;
+  --racc-radius: 6px;
+}
+
+.racc-root[data-size="lg"] {
+  --racc-trigger-px: 1.25rem;
+  --racc-trigger-py: 1.125rem;
+  --racc-trigger-font-size: 1.0625rem;
+  --racc-panel-px: 1.25rem;
+  --racc-panel-py: 1.125rem;
+  --racc-panel-font-size: 1.0625rem;
+  --racc-radius: 10px;
+}
+
+/* ============================================================================
+ * Tones — doubled selector for theme-override resilience
+ * ========================================================================== */
+.racc-root[data-tone="primary"][data-tone] {
+  --racc-border: #c7d2fe;
+  --racc-trigger-bg-open: #eef2ff;
+  --racc-trigger-bg-hover: #eef2ff;
+  --racc-focus-ring: #6366f1;
+  --racc-trigger-fg: #3730a3;
+}
+
+/* ============================================================================
+ * No-animation mode
+ * ========================================================================== */
+.racc-root:not([data-animated="true"]) .racc-panel,
+.racc-root:not([data-animated="true"]) .racc-trigger,
+.racc-root:not([data-animated="true"]) .racc-chevron {
+  transition: none;
+}
+
+/* ============================================================================
+ * Dark mode (explicit override — set data-racc-theme="dark" on a wrapper,
+ * or rely on the page root having data-theme="dark")
+ * ========================================================================== */
+[data-theme="dark"] .racc-root,
+[data-racc-theme="dark"] .racc-root {
+  --racc-bg: #18181b;
+  --racc-border: #3f3f46;
+  --racc-trigger-bg: #18181b;
+  --racc-trigger-bg-hover: #27272a;
+  --racc-trigger-bg-open: #27272a;
+  --racc-trigger-fg: #fafafa;
+  --racc-trigger-fg-muted: #a1a1aa;
+  --racc-panel-bg: #18181b;
+  --racc-panel-fg: #d4d4d8;
+  --racc-focus-ring: #818cf8;
+}
+
+[data-theme="dark"] .racc-root[data-tone="primary"][data-tone],
+[data-racc-theme="dark"] .racc-root[data-tone="primary"][data-tone] {
+  --racc-border: #3730a3;
+  --racc-trigger-bg-open: #1e1b4b;
+  --racc-trigger-bg-hover: #1e1b4b;
+  --racc-trigger-fg: #c7d2fe;
+  --racc-focus-ring: #818cf8;
+}
+
+/* ============================================================================
+ * Reduced motion
+ * ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .racc-panel,
+  .racc-trigger,
+  .racc-chevron {
+    transition-duration: 0ms !important;
+  }
+}

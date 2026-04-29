@@ -1,0 +1,89 @@
+---
+import DocLayout from "~/layouts/DocLayout.astro";
+import PackagePageShell from "~/components/PackagePageShell.astro";
+import H2 from "~/components/H2.astro";
+import CodeBlock from "~/components/CodeBlock.astro";
+import TabsDemo from "~/components/demos/TabsDemo";
+---
+
+<DocLayout title="react-tabs" description="Accessible tabs with sliding indicator, three variants, controlled and uncontrolled modes." pkg="tabs">
+  <PackagePageShell name="react-tabs" version="0.1.0" description="Headless tabs hook and styled component for React. Line, solid, and pill variants with a ResizeObserver-driven sliding indicator. Controlled and uncontrolled, full keyboard navigation, ARIA-compliant." size="~9 KB">
+
+    <div class="pkg-section">
+      <H2>Playground</H2>
+      <TabsDemo client:load />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Install</H2>
+      <CodeBlock lang="bash" code="npm install @mshafiqyajid/react-tabs" />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Quick start</H2>
+      <CodeBlock lang="tsx" code={`import { TabsStyled } from "@mshafiqyajid/react-tabs/styled";
+import "@mshafiqyajid/react-tabs/styles.css";
+
+const tabs = [
+  { value: "overview", label: "Overview", content: <p>Overview</p> },
+  { value: "features", label: "Features", content: <p>Features</p> },
+];
+
+<TabsStyled tabs={tabs} defaultValue="overview" />`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Controlled</H2>
+      <CodeBlock lang="tsx" code={`const [tab, setTab] = useState("overview");
+<TabsStyled tabs={tabs} value={tab} onChange={setTab} />`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Variants</H2>
+      <CodeBlock lang="tsx" code={`<TabsStyled tabs={tabs} variant="line" />   {/* default */}
+<TabsStyled tabs={tabs} variant="solid" />
+<TabsStyled tabs={tabs} variant="pill" />`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Disabled tab</H2>
+      <CodeBlock lang="tsx" code={`const tabs = [
+  { value: "a", label: "Active",   content: <p>A</p> },
+  { value: "b", label: "Disabled", content: <p>B</p>, disabled: true },
+];`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Headless</H2>
+      <CodeBlock lang="tsx" code={`import { useTabs } from "@mshafiqyajid/react-tabs";
+
+const { activeValue, getTabProps, getPanelProps } = useTabs({
+  tabs: [{ value: "a" }, { value: "b" }],
+  defaultValue: "a",
+});
+
+<div role="tablist">
+  <button {...getTabProps("a")}>Tab A</button>
+  <button {...getTabProps("b")}>Tab B</button>
+</div>
+<div {...getPanelProps("a")}>Content A</div>
+<div {...getPanelProps("b")}>Content B</div>`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>API</H2>
+      <table class="props-table">
+        <thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>tabs</td><td>TabItem[]</td><td>—</td><td>Array of {`{ value, label, content, disabled? }`}</td></tr>
+          <tr><td>variant</td><td>"line" | "solid" | "pill"</td><td>"line"</td><td>Visual style</td></tr>
+          <tr><td>size</td><td>"sm" | "md" | "lg"</td><td>"md"</td><td>Size variant</td></tr>
+          <tr><td>tone</td><td>"neutral" | "primary"</td><td>"neutral"</td><td>Color tone</td></tr>
+          <tr><td>defaultValue</td><td>string</td><td>first enabled</td><td>Initially active tab (uncontrolled)</td></tr>
+          <tr><td>value</td><td>string</td><td>—</td><td>Controlled active tab</td></tr>
+          <tr><td>onChange</td><td>(value: string) =&gt; void</td><td>—</td><td>Called when active tab changes</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </PackagePageShell>
+</DocLayout>

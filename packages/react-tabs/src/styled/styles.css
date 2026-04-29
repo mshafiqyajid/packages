@@ -1,0 +1,298 @@
+/* ============================================================================
+ * react-tabs — styled component
+ *
+ * Themable via CSS variables. The sliding indicator uses
+ * --rtab-indicator-x / --rtab-indicator-width set by the hook on the tablist.
+ * ========================================================================== */
+
+.rtab-root {
+  --rtab-fg: #18181b;
+  --rtab-fg-muted: #71717a;
+  --rtab-fg-active: #18181b;
+  --rtab-fg-inactive: #52525b;
+  --rtab-bg-tab-active: transparent;
+  --rtab-bg-indicator: #18181b;
+  --rtab-border-list: #e4e4e7;
+  --rtab-ring: rgba(99, 102, 241, 0.4);
+
+  --rtab-font-size: 0.875rem;
+  --rtab-font-weight: 500;
+  --rtab-tab-padding-y: 0.5rem;
+  --rtab-tab-padding-x: 1rem;
+
+  --rtab-duration: 300ms;
+  --rtab-duration-fast: 160ms;
+  --rtab-ease: cubic-bezier(0.32, 0.72, 0, 1);
+  --rtab-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  display: flex;
+  flex-direction: column;
+  font-family: inherit;
+  color: var(--rtab-fg);
+}
+
+/* ============================================================================
+ * Tab list
+ * ========================================================================== */
+.rtab-list {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  isolation: isolate;
+}
+
+/* ============================================================================
+ * Sliding indicator
+ * ========================================================================== */
+.rtab-indicator {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 0;
+  width: var(--rtab-indicator-width, 0px);
+  transform: translateX(var(--rtab-indicator-x, 0px));
+  transition:
+    transform var(--rtab-duration) var(--rtab-ease-spring),
+    width var(--rtab-duration) var(--rtab-ease-spring),
+    background-color var(--rtab-duration-fast) var(--rtab-ease);
+}
+
+/* Hide indicator on first paint — before the layout effect measures. */
+.rtab-list:not([style*="--rtab-indicator-ready: 1"]) .rtab-indicator {
+  opacity: 0;
+}
+
+/* ============================================================================
+ * Tab buttons
+ * ========================================================================== */
+.rtab-tab {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  padding: var(--rtab-tab-padding-y) var(--rtab-tab-padding-x);
+  font: inherit;
+  font-size: var(--rtab-font-size);
+  font-weight: var(--rtab-font-weight);
+  line-height: 1.2;
+  color: var(--rtab-fg-inactive);
+  cursor: pointer;
+  white-space: nowrap;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+  transition:
+    color var(--rtab-duration-fast) var(--rtab-ease),
+    background-color var(--rtab-duration-fast) var(--rtab-ease);
+}
+
+.rtab-tab[aria-selected="true"] {
+  color: var(--rtab-fg-active);
+  background: var(--rtab-bg-tab-active);
+}
+
+.rtab-tab:hover:not(:disabled):not([aria-selected="true"]) {
+  color: var(--rtab-fg);
+}
+
+.rtab-tab:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.rtab-tab:focus-visible {
+  box-shadow: 0 0 0 2px var(--rtab-ring);
+  border-radius: 4px;
+}
+
+/* ============================================================================
+ * Tab panels
+ * ========================================================================== */
+.rtab-panels {
+  flex: 1;
+}
+
+.rtab-panel {
+  outline: none;
+}
+
+.rtab-panel[hidden] {
+  display: none;
+}
+
+/* ============================================================================
+ * Variant — line (default)
+ * ========================================================================== */
+.rtab-list[data-variant="line"] {
+  border-bottom: 1px solid var(--rtab-border-list);
+}
+
+.rtab-list[data-variant="line"] .rtab-tab {
+  border-radius: 0;
+  padding-bottom: calc(var(--rtab-tab-padding-y) + 2px);
+}
+
+.rtab-list[data-variant="line"] .rtab-indicator {
+  height: 2px;
+  background: var(--rtab-bg-indicator);
+  border-radius: 2px 2px 0 0;
+  bottom: -1px;
+}
+
+/* ============================================================================
+ * Variant — solid
+ * ========================================================================== */
+.rtab-list[data-variant="solid"] {
+  background: #f4f4f5;
+  border-radius: 8px;
+  padding: 3px;
+  gap: 2px;
+}
+
+.rtab-list[data-variant="solid"] .rtab-tab {
+  border-radius: 6px;
+}
+
+.rtab-list[data-variant="solid"] .rtab-tab[aria-selected="true"] {
+  color: var(--rtab-fg-active);
+}
+
+.rtab-list[data-variant="solid"] .rtab-indicator {
+  top: 3px;
+  bottom: 3px;
+  height: auto;
+  background: #ffffff;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+/* ============================================================================
+ * Variant — pill
+ * ========================================================================== */
+.rtab-list[data-variant="pill"] {
+  background: #f4f4f5;
+  border-radius: 999px;
+  padding: 3px;
+  gap: 2px;
+}
+
+.rtab-list[data-variant="pill"] .rtab-tab {
+  border-radius: 999px;
+}
+
+.rtab-list[data-variant="pill"] .rtab-tab[aria-selected="true"] {
+  color: var(--rtab-fg-active);
+}
+
+.rtab-list[data-variant="pill"] .rtab-indicator {
+  top: 3px;
+  bottom: 3px;
+  height: auto;
+  background: #ffffff;
+  border-radius: 999px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+/* ============================================================================
+ * Sizes
+ * ========================================================================== */
+.rtab-list[data-size="sm"] {
+  --rtab-tab-padding-y: 0.3rem;
+  --rtab-tab-padding-x: 0.75rem;
+  --rtab-font-size: 0.8rem;
+}
+
+.rtab-list[data-size="lg"] {
+  --rtab-tab-padding-y: 0.65rem;
+  --rtab-tab-padding-x: 1.25rem;
+  --rtab-font-size: 0.95rem;
+}
+
+/* ============================================================================
+ * Tones — doubled selector for theme-override resilience
+ * ========================================================================== */
+.rtab-list[data-tone="primary"][data-tone] {
+  --rtab-bg-indicator: #6366f1;
+  --rtab-ring: rgba(99, 102, 241, 0.4);
+}
+
+.rtab-list[data-tone="primary"][data-tone][data-variant="solid"] .rtab-indicator,
+.rtab-list[data-tone="primary"][data-tone][data-variant="pill"] .rtab-indicator {
+  background: #6366f1;
+  box-shadow: 0 4px 12px -2px rgba(99, 102, 241, 0.45);
+}
+
+.rtab-list[data-tone="primary"][data-tone][data-variant="solid"] .rtab-tab[aria-selected="true"],
+.rtab-list[data-tone="primary"][data-tone][data-variant="pill"] .rtab-tab[aria-selected="true"] {
+  color: #ffffff;
+}
+
+/* ============================================================================
+ * Dark mode (explicit override — set data-rtab-theme="dark" on a wrapper,
+ * or rely on the page root having data-theme="dark")
+ * ========================================================================== */
+
+[data-theme="dark"] .rtab-root,
+[data-rtab-theme="dark"] .rtab-root {
+  --rtab-fg: #fafafa;
+  --rtab-fg-muted: #a1a1aa;
+  --rtab-fg-active: #fafafa;
+  --rtab-fg-inactive: #a1a1aa;
+  --rtab-border-list: #3f3f46;
+  --rtab-bg-indicator: #fafafa;
+  --rtab-ring: rgba(129, 140, 248, 0.5);
+}
+
+[data-theme="dark"] .rtab-list[data-variant="solid"],
+[data-rtab-theme="dark"] .rtab-list[data-variant="solid"],
+[data-theme="dark"] .rtab-list[data-variant="pill"],
+[data-rtab-theme="dark"] .rtab-list[data-variant="pill"] {
+  background: #27272a;
+}
+
+[data-theme="dark"] .rtab-list[data-variant="solid"] .rtab-indicator,
+[data-rtab-theme="dark"] .rtab-list[data-variant="solid"] .rtab-indicator,
+[data-theme="dark"] .rtab-list[data-variant="pill"] .rtab-indicator,
+[data-rtab-theme="dark"] .rtab-list[data-variant="pill"] .rtab-indicator {
+  background: #3f3f46;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5), 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] .rtab-list[data-tone="primary"][data-tone][data-variant="solid"] .rtab-indicator,
+[data-theme="dark"] .rtab-list[data-tone="primary"][data-tone][data-variant="pill"] .rtab-indicator,
+[data-rtab-theme="dark"] .rtab-list[data-tone="primary"][data-tone][data-variant="solid"] .rtab-indicator,
+[data-rtab-theme="dark"] .rtab-list[data-tone="primary"][data-tone][data-variant="pill"] .rtab-indicator {
+  background: #6366f1;
+  box-shadow: 0 4px 14px -2px rgba(99, 102, 241, 0.5);
+}
+
+[data-theme="dark"] .rtab-list[data-tone="primary"][data-tone][data-variant="solid"] .rtab-tab[aria-selected="true"],
+[data-theme="dark"] .rtab-list[data-tone="primary"][data-tone][data-variant="pill"] .rtab-tab[aria-selected="true"],
+[data-rtab-theme="dark"] .rtab-list[data-tone="primary"][data-tone][data-variant="solid"] .rtab-tab[aria-selected="true"],
+[data-rtab-theme="dark"] .rtab-list[data-tone="primary"][data-tone][data-variant="pill"] .rtab-tab[aria-selected="true"] {
+  color: #ffffff;
+}
+
+[data-rtab-theme="light"] .rtab-root {
+  --rtab-fg: #18181b;
+  --rtab-fg-muted: #71717a;
+  --rtab-fg-active: #18181b;
+  --rtab-fg-inactive: #52525b;
+  --rtab-border-list: #e4e4e7;
+  --rtab-bg-indicator: #18181b;
+  --rtab-ring: rgba(99, 102, 241, 0.4);
+}
+
+/* ============================================================================
+ * Reduced motion
+ * ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .rtab-indicator,
+  .rtab-tab {
+    transition-duration: 0ms !important;
+  }
+}

@@ -8,6 +8,11 @@ import {
   RatingPreview,
   ColorPreview,
   TooltipPreview,
+  AccordionPreview,
+  TabsPreview,
+  ToastPreview,
+  SelectPreview,
+  ModalPreview,
 } from "~/components/LandingPreviews";
 
 const packages = [
@@ -60,6 +65,46 @@ const packages = [
     size: "~6 KB",
     tags: ["accessible", "animated", "flip"],
   },
+  {
+    slug: "accordion",
+    name: "react-accordion",
+    desc: "Accessible accordion with single/multiple mode, smooth CSS grid height animation, and full keyboard navigation.",
+    version: "0.1.0",
+    size: "~8 KB",
+    tags: ["animated", "a11y", "keyboard"],
+  },
+  {
+    slug: "tabs",
+    name: "react-tabs",
+    desc: "Accessible tabs with line, solid, and pill variants. Sliding indicator driven by ResizeObserver. Controlled and uncontrolled.",
+    version: "0.1.0",
+    size: "~9 KB",
+    tags: ["animated", "controlled", "a11y"],
+  },
+  {
+    slug: "toast",
+    name: "react-toast",
+    desc: "Toast notifications with singleton store — no context needed. Six positions, five types, progress bar, auto-dismiss.",
+    version: "0.1.0",
+    size: "~10 KB",
+    tags: ["singleton", "animated", "queue"],
+  },
+  {
+    slug: "select",
+    name: "react-select",
+    desc: "Custom select dropdown with single and multi-select, searchable, clearable, chips, and portal positioning.",
+    version: "0.1.0",
+    size: "~12 KB",
+    tags: ["multi", "searchable", "portal"],
+  },
+  {
+    slug: "modal",
+    name: "react-modal",
+    desc: "Modal dialog and drawer with focus trap, scroll lock, Escape to close, and smooth enter/exit animations.",
+    version: "0.1.0",
+    size: "~11 KB",
+    tags: ["focus trap", "drawer", "animated"],
+  },
 ];
 ---
 
@@ -93,7 +138,7 @@ const packages = [
         <div class="hero__inner">
           <div class="hero__eyebrow">
             <span class="hero__dot"></span>
-            6 packages · React · TypeScript · Zero deps
+            11 packages · React · TypeScript · Zero deps
           </div>
           <h1 class="hero__title">
             Tiny, polished<br />
@@ -131,6 +176,11 @@ const packages = [
                   {pkg.slug === "rating" && <RatingPreview client:visible />}
                   {pkg.slug === "color" && <ColorPreview client:visible />}
                   {pkg.slug === "tooltip" && <TooltipPreview client:visible />}
+                  {pkg.slug === "accordion" && <AccordionPreview client:visible />}
+                  {pkg.slug === "tabs" && <TabsPreview client:visible />}
+                  {pkg.slug === "toast" && <ToastPreview client:visible />}
+                  {pkg.slug === "select" && <SelectPreview client:visible />}
+                  {pkg.slug === "modal" && <ModalPreview client:visible />}
                 </div>
                 <div class="pkg-card__body">
                   <div class="pkg-card__header">
@@ -207,6 +257,11 @@ const packages = [
         "react-rating",
         "react-color",
         "react-tooltip",
+        "react-accordion",
+        "react-tabs",
+        "react-toast",
+        "react-select",
+        "react-modal",
       ];
       const el = document.getElementById("hero-install-cmd");
       if (el) {

@@ -1,0 +1,80 @@
+---
+import DocLayout from "~/layouts/DocLayout.astro";
+import PackagePageShell from "~/components/PackagePageShell.astro";
+import H2 from "~/components/H2.astro";
+import CodeBlock from "~/components/CodeBlock.astro";
+import AccordionDemo from "~/components/demos/AccordionDemo";
+---
+
+<DocLayout title="react-accordion" description="Accessible accordion with single/multiple mode, smooth height animation, and full keyboard navigation." pkg="accordion">
+  <PackagePageShell name="react-accordion" version="0.1.0" description="Headless accordion hook and styled component for React. Single or multiple open items, smooth CSS grid height animation, full keyboard navigation, ARIA-compliant." size="~8 KB">
+
+    <div class="pkg-section">
+      <H2>Playground</H2>
+      <AccordionDemo client:load />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Install</H2>
+      <CodeBlock lang="bash" code="npm install @mshafiqyajid/react-accordion" />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Quick start</H2>
+      <CodeBlock lang="tsx" code={`import { AccordionStyled } from "@mshafiqyajid/react-accordion/styled";
+import "@mshafiqyajid/react-accordion/styles.css";
+
+const items = [
+  { title: "What is this?", content: "A headless accordion component." },
+  { title: "Is it accessible?", content: "Yes — full ARIA and keyboard support." },
+];
+
+<AccordionStyled items={items} />`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Multiple mode</H2>
+      <p>By default only one item can be open at a time. Set <code>type="multiple"</code> to allow several open simultaneously.</p>
+      <CodeBlock lang="tsx" code={`<AccordionStyled items={items} type="multiple" />`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Default open</H2>
+      <CodeBlock lang="tsx" code={`<AccordionStyled items={items} defaultOpen={0} />
+<AccordionStyled items={items} type="multiple" defaultOpen={[0, 1]} />`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Headless</H2>
+      <CodeBlock lang="tsx" code={`import { useAccordion } from "@mshafiqyajid/react-accordion";
+
+const ids = ["item-1", "item-2"];
+const { getItemProps } = useAccordion({ items: ids, type: "single" });
+
+{ids.map((id) => {
+  const { triggerProps, panelProps, isOpen } = getItemProps(id);
+  return (
+    <div key={id}>
+      <button {...triggerProps}>Toggle</button>
+      {isOpen && <div {...panelProps}>Content</div>}
+    </div>
+  );
+})}`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>API</H2>
+      <table class="props-table">
+        <thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>items</td><td>AccordionItem[]</td><td>—</td><td>Array of {`{ title, content }`}</td></tr>
+          <tr><td>type</td><td>"single" | "multiple"</td><td>"single"</td><td>Whether multiple items can be open</td></tr>
+          <tr><td>size</td><td>"sm" | "md" | "lg"</td><td>"md"</td><td>Size variant</td></tr>
+          <tr><td>tone</td><td>"neutral" | "primary"</td><td>"neutral"</td><td>Color tone</td></tr>
+          <tr><td>defaultOpen</td><td>number | number[]</td><td>—</td><td>Index/indices open on first render</td></tr>
+          <tr><td>animated</td><td>boolean</td><td>true</td><td>Enable smooth height animation</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </PackagePageShell>
+</DocLayout>

@@ -16,6 +16,11 @@
     "@mshafiqyajid/react-rating": "^0.1.2",
     "@mshafiqyajid/react-color": "^0.1.2",
     "@mshafiqyajid/react-tooltip": "^0.1.0",
+    "@mshafiqyajid/react-accordion": "*",
+    "@mshafiqyajid/react-tabs": "*",
+    "@mshafiqyajid/react-toast": "*",
+    "@mshafiqyajid/react-select": "*",
+    "@mshafiqyajid/react-modal": "*",
     "react": "^18.3.0",
     "react-dom": "^18.3.0"
   },

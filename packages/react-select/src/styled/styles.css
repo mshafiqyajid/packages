@@ -1,0 +1,537 @@
+/* ============================================================================
+ * react-select — styled component
+ *
+ * Themable via CSS variables. Override on :root or scope to a wrapper.
+ * Dark mode: set data-theme="dark" on any ancestor element.
+ * ========================================================================== */
+
+.rsel-root {
+  --rsel-fg: #18181b;
+  --rsel-fg-muted: #71717a;
+  --rsel-fg-placeholder: #a1a1aa;
+  --rsel-bg: #ffffff;
+  --rsel-bg-hover: #f4f4f5;
+  --rsel-bg-item-hover: #f4f4f5;
+  --rsel-bg-item-focused: #f4f4f5;
+  --rsel-bg-item-selected: #eff6ff;
+  --rsel-bg-disabled: #f4f4f5;
+  --rsel-border: #e4e4e7;
+  --rsel-border-hover: #d4d4d8;
+  --rsel-border-focus: #6366f1;
+  --rsel-ring: rgba(99, 102, 241, 0.3);
+  --rsel-chip-bg: #e4e4e7;
+  --rsel-chip-fg: #18181b;
+  --rsel-radius: 8px;
+  --rsel-radius-sm: 6px;
+  --rsel-dropdown-shadow: 0 4px 24px rgba(0, 0, 0, 0.08), 0 1px 4px rgba(0, 0, 0, 0.06);
+
+  --rsel-height: 2.5rem;
+  --rsel-font-size: 0.875rem;
+  --rsel-padding-x: 0.75rem;
+  --rsel-padding-y: 0.5rem;
+  --rsel-item-height: 2.25rem;
+  --rsel-chip-gap: 0.25rem;
+
+  --rsel-duration: 160ms;
+  --rsel-ease: cubic-bezier(0.32, 0.72, 0, 1);
+
+  display: inline-block;
+  position: relative;
+  font-family: inherit;
+  font-size: var(--rsel-font-size);
+  color: var(--rsel-fg);
+  width: 240px;
+}
+
+/* ============================================================================
+ * Sizes
+ * ========================================================================== */
+.rsel-root[data-size="sm"] {
+  --rsel-height: 2rem;
+  --rsel-font-size: 0.8125rem;
+  --rsel-padding-x: 0.625rem;
+  --rsel-item-height: 2rem;
+  --rsel-radius: 6px;
+}
+
+.rsel-root[data-size="lg"] {
+  --rsel-height: 3rem;
+  --rsel-font-size: 1rem;
+  --rsel-padding-x: 1rem;
+  --rsel-item-height: 2.75rem;
+  --rsel-radius: 10px;
+}
+
+/* ============================================================================
+ * Tones
+ * ========================================================================== */
+.rsel-root[data-tone="neutral"][data-tone] {
+  --rsel-border-focus: #71717a;
+  --rsel-ring: rgba(113, 113, 122, 0.3);
+  --rsel-bg-item-selected: #f4f4f5;
+}
+
+.rsel-root[data-tone="primary"][data-tone] {
+  --rsel-border-focus: #6366f1;
+  --rsel-ring: rgba(99, 102, 241, 0.3);
+  --rsel-bg-item-selected: #eff6ff;
+}
+
+.rsel-root[data-tone="success"][data-tone] {
+  --rsel-border-focus: #16a34a;
+  --rsel-ring: rgba(34, 197, 94, 0.3);
+  --rsel-bg-item-selected: #f0fdf4;
+}
+
+.rsel-root[data-tone="danger"][data-tone] {
+  --rsel-border-focus: #dc2626;
+  --rsel-ring: rgba(239, 68, 68, 0.3);
+  --rsel-bg-item-selected: #fef2f2;
+}
+
+/* ============================================================================
+ * Trigger button
+ * ========================================================================== */
+.rsel-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: var(--rsel-height);
+  padding: var(--rsel-padding-y) var(--rsel-padding-x);
+  font: inherit;
+  font-size: var(--rsel-font-size);
+  color: var(--rsel-fg);
+  background: var(--rsel-bg);
+  border: 1px solid var(--rsel-border);
+  border-radius: var(--rsel-radius);
+  cursor: pointer;
+  text-align: left;
+  gap: 0.5rem;
+  outline: none;
+  transition:
+    border-color var(--rsel-duration) var(--rsel-ease),
+    box-shadow var(--rsel-duration) var(--rsel-ease),
+    background-color var(--rsel-duration) var(--rsel-ease);
+}
+
+.rsel-trigger:hover:not(:disabled) {
+  border-color: var(--rsel-border-hover);
+  background: var(--rsel-bg-hover);
+}
+
+.rsel-trigger:focus-visible {
+  border-color: var(--rsel-border-focus);
+  box-shadow: 0 0 0 3px var(--rsel-ring);
+}
+
+.rsel-root[data-open="true"] .rsel-trigger {
+  border-color: var(--rsel-border-focus);
+  box-shadow: 0 0 0 3px var(--rsel-ring);
+}
+
+.rsel-trigger:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  background: var(--rsel-bg-disabled);
+}
+
+/* ============================================================================
+ * Trigger content (value / placeholder / chips)
+ * ========================================================================== */
+.rsel-trigger-content {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.rsel-value {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.rsel-placeholder {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--rsel-fg-placeholder);
+}
+
+.rsel-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--rsel-chip-gap);
+}
+
+.rsel-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.1em 0.4em 0.1em 0.5em;
+  background: var(--rsel-chip-bg);
+  color: var(--rsel-chip-fg);
+  border-radius: 4px;
+  font-size: 0.8em;
+  line-height: 1.4;
+  max-width: 140px;
+}
+
+.rsel-chip-label {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.rsel-chip-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 1em;
+  height: 1em;
+  padding: 0;
+  font: inherit;
+  font-size: 1em;
+  color: var(--rsel-fg-muted);
+  background: none;
+  border: none;
+  border-radius: 2px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.rsel-chip-remove:hover {
+  color: var(--rsel-fg);
+  background: rgba(0, 0, 0, 0.08);
+}
+
+/* ============================================================================
+ * Arrow + clear actions
+ * ========================================================================== */
+.rsel-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-shrink: 0;
+  color: var(--rsel-fg-muted);
+}
+
+.rsel-clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  color: var(--rsel-fg-muted);
+  transition: color var(--rsel-duration) var(--rsel-ease), background-color var(--rsel-duration) var(--rsel-ease);
+}
+
+.rsel-clear:hover {
+  color: var(--rsel-fg);
+  background: var(--rsel-bg-hover);
+}
+
+.rsel-arrow {
+  display: inline-flex;
+  align-items: center;
+  pointer-events: none;
+}
+
+.rsel-arrow-icon {
+  transition: transform var(--rsel-duration) var(--rsel-ease);
+}
+
+.rsel-root[data-open="true"] .rsel-arrow-icon {
+  transform: rotate(180deg);
+}
+
+/* ============================================================================
+ * Dropdown (portalled)
+ * ========================================================================== */
+.rsel-dropdown {
+  background: var(--rsel-bg);
+  border: 1px solid var(--rsel-border);
+  border-radius: var(--rsel-radius);
+  box-shadow: var(--rsel-dropdown-shadow);
+  overflow: hidden;
+  opacity: 0;
+  transform: scaleY(0.95) translateY(-4px);
+  transform-origin: top center;
+  pointer-events: none;
+  transition:
+    opacity var(--rsel-duration) var(--rsel-ease),
+    transform var(--rsel-duration) var(--rsel-ease);
+  /* CSS variables must be repeated here since the dropdown is portalled to body */
+  --rsel-fg: #18181b;
+  --rsel-fg-muted: #71717a;
+  --rsel-fg-placeholder: #a1a1aa;
+  --rsel-bg: #ffffff;
+  --rsel-bg-hover: #f4f4f5;
+  --rsel-bg-item-hover: #f4f4f5;
+  --rsel-bg-item-focused: #f4f4f5;
+  --rsel-bg-item-selected: #eff6ff;
+  --rsel-border: #e4e4e7;
+  --rsel-border-hover: #d4d4d8;
+  --rsel-border-focus: #6366f1;
+  --rsel-ring: rgba(99, 102, 241, 0.3);
+  --rsel-chip-bg: #e4e4e7;
+  --rsel-chip-fg: #18181b;
+  --rsel-radius: 8px;
+  --rsel-radius-sm: 6px;
+  --rsel-font-size: 0.875rem;
+  --rsel-item-height: 2.25rem;
+  --rsel-duration: 160ms;
+  --rsel-ease: cubic-bezier(0.32, 0.72, 0, 1);
+  font-family: inherit;
+  font-size: var(--rsel-font-size);
+  color: var(--rsel-fg);
+  min-width: 160px;
+}
+
+.rsel-dropdown[data-open="true"] {
+  opacity: 1;
+  transform: scaleY(1) translateY(0);
+  pointer-events: auto;
+}
+
+.rsel-dropdown[data-size="sm"] {
+  --rsel-font-size: 0.8125rem;
+  --rsel-item-height: 2rem;
+  --rsel-radius: 6px;
+}
+
+.rsel-dropdown[data-size="lg"] {
+  --rsel-font-size: 1rem;
+  --rsel-item-height: 2.75rem;
+  --rsel-radius: 10px;
+}
+
+/* Tones applied to the portalled dropdown */
+.rsel-dropdown[data-tone="neutral"][data-tone] {
+  --rsel-border-focus: #71717a;
+  --rsel-bg-item-selected: #f4f4f5;
+}
+
+.rsel-dropdown[data-tone="primary"][data-tone] {
+  --rsel-border-focus: #6366f1;
+  --rsel-bg-item-selected: #eff6ff;
+}
+
+.rsel-dropdown[data-tone="success"][data-tone] {
+  --rsel-border-focus: #16a34a;
+  --rsel-bg-item-selected: #f0fdf4;
+}
+
+.rsel-dropdown[data-tone="danger"][data-tone] {
+  --rsel-border-focus: #dc2626;
+  --rsel-bg-item-selected: #fef2f2;
+}
+
+/* ============================================================================
+ * Search input
+ * ========================================================================== */
+.rsel-search-wrapper {
+  padding: 0.375rem 0.5rem;
+  border-bottom: 1px solid var(--rsel-border);
+}
+
+.rsel-search {
+  width: 100%;
+  padding: 0.3rem 0.5rem;
+  font: inherit;
+  font-size: var(--rsel-font-size);
+  color: var(--rsel-fg);
+  background: var(--rsel-bg);
+  border: 1px solid var(--rsel-border);
+  border-radius: var(--rsel-radius-sm);
+  outline: none;
+  box-sizing: border-box;
+  transition:
+    border-color var(--rsel-duration) var(--rsel-ease),
+    box-shadow var(--rsel-duration) var(--rsel-ease);
+}
+
+.rsel-search::placeholder {
+  color: var(--rsel-fg-placeholder);
+}
+
+.rsel-search:focus {
+  border-color: var(--rsel-border-focus);
+  box-shadow: 0 0 0 2px var(--rsel-ring);
+}
+
+/* ============================================================================
+ * Listbox + items
+ * ========================================================================== */
+.rsel-listbox {
+  list-style: none;
+  margin: 0;
+  padding: 0.25rem;
+  max-height: 240px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.rsel-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: var(--rsel-item-height);
+  padding: 0 0.5rem;
+  border-radius: calc(var(--rsel-radius) - 2px);
+  cursor: pointer;
+  user-select: none;
+  transition:
+    background-color var(--rsel-duration) var(--rsel-ease),
+    color var(--rsel-duration) var(--rsel-ease);
+}
+
+.rsel-item:hover:not([data-disabled="true"]) {
+  background: var(--rsel-bg-item-hover);
+}
+
+.rsel-item[data-focused="true"]:not([data-disabled="true"]) {
+  background: var(--rsel-bg-item-focused);
+  outline: 2px solid var(--rsel-border-focus);
+  outline-offset: -2px;
+}
+
+.rsel-item[data-selected="true"] {
+  background: var(--rsel-bg-item-selected);
+  color: var(--rsel-border-focus);
+  font-weight: 500;
+}
+
+.rsel-item[data-disabled="true"] {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.rsel-item-check {
+  flex-shrink: 0;
+  width: 1em;
+  font-size: 0.85em;
+  color: var(--rsel-border-focus);
+}
+
+.rsel-item-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.rsel-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.5rem;
+  color: var(--rsel-fg-muted);
+  font-size: var(--rsel-font-size);
+  padding: 0.5rem;
+  cursor: default;
+  user-select: none;
+}
+
+/* ============================================================================
+ * Dark mode — data-theme="dark" on any ancestor
+ * ========================================================================== */
+
+[data-theme="dark"] .rsel-root {
+  --rsel-fg: #fafafa;
+  --rsel-fg-muted: #a1a1aa;
+  --rsel-fg-placeholder: #71717a;
+  --rsel-bg: #18181b;
+  --rsel-bg-hover: #27272a;
+  --rsel-bg-item-hover: #27272a;
+  --rsel-bg-item-focused: #27272a;
+  --rsel-bg-item-selected: #1e1b4b;
+  --rsel-bg-disabled: #27272a;
+  --rsel-border: #3f3f46;
+  --rsel-border-hover: #52525b;
+  --rsel-border-focus: #818cf8;
+  --rsel-ring: rgba(129, 140, 248, 0.35);
+  --rsel-chip-bg: #3f3f46;
+  --rsel-chip-fg: #fafafa;
+}
+
+[data-theme="dark"] .rsel-root[data-tone="neutral"][data-tone] {
+  --rsel-border-focus: #a1a1aa;
+  --rsel-ring: rgba(161, 161, 170, 0.35);
+  --rsel-bg-item-selected: #27272a;
+}
+
+[data-theme="dark"] .rsel-root[data-tone="primary"][data-tone] {
+  --rsel-border-focus: #818cf8;
+  --rsel-ring: rgba(129, 140, 248, 0.4);
+  --rsel-bg-item-selected: #1e1b4b;
+}
+
+[data-theme="dark"] .rsel-root[data-tone="success"][data-tone] {
+  --rsel-border-focus: #4ade80;
+  --rsel-ring: rgba(74, 222, 128, 0.4);
+  --rsel-bg-item-selected: #052e16;
+}
+
+[data-theme="dark"] .rsel-root[data-tone="danger"][data-tone] {
+  --rsel-border-focus: #f87171;
+  --rsel-ring: rgba(248, 113, 113, 0.4);
+  --rsel-bg-item-selected: #450a0a;
+}
+
+/* Dark mode for the portalled dropdown */
+[data-theme="dark"] .rsel-dropdown {
+  --rsel-fg: #fafafa;
+  --rsel-fg-muted: #a1a1aa;
+  --rsel-fg-placeholder: #71717a;
+  --rsel-bg: #18181b;
+  --rsel-bg-hover: #27272a;
+  --rsel-bg-item-hover: #27272a;
+  --rsel-bg-item-focused: #27272a;
+  --rsel-bg-item-selected: #1e1b4b;
+  --rsel-border: #3f3f46;
+  --rsel-border-hover: #52525b;
+  --rsel-border-focus: #818cf8;
+  --rsel-ring: rgba(129, 140, 248, 0.35);
+}
+
+[data-theme="dark"] .rsel-dropdown[data-tone="neutral"][data-tone] {
+  --rsel-border-focus: #a1a1aa;
+  --rsel-bg-item-selected: #27272a;
+}
+
+[data-theme="dark"] .rsel-dropdown[data-tone="primary"][data-tone] {
+  --rsel-border-focus: #818cf8;
+  --rsel-bg-item-selected: #1e1b4b;
+}
+
+[data-theme="dark"] .rsel-dropdown[data-tone="success"][data-tone] {
+  --rsel-border-focus: #4ade80;
+  --rsel-bg-item-selected: #052e16;
+}
+
+[data-theme="dark"] .rsel-dropdown[data-tone="danger"][data-tone] {
+  --rsel-border-focus: #f87171;
+  --rsel-bg-item-selected: #450a0a;
+}
+
+/* ============================================================================
+ * Reduced motion
+ * ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .rsel-trigger,
+  .rsel-dropdown,
+  .rsel-item,
+  .rsel-arrow-icon {
+    transition-duration: 0ms !important;
+    animation: none !important;
+  }
+}
