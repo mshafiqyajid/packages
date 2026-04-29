@@ -1,6 +1,6 @@
 {
   "name": "@mshafiqyajid/react-switch",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Headless toggle switch hook and styled component for React. Accessible, keyboard-friendly, animated, fully typed.",
   "keywords": [
     "react",

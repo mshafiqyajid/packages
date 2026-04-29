@@ -1,6 +1,6 @@
 {
   "name": "@mshafiqyajid/react-popover",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Headless popover hook and styled component for React. Accessible, click or hover triggered, portal-based positioning, animated, SSR-safe, fully typed.",
   "keywords": [
     "react",
