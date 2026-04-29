@@ -23,7 +23,7 @@
   "bugs": {
     "url": "https://github.com/mshafiqyajid/packages/issues"
   },
-  "homepage": "https://github.com/mshafiqyajid/packages/tree/main/packages/react-rating#readme",
+  "homepage": "https://docs.shafiqyajid.com/react/rating/",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",

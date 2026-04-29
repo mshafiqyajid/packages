@@ -22,7 +22,7 @@
   "bugs": {
     "url": "https://github.com/mshafiqyajid/packages/issues"
   },
-  "homepage": "https://github.com/mshafiqyajid/packages/tree/main/packages/react-copy-button#readme",
+  "homepage": "https://docs.shafiqyajid.com/react/copy-button/",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
