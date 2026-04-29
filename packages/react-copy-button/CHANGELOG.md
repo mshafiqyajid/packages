@@ -1,5 +1,11 @@
 # @mshafiqyajid/react-copy-button
 
+## 0.1.2
+
+### Patch Changes
+
+- 99a05f0: Fix dark mode theme sync; remove prefers-color-scheme auto-detection
+
 ## 0.1.1
 
 ### Patch Changes

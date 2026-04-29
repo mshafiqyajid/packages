@@ -1,6 +1,6 @@
 {
   "name": "@mshafiqyajid/react-rating",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Headless star-rating hook and styled component for React. Half-step support, hover preview, full keyboard nav, custom icons, themable, SSR-safe, fully typed.",
   "keywords": [
     "react",
