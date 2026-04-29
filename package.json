@@ -7,17 +7,14 @@
   "author": "Shafiq Yajid",
   "type": "module",
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "apps/docs"
   ],
   "scripts": {
     "build": "npm run build --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
-    "playground:copy-button": "npm run playground --workspace=@mshafiqyajid/react-copy-button",
-    "playground:otp-input": "npm run playground --workspace=@mshafiqyajid/react-otp-input",
-    "playground:segmented-control": "npm run playground --workspace=@mshafiqyajid/react-segmented-control",
-    "playground:rating": "npm run playground --workspace=@mshafiqyajid/react-rating",
-    "playground:color": "npm run playground --workspace=@mshafiqyajid/react-color",
+    "docs:dev": "npm run dev --workspace=apps/docs",
     "changeset": "changeset",
     "release": "npm run build && changeset publish"
   },
