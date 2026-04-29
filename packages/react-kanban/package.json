@@ -1,6 +1,6 @@
 {
   "name": "@mshafiqyajid/react-kanban",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Headless kanban hook and styled component for React. HTML5 Drag and Drop, zero deps, fully typed.",
   "keywords": [
     "react",

@@ -1,6 +1,6 @@
 {
   "name": "@mshafiqyajid/react-color-input",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Headless color input hook and styled component for React. Hex/RGB color picker with swatch, hue slider, gradient picker, and preset colors.",
   "keywords": [
     "react",
