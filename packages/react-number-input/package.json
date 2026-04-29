@@ -1,6 +1,6 @@
 {
   "name": "@mshafiqyajid/react-number-input",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Headless numeric input hook and styled component for React. Increment/decrement, keyboard, scroll wheel, currency/percent formatting, accessible, fully typed.",
   "keywords": [
     "react",
