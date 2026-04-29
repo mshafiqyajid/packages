@@ -1,6 +1,6 @@
 {
   "name": "@mshafiqyajid/react-chart",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Lightweight SVG-based line, bar, and pie charts for React. Zero runtime dependencies, headless hook + styled components.",
   "keywords": [
     "react",
