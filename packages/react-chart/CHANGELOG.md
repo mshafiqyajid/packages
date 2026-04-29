@@ -1,5 +1,11 @@
 # @mshafiqyajid/react-chart
 
+## 0.1.3
+
+### Patch Changes
+
+- 949c5f6: Retry publish after npm rate limit resolved.
+
 ## 0.1.2
 
 ### Patch Changes
