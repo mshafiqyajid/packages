@@ -1,5 +1,11 @@
 # @mshafiqyajid/react-rating
 
+## 0.1.1
+
+### Patch Changes
+
+- 99a05f0: Fix dark mode theme sync; remove prefers-color-scheme auto-detection
+
 ## 0.1.0
 
 ### Minor Changes
