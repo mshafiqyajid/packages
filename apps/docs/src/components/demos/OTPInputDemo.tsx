@@ -1,29 +1,35 @@
-import { useState } from "react";
+import PropPlayground from "../PropPlayground";
 import { OTPInputStyled } from "@mshafiqyajid/react-otp-input/styled";
 import "@mshafiqyajid/react-otp-input/styles.css";
 
 export default function OTPInputDemo() {
-  const [code, setCode] = useState("");
-  const [completed, setCompleted] = useState(false);
-
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 20, padding: "1.5rem", background: "var(--bg-elevated)", border: "1px solid var(--border)", borderRadius: 12 }}>
-      <OTPInputStyled
-        length={6}
-        value={code}
-        onChange={(v) => { setCode(v); setCompleted(false); }}
-        onComplete={() => setCompleted(true)}
-        tone="primary"
-        variant="solid"
-        label="Verification code"
-        hint={completed ? "✓ Code accepted!" : "Paste a 6-digit code to auto-fill"}
-      />
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
-        <OTPInputStyled length={4} variant="outline" tone="success" label="Outline / Success" />
-        <OTPInputStyled length={4} variant="underline" tone="danger" label="Underline / Error" error="Incorrect code" />
-        <OTPInputStyled length={6} groupSize={3} tone="primary" label="Grouped (3+3)" />
-        <OTPInputStyled length={4} mask tone="neutral" label="Masked" />
-      </div>
-    </div>
+    <PropPlayground
+      componentName="OTPInputStyled"
+      importLine={`import { OTPInputStyled } from "@mshafiqyajid/react-otp-input/styled";\nimport "@mshafiqyajid/react-otp-input/styles.css";`}
+      props={[
+        { name: "length",    control: { type: "slider", min: 3, max: 8 },                                              defaultValue: 6,        omitWhen: 6 },
+        { name: "variant",   control: { type: "segmented", options: ["solid","outline","underline"] as const },         defaultValue: "solid",  omitWhen: "solid" },
+        { name: "size",      control: { type: "segmented", options: ["sm","md","lg"] as const },                        defaultValue: "md",     omitWhen: "md" },
+        { name: "tone",      control: { type: "segmented", options: ["neutral","primary","success","danger"] as const },defaultValue: "primary",omitWhen: "neutral" },
+        { name: "pattern",   control: { type: "segmented", options: ["numeric","alphanumeric"] as const },              defaultValue: "numeric",omitWhen: "numeric" },
+        { name: "mask",      control: { type: "toggle" },                                                               defaultValue: false,    omitWhen: false },
+        { name: "autoFocus", control: { type: "toggle" },                                                               defaultValue: false,    omitWhen: false },
+      ]}
+      staticProps={{ onComplete: "{handleComplete}" }}
+      render={(v) => (
+        <OTPInputStyled
+          key={`${v.length}-${v.pattern}`}
+          length={v.length as number}
+          variant={v.variant as "solid"|"outline"|"underline"}
+          size={v.size as "sm"|"md"|"lg"}
+          tone={v.tone as "neutral"|"primary"|"success"|"danger"}
+          pattern={v.pattern as "numeric"|"alphanumeric"}
+          mask={v.mask as boolean}
+          label="Verification code"
+          hint="Type or paste to auto-fill"
+        />
+      )}
+    />
   );
 }

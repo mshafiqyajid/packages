@@ -1,26 +1,47 @@
 import { useState } from "react";
-import { HexColorPicker, RgbaColorPicker } from "@mshafiqyajid/react-color/styled";
-import { hsvaToRgba, hsvaToHex, toHsva } from "@mshafiqyajid/react-color";
+import PropPlayground from "../PropPlayground";
+import { HexColorPicker } from "@mshafiqyajid/react-color/styled";
+import { hsvaToRgba, toHsva } from "@mshafiqyajid/react-color";
 import "@mshafiqyajid/react-color/styles.css";
 
-export default function ColorPickerDemo() {
+function LivePicker({ showAlpha, showHexInput, width }: { showAlpha: boolean; showHexInput: boolean; width: number }) {
   const [hex, setHex] = useState("#6366f1");
   const rgba = hsvaToRgba(toHsva(hex));
-
   return (
-    <div style={{ display: "flex", flexWrap: "wrap", gap: 24, padding: "1.5rem", background: "var(--bg-elevated)", border: "1px solid var(--border)", borderRadius: 12 }}>
-      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-        <HexColorPicker value={hex} onChange={setHex} />
-        <div style={{ display: "flex", gap: 8, fontSize: 12, fontFamily: "JetBrains Mono, monospace", color: "var(--fg-muted)", flexWrap: "wrap" }}>
-          <span>HEX: <strong style={{ color: "var(--fg)" }}>{hex.toUpperCase()}</strong></span>
-          <span>RGB: <strong style={{ color: "var(--fg)" }}>{rgba.r}, {rgba.g}, {rgba.b}</strong></span>
-        </div>
-        <div style={{ width: 60, height: 60, borderRadius: 10, background: hex, boxShadow: "0 4px 14px -4px rgba(0,0,0,0.25)" }} />
-      </div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-        <p style={{ fontSize: 13, color: "var(--fg-muted)", margin: 0 }}>With alpha slider</p>
-        <HexColorPicker defaultValue="#16a34a" showAlpha />
+    <div style={{ display: "flex", flexDirection: "column", gap: 10, alignItems: "center" }}>
+      <HexColorPicker
+        value={hex}
+        onChange={setHex}
+        showAlpha={showAlpha}
+        showHexInput={showHexInput}
+        style={{ ["--rcp-width" as string]: `${width}px` }}
+      />
+      <div style={{ display: "flex", gap: 12, fontSize: 11, fontFamily: "JetBrains Mono, monospace", color: "var(--fg-muted)" }}>
+        <span style={{ color: "var(--fg)", fontWeight: 600 }}>{hex.toUpperCase()}</span>
+        <span>rgb({rgba.r},{rgba.g},{rgba.b})</span>
       </div>
     </div>
+  );
+}
+
+export default function ColorPickerDemo() {
+  return (
+    <PropPlayground
+      componentName="HexColorPicker"
+      importLine={`import { HexColorPicker } from "@mshafiqyajid/react-color/styled";\nimport "@mshafiqyajid/react-color/styles.css";`}
+      props={[
+        { name: "showAlpha",    control: { type: "toggle" },                           defaultValue: false, omitWhen: false },
+        { name: "showHexInput", control: { type: "toggle" },                           defaultValue: true,  omitWhen: true },
+        { name: "width",        label: "--rcp-width (px)", control: { type: "slider", min: 200, max: 360 }, defaultValue: 240, omitWhen: 240 },
+      ]}
+      staticProps={{ value: "{color}", onChange: "{setColor}" }}
+      render={(v) => (
+        <LivePicker
+          showAlpha={v.showAlpha as boolean}
+          showHexInput={v.showHexInput as boolean}
+          width={v.width as number}
+        />
+      )}
+    />
   );
 }

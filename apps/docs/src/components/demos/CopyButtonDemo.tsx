@@ -1,25 +1,33 @@
+import PropPlayground from "../PropPlayground";
 import { CopyButtonStyled } from "@mshafiqyajid/react-copy-button/styled";
 import "@mshafiqyajid/react-copy-button/styles.css";
 
 export default function CopyButtonDemo() {
   return (
-    <div style={{ display: "flex", flexWrap: "wrap", gap: 12, padding: "1.5rem", background: "var(--bg-elevated)", border: "1px solid var(--border)", borderRadius: 12 }}>
-      <CopyButtonStyled text="solid-primary" variant="solid" tone="primary" label="Solid / Primary" />
-      <CopyButtonStyled text="outline-primary" variant="outline" tone="primary" label="Outline" />
-      <CopyButtonStyled text="ghost-danger" variant="ghost" tone="danger" label="Ghost / Danger" />
-      <CopyButtonStyled text="success" variant="solid" tone="success" label="Success" />
-      <CopyButtonStyled text="small" size="sm" tone="primary" label="Small" />
-      <CopyButtonStyled text="large" size="lg" tone="primary" label="Large" />
-      <CopyButtonStyled text="icon-only" size="icon" tone="primary" aria-label="Copy" />
-      <CopyButtonStyled
-        text={async () => {
-          await new Promise((r) => setTimeout(r, 600));
-          return "async-value";
-        }}
-        tone="primary"
-        label="Async"
-      />
-      <CopyButtonStyled text="tooltip" tone="neutral" tooltip="Copy to clipboard" label="With tooltip" />
-    </div>
+    <PropPlayground
+      componentName="CopyButtonStyled"
+      importLine={`import { CopyButtonStyled } from "@mshafiqyajid/react-copy-button/styled";\nimport "@mshafiqyajid/react-copy-button/styles.css";`}
+      props={[
+        { name: "variant", control: { type: "segmented", options: ["solid","outline","ghost","subtle"] as const }, defaultValue: "solid", omitWhen: "solid" },
+        { name: "size",    control: { type: "segmented", options: ["sm","md","lg","icon"] as const }, defaultValue: "md", omitWhen: "md" },
+        { name: "tone",    control: { type: "segmented", options: ["neutral","primary","success","danger"] as const }, defaultValue: "primary", omitWhen: "neutral" },
+        { name: "label",   control: { type: "text", placeholder: "Copy" }, defaultValue: "Copy", omitWhen: "Copy" },
+        { name: "copiedLabel", control: { type: "text", placeholder: "Copied" }, defaultValue: "Copied", omitWhen: "Copied" },
+        { name: "fullWidth", control: { type: "toggle" }, defaultValue: false, omitWhen: false },
+      ]}
+      staticProps={{ text: '"Hello world"' }}
+      render={(v) => (
+        <CopyButtonStyled
+          text="Hello world"
+          variant={v.variant as "solid"|"outline"|"ghost"|"subtle"}
+          size={v.size as "sm"|"md"|"lg"|"icon"}
+          tone={v.tone as "neutral"|"primary"|"success"|"danger"}
+          label={v.size === "icon" ? "" : (v.label as string)}
+          copiedLabel={v.size === "icon" ? "" : (v.copiedLabel as string)}
+          fullWidth={v.fullWidth as boolean}
+          aria-label={v.size === "icon" ? "Copy" : undefined}
+        />
+      )}
+    />
   );
 }
