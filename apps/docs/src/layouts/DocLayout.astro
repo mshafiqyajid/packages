@@ -2,6 +2,8 @@
 import "~/styles/global.css";
 import Sidebar from "~/components/Sidebar.astro";
 import Header from "~/components/Header.astro";
+import TableOfContents from "~/components/TableOfContents.astro";
+import MobileNav from "~/components/MobileNav.astro";
 
 export interface Props {
   title: string;
@@ -10,6 +12,9 @@ export interface Props {
 }
 
 const { title, description = "Documentation for @mshafiqyajid React packages.", pkg } = Astro.props;
+const editPath = pkg
+  ? `https://github.com/mshafiqyajid/packages/edit/main/apps/docs/src/pages/react/${pkg}/index.astro`
+  : null;
 ---
 
 <!doctype html>
@@ -27,7 +32,6 @@ const { title, description = "Documentation for @mshafiqyajid React packages.", 
       rel="stylesheet"
     />
     <script is:inline>
-      // Sync theme before first paint to prevent flash
       (function () {
         const saved = localStorage.getItem("theme");
         const preferred = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
@@ -36,12 +40,24 @@ const { title, description = "Documentation for @mshafiqyajid React packages.", 
     </script>
   </head>
   <body>
-    <Header />
+    <Header>
+      <MobileNav slot="mobile-nav" />
+    </Header>
     <div class="layout">
       <Sidebar active={pkg} />
       <main class="main">
         <slot />
+        {editPath && (
+          <a class="edit-page" href={editPath} target="_blank" rel="noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+            Edit this page on GitHub
+          </a>
+        )}
       </main>
+      <TableOfContents />
     </div>
 
     <style>
@@ -49,15 +65,36 @@ const { title, description = "Documentation for @mshafiqyajid React packages.", 
         display: flex;
         min-height: calc(100vh - var(--header-height));
         padding-top: var(--header-height);
+        max-width: 1400px;
+        margin: 0 auto;
       }
       .main {
         flex: 1;
         min-width: 0;
         padding: 2.5rem 2rem 4rem;
-        max-width: 860px;
+        max-width: 800px;
       }
       @media (max-width: 768px) {
         .main { padding: 1.5rem 1rem 3rem; }
+      }
+      .edit-page {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        margin-top: 3rem;
+        padding: 0.4rem 0.75rem;
+        font-size: 0.82rem;
+        color: var(--fg-muted);
+        background: var(--bg-subtle);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        text-decoration: none;
+        transition: color 140ms, border-color 140ms;
+      }
+      .edit-page:hover {
+        color: var(--accent);
+        border-color: var(--accent);
+        text-decoration: none;
       }
     </style>
   </body>

@@ -1,6 +1,8 @@
 ---
 import DocLayout from "~/layouts/DocLayout.astro";
 import PackagePageShell from "~/components/PackagePageShell.astro";
+import H2 from "~/components/H2.astro";
+import CodeBlock from "~/components/CodeBlock.astro";
 import OTPInputDemo from "~/components/demos/OTPInputDemo";
 ---
 
@@ -16,18 +18,18 @@ import OTPInputDemo from "~/components/demos/OTPInputDemo";
     size="~20 KB"
   >
     <div class="pkg-section">
-      <h2>Demo</h2>
+      <H2>Playground</H2>
       <OTPInputDemo client:load />
     </div>
 
     <div class="pkg-section">
-      <h2>Install</h2>
-      <pre>npm install @mshafiqyajid/react-otp-input</pre>
+      <H2>Install</H2>
+      <CodeBlock lang="bash" code="npm install @mshafiqyajid/react-otp-input" />
     </div>
 
     <div class="pkg-section">
-      <h2>Quick start</h2>
-      <pre>{`import { OTPInputStyled } from "@mshafiqyajid/react-otp-input/styled";
+      <H2>Quick start</H2>
+      <CodeBlock code={`import { OTPInputStyled } from "@mshafiqyajid/react-otp-input/styled";
 import "@mshafiqyajid/react-otp-input/styles.css";
 
 <OTPInputStyled
@@ -35,27 +37,64 @@ import "@mshafiqyajid/react-otp-input/styles.css";
   tone="primary"
   onComplete={(code) => verify(code)}
   autoFocus
-/>`}</pre>
+/>`} />
     </div>
 
     <div class="pkg-section">
-      <h2>API — OTPInputStyled</h2>
+      <H2>Recipes</H2>
+
+      <h3>Controlled with verification flow</h3>
+      <CodeBlock code={`const [code, setCode] = useState("");
+const [status, setStatus] = useState<"idle" | "verifying" | "error">("idle");
+
+<OTPInputStyled
+  length={6}
+  value={code}
+  onChange={(v) => { setCode(v); setStatus("idle"); }}
+  onComplete={async (final) => {
+    setStatus("verifying");
+    try { await verify(final); } catch { setStatus("error"); }
+  }}
+  error={status === "error" ? "Invalid code" : undefined}
+  disabled={status === "verifying"}
+/>`} />
+
+      <h3>Alphanumeric pattern (e.g. license keys)</h3>
+      <CodeBlock code={`<OTPInputStyled
+  length={8}
+  pattern="alphanumeric"
+  groupSize={4}
+  uppercase
+  label="License key"
+/>`} />
+
+      <h3>Masked PIN entry</h3>
+      <CodeBlock code={`<OTPInputStyled
+  length={4}
+  mask
+  pattern="numeric"
+  label="PIN"
+  hint="Hidden for privacy"
+/>`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>API</H2>
+      <h3>OTPInputStyled</h3>
       <table class="props-table">
-        <thead>
-          <tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr>
-        </thead>
+        <thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
         <tbody>
           <tr><td>length</td><td>number</td><td>6</td><td>Number of slots.</td></tr>
           <tr><td>value</td><td>string</td><td>—</td><td>Controlled value.</td></tr>
           <tr><td>onChange</td><td>(value: string) =&gt; void</td><td>—</td><td>Fires on change.</td></tr>
           <tr><td>onComplete</td><td>(value: string) =&gt; void</td><td>—</td><td>Fires when all slots filled.</td></tr>
           <tr><td>pattern</td><td>numeric | alphanumeric | any | RegExp | fn</td><td>numeric</td><td>Allowed characters.</td></tr>
-          <tr><td>allowHalf</td><td>boolean</td><td>true</td><td>Allow half-step values.</td></tr>
           <tr><td>variant</td><td>solid | outline | underline</td><td>solid</td><td>Visual style.</td></tr>
           <tr><td>size</td><td>sm | md | lg</td><td>md</td><td>Size.</td></tr>
           <tr><td>tone</td><td>neutral | primary | success | danger</td><td>neutral</td><td>Color theme.</td></tr>
           <tr><td>mask</td><td>boolean</td><td>false</td><td>Show maskChar instead of typed char.</td></tr>
           <tr><td>groupSize</td><td>number</td><td>—</td><td>Insert separator after every N slots.</td></tr>
+          <tr><td>autoFocus</td><td>boolean</td><td>false</td><td>Focus first slot on mount.</td></tr>
           <tr><td>label</td><td>ReactNode</td><td>—</td><td>Label above.</td></tr>
           <tr><td>hint</td><td>ReactNode</td><td>—</td><td>Helper text below.</td></tr>
           <tr><td>error</td><td>ReactNode</td><td>—</td><td>Error text — flips tone to danger.</td></tr>

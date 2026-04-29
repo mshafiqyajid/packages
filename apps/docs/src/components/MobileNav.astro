@@ -1,0 +1,136 @@
+---
+// Mobile drawer that opens the sidebar on small screens.
+---
+<button id="mobile-nav-trigger" class="mobile-nav-trigger" aria-label="Open navigation" aria-controls="mobile-drawer" aria-expanded="false">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <line x1="3" y1="6" x2="21" y2="6"/>
+    <line x1="3" y1="12" x2="21" y2="12"/>
+    <line x1="3" y1="18" x2="21" y2="18"/>
+  </svg>
+</button>
+
+<div id="mobile-drawer" class="mobile-drawer" aria-hidden="true">
+  <div class="mobile-drawer__backdrop" data-close></div>
+  <div class="mobile-drawer__panel">
+    <button class="mobile-drawer__close" aria-label="Close navigation" data-close>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"/>
+        <line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+    <div id="mobile-drawer-content" class="mobile-drawer__content"></div>
+  </div>
+</div>
+
+<script>
+  const trigger = document.getElementById("mobile-nav-trigger") as HTMLButtonElement | null;
+  const drawer = document.getElementById("mobile-drawer") as HTMLElement | null;
+  const content = document.getElementById("mobile-drawer-content") as HTMLElement | null;
+  if (trigger && drawer && content) {
+    const sidebar = document.querySelector(".sidebar") as HTMLElement | null;
+    if (sidebar) {
+      // Clone sidebar contents into the drawer
+      content.innerHTML = sidebar.innerHTML;
+    }
+
+    const open = () => {
+      drawer.dataset.open = "true";
+      drawer.setAttribute("aria-hidden", "false");
+      trigger.setAttribute("aria-expanded", "true");
+      document.body.style.overflow = "hidden";
+    };
+    const close = () => {
+      delete drawer.dataset.open;
+      drawer.setAttribute("aria-hidden", "true");
+      trigger.setAttribute("aria-expanded", "false");
+      document.body.style.overflow = "";
+    };
+
+    trigger.addEventListener("click", open);
+    drawer.querySelectorAll<HTMLElement>("[data-close]").forEach((el) => {
+      el.addEventListener("click", close);
+    });
+    drawer.addEventListener("click", (e) => {
+      const target = e.target as HTMLElement;
+      if (target.closest("a")) close();
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && drawer.dataset.open) close();
+    });
+  }
+</script>
+
+<style is:global>
+  .mobile-nav-trigger {
+    display: none;
+    width: 36px;
+    height: 36px;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--bg-elevated);
+    color: var(--fg-muted);
+    cursor: pointer;
+    margin-right: 0.5rem;
+  }
+  .mobile-nav-trigger:hover {
+    color: var(--fg);
+    background: var(--bg-subtle);
+  }
+  @media (max-width: 768px) {
+    .mobile-nav-trigger { display: inline-flex; }
+  }
+
+  .mobile-drawer {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    pointer-events: none;
+    visibility: hidden;
+  }
+  .mobile-drawer[data-open="true"] {
+    pointer-events: auto;
+    visibility: visible;
+  }
+  .mobile-drawer__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    backdrop-filter: blur(2px);
+    opacity: 0;
+    transition: opacity 200ms ease;
+  }
+  .mobile-drawer[data-open="true"] .mobile-drawer__backdrop { opacity: 1; }
+  .mobile-drawer__panel {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: min(280px, 80vw);
+    background: var(--bg);
+    border-right: 1px solid var(--border);
+    transform: translateX(-100%);
+    transition: transform 240ms cubic-bezier(0.32, 0.72, 0, 1);
+    overflow-y: auto;
+    padding-top: 3rem;
+  }
+  .mobile-drawer[data-open="true"] .mobile-drawer__panel { transform: translateX(0); }
+  .mobile-drawer__close {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: transparent;
+    color: var(--fg-muted);
+    cursor: pointer;
+    border-radius: var(--radius);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .mobile-drawer__close:hover { background: var(--bg-subtle); color: var(--fg); }
+  .mobile-drawer__content .sidebar { display: block !important; position: static; height: auto; border-right: none; padding: 0; width: 100%; }
+</style>

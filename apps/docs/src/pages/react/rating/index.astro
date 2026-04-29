@@ -1,6 +1,8 @@
 ---
 import DocLayout from "~/layouts/DocLayout.astro";
 import PackagePageShell from "~/components/PackagePageShell.astro";
+import H2 from "~/components/H2.astro";
+import CodeBlock from "~/components/CodeBlock.astro";
 import RatingDemo from "~/components/demos/RatingDemo";
 ---
 
@@ -16,18 +18,18 @@ import RatingDemo from "~/components/demos/RatingDemo";
     size="~18 KB"
   >
     <div class="pkg-section">
-      <h2>Demo</h2>
+      <H2>Playground</H2>
       <RatingDemo client:load />
     </div>
 
     <div class="pkg-section">
-      <h2>Install</h2>
-      <pre>npm install @mshafiqyajid/react-rating</pre>
+      <H2>Install</H2>
+      <CodeBlock lang="bash" code="npm install @mshafiqyajid/react-rating" />
     </div>
 
     <div class="pkg-section">
-      <h2>Quick start</h2>
-      <pre>{`import { RatingStyled } from "@mshafiqyajid/react-rating/styled";
+      <H2>Quick start</H2>
+      <CodeBlock code={`import { RatingStyled } from "@mshafiqyajid/react-rating/styled";
 import "@mshafiqyajid/react-rating/styles.css";
 
 const [value, setValue] = useState(0);
@@ -37,15 +39,49 @@ const [value, setValue] = useState(0);
   value={value}
   onChange={setValue}
   showValue
-/>`}</pre>
+/>`} />
     </div>
 
     <div class="pkg-section">
-      <h2>API — RatingStyled</h2>
+      <H2>Recipes</H2>
+
+      <h3>Read-only display (e.g. average rating)</h3>
+      <CodeBlock code={`<RatingStyled
+  count={5}
+  value={4.5}
+  readOnly
+  showValue
+  label="Average rating"
+/>`} />
+
+      <h3>Heart icon</h3>
+      <CodeBlock code={`<RatingStyled
+  count={5}
+  tone="danger"
+  icon={<HeartIcon />}
+  defaultValue={3}
+/>`} />
+
+      <h3>Per-star labels with onHover</h3>
+      <CodeBlock code={`const labels = ["Terrible", "Poor", "OK", "Good", "Great"];
+const [hovered, setHovered] = useState<number | null>(null);
+
+<>
+  <RatingStyled
+    count={5}
+    value={value}
+    onChange={setValue}
+    onHover={setHovered}
+  />
+  <span>{labels[Math.ceil((hovered ?? value) - 1)] ?? ""}</span>
+</>`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>API</H2>
+      <h3>RatingStyled</h3>
       <table class="props-table">
-        <thead>
-          <tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr>
-        </thead>
+        <thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
         <tbody>
           <tr><td>count</td><td>number</td><td>5</td><td>Number of stars.</td></tr>
           <tr><td>value</td><td>number</td><td>—</td><td>Controlled value (0..count).</td></tr>

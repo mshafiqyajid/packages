@@ -1,0 +1,12 @@
+---
+export interface Props { id?: string }
+const { id } = Astro.props;
+const slot = await Astro.slots.render("default");
+const slug = id ?? (typeof slot === "string"
+  ? slot.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")
+  : undefined);
+---
+<h2 id={slug}>
+  <slot />
+  {slug && <a href={`#${slug}`} class="heading-anchor" aria-label={`Link to ${slug}`}>#</a>}
+</h2>

@@ -1,12 +1,18 @@
 ---
 import "~/styles/global.css";
 import Header from "~/components/Header.astro";
+import {
+  CopyButtonPreview,
+  OTPInputPreview,
+  SegmentedControlPreview,
+  RatingPreview,
+  ColorPreview,
+} from "~/components/LandingPreviews";
 
 const packages = [
   {
     slug: "copy-button",
     name: "react-copy-button",
-    icon: "📋",
     desc: "Copy-to-clipboard with headless hook, styled variant, animations, async source, and tooltip.",
     version: "0.1.1",
     size: "~7 KB",
@@ -15,7 +21,6 @@ const packages = [
   {
     slug: "otp-input",
     name: "react-otp-input",
-    icon: "🔐",
     desc: "OTP / verification-code input with smart paste, full keyboard nav, masking, and group separators.",
     version: "0.1.0",
     size: "~20 KB",
@@ -24,7 +29,6 @@ const packages = [
   {
     slug: "segmented-control",
     name: "react-segmented-control",
-    icon: "🎚️",
     desc: "iOS-style segmented picker with buttery sliding indicator, ResizeObserver measurement, and generic type support.",
     version: "0.1.0",
     size: "~17 KB",
@@ -33,7 +37,6 @@ const packages = [
   {
     slug: "rating",
     name: "react-rating",
-    icon: "⭐",
     desc: "Star-rating with half-step support, hover preview, custom icons, CSS clip-path fills, and keyboard nav.",
     version: "0.1.0",
     size: "~18 KB",
@@ -42,7 +45,6 @@ const packages = [
   {
     slug: "color",
     name: "react-color",
-    icon: "🎨",
     desc: "Drop-in replacement for react-color. Zero dependencies, ~11 KB. Hex/RGB/HSL/HSV pickers and pure color math.",
     version: "0.1.0",
     size: "~11 KB",
@@ -113,21 +115,27 @@ const packages = [
                 {pkg.highlight && (
                   <div class="pkg-card__highlight">{pkg.highlight}</div>
                 )}
-                <div class="pkg-card__header">
-                  <span class="pkg-card__icon">{pkg.icon}</span>
-                  <div>
+                <div class="pkg-card__preview" aria-hidden="true">
+                  {pkg.slug === "copy-button" && <CopyButtonPreview client:visible />}
+                  {pkg.slug === "otp-input" && <OTPInputPreview client:visible />}
+                  {pkg.slug === "segmented-control" && <SegmentedControlPreview client:visible />}
+                  {pkg.slug === "rating" && <RatingPreview client:visible />}
+                  {pkg.slug === "color" && <ColorPreview client:visible />}
+                </div>
+                <div class="pkg-card__body">
+                  <div class="pkg-card__header">
                     <div class="pkg-card__name">{pkg.name}</div>
                     <div class="pkg-card__meta">
                       <span class="pkg-card__version">v{pkg.version}</span>
                       <span class="pkg-card__size">{pkg.size}</span>
                     </div>
                   </div>
-                </div>
-                <p class="pkg-card__desc">{pkg.desc}</p>
-                <div class="pkg-card__tags">
-                  {pkg.tags.map((tag) => (
-                    <span class="pkg-card__tag">{tag}</span>
-                  ))}
+                  <p class="pkg-card__desc">{pkg.desc}</p>
+                  <div class="pkg-card__tags">
+                    {pkg.tags.map((tag) => (
+                      <span class="pkg-card__tag">{tag}</span>
+                    ))}
+                  </div>
                 </div>
               </a>
             ))}
@@ -321,13 +329,29 @@ const packages = [
     background: var(--bg-elevated);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
-    padding: 1.25rem;
+    overflow: hidden;
     text-decoration: none;
     color: inherit;
     transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+  }
+  .pkg-card__preview {
+    height: 130px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(circle at 30% 30%, color-mix(in srgb, var(--accent) 8%, transparent), transparent 70%), var(--bg-subtle);
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .pkg-card__body {
+    padding: 1rem 1.25rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    flex: 1;
   }
   .pkg-card:hover {
     border-color: var(--accent);
@@ -350,10 +374,9 @@ const packages = [
   }
   .pkg-card__header {
     display: flex;
-    align-items: flex-start;
-    gap: 0.75rem;
+    flex-direction: column;
+    gap: 4px;
   }
-  .pkg-card__icon { font-size: 1.75rem; line-height: 1; flex-shrink: 0; }
   .pkg-card__name {
     font-size: 0.88rem;
     font-weight: 600;

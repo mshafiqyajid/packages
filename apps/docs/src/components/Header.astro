@@ -2,11 +2,14 @@
 ---
 <header class="header">
   <div class="header__inner">
-    <a href="/" class="header__logo">
-      <span class="header__logo-mark">@mshafiqyajid</span>
-      <span class="header__logo-slash">/</span>
-      <span class="header__logo-name">packages</span>
-    </a>
+    <div class="header__left">
+      <slot name="mobile-nav" />
+      <a href="/" class="header__logo">
+        <span class="header__logo-mark">@mshafiqyajid</span>
+        <span class="header__logo-slash">/</span>
+        <span class="header__logo-name">packages</span>
+      </a>
+    </div>
 
     <nav class="header__nav">
       <a href="https://github.com/mshafiqyajid/packages" target="_blank" rel="noreferrer" class="header__link">
@@ -50,7 +53,7 @@
     z-index: 100;
   }
   .header__inner {
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
     height: 100%;
     padding: 0 1.5rem;
@@ -58,6 +61,7 @@
     align-items: center;
     justify-content: space-between;
   }
+  .header__left { display: flex; align-items: center; }
   .header__logo {
     display: flex;
     align-items: center;
@@ -93,12 +97,8 @@
     background: var(--bg-subtle);
     text-decoration: none;
   }
-  .header__link-label {
-    display: none;
-  }
-  @media (min-width: 480px) {
-    .header__link-label { display: inline; }
-  }
+  .header__link-label { display: none; }
+  @media (min-width: 480px) { .header__link-label { display: inline; } }
   .header__theme-toggle {
     width: 36px;
     height: 36px;
@@ -112,11 +112,7 @@
     cursor: pointer;
     transition: color 160ms ease, background 160ms ease;
   }
-  .header__theme-toggle:hover {
-    color: var(--fg);
-    background: var(--bg-subtle);
-  }
-  /* show sun in dark, moon in light */
+  .header__theme-toggle:hover { color: var(--fg); background: var(--bg-subtle); }
   :root[data-theme="dark"] .icon-sun { display: block; }
   :root[data-theme="dark"] .icon-moon { display: none; }
   :root:not([data-theme="dark"]) .icon-sun { display: none; }
