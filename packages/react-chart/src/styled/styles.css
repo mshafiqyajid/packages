@@ -16,7 +16,8 @@
   --rchart-transition: 0.25s ease;
   --rchart-primary: #6366f1;
   --rchart-neutral: #6b7280;
-  display: inline-block;
+  display: block;
+  width: 100%;
   background: var(--rchart-bg);
   font-family: var(--rchart-font);
   font-size: var(--rchart-font-size);
@@ -36,6 +37,8 @@
 .rchart-svg {
   display: block;
   overflow: visible;
+  width: 100%;
+  height: auto;
 }
 
 /* ── Grid ─────────────────────────────────────────────────────── */

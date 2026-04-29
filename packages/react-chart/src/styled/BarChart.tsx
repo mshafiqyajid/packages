@@ -193,8 +193,6 @@ export const BarChart = forwardRef<HTMLDivElement, BarChartProps>(
       <div ref={ref} className={rootClass} style={style} {...rest}>
         <svg
           className="rchart-svg"
-          width={width}
-          height={height}
           viewBox={`0 0 ${width} ${height}`}
           aria-label="Bar chart"
           role="img"

@@ -151,8 +151,6 @@ export const LineChart = forwardRef<HTMLDivElement, LineChartProps>(
       <div ref={ref} className={rootClass} style={style} {...rest}>
         <svg
           className="rchart-svg"
-          width={width}
-          height={height}
           viewBox={`0 0 ${width} ${height}`}
           aria-label="Line chart"
           role="img"

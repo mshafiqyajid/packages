@@ -298,7 +298,7 @@ export default function PropPlayground({
         .pp {
           border: 1px solid var(--border);
           border-radius: 12px;
-          overflow: hidden;
+          overflow: clip;
           background: var(--bg-elevated);
         }
         .pp__top {
@@ -316,6 +316,8 @@ export default function PropPlayground({
           padding: 2rem 1.5rem;
           border-right: 1px solid var(--border);
           background: radial-gradient(circle at 30% 30%, color-mix(in srgb, var(--accent) 6%, transparent), transparent 70%), var(--bg-subtle);
+          overflow-x: auto;
+          min-width: 0;
         }
         @media (max-width: 720px) {
           .pp__preview { border-right: none; border-bottom: 1px solid var(--border); }

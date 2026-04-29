@@ -62,7 +62,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 2px;
+  gap: 4px 2px;
   padding: 0.3rem 0.4rem;
   border-bottom: 1px solid var(--rrt2-border);
   background: var(--rrt2-toolbar-bg);

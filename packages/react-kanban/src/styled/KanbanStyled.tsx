@@ -44,12 +44,13 @@ export const KanbanStyled = forwardRef<HTMLDivElement, KanbanStyledProps>(
 
     const boardStyle: CSSProperties = {
       gridTemplateColumns: `repeat(${visibleColumns.length}, minmax(${columnMinWidth}, 1fr))`,
+      minWidth: `calc(${visibleColumns.length} * (${columnMinWidth} + var(--rkb-gap, 12px)))`,
     };
 
     return (
+      <div ref={ref} className={["rkb-wrap", className].filter(Boolean).join(" ")}>
       <div
-        ref={ref}
-        className={["rkb-board", className].filter(Boolean).join(" ")}
+        className="rkb-board"
         data-size={size}
         data-tone={tone}
         data-disabled={disabled ? "true" : undefined}
@@ -133,6 +134,7 @@ export const KanbanStyled = forwardRef<HTMLDivElement, KanbanStyledProps>(
             </div>
           );
         })}
+      </div>
       </div>
     );
   },

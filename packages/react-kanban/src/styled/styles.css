@@ -37,14 +37,18 @@
  * Board
  * ========================================================================== */
 
+.rkb-wrap {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 .rkb-board {
   display: grid;
   gap: var(--rkb-gap);
-  overflow-x: auto;
   padding: var(--rkb-gap);
   background: var(--rkb-bg);
   border-radius: var(--rkb-column-radius);
-  width: 100%;
   box-sizing: border-box;
 }
 

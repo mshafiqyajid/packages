@@ -51,11 +51,9 @@ export const PieChart = forwardRef<HTMLDivElement, PieChartProps>(
       .join(" ");
 
     return (
-      <div ref={ref} className={rootClass} style={style} {...rest}>
+      <div ref={ref} className={rootClass} style={{ maxWidth: size, ...style }} {...rest}>
         <svg
           className="rchart-svg"
-          width={size}
-          height={size}
           viewBox={`0 0 ${size} ${size}`}
           aria-label="Pie chart"
           role="img"
