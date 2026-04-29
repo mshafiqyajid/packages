@@ -1,0 +1,64 @@
+---
+import "~/styles/global.css";
+import Sidebar from "~/components/Sidebar.astro";
+import Header from "~/components/Header.astro";
+
+export interface Props {
+  title: string;
+  description?: string;
+  pkg?: string;
+}
+
+const { title, description = "Documentation for @mshafiqyajid React packages.", pkg } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title} — @mshafiqyajid packages</title>
+    <meta name="description" content={description} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <script is:inline>
+      // Sync theme before first paint to prevent flash
+      (function () {
+        const saved = localStorage.getItem("theme");
+        const preferred = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        document.documentElement.dataset.theme = saved ?? preferred;
+      })();
+    </script>
+  </head>
+  <body>
+    <Header />
+    <div class="layout">
+      <Sidebar active={pkg} />
+      <main class="main">
+        <slot />
+      </main>
+    </div>
+
+    <style>
+      .layout {
+        display: flex;
+        min-height: calc(100vh - var(--header-height));
+        padding-top: var(--header-height);
+      }
+      .main {
+        flex: 1;
+        min-width: 0;
+        padding: 2.5rem 2rem 4rem;
+        max-width: 860px;
+      }
+      @media (max-width: 768px) {
+        .main { padding: 1.5rem 1rem 3rem; }
+      }
+    </style>
+  </body>
+</html>

@@ -1,0 +1,66 @@
+---
+import DocLayout from "~/layouts/DocLayout.astro";
+import PackagePageShell from "~/components/PackagePageShell.astro";
+import ColorPickerDemo from "~/components/demos/ColorPickerDemo";
+---
+
+<DocLayout
+  title="react-color"
+  description="Tiny, modern color picker — zero-dep drop-in for react-color."
+  pkg="color"
+>
+  <PackagePageShell
+    name="react-color"
+    version="0.1.0"
+    description="Tiny, modern color picker for React. Zero dependencies, ~11 KB (vs 37 KB). Drop-in replacement for the abandoned react-color package. HexColorPicker, RgbaColorPicker, HslaColorPicker — plus a headless hook and full color-math utilities."
+    size="~11 KB"
+  >
+    <div class="pkg-section">
+      <h2>Demo</h2>
+      <ColorPickerDemo client:load />
+    </div>
+
+    <div class="pkg-section">
+      <h2>Install</h2>
+      <pre>npm install @mshafiqyajid/react-color</pre>
+    </div>
+
+    <div class="pkg-section">
+      <h2>Quick start</h2>
+      <pre>{`import { HexColorPicker } from "@mshafiqyajid/react-color/styled";
+import "@mshafiqyajid/react-color/styles.css";
+
+const [color, setColor] = useState("#6366f1");
+
+<HexColorPicker value={color} onChange={setColor} />`}</pre>
+    </div>
+
+    <div class="pkg-section">
+      <h2>Picker components</h2>
+      <table class="props-table">
+        <thead>
+          <tr><th>Component</th><th>Output type</th><th>Example value</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>HexColorPicker</td><td>string</td><td>"#6366f1"</td></tr>
+          <tr><td>RgbaColorPicker</td><td>&#123; r, g, b, a &#125;</td><td>&#123; r:99, g:102, b:241, a:1 &#125;</td></tr>
+          <tr><td>HslaColorPicker</td><td>&#123; h, s, l, a &#125;</td><td>&#123; h:239, s:84, l:67, a:1 &#125;</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Shared props (all pickers)</h3>
+      <table class="props-table">
+        <thead>
+          <tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>value</td><td>format-specific</td><td>—</td><td>Controlled color value.</td></tr>
+          <tr><td>defaultValue</td><td>format-specific</td><td>white</td><td>Uncontrolled initial.</td></tr>
+          <tr><td>onChange</td><td>(color) =&gt; void</td><td>—</td><td>Fires on every pointer move.</td></tr>
+          <tr><td>showAlpha</td><td>boolean</td><td>false</td><td>Add alpha slider.</td></tr>
+          <tr><td>showHexInput</td><td>boolean</td><td>true</td><td>Show hex text input.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </PackagePageShell>
+</DocLayout>

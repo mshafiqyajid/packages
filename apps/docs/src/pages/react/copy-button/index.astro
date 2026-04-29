@@ -1,0 +1,72 @@
+---
+import DocLayout from "~/layouts/DocLayout.astro";
+import PackagePageShell from "~/components/PackagePageShell.astro";
+import CopyButtonDemo from "~/components/demos/CopyButtonDemo";
+---
+
+<DocLayout
+  title="react-copy-button"
+  description="Headless copy-to-clipboard hook and styled button for React."
+  pkg="copy-button"
+>
+  <PackagePageShell
+    name="react-copy-button"
+    version="0.1.1"
+    description="Headless copy-to-clipboard hook and styled button primitive for React. Zero dependencies, SSR-safe, fully typed. Both a useCopyToClipboard() hook and a polished <CopyButtonStyled> with variants, sizes, tones, async source, tooltip, and animated copied state."
+    size="~22 KB"
+  >
+
+    <div class="pkg-section">
+      <h2>Demo</h2>
+      <CopyButtonDemo client:load />
+    </div>
+
+    <div class="pkg-section">
+      <h2>Install</h2>
+      <pre>npm install @mshafiqyajid/react-copy-button</pre>
+    </div>
+
+    <div class="pkg-section">
+      <h2>Quick start</h2>
+      <h3>Styled</h3>
+      <pre>{`import { CopyButtonStyled } from "@mshafiqyajid/react-copy-button/styled";
+import "@mshafiqyajid/react-copy-button/styles.css";
+
+<CopyButtonStyled text="hello world" tone="primary" />`}</pre>
+
+      <h3>Headless hook</h3>
+      <pre>{`import { useCopyToClipboard } from "@mshafiqyajid/react-copy-button";
+
+const { copy, copied } = useCopyToClipboard({ resetAfter: 2000 });
+
+<button onClick={() => void copy("hello")}>
+  {copied ? "Copied!" : "Copy"}
+</button>`}</pre>
+    </div>
+
+    <div class="pkg-section">
+      <h2>API — CopyButtonStyled</h2>
+      <table class="props-table">
+        <thead>
+          <tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>text</td><td>string | () =&gt; string | Promise&lt;string&gt;</td><td>—</td><td>Required. Text to copy.</td></tr>
+          <tr><td>label</td><td>ReactNode</td><td>"Copy"</td><td>Default-state label.</td></tr>
+          <tr><td>copiedLabel</td><td>ReactNode</td><td>"Copied"</td><td>Label after copy.</td></tr>
+          <tr><td>variant</td><td>solid | outline | ghost | subtle</td><td>solid</td><td>Visual variant.</td></tr>
+          <tr><td>size</td><td>sm | md | lg | icon</td><td>md</td><td>Size.</td></tr>
+          <tr><td>tone</td><td>neutral | primary | success | danger</td><td>neutral</td><td>Color theme.</td></tr>
+          <tr><td>fullWidth</td><td>boolean</td><td>false</td><td>Stretch to container.</td></tr>
+          <tr><td>icon</td><td>boolean | &#123; copy?, check? &#125;</td><td>true</td><td>Show/hide icon or pass custom.</td></tr>
+          <tr><td>loading</td><td>boolean | "auto"</td><td>"auto"</td><td>Show spinner while async resolves.</td></tr>
+          <tr><td>tooltip</td><td>ReactNode</td><td>—</td><td>Tooltip on hover/focus.</td></tr>
+          <tr><td>resetAfter</td><td>number (ms)</td><td>2000</td><td>Copied state duration.</td></tr>
+          <tr><td>onCopy</td><td>(text: string) =&gt; void</td><td>—</td><td>Called after successful copy.</td></tr>
+          <tr><td>onError</td><td>(error: Error) =&gt; void</td><td>—</td><td>Called on failure.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </PackagePageShell>
+</DocLayout>

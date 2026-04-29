@@ -1,0 +1,448 @@
+---
+import "~/styles/global.css";
+import Header from "~/components/Header.astro";
+
+const packages = [
+  {
+    slug: "copy-button",
+    name: "react-copy-button",
+    icon: "📋",
+    desc: "Copy-to-clipboard with headless hook, styled variant, animations, async source, and tooltip.",
+    version: "0.1.1",
+    size: "~7 KB",
+    tags: ["hook", "headless", "animated"],
+  },
+  {
+    slug: "otp-input",
+    name: "react-otp-input",
+    icon: "🔐",
+    desc: "OTP / verification-code input with smart paste, full keyboard nav, masking, and group separators.",
+    version: "0.1.0",
+    size: "~20 KB",
+    tags: ["hook", "a11y", "paste"],
+  },
+  {
+    slug: "segmented-control",
+    name: "react-segmented-control",
+    icon: "🎚️",
+    desc: "iOS-style segmented picker with buttery sliding indicator, ResizeObserver measurement, and generic type support.",
+    version: "0.1.0",
+    size: "~17 KB",
+    tags: ["hook", "animated", "generic"],
+  },
+  {
+    slug: "rating",
+    name: "react-rating",
+    icon: "⭐",
+    desc: "Star-rating with half-step support, hover preview, custom icons, CSS clip-path fills, and keyboard nav.",
+    version: "0.1.0",
+    size: "~18 KB",
+    tags: ["hook", "half-step", "custom icons"],
+  },
+  {
+    slug: "color",
+    name: "react-color",
+    icon: "🎨",
+    desc: "Drop-in replacement for react-color. Zero dependencies, ~11 KB. Hex/RGB/HSL/HSV pickers and pure color math.",
+    version: "0.1.0",
+    size: "~11 KB",
+    tags: ["color math", "zero deps", "drop-in"],
+    highlight: "Drop-in for react-color",
+  },
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@mshafiqyajid/packages — polished React UI primitives</title>
+    <meta name="description" content="A collection of tiny, headless React components. Zero dependencies, fully typed, SSR-safe." />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <script is:inline>
+      (function () {
+        const saved = localStorage.getItem("theme");
+        const preferred = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        document.documentElement.dataset.theme = saved ?? preferred;
+      })();
+    </script>
+  </head>
+  <body>
+    <Header />
+    <main class="home">
+      <!-- Hero -->
+      <section class="hero">
+        <div class="hero__inner">
+          <div class="hero__eyebrow">
+            <span class="hero__dot"></span>
+            5 packages · React · TypeScript · Zero deps
+          </div>
+          <h1 class="hero__title">
+            Tiny, polished<br />
+            <span class="hero__title-accent">React primitives.</span>
+          </h1>
+          <p class="hero__subtitle">
+            Headless hooks + beautifully styled components. Every package ships
+            under 25 KB, has zero runtime dependencies, and is SSR-safe.
+          </p>
+          <div class="hero__actions">
+            <a href="/react/copy-button/" class="btn btn--primary">Get started</a>
+            <a href="https://github.com/mshafiqyajid/packages" target="_blank" rel="noreferrer" class="btn btn--secondary">View on GitHub</a>
+          </div>
+          <div class="hero__install">
+            <span class="hero__install-prompt">$</span>
+            <span>npm install @mshafiqyajid/react-copy-button</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Packages grid -->
+      <section class="packages">
+        <div class="packages__inner">
+          <h2 class="packages__heading">Packages</h2>
+          <div class="packages__grid">
+            {packages.map((pkg) => (
+              <a href={`/react/${pkg.slug}/`} class="pkg-card">
+                {pkg.highlight && (
+                  <div class="pkg-card__highlight">{pkg.highlight}</div>
+                )}
+                <div class="pkg-card__header">
+                  <span class="pkg-card__icon">{pkg.icon}</span>
+                  <div>
+                    <div class="pkg-card__name">{pkg.name}</div>
+                    <div class="pkg-card__meta">
+                      <span class="pkg-card__version">v{pkg.version}</span>
+                      <span class="pkg-card__size">{pkg.size}</span>
+                    </div>
+                  </div>
+                </div>
+                <p class="pkg-card__desc">{pkg.desc}</p>
+                <div class="pkg-card__tags">
+                  {pkg.tags.map((tag) => (
+                    <span class="pkg-card__tag">{tag}</span>
+                  ))}
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <!-- Why section -->
+      <section class="why">
+        <div class="why__inner">
+          <h2 class="why__heading">Why these packages?</h2>
+          <div class="why__grid">
+            <div class="why__item">
+              <div class="why__icon">📦</div>
+              <h3>Zero runtime deps</h3>
+              <p>Every package ships zero runtime dependencies. No lodash, no moment, no prop-types.</p>
+            </div>
+            <div class="why__item">
+              <div class="why__icon">🧩</div>
+              <h3>Headless by default</h3>
+              <p>Every package exports a hook (or headless primitive) so you can build any UI on top.</p>
+            </div>
+            <div class="why__item">
+              <div class="why__icon">💅</div>
+              <h3>Styled option included</h3>
+              <p>A polished styled component ships alongside the headless version — dark mode, animations, CSS vars.</p>
+            </div>
+            <div class="why__item">
+              <div class="why__icon">🔐</div>
+              <h3>TypeScript-first</h3>
+              <p>Full type inference, generic components, and complete typedefs. No @types/* needed.</p>
+            </div>
+            <div class="why__item">
+              <div class="why__icon">🌐</div>
+              <h3>SSR-safe</h3>
+              <p>All packages do nothing at import time. Works with Next.js App Router, Remix, Astro.</p>
+            </div>
+            <div class="why__item">
+              <div class="why__icon">⚛️</div>
+              <h3>React 17–19</h3>
+              <p>Peer dependency is <code>react ≥ 17</code>. Tested against React 19 and Next.js 15.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="footer__inner">
+        <span>MIT licensed · by <a href="https://github.com/mshafiqyajid" target="_blank" rel="noreferrer">@mshafiqyajid</a></span>
+        <a href="https://github.com/mshafiqyajid/packages" target="_blank" rel="noreferrer">GitHub</a>
+      </div>
+    </footer>
+  </body>
+</html>
+
+<style>
+  .home { padding-top: var(--header-height); }
+
+  /* Hero */
+  .hero {
+    padding: 5rem 1.5rem 4rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 50% at 20% -10%, rgba(99,102,241,0.15), transparent),
+      radial-gradient(ellipse 60% 40% at 80% 0%, rgba(236,72,153,0.1), transparent);
+    pointer-events: none;
+    z-index: -1;
+  }
+  .hero__inner { max-width: 700px; margin: 0 auto; }
+  .hero__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--fg-muted);
+    margin-bottom: 1.25rem;
+    padding: 0.3rem 0.75rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    box-shadow: var(--shadow-sm);
+  }
+  .hero__dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: #22c55e;
+    box-shadow: 0 0 0 3px rgba(34,197,94,0.25);
+  }
+  .hero__title {
+    font-size: clamp(2.2rem, 5.5vw, 3.75rem);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    margin-bottom: 1.25rem;
+    color: var(--fg);
+  }
+  .hero__title-accent {
+    background: linear-gradient(135deg, #6366f1, #8b5cf6, #ec4899);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    display: block;
+  }
+  .hero__subtitle {
+    font-size: 1.05rem;
+    color: var(--fg-muted);
+    max-width: 520px;
+    margin: 0 auto 2rem;
+    line-height: 1.65;
+  }
+  .hero__actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.6rem 1.25rem;
+    border-radius: var(--radius);
+    font: inherit;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 200ms ease, box-shadow 200ms ease, background 160ms ease;
+    text-decoration: none;
+  }
+  .btn:hover { transform: translateY(-1px); text-decoration: none; }
+  .btn--primary {
+    background: var(--accent);
+    color: white;
+    box-shadow: 0 4px 14px -4px rgba(99,102,241,0.5);
+  }
+  .btn--primary:hover {
+    background: var(--accent-hover);
+    box-shadow: 0 6px 20px -4px rgba(99,102,241,0.55);
+    color: white;
+  }
+  .btn--secondary {
+    background: var(--bg-elevated);
+    color: var(--fg);
+    border: 1px solid var(--border-strong);
+    box-shadow: var(--shadow-sm);
+  }
+  .btn--secondary:hover {
+    background: var(--bg-subtle);
+    color: var(--fg);
+    box-shadow: var(--shadow-md);
+  }
+  .hero__install {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.82rem;
+    color: var(--fg-muted);
+    box-shadow: var(--shadow-md);
+  }
+  .hero__install-prompt { color: var(--accent); }
+
+  /* Packages grid */
+  .packages { padding: 3rem 1.5rem; }
+  .packages__inner { max-width: 1100px; margin: 0 auto; }
+  .packages__heading {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    color: var(--fg);
+  }
+  .packages__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+  }
+  .pkg-card {
+    position: relative;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .pkg-card:hover {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px var(--accent), var(--shadow-md);
+    transform: translateY(-2px);
+    text-decoration: none;
+    color: inherit;
+  }
+  .pkg-card__highlight {
+    position: absolute;
+    top: -1px;
+    right: 12px;
+    background: var(--accent);
+    color: white;
+    font-size: 0.68rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 0 0 6px 6px;
+    letter-spacing: 0.02em;
+  }
+  .pkg-card__header {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  .pkg-card__icon { font-size: 1.75rem; line-height: 1; flex-shrink: 0; }
+  .pkg-card__name {
+    font-size: 0.88rem;
+    font-weight: 600;
+    font-family: "JetBrains Mono", monospace;
+    color: var(--fg);
+  }
+  .pkg-card__meta {
+    display: flex;
+    gap: 0.4rem;
+    margin-top: 0.2rem;
+  }
+  .pkg-card__version, .pkg-card__size {
+    font-size: 0.72rem;
+    font-family: "JetBrains Mono", monospace;
+    background: var(--bg-subtle);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 6px;
+    color: var(--fg-muted);
+  }
+  .pkg-card__desc {
+    font-size: 0.85rem;
+    color: var(--fg-muted);
+    line-height: 1.55;
+    flex: 1;
+  }
+  .pkg-card__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+  .pkg-card__tag {
+    font-size: 0.7rem;
+    font-weight: 500;
+    padding: 2px 7px;
+    border-radius: 4px;
+    background: color-mix(in srgb, var(--accent) 10%, transparent);
+    color: var(--accent);
+    border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+  }
+
+  /* Why section */
+  .why { padding: 3rem 1.5rem 4rem; }
+  .why__inner { max-width: 1100px; margin: 0 auto; }
+  .why__heading {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    color: var(--fg);
+  }
+  .why__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1rem;
+  }
+  .why__item {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .why__icon { font-size: 1.5rem; }
+  .why__item h3 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--fg);
+  }
+  .why__item p {
+    font-size: 0.85rem;
+    color: var(--fg-muted);
+    line-height: 1.55;
+  }
+
+  /* Footer */
+  .footer {
+    border-top: 1px solid var(--border);
+    padding: 1.5rem;
+  }
+  .footer__inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.82rem;
+    color: var(--fg-muted);
+  }
+  .footer a { color: var(--fg-muted); }
+  .footer a:hover { color: var(--fg); }
+</style>

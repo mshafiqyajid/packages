@@ -1,0 +1,164 @@
+---
+export interface Props {
+  name: string;
+  version: string;
+  description: string;
+  size: string;
+  framework?: string;
+}
+const { name, version, description, size, framework = "react" } = Astro.props;
+const npmUrl = `https://www.npmjs.com/package/@mshafiqyajid/${name}`;
+const githubUrl = `https://github.com/mshafiqyajid/packages/tree/main/packages/${name}`;
+const installCmd = `npm install @mshafiqyajid/${name}`;
+---
+
+<div class="pkg-header">
+  <div class="pkg-header__top">
+    <h1 class="pkg-header__name">
+      <span class="pkg-header__scope">@mshafiqyajid/</span>{name}
+    </h1>
+    <div class="pkg-header__badges">
+      <a href={npmUrl} target="_blank" rel="noreferrer" class="pkg-header__badge pkg-header__badge--npm">
+        v{version}
+      </a>
+      <span class="pkg-header__badge">{size}</span>
+      <span class="pkg-header__badge">0 deps</span>
+      <span class="pkg-header__badge pkg-header__badge--framework">{framework}</span>
+    </div>
+  </div>
+  <p class="pkg-header__desc">{description}</p>
+  <div class="pkg-header__actions">
+    <div class="pkg-header__install">
+      <span class="pkg-header__install-prompt">$</span>
+      <code id="install-cmd">{installCmd}</code>
+      <button class="pkg-header__copy" data-value={installCmd} aria-label="Copy install command">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+        </svg>
+      </button>
+    </div>
+    <div class="pkg-header__links">
+      <a href={npmUrl} target="_blank" rel="noreferrer">npm ↗</a>
+      <a href={githubUrl} target="_blank" rel="noreferrer">GitHub ↗</a>
+    </div>
+  </div>
+</div>
+
+<slot />
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>(".pkg-header__copy").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const val = btn.dataset.value ?? "";
+      await navigator.clipboard.writeText(val).catch(() => {});
+      btn.dataset.copied = "true";
+      setTimeout(() => delete btn.dataset.copied, 1800);
+    });
+  });
+</script>
+
+<style>
+  .pkg-header {
+    padding-bottom: 2rem;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .pkg-header__top {
+    display: flex;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+  .pkg-header__name {
+    font-size: 1.75rem;
+    font-family: "JetBrains Mono", monospace;
+    font-weight: 600;
+  }
+  .pkg-header__scope { color: var(--fg-muted); }
+  .pkg-header__badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    align-items: center;
+    padding-top: 0.35rem;
+  }
+  .pkg-header__badge {
+    font-size: 0.72rem;
+    font-weight: 600;
+    font-family: "JetBrains Mono", monospace;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: var(--bg-subtle);
+    border: 1px solid var(--border);
+    color: var(--fg-muted);
+    text-decoration: none;
+  }
+  .pkg-header__badge--npm:hover { color: var(--accent); border-color: var(--accent); text-decoration: none; }
+  .pkg-header__badge--framework {
+    background: color-mix(in srgb, var(--accent) 10%, transparent);
+    border-color: color-mix(in srgb, var(--accent) 25%, transparent);
+    color: var(--accent);
+  }
+  .pkg-header__desc {
+    color: var(--fg-muted);
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+    max-width: 600px;
+  }
+  .pkg-header__actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  .pkg-header__install {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.45rem 0.6rem 0.45rem 0.85rem;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.82rem;
+    box-shadow: var(--shadow-sm);
+  }
+  .pkg-header__install-prompt { color: var(--accent); user-select: none; }
+  .pkg-header__copy {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: var(--fg-muted);
+    padding: 2px;
+    border-radius: 4px;
+    transition: color 140ms ease, background 140ms ease;
+    display: inline-flex;
+    align-items: center;
+  }
+  .pkg-header__copy:hover { color: var(--fg); background: var(--bg-subtle); }
+  .pkg-header__copy[data-copied] { color: var(--success); }
+  .pkg-header__links {
+    display: flex;
+    gap: 0.75rem;
+    font-size: 0.83rem;
+  }
+  .pkg-header__links a { color: var(--fg-muted); }
+  .pkg-header__links a:hover { color: var(--accent); }
+
+  /* ---- Section headings (used in slot content) ---- */
+  :global(.pkg-section) { margin-top: 2.5rem; }
+  :global(.pkg-section h2) {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  :global(.pkg-section h3) {
+    font-size: 1rem;
+    margin: 1.5rem 0 0.5rem;
+    color: var(--fg);
+  }
+</style>

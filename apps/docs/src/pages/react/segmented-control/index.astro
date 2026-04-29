@@ -1,0 +1,65 @@
+---
+import DocLayout from "~/layouts/DocLayout.astro";
+import PackagePageShell from "~/components/PackagePageShell.astro";
+import SegmentedControlDemo from "~/components/demos/SegmentedControlDemo";
+---
+
+<DocLayout
+  title="react-segmented-control"
+  description="iOS-style segmented picker with animated sliding indicator."
+  pkg="segmented-control"
+>
+  <PackagePageShell
+    name="react-segmented-control"
+    version="0.1.0"
+    description="Headless segmented control hook and styled component for React. Buttery sliding indicator, ResizeObserver measurement, full keyboard nav, generic over option type, object options with custom labels."
+    size="~17 KB"
+  >
+    <div class="pkg-section">
+      <h2>Demo</h2>
+      <SegmentedControlDemo client:load />
+    </div>
+
+    <div class="pkg-section">
+      <h2>Install</h2>
+      <pre>npm install @mshafiqyajid/react-segmented-control</pre>
+    </div>
+
+    <div class="pkg-section">
+      <h2>Quick start</h2>
+      <pre>{`import { SegmentedControlStyled } from "@mshafiqyajid/react-segmented-control/styled";
+import "@mshafiqyajid/react-segmented-control/styles.css";
+
+const [view, setView] = useState("week");
+
+<SegmentedControlStyled
+  options={["day", "week", "month"]}
+  value={view}
+  onChange={setView}
+  tone="primary"
+/>`}</pre>
+    </div>
+
+    <div class="pkg-section">
+      <h2>API — SegmentedControlStyled</h2>
+      <table class="props-table">
+        <thead>
+          <tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>options</td><td>Array&lt;T | &#123; value, label?, disabled? &#125;&gt;</td><td>—</td><td>Required. Options to render.</td></tr>
+          <tr><td>value</td><td>T</td><td>—</td><td>Controlled value.</td></tr>
+          <tr><td>defaultValue</td><td>T</td><td>first option</td><td>Uncontrolled initial value.</td></tr>
+          <tr><td>onChange</td><td>(value: T) =&gt; void</td><td>—</td><td>Fires on change.</td></tr>
+          <tr><td>equals</td><td>(a: T, b: T) =&gt; boolean</td><td>Object.is</td><td>Custom equality for objects.</td></tr>
+          <tr><td>variant</td><td>solid | pill | underline</td><td>solid</td><td>Visual style.</td></tr>
+          <tr><td>size</td><td>sm | md | lg</td><td>md</td><td>Size.</td></tr>
+          <tr><td>tone</td><td>neutral | primary | success | danger</td><td>primary</td><td>Indicator color.</td></tr>
+          <tr><td>fullWidth</td><td>boolean</td><td>false</td><td>Stretch to container.</td></tr>
+          <tr><td>label</td><td>ReactNode</td><td>—</td><td>Label above.</td></tr>
+          <tr><td>hint</td><td>ReactNode</td><td>—</td><td>Helper text below.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </PackagePageShell>
+</DocLayout>

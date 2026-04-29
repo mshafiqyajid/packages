@@ -1,0 +1,66 @@
+---
+import DocLayout from "~/layouts/DocLayout.astro";
+import PackagePageShell from "~/components/PackagePageShell.astro";
+import OTPInputDemo from "~/components/demos/OTPInputDemo";
+---
+
+<DocLayout
+  title="react-otp-input"
+  description="OTP / verification-code input with smart paste, keyboard nav, masking."
+  pkg="otp-input"
+>
+  <PackagePageShell
+    name="react-otp-input"
+    version="0.1.0"
+    description="Headless OTP / verification-code input hook and styled component for React. Smart paste fills all slots. Full keyboard nav. Masking, group separators, label/hint/error states, and SMS autofill via autoComplete=one-time-code."
+    size="~20 KB"
+  >
+    <div class="pkg-section">
+      <h2>Demo</h2>
+      <OTPInputDemo client:load />
+    </div>
+
+    <div class="pkg-section">
+      <h2>Install</h2>
+      <pre>npm install @mshafiqyajid/react-otp-input</pre>
+    </div>
+
+    <div class="pkg-section">
+      <h2>Quick start</h2>
+      <pre>{`import { OTPInputStyled } from "@mshafiqyajid/react-otp-input/styled";
+import "@mshafiqyajid/react-otp-input/styles.css";
+
+<OTPInputStyled
+  length={6}
+  tone="primary"
+  onComplete={(code) => verify(code)}
+  autoFocus
+/>`}</pre>
+    </div>
+
+    <div class="pkg-section">
+      <h2>API — OTPInputStyled</h2>
+      <table class="props-table">
+        <thead>
+          <tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>length</td><td>number</td><td>6</td><td>Number of slots.</td></tr>
+          <tr><td>value</td><td>string</td><td>—</td><td>Controlled value.</td></tr>
+          <tr><td>onChange</td><td>(value: string) =&gt; void</td><td>—</td><td>Fires on change.</td></tr>
+          <tr><td>onComplete</td><td>(value: string) =&gt; void</td><td>—</td><td>Fires when all slots filled.</td></tr>
+          <tr><td>pattern</td><td>numeric | alphanumeric | any | RegExp | fn</td><td>numeric</td><td>Allowed characters.</td></tr>
+          <tr><td>allowHalf</td><td>boolean</td><td>true</td><td>Allow half-step values.</td></tr>
+          <tr><td>variant</td><td>solid | outline | underline</td><td>solid</td><td>Visual style.</td></tr>
+          <tr><td>size</td><td>sm | md | lg</td><td>md</td><td>Size.</td></tr>
+          <tr><td>tone</td><td>neutral | primary | success | danger</td><td>neutral</td><td>Color theme.</td></tr>
+          <tr><td>mask</td><td>boolean</td><td>false</td><td>Show maskChar instead of typed char.</td></tr>
+          <tr><td>groupSize</td><td>number</td><td>—</td><td>Insert separator after every N slots.</td></tr>
+          <tr><td>label</td><td>ReactNode</td><td>—</td><td>Label above.</td></tr>
+          <tr><td>hint</td><td>ReactNode</td><td>—</td><td>Helper text below.</td></tr>
+          <tr><td>error</td><td>ReactNode</td><td>—</td><td>Error text — flips tone to danger.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </PackagePageShell>
+</DocLayout>

@@ -1,0 +1,167 @@
+---
+interface Props {
+  active?: string;
+}
+const { active } = Astro.props;
+
+const packages = [
+  {
+    framework: "React",
+    items: [
+      { slug: "copy-button",       label: "react-copy-button",       icon: "📋", version: "0.1.1" },
+      { slug: "otp-input",         label: "react-otp-input",         icon: "🔐", version: "0.1.0" },
+      { slug: "segmented-control", label: "react-segmented-control", icon: "🎚️", version: "0.1.0" },
+      { slug: "rating",            label: "react-rating",            icon: "⭐", version: "0.1.0" },
+      { slug: "color",             label: "react-color",             icon: "🎨", version: "0.1.0" },
+    ],
+  },
+];
+---
+
+<nav class="sidebar" id="sidebar" aria-label="Package navigation">
+  <div class="sidebar__inner">
+    <a href="/" class="sidebar__home">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+        <polyline points="9 22 9 12 15 12 15 22"/>
+      </svg>
+      Home
+    </a>
+
+    {packages.map((group) => (
+      <div class="sidebar__group">
+        <div class="sidebar__group-label">
+          <span class="badge badge--react">{group.framework}</span>
+        </div>
+        <ul class="sidebar__list">
+          {group.items.map((item) => (
+            <li>
+              <a
+                href={`/react/${item.slug}/`}
+                class:list={["sidebar__link", { "sidebar__link--active": active === item.slug }]}
+              >
+                <span class="sidebar__icon" aria-hidden="true">{item.icon}</span>
+                <span class="sidebar__name">{item.label.replace("react-", "")}</span>
+                <span class="sidebar__version">{item.version}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    ))}
+
+    <div class="sidebar__group sidebar__group--future">
+      <div class="sidebar__group-label sidebar__group-label--muted">Coming soon</div>
+      <ul class="sidebar__list">
+        <li><span class="sidebar__link sidebar__link--disabled">Vue packages</span></li>
+        <li><span class="sidebar__link sidebar__link--disabled">react-modal</span></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<style>
+  .sidebar {
+    width: var(--sidebar-width);
+    flex-shrink: 0;
+    position: sticky;
+    top: var(--header-height);
+    height: calc(100vh - var(--header-height));
+    overflow-y: auto;
+    border-right: 1px solid var(--border);
+    padding: 1.25rem 0;
+  }
+  .sidebar__inner {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0 0.75rem;
+  }
+  .sidebar__home {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.45rem 0.6rem;
+    border-radius: var(--radius);
+    color: var(--fg-muted);
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 140ms ease, background 140ms ease;
+    margin-bottom: 0.5rem;
+  }
+  .sidebar__home:hover {
+    color: var(--fg);
+    background: var(--bg-subtle);
+    text-decoration: none;
+  }
+  .sidebar__group { margin-top: 1rem; }
+  .sidebar__group-label {
+    padding: 0 0.6rem 0.4rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--fg-subtle);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .sidebar__group-label--muted { color: var(--fg-subtle); opacity: 0.6; }
+  .sidebar__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+  .sidebar__link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.6rem;
+    border-radius: var(--radius);
+    font-size: 0.84rem;
+    font-weight: 500;
+    color: var(--fg-muted);
+    text-decoration: none;
+    transition: color 140ms ease, background 140ms ease;
+    cursor: pointer;
+  }
+  a.sidebar__link:hover {
+    color: var(--fg);
+    background: var(--bg-subtle);
+    text-decoration: none;
+  }
+  .sidebar__link--active {
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
+    color: var(--accent);
+  }
+  .sidebar__link--active:hover {
+    background: color-mix(in srgb, var(--accent) 16%, transparent);
+    color: var(--accent);
+  }
+  .sidebar__link--disabled {
+    opacity: 0.45;
+    cursor: default;
+    font-style: italic;
+  }
+  .sidebar__icon { font-size: 0.9em; flex-shrink: 0; }
+  .sidebar__name { flex: 1; min-width: 0; }
+  .sidebar__version {
+    font-size: 0.68rem;
+    font-family: "JetBrains Mono", monospace;
+    color: var(--fg-subtle);
+    background: var(--bg-subtle);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 5px;
+    flex-shrink: 0;
+  }
+  .sidebar__link--active .sidebar__version {
+    background: color-mix(in srgb, var(--accent) 15%, transparent);
+    border-color: color-mix(in srgb, var(--accent) 30%, transparent);
+    color: var(--accent);
+  }
+  @media (max-width: 768px) {
+    .sidebar { display: none; }
+  }
+</style>

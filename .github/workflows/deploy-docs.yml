@@ -1,0 +1,47 @@
+name: Deploy docs
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/docs/**"
+      - "packages/**"
+      - ".github/workflows/deploy-docs.yml"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install + build
+        run: |
+          cd apps/docs
+          rm -rf node_modules
+          npm install --no-audit --no-fund
+          npm run build
+
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: 194.233.76.164
+          username: root
+          key: ${{ secrets.DOCS_DEPLOY_KEY }}
+          script: |
+            set -e
+            mkdir -p /var/www/docs
+            rm -rf /var/www/docs/*
+
+      - name: Copy dist to VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: 194.233.76.164
+          username: root
+          key: ${{ secrets.DOCS_DEPLOY_KEY }}
+          source: "apps/docs/dist/*"
+          target: "/var/www/docs"
+          strip_components: 3

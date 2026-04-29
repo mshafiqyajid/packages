@@ -1,0 +1,68 @@
+---
+import DocLayout from "~/layouts/DocLayout.astro";
+import PackagePageShell from "~/components/PackagePageShell.astro";
+import RatingDemo from "~/components/demos/RatingDemo";
+---
+
+<DocLayout
+  title="react-rating"
+  description="Star rating with half-step support, hover preview, custom icons."
+  pkg="rating"
+>
+  <PackagePageShell
+    name="react-rating"
+    version="0.1.0"
+    description="Headless star-rating hook and styled component for React. Half-step support, hover preview, custom icons (hearts, thumbs, anything), full keyboard nav, CSS clip-path half-fill."
+    size="~18 KB"
+  >
+    <div class="pkg-section">
+      <h2>Demo</h2>
+      <RatingDemo client:load />
+    </div>
+
+    <div class="pkg-section">
+      <h2>Install</h2>
+      <pre>npm install @mshafiqyajid/react-rating</pre>
+    </div>
+
+    <div class="pkg-section">
+      <h2>Quick start</h2>
+      <pre>{`import { RatingStyled } from "@mshafiqyajid/react-rating/styled";
+import "@mshafiqyajid/react-rating/styles.css";
+
+const [value, setValue] = useState(0);
+
+<RatingStyled
+  count={5}
+  value={value}
+  onChange={setValue}
+  showValue
+/>`}</pre>
+    </div>
+
+    <div class="pkg-section">
+      <h2>API — RatingStyled</h2>
+      <table class="props-table">
+        <thead>
+          <tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>count</td><td>number</td><td>5</td><td>Number of stars.</td></tr>
+          <tr><td>value</td><td>number</td><td>—</td><td>Controlled value (0..count).</td></tr>
+          <tr><td>defaultValue</td><td>number</td><td>0</td><td>Uncontrolled initial.</td></tr>
+          <tr><td>onChange</td><td>(value: number) =&gt; void</td><td>—</td><td>Fires on commit.</td></tr>
+          <tr><td>onHover</td><td>(value: number | null) =&gt; void</td><td>—</td><td>Fires during hover.</td></tr>
+          <tr><td>allowHalf</td><td>boolean</td><td>true</td><td>Enable half-step values.</td></tr>
+          <tr><td>clearable</td><td>boolean</td><td>true</td><td>Re-clicking active value clears it.</td></tr>
+          <tr><td>readOnly</td><td>boolean</td><td>false</td><td>Display only, no interaction.</td></tr>
+          <tr><td>size</td><td>sm | md | lg</td><td>md</td><td>Size.</td></tr>
+          <tr><td>tone</td><td>neutral | primary | success | warning | danger</td><td>warning</td><td>Fill color.</td></tr>
+          <tr><td>icon</td><td>ReactNode</td><td>star SVG</td><td>Custom icon for both layers.</td></tr>
+          <tr><td>showValue</td><td>boolean</td><td>false</td><td>Show numeric value badge.</td></tr>
+          <tr><td>label</td><td>ReactNode</td><td>—</td><td>Label above.</td></tr>
+          <tr><td>hint</td><td>ReactNode</td><td>—</td><td>Helper text below.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </PackagePageShell>
+</DocLayout>
