@@ -1,0 +1,231 @@
+/* ============================================================================
+ * react-rating — styled component
+ *
+ * Each star = two stacked copies of the icon:
+ *   .rrt-icon-empty (background, gray)  +  .rrt-icon-fill (overlay, tone color, clipped)
+ * The overlay is clipped horizontally via `clip-path: inset(0 calc((1 - var(--rrt-fill)) * 100%) 0 0)`
+ * giving crisp full / half / empty fills with one CSS variable.
+ * ========================================================================== */
+
+.rrt-wrap {
+  --rrt-fg: #18181b;
+  --rrt-fg-muted: #71717a;
+  --rrt-color-empty: #d4d4d8;
+  --rrt-color-fill: #f59e0b;
+  --rrt-color-hover-glow: rgba(245, 158, 11, 0.35);
+  --rrt-icon-size: 1.5rem;
+  --rrt-gap: 0.15rem;
+
+  --rrt-duration: 200ms;
+  --rrt-duration-fast: 120ms;
+  --rrt-ease: cubic-bezier(0.32, 0.72, 0, 1);
+  --rrt-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  display: inline-flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-family: inherit;
+  color: var(--rrt-fg);
+}
+
+.rrt-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.rrt-label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--rrt-fg);
+}
+
+.rrt-hint {
+  font-size: 0.78rem;
+  color: var(--rrt-fg-muted);
+}
+
+.rrt-value {
+  font-size: 0.85rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--rrt-fg-muted);
+  min-width: 1.5em;
+}
+
+/* ============================================================================
+ * Root (radiogroup)
+ * ========================================================================== */
+.rrt-root {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--rrt-gap);
+}
+
+.rrt-root[aria-disabled="true"] {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* ============================================================================
+ * Item (per-star)
+ * ========================================================================== */
+.rrt-item {
+  --rrt-fill: 0;
+  position: relative;
+  display: inline-flex;
+  width: var(--rrt-icon-size);
+  height: var(--rrt-icon-size);
+  cursor: pointer;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform var(--rrt-duration) var(--rrt-ease-spring);
+}
+
+.rrt-item:focus-visible {
+  transform: scale(1.1);
+}
+
+.rrt-item:focus-visible::after {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: 4px;
+  box-shadow: 0 0 0 2px var(--rrt-color-hover-glow);
+  pointer-events: none;
+}
+
+.rrt-root[aria-readonly="true"] .rrt-item,
+.rrt-root[aria-disabled="true"] .rrt-item {
+  cursor: default;
+}
+
+.rrt-item[data-hovered="true"] {
+  animation: rrt-pulse 320ms var(--rrt-ease-spring);
+}
+
+@keyframes rrt-pulse {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.18); }
+  100% { transform: scale(1.08); }
+}
+
+/* ---- empty layer (always visible, gray) ---- */
+.rrt-icon-empty {
+  position: absolute;
+  inset: 0;
+  color: var(--rrt-color-empty);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ---- fill layer (clipped left-to-right by --rrt-fill) ---- */
+.rrt-icon-fill {
+  position: absolute;
+  inset: 0;
+  color: var(--rrt-color-fill);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  clip-path: inset(0 calc((1 - var(--rrt-fill, 0)) * 100%) 0 0);
+  transition: clip-path var(--rrt-duration-fast) var(--rrt-ease);
+}
+
+.rrt-icon-empty svg,
+.rrt-icon-fill svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* ============================================================================
+ * Sizes
+ * ========================================================================== */
+.rrt-root[data-size="sm"] {
+  --rrt-icon-size: 1.1rem;
+  --rrt-gap: 0.1rem;
+}
+
+.rrt-root[data-size="lg"] {
+  --rrt-icon-size: 2rem;
+  --rrt-gap: 0.2rem;
+}
+
+/* ============================================================================
+ * Tones — doubled selector for theme-override resilience
+ * ========================================================================== */
+.rrt-root[data-tone="neutral"][data-tone] {
+  --rrt-color-fill: #18181b;
+  --rrt-color-hover-glow: rgba(24, 24, 27, 0.25);
+}
+
+.rrt-root[data-tone="primary"][data-tone] {
+  --rrt-color-fill: #6366f1;
+  --rrt-color-hover-glow: rgba(99, 102, 241, 0.35);
+}
+
+.rrt-root[data-tone="success"][data-tone] {
+  --rrt-color-fill: #16a34a;
+  --rrt-color-hover-glow: rgba(34, 197, 94, 0.35);
+}
+
+.rrt-root[data-tone="warning"][data-tone] {
+  --rrt-color-fill: #f59e0b;
+  --rrt-color-hover-glow: rgba(245, 158, 11, 0.35);
+}
+
+.rrt-root[data-tone="danger"][data-tone] {
+  --rrt-color-fill: #dc2626;
+  --rrt-color-hover-glow: rgba(239, 68, 68, 0.35);
+}
+
+/* ============================================================================
+ * Dark mode
+ * ========================================================================== */
+@media (prefers-color-scheme: dark) {
+  .rrt-wrap {
+    --rrt-fg: #fafafa;
+    --rrt-fg-muted: #a1a1aa;
+    --rrt-color-empty: #3f3f46;
+  }
+
+  .rrt-root[data-tone="neutral"][data-tone] {
+    --rrt-color-fill: #fafafa;
+    --rrt-color-hover-glow: rgba(250, 250, 250, 0.25);
+  }
+  /* primary / success / warning / danger keep saturated palette in dark mode
+     (white text on these colors is fine; here the icon IS the colored fill,
+     so no contrast issue — empty stars are darker in dark mode for legibility). */
+}
+
+[data-rrt-theme="dark"] .rrt-wrap {
+  --rrt-fg: #fafafa;
+  --rrt-fg-muted: #a1a1aa;
+  --rrt-color-empty: #3f3f46;
+}
+
+[data-rrt-theme="dark"] .rrt-root[data-tone="neutral"][data-tone] {
+  --rrt-color-fill: #fafafa;
+  --rrt-color-hover-glow: rgba(250, 250, 250, 0.25);
+}
+
+[data-rrt-theme="light"] .rrt-wrap {
+  --rrt-fg: #18181b;
+  --rrt-fg-muted: #71717a;
+  --rrt-color-empty: #d4d4d8;
+}
+
+/* ============================================================================
+ * Reduced motion
+ * ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .rrt-item,
+  .rrt-icon-fill {
+    transition-duration: 0ms !important;
+    animation: none !important;
+  }
+  .rrt-item:focus-visible {
+    transform: none;
+  }
+}
