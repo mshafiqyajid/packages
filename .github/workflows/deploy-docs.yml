@@ -22,6 +22,7 @@ jobs:
         run: |
           rm -rf node_modules package-lock.json
           npm install --no-audit --no-fund
+          npm run build --workspace=packages/react-copy-button --workspace=packages/react-otp-input --workspace=packages/react-segmented-control --workspace=packages/react-rating --workspace=packages/react-color
           npm run build --workspace=apps/docs
 
       - name: Deploy to VPS
