@@ -16,6 +16,10 @@ export interface UseTagInputOptions {
   disabled?: boolean;
   delimiter?: string[];
   validate?: (tag: string) => boolean | string;
+  maxLength?: number;
+  onTagAdd?: (tag: string) => void;
+  onTagRemove?: (tag: string, index: number) => void;
+  caseSensitive?: boolean;
 }
 
 export interface UseTagInputResult {
@@ -50,6 +54,10 @@ export function useTagInput({
   disabled = false,
   delimiter = ["Enter", ","],
   validate,
+  maxLength,
+  onTagAdd,
+  onTagRemove,
+  caseSensitive = false,
 }: UseTagInputOptions = {}): UseTagInputResult {
   const isControlled = controlledValue !== undefined;
 
@@ -70,14 +78,26 @@ export function useTagInput({
   const maxTagsRef = useRef(maxTags);
   maxTagsRef.current = maxTags;
 
+  const maxLengthRef = useRef(maxLength);
+  maxLengthRef.current = maxLength;
+
   const allowDuplicatesRef = useRef(allowDuplicates);
   allowDuplicatesRef.current = allowDuplicates;
+
+  const caseSensitiveRef = useRef(caseSensitive);
+  caseSensitiveRef.current = caseSensitive;
 
   const validateRef = useRef(validate);
   validateRef.current = validate;
 
   const onChangeRef = useRef(onChange);
   onChangeRef.current = onChange;
+
+  const onTagAddRef = useRef(onTagAdd);
+  onTagAddRef.current = onTagAdd;
+
+  const onTagRemoveRef = useRef(onTagRemove);
+  onTagRemoveRef.current = onTagRemove;
 
   const updateTags = useCallback(
     (next: string[]) => {
@@ -105,11 +125,22 @@ export function useTagInput({
       if (!tag) return;
       const currentTags = tagsRef.current;
       const max = maxTagsRef.current;
+      const maxLen = maxLengthRef.current;
       const dups = allowDuplicatesRef.current;
+      const cs = caseSensitiveRef.current;
       const val = validateRef.current;
 
       if (max !== undefined && currentTags.length >= max) return;
-      if (!dups && currentTags.includes(tag)) {
+      if (maxLen !== undefined && tag.length > maxLen) {
+        setValidationError(`Tag must be ${maxLen} characters or fewer`);
+        return;
+      }
+      const isDuplicate = dups
+        ? false
+        : cs
+          ? currentTags.includes(tag)
+          : currentTags.map((t) => t.toLowerCase()).includes(tag.toLowerCase());
+      if (isDuplicate) {
         setValidationError("Duplicate tag");
         return;
       }
@@ -126,6 +157,7 @@ export function useTagInput({
       }
       setValidationError(null);
       updateTags([...currentTags, tag]);
+      onTagAddRef.current?.(tag);
       setInputValue("");
       setActiveIndex(-1);
     },
@@ -134,8 +166,12 @@ export function useTagInput({
 
   const removeTag = useCallback(
     (index: number) => {
+      const tag = tagsRef.current[index];
       const next = tagsRef.current.filter((_, i) => i !== index);
       updateTags(next);
+      if (tag !== undefined) {
+        onTagRemoveRef.current?.(tag, index);
+      }
     },
     [updateTags],
   );

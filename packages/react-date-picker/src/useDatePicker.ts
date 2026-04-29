@@ -18,6 +18,9 @@ export interface UseDatePickerOptions {
   minDate?: Date;
   maxDate?: Date;
   disabled?: boolean;
+  disabledDates?: Date[] | ((date: Date) => boolean);
+  weekStartsOn?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+  locale?: string;
 }
 
 export interface DayProps {
@@ -52,6 +55,8 @@ export interface UseDatePickerReturn {
   isToday: (date: Date) => boolean;
   hoverDate: Date | null;
   setHoverDate: (date: Date | null) => void;
+  weekStartsOn: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+  locale: string;
 }
 
 export function useDatePicker(options: UseDatePickerOptions = {}): UseDatePickerReturn {
@@ -63,6 +68,9 @@ export function useDatePicker(options: UseDatePickerOptions = {}): UseDatePicker
     minDate,
     maxDate,
     disabled = false,
+    disabledDates,
+    weekStartsOn = 0,
+    locale,
   } = options;
 
   const isControlled = value !== undefined;
@@ -101,9 +109,16 @@ export function useDatePicker(options: UseDatePickerOptions = {}): UseDatePicker
       const d = startOfDay(date);
       if (minDate && d < startOfDay(minDate)) return true;
       if (maxDate && d > startOfDay(maxDate)) return true;
+      if (disabledDates) {
+        if (typeof disabledDates === "function") {
+          if (disabledDates(date)) return true;
+        } else {
+          if (disabledDates.some((dd) => isSameDay(dd, date))) return true;
+        }
+      }
       return false;
     },
-    [disabled, minDate, maxDate],
+    [disabled, minDate, maxDate, disabledDates],
   );
 
   const isSelected = useCallback(
@@ -177,8 +192,8 @@ export function useDatePicker(options: UseDatePickerOptions = {}): UseDatePicker
   );
 
   const days = useMemo(
-    () => getCalendarDays(viewYear, viewMonth),
-    [viewYear, viewMonth],
+    () => getCalendarDays(viewYear, viewMonth, weekStartsOn),
+    [viewYear, viewMonth, weekStartsOn],
   );
 
   const getDayProps = useCallback(
@@ -255,5 +270,7 @@ export function useDatePicker(options: UseDatePickerOptions = {}): UseDatePicker
     isToday,
     hoverDate,
     setHoverDate,
+    weekStartsOn,
+    locale: locale ?? "en-US",
   };
 }

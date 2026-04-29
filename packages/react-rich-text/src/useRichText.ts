@@ -12,6 +12,8 @@ export interface UseRichTextOptions {
   onChange?: (html: string) => void;
   disabled?: boolean;
   readOnly?: boolean;
+  onFocus?: () => void;
+  onBlur?: () => void;
 }
 
 export interface UseRichTextResult {
@@ -23,6 +25,8 @@ export interface UseRichTextResult {
     onKeyUp: () => void;
     onMouseUp: () => void;
     onSelect: () => void;
+    onFocus: (() => void) | undefined;
+    onBlur: (() => void) | undefined;
     "aria-disabled": boolean | undefined;
     "aria-readonly": boolean | undefined;
   };
@@ -49,6 +53,8 @@ export function useRichText({
   onChange,
   disabled = false,
   readOnly = false,
+  onFocus,
+  onBlur,
 }: UseRichTextOptions = {}): UseRichTextResult {
   const editorRef = useRef<HTMLDivElement>(null);
   const isControlled = value !== undefined;
@@ -133,6 +139,8 @@ export function useRichText({
     onKeyUp: updateFormatState,
     onMouseUp: updateFormatState,
     onSelect: updateFormatState,
+    onFocus: onFocus,
+    onBlur: onBlur,
     "aria-disabled": disabled || undefined,
     "aria-readonly": readOnly || undefined,
   };

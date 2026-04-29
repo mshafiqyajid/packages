@@ -34,6 +34,11 @@ const [html, setHtml] = useState("");
         <tr><td>size</td><td>"sm" | "md" | "lg"</td><td>"md"</td><td>Font and padding size</td></tr>
         <tr><td>tone</td><td>"neutral" | "primary"</td><td>"neutral"</td><td>Accent color</td></tr>
         <tr><td>disabled</td><td>boolean</td><td>false</td><td>Make editor read-only</td></tr>
+        <tr><td>onFocus</td><td>() =&gt; void</td><td>—</td><td>Focus callback</td></tr>
+        <tr><td>onBlur</td><td>() =&gt; void</td><td>—</td><td>Blur callback</td></tr>
+        <tr><td>wordCount</td><td>boolean</td><td>false</td><td>Show word/character count</td></tr>
+        <tr><td>spellCheck</td><td>boolean</td><td>true</td><td>Enable spell check</td></tr>
+        <tr><td>allowedTags</td><td>string[]</td><td>—</td><td>Allowed HTML tag whitelist</td></tr>
       </tbody></table>
     </div>
   </PackagePageShell>

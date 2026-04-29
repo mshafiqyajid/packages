@@ -1,4 +1,4 @@
-import { forwardRef, useRef, type CSSProperties } from "react";
+import { forwardRef, useRef, useState, type CSSProperties } from "react";
 import { useRichText, type UseRichTextOptions } from "../useRichText";
 
 export type RichTextSize = "sm" | "md" | "lg";
@@ -159,6 +159,15 @@ export interface RichTextStyledProps extends UseRichTextOptions {
   showToolbar?: boolean;
   toolbarItems?: ToolbarItem[];
   className?: string;
+  wordCount?: boolean;
+  spellCheck?: boolean;
+  allowedTags?: string[];
+}
+
+function sanitize(html: string, allowed: string[]): string {
+  return html.replace(/<\/?([a-zA-Z][a-zA-Z0-9]*)[^>]*>/g, (match, tag) =>
+    allowed.includes(tag.toLowerCase()) ? match : "",
+  );
 }
 
 export const RichTextStyled = forwardRef<HTMLDivElement, RichTextStyledProps>(
@@ -172,10 +181,34 @@ export const RichTextStyled = forwardRef<HTMLDivElement, RichTextStyledProps>(
       showToolbar = true,
       toolbarItems = DEFAULT_TOOLBAR_ITEMS,
       className,
+      wordCount: showWordCount = false,
+      spellCheck,
+      allowedTags,
       ...hookOptions
     },
     ref,
   ) {
+    const [counts, setCounts] = useState({ words: 0, chars: 0 });
+
+    const originalOnChange = hookOptions.onChange;
+    hookOptions = {
+      ...hookOptions,
+      onChange: (html: string) => {
+        let finalHtml = html;
+        if (allowedTags) {
+          finalHtml = sanitize(html, allowedTags);
+        }
+        const text = finalHtml
+          .replace(/<[^>]*>/g, " ")
+          .replace(/\s+/g, " ")
+          .trim();
+        const words = text ? text.split(" ").filter(Boolean).length : 0;
+        const chars = text.length;
+        setCounts({ words, chars });
+        originalOnChange?.(finalHtml);
+      },
+    };
+
     const {
       editorProps,
       execCommand,
@@ -266,8 +299,14 @@ export const RichTextStyled = forwardRef<HTMLDivElement, RichTextStyledProps>(
             role="textbox"
             aria-multiline="true"
             aria-label="Rich text editor"
+            spellCheck={spellCheck ?? true}
           />
         </div>
+        {showWordCount && (
+          <div className="rrt2-wordcount" aria-live="polite">
+            {counts.words} words · {counts.chars} chars
+          </div>
+        )}
       </div>
     );
   },

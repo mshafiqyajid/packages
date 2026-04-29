@@ -1,4 +1,4 @@
-import React, { forwardRef, useMemo } from "react";
+import React, { forwardRef, useMemo, useState } from "react";
 import {
   computePieSlices,
   donutArcPath,
@@ -9,7 +9,7 @@ import {
 } from "../chartUtils";
 import type { DataPoint } from "../chartUtils";
 
-export interface PieChartProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface PieChartProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "onClick"> {
   data: DataPoint[];
   size?: number;
   donut?: boolean;
@@ -17,6 +17,9 @@ export interface PieChartProps extends React.HTMLAttributes<HTMLDivElement> {
   showLabels?: boolean;
   showLegend?: boolean;
   animated?: boolean;
+  onClick?: (slice: DataPoint, index: number) => void;
+  tooltip?: boolean;
+  innerLabel?: string;
 }
 
 export const PieChart = forwardRef<HTMLDivElement, PieChartProps>(
@@ -29,6 +32,9 @@ export const PieChart = forwardRef<HTMLDivElement, PieChartProps>(
       showLabels = false,
       showLegend = false,
       animated = false,
+      onClick,
+      tooltip = true,
+      innerLabel,
       className,
       style,
       ...rest
@@ -41,6 +47,13 @@ export const PieChart = forwardRef<HTMLDivElement, PieChartProps>(
     const innerR = donut ? outerR - donutWidth : 0;
 
     const slices = useMemo(() => computePieSlices(data), [data]);
+
+    const [tooltipState, setTooltipState] = useState<{
+      x: number;
+      y: number;
+      label: string;
+      value: number | string;
+    } | null>(null);
 
     const rootClass = [
       "rchart-root",
@@ -63,16 +76,36 @@ export const PieChart = forwardRef<HTMLDivElement, PieChartProps>(
             const d = donut
               ? donutArcPath(cx, cy, outerR, innerR, slice.startAngle, slice.endAngle)
               : arcPath(cx, cy, outerR, slice.startAngle, slice.endAngle);
+            const dp = data[i];
             return (
               <path
                 key={i}
                 className="rchart-slice"
                 d={d}
                 fill={color}
-                style={animated ? { animationDelay: `${i * 0.06}s`, opacity: 0 } : undefined}
-              >
-                <title>{`${slice.label}: ${slice.value}`}</title>
-              </path>
+                style={{
+                  ...(animated ? { animationDelay: `${i * 0.06}s`, opacity: 0 } : {}),
+                  cursor: onClick ? "pointer" : undefined,
+                }}
+                onClick={onClick && dp ? () => onClick(dp, i) : undefined}
+                onMouseEnter={
+                  tooltip && dp
+                    ? (e) => {
+                        const rootEl = e.currentTarget.closest(".rchart-root") as HTMLElement | null;
+                        if (!rootEl) return;
+                        const rootRect = rootEl.getBoundingClientRect();
+                        const elRect = e.currentTarget.getBoundingClientRect();
+                        setTooltipState({
+                          x: elRect.left - rootRect.left + elRect.width / 2,
+                          y: elRect.top - rootRect.top,
+                          label: dp.label,
+                          value: dp.value,
+                        });
+                      }
+                    : undefined
+                }
+                onMouseLeave={tooltip ? () => setTooltipState(null) : undefined}
+              />
             );
           })}
 
@@ -93,7 +126,34 @@ export const PieChart = forwardRef<HTMLDivElement, PieChartProps>(
                 </text>
               );
             })}
+
+          {donut && innerLabel && (
+            <text
+              x={cx}
+              y={cy}
+              textAnchor="middle"
+              dominantBaseline="middle"
+              className="rchart-inner-label"
+            >
+              {innerLabel}
+            </text>
+          )}
         </svg>
+        {tooltipState && (
+          <div
+            className="rchart-tooltip"
+            style={{
+              position: "absolute",
+              left: tooltipState.x,
+              top: tooltipState.y - 8,
+              transform: "translate(-50%, -100%)",
+              pointerEvents: "none",
+            }}
+          >
+            <span className="rchart-tooltip-label">{tooltipState.label}</span>
+            <span className="rchart-tooltip-value">{tooltipState.value}</span>
+          </div>
+        )}
 
         {showLegend && (
           <ul className="rchart-legend" aria-label="Legend">

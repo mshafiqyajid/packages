@@ -40,6 +40,12 @@ const [tags, setTags] = useState<string[]>([]);
         <tr><td>size</td><td>"sm" | "md" | "lg"</td><td>"md"</td><td>Input size</td></tr>
         <tr><td>tone</td><td>"neutral" | "primary" | "success" | "danger"</td><td>"neutral"</td><td>Color tone</td></tr>
         <tr><td>disabled</td><td>boolean</td><td>false</td><td>Disable interaction</td></tr>
+        <tr><td>maxLength</td><td>number</td><td>—</td><td>Max chars per tag</td></tr>
+        <tr><td>caseSensitive</td><td>boolean</td><td>false</td><td>Case-sensitive duplicate detection</td></tr>
+        <tr><td>onTagAdd</td><td>(tag) =&gt; void</td><td>—</td><td>Tag added callback</td></tr>
+        <tr><td>onTagRemove</td><td>(tag, index) =&gt; void</td><td>—</td><td>Tag removed callback</td></tr>
+        <tr><td>renderTag</td><td>(tag, i, onRemove) =&gt; ReactNode</td><td>—</td><td>Custom chip renderer</td></tr>
+        <tr><td>sortable</td><td>boolean</td><td>false</td><td>Drag-to-reorder tags</td></tr>
       </tbody></table>
     </div>
   </PackagePageShell>

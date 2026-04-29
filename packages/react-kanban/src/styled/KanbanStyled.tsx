@@ -1,4 +1,4 @@
-import { forwardRef, type ReactNode, type CSSProperties } from "react";
+import { forwardRef, useState, type ReactNode, type CSSProperties } from "react";
 import { useKanban } from "../useKanban";
 import type { KanbanColumn, KanbanCard } from "../useKanban";
 
@@ -17,6 +17,14 @@ export interface KanbanStyledProps {
   renderColumnHeader?: (column: KanbanColumn) => ReactNode;
   addCardPlaceholder?: string;
   className?: string;
+  onCardAdd?: (card: KanbanCard, columnId: string) => void;
+  onCardRemove?: (card: KanbanCard, columnId: string) => void;
+  onCardMove?: (card: KanbanCard, fromColumnId: string, toColumnId: string) => void;
+  onColumnAdd?: (column: KanbanColumn) => void;
+  addColumnPlaceholder?: string;
+  maxCardsPerColumn?: number;
+  cardDraggable?: boolean | ((card: KanbanCard, column: KanbanColumn) => boolean);
+  collapsible?: boolean;
 }
 
 export const KanbanStyled = forwardRef<HTMLDivElement, KanbanStyledProps>(
@@ -33,18 +41,54 @@ export const KanbanStyled = forwardRef<HTMLDivElement, KanbanStyledProps>(
       renderColumnHeader,
       addCardPlaceholder,
       className,
+      onCardAdd,
+      onCardRemove,
+      onCardMove,
+      onColumnAdd,
+      addColumnPlaceholder,
+      maxCardsPerColumn,
+      cardDraggable,
+      collapsible = false,
     },
     ref,
   ) {
-    const { columns, getDragProps, getDropProps, dragging, dragOver } =
-      useKanban({ columns: columnsProp, onChange, disabled });
+    const { columns, setColumns, getDragProps, getDropProps, dragging, dragOver } =
+      useKanban({ columns: columnsProp, onChange, disabled, onCardAdd, onCardRemove, onCardMove, maxCardsPerColumn });
+
+    const [collapsedColumns, setCollapsedColumns] = useState<Set<string>>(new Set());
+
+    const toggleCollapse = (colId: string) => {
+      setCollapsedColumns((prev) => {
+        const next = new Set(prev);
+        if (next.has(colId)) {
+          next.delete(colId);
+        } else {
+          next.add(colId);
+        }
+        return next;
+      });
+    };
 
     const visibleColumns =
       maxColumns !== undefined ? columns.slice(0, maxColumns) : columns;
 
+    const columnCount = visibleColumns.length + (addColumnPlaceholder !== undefined ? 1 : 0);
+
     const boardStyle: CSSProperties = {
-      gridTemplateColumns: `repeat(${visibleColumns.length}, minmax(${columnMinWidth}, 1fr))`,
-      minWidth: `calc(${visibleColumns.length} * (${columnMinWidth} + var(--rkb-gap, 12px)))`,
+      gridTemplateColumns: `repeat(${columnCount}, minmax(${columnMinWidth}, 1fr))`,
+      minWidth: `calc(${columnCount} * (${columnMinWidth} + var(--rkb-gap, 12px)))`,
+    };
+
+    const handleAddColumn = () => {
+      const newCol: KanbanColumn = {
+        id: Date.now().toString(),
+        title: addColumnPlaceholder ?? "New Column",
+        cards: [],
+      };
+      const next = [...columns, newCol];
+      setColumns(next);
+      onChange?.(next);
+      onColumnAdd?.(newCol);
     };
 
     return (
@@ -61,12 +105,16 @@ export const KanbanStyled = forwardRef<HTMLDivElement, KanbanStyledProps>(
         {visibleColumns.map((col) => {
           const dropProps = getDropProps(col.id);
           const isOver = dragOver === col.id;
+          const isCollapsed = collapsedColumns.has(col.id);
+          const atMax = maxCardsPerColumn !== undefined && col.cards.length >= maxCardsPerColumn;
 
           return (
             <div
               key={col.id}
               className="rkb-column"
               data-drag-over={isOver ? "true" : undefined}
+              data-at-max={atMax ? "true" : undefined}
+              data-collapsed={isCollapsed ? "true" : undefined}
               {...dropProps}
             >
               <div className="rkb-column-header">
@@ -80,10 +128,26 @@ export const KanbanStyled = forwardRef<HTMLDivElement, KanbanStyledProps>(
                     </span>
                   </>
                 )}
+                {collapsible && (
+                  <button
+                    type="button"
+                    className="rkb-column-collapse-btn"
+                    aria-label={isCollapsed ? "Expand column" : "Collapse column"}
+                    onClick={() => toggleCollapse(col.id)}
+                  >
+                    {isCollapsed ? "▶" : "▼"}
+                  </button>
+                )}
               </div>
 
               <div className="rkb-cards">
                 {col.cards.map((card) => {
+                  const isDraggable =
+                    cardDraggable === undefined
+                      ? true
+                      : typeof cardDraggable === "boolean"
+                        ? cardDraggable
+                        : cardDraggable(card, col);
                   const dragProps = getDragProps(card.id, col.id);
                   const isDragging = dragging === card.id;
 
@@ -93,6 +157,7 @@ export const KanbanStyled = forwardRef<HTMLDivElement, KanbanStyledProps>(
                       className="rkb-card"
                       data-dragging={isDragging ? "true" : undefined}
                       {...dragProps}
+                      draggable={isDraggable && !disabled}
                     >
                       <span className="rkb-card-handle" aria-hidden="true">
                         <svg
@@ -112,13 +177,36 @@ export const KanbanStyled = forwardRef<HTMLDivElement, KanbanStyledProps>(
                         </svg>
                       </span>
                       <span className="rkb-card-content">
-                        {renderCard ? renderCard(card, col) : card.content}
+                        {renderCard ? (
+                          renderCard(card, col)
+                        ) : (
+                          <>
+                            {card.content}
+                            {card.description && (
+                              <span className="rkb-card-desc">{card.description}</span>
+                            )}
+                            {(card.label || card.priority) && (
+                              <span style={{ display: "flex", alignItems: "center", gap: 4, marginTop: 4 }}>
+                                {card.label && (
+                                  <span className="rkb-card-label">{card.label}</span>
+                                )}
+                                {card.priority && (
+                                  <span
+                                    className="rkb-card-priority"
+                                    data-priority={card.priority}
+                                    aria-label={`Priority: ${card.priority}`}
+                                  />
+                                )}
+                              </span>
+                            )}
+                          </>
+                        )}
                       </span>
                     </div>
                   );
                 })}
 
-                {addCardPlaceholder !== undefined && (
+                {addCardPlaceholder !== undefined && !atMax && (
                   <div className="rkb-add-card" aria-label={addCardPlaceholder}>
                     <span className="rkb-add-card-icon" aria-hidden="true">+</span>
                     <span className="rkb-add-card-label">{addCardPlaceholder}</span>
@@ -134,6 +222,17 @@ export const KanbanStyled = forwardRef<HTMLDivElement, KanbanStyledProps>(
             </div>
           );
         })}
+
+        {addColumnPlaceholder !== undefined && (
+          <button
+            type="button"
+            className="rkb-add-column"
+            onClick={handleAddColumn}
+          >
+            <span aria-hidden="true">+</span>
+            {addColumnPlaceholder}
+          </button>
+        )}
       </div>
       </div>
     );

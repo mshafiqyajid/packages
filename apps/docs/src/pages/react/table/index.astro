@@ -39,6 +39,22 @@ const columns: ColumnDef<User>[] = [
         <tr><td>loading</td><td>boolean</td><td>false</td><td>Show skeleton rows</td></tr>
         <tr><td>emptyText</td><td>ReactNode</td><td>"No data"</td><td>Empty state content</td></tr>
         <tr><td>caption</td><td>string</td><td>—</td><td>Accessible table caption</td></tr>
+        <tr><td>onRowClick</td><td>(row) =&gt; void</td><td>—</td><td>Row click handler</td></tr>
+        <tr><td>rowKey</td><td>(row) =&gt; string</td><td>—</td><td>Custom key extractor</td></tr>
+        <tr><td>toolbar</td><td>ReactNode</td><td>—</td><td>Slot rendered above the table</td></tr>
+        <tr><td>page</td><td>number</td><td>—</td><td>Controlled current page</td></tr>
+        <tr><td>onPageChange</td><td>(page) =&gt; void</td><td>—</td><td>Controlled page change callback</td></tr>
+      </tbody></table>
+    </div>
+    <div class="pkg-section"><H2>ColumnDef fields</H2>
+      <table class="props-table"><thead><tr><th>Field</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+        <tr><td>key</td><td>string</td><td>—</td><td>Data key to read from row object</td></tr>
+        <tr><td>header</td><td>string</td><td>—</td><td>Column header label</td></tr>
+        <tr><td>sortable</td><td>boolean</td><td>false</td><td>Enable sorting on this column</td></tr>
+        <tr><td>filterable</td><td>boolean</td><td>false</td><td>Per-column filter input</td></tr>
+        <tr><td>align</td><td>"left" | "center" | "right"</td><td>—</td><td>Column text alignment</td></tr>
+        <tr><td>sticky</td><td>"left" | "right"</td><td>—</td><td>Sticky column position</td></tr>
+        <tr><td>render</td><td>(value, row) =&gt; ReactNode</td><td>—</td><td>Custom cell renderer</td></tr>
       </tbody></table>
     </div>
   </PackagePageShell>

@@ -33,6 +33,11 @@ export default function ChartDemo() {
   const [type, setType] = useState<ChartType>("bar");
   const [animated, setAnimated] = useState(true);
   const [showValues, setShowValues] = useState(false);
+  const [tooltip, setTooltip] = useState(true);
+  const [area, setArea] = useState(false);
+  const [donut, setDonut] = useState(false);
+
+  const checkboxStyle: React.CSSProperties = { display: "flex", alignItems: "center", gap: "0.375rem", fontSize: "0.875rem" };
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem", width: "100%", maxWidth: 520 }}>
@@ -55,14 +60,30 @@ export default function ChartDemo() {
             {t.charAt(0).toUpperCase() + t.slice(1)} Chart
           </button>
         ))}
-        <label style={{ display: "flex", alignItems: "center", gap: "0.375rem", fontSize: "0.875rem", marginLeft: "auto" }}>
+        <label style={{ ...checkboxStyle, marginLeft: "auto" }}>
           <input type="checkbox" checked={animated} onChange={(e) => setAnimated(e.target.checked)} />
           Animated
         </label>
+        <label style={checkboxStyle}>
+          <input type="checkbox" checked={tooltip} onChange={(e) => setTooltip(e.target.checked)} />
+          Tooltip
+        </label>
         {type !== "pie" && (
-          <label style={{ display: "flex", alignItems: "center", gap: "0.375rem", fontSize: "0.875rem" }}>
+          <label style={checkboxStyle}>
             <input type="checkbox" checked={showValues} onChange={(e) => setShowValues(e.target.checked)} />
             Values
+          </label>
+        )}
+        {type === "line" && (
+          <label style={checkboxStyle}>
+            <input type="checkbox" checked={area} onChange={(e) => setArea(e.target.checked)} />
+            Area
+          </label>
+        )}
+        {type === "pie" && (
+          <label style={checkboxStyle}>
+            <input type="checkbox" checked={donut} onChange={(e) => setDonut(e.target.checked)} />
+            Donut
           </label>
         )}
       </div>
@@ -72,6 +93,7 @@ export default function ChartDemo() {
           height={240}
           showValues={showValues}
           animated={animated}
+          tooltip={tooltip}
           radius={4}
           style={{ width: "100%" }}
         />
@@ -83,6 +105,8 @@ export default function ChartDemo() {
           showDots
           showGrid
           animated={animated}
+          area={area}
+          tooltip={tooltip}
           style={{ width: "100%" }}
         />
       )}
@@ -92,6 +116,8 @@ export default function ChartDemo() {
           size={260}
           showLegend
           animated={animated}
+          donut={donut}
+          tooltip={tooltip}
           style={{ margin: "0 auto" }}
         />
       )}

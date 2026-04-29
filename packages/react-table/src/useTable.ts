@@ -9,6 +9,9 @@ export interface ColumnDef<T extends Record<string, unknown>> {
   sortable?: boolean;
   width?: string | number;
   render?: (row: T) => ReactNode;
+  filterable?: boolean;
+  align?: "left" | "center" | "right";
+  sticky?: "left" | "right";
 }
 
 export interface DefaultSort {
@@ -25,6 +28,9 @@ export interface UseTableOptions<T extends Record<string, unknown>> {
   onSort?: (key: string, dir: SortDir) => void;
   onFilter?: (value: string) => void;
   onSelect?: (selectedIds: string[]) => void;
+  rowKey?: (row: T) => string;
+  page?: number;
+  onPageChange?: (page: number) => void;
 }
 
 export interface UseTableResult<T extends Record<string, unknown>> {
@@ -41,9 +47,12 @@ export interface UseTableResult<T extends Record<string, unknown>> {
   allSelected: boolean;
   filterValue: string;
   setFilterValue: (value: string) => void;
+  columnFilters: Record<string, string>;
+  setColumnFilter: (key: string, value: string) => void;
+  getRowId: (row: T, index: number) => string;
 }
 
-function getRowId<T extends Record<string, unknown>>(row: T, index: number): string {
+function defaultGetRowId<T extends Record<string, unknown>>(row: T, index: number): string {
   if ("id" in row && (typeof row.id === "string" || typeof row.id === "number")) {
     return String(row.id);
   }
@@ -62,39 +71,72 @@ export function useTable<T extends Record<string, unknown>>(
     onSort,
     onFilter,
     onSelect,
+    rowKey,
+    page: controlledPage,
+    onPageChange,
   } = options;
+
+  const getRowId = useCallback(
+    (row: T, index: number): string => {
+      if (rowKey) return rowKey(row);
+      return defaultGetRowId(row, index);
+    },
+    [rowKey],
+  );
 
   const [sortKey, setSortKey] = useState<string | null>(defaultSort?.key ?? null);
   const [sortDir, setSortDir] = useState<SortDir>(defaultSort?.dir ?? "asc");
-  const [page, setPageState] = useState(1);
+  const [internalPage, setInternalPage] = useState(1);
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
   const [filterValue, setFilterValueState] = useState("");
+  const [columnFilters, setColumnFilters] = useState<Record<string, string>>({});
+
+  const isControlledPage = controlledPage !== undefined;
+  const page = isControlledPage ? controlledPage : internalPage;
 
   const toggleSort = useCallback(
     (key: string) => {
       setSortKey((prev) => {
         const newDir: SortDir = prev === key && sortDir === "asc" ? "desc" : "asc";
         setSortDir(newDir);
-        setPageState(1);
+        if (!isControlledPage) setInternalPage(1);
+        else onPageChange?.(1);
         onSort?.(key, newDir);
         return key;
       });
     },
-    [sortDir, onSort],
+    [sortDir, onSort, isControlledPage, onPageChange],
   );
 
   const setFilterValue = useCallback(
     (value: string) => {
       setFilterValueState(value);
-      setPageState(1);
+      if (!isControlledPage) setInternalPage(1);
+      else onPageChange?.(1);
       onFilter?.(value);
     },
-    [onFilter],
+    [onFilter, isControlledPage, onPageChange],
   );
 
-  const setPage = useCallback((p: number) => {
-    setPageState(p);
-  }, []);
+  const setPage = useCallback(
+    (p: number) => {
+      if (isControlledPage) {
+        onPageChange?.(p);
+      } else {
+        setInternalPage(p);
+      }
+    },
+    [isControlledPage, onPageChange],
+  );
+
+  const setColumnFilter = useCallback(
+    (key: string, value: string) => {
+      setColumnFilters((prev) => ({ ...prev, [key]: value }));
+      if (!isControlledPage) setInternalPage(1);
+      else onPageChange?.(1);
+    },
+    [isControlledPage, onPageChange],
+  );
 
   const stringColumns = useMemo(
     () => columns.filter((c) => !c.render).map((c) => c.key),
@@ -102,15 +144,26 @@ export function useTable<T extends Record<string, unknown>>(
   );
 
   const filtered = useMemo(() => {
-    if (!filterValue.trim()) return data;
-    const lower = filterValue.toLowerCase();
-    return data.filter((row) =>
-      stringColumns.some((key) => {
-        const val = row[key];
-        return typeof val === "string" && val.toLowerCase().includes(lower);
-      }),
-    );
-  }, [data, filterValue, stringColumns]);
+    let result = data;
+    if (filterValue.trim()) {
+      const lower = filterValue.toLowerCase();
+      result = result.filter((row) =>
+        stringColumns.some((key) => {
+          const val = row[key];
+          return typeof val === "string" && val.toLowerCase().includes(lower);
+        }),
+      );
+    }
+    const activeColFilters = Object.entries(columnFilters).filter(([, v]) => v.trim());
+    if (activeColFilters.length > 0) {
+      result = result.filter((row) =>
+        activeColFilters.every(([key, filterVal]) =>
+          String(row[key] ?? "").toLowerCase().includes(filterVal.toLowerCase()),
+        ),
+      );
+    }
+    return result;
+  }, [data, filterValue, stringColumns, columnFilters]);
 
   const sorted = useMemo(() => {
     if (!sortKey) return filtered;
@@ -138,7 +191,7 @@ export function useTable<T extends Record<string, unknown>>(
 
   const pageRowIds = useMemo(
     () => rows.map((row, i) => getRowId(row, (clampedPage - 1) * pageSize + i)),
-    [rows, clampedPage, pageSize],
+    [rows, clampedPage, pageSize, getRowId],
   );
 
   const allSelected =
@@ -180,5 +233,8 @@ export function useTable<T extends Record<string, unknown>>(
     allSelected,
     filterValue,
     setFilterValue,
+    columnFilters,
+    setColumnFilter,
+    getRowId,
   };
 }

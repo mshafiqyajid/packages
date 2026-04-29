@@ -10,6 +10,7 @@ import {
   digitCount,
   applyFormat,
   COUNTRIES,
+  type Country,
 } from "./countries";
 
 export type { Country } from "./countries";
@@ -21,6 +22,9 @@ export interface UsePhoneInputOptions {
   onChange?: (value: string) => void;
   defaultCountry?: string;
   disabled?: boolean;
+  countries?: string[];
+  onCountryChange?: (country: Country) => void;
+  outputFormat?: "national" | "international" | "e164";
 }
 
 export interface UsePhoneInputResult {
@@ -44,12 +48,26 @@ function digitsOnly(str: string): string {
   return str.replace(/\D/g, "");
 }
 
+function formatOutput(
+  dialCode: string,
+  national: string,
+  fmt: "national" | "international" | "e164" = "national",
+): string {
+  const digits = national.replace(/\D/g, "");
+  if (fmt === "e164") return `+${dialCode}${digits}`;
+  if (fmt === "international") return `+${dialCode} ${national}`;
+  return national;
+}
+
 export function usePhoneInput({
   value: controlledValue,
   defaultValue = "",
   onChange,
   defaultCountry = "US",
   disabled = false,
+  countries: countriesWhitelist,
+  onCountryChange,
+  outputFormat = "national",
 }: UsePhoneInputOptions = {}): UsePhoneInputResult {
   const isControlled = controlledValue !== undefined;
 

@@ -31,7 +31,7 @@ const INITIAL: KanbanColumn[] = [
   },
 ];
 
-function KanbanWrapper({ size, tone, disabled }: { size: string; tone: string; disabled: boolean }) {
+function KanbanWrapper({ size, tone, disabled, collapsible }: { size: string; tone: string; disabled: boolean; collapsible: boolean }) {
   const [columns, setColumns] = useState<KanbanColumn[]>(INITIAL);
   return (
     <div style={{ width: "100%", minHeight: 320 }}>
@@ -41,6 +41,8 @@ function KanbanWrapper({ size, tone, disabled }: { size: string; tone: string; d
         size={size as "sm" | "md" | "lg"}
         tone={tone as "neutral" | "primary"}
         disabled={disabled}
+        collapsible={collapsible}
+        addColumnPlaceholder="+ Add column"
       />
     </div>
   );
@@ -54,7 +56,8 @@ export default function KanbanDemo() {
       props={[
         { name: "size",     control: { type: "segmented", options: ["sm", "md", "lg"] as const },      defaultValue: "md",      omitWhen: "md" },
         { name: "tone",     control: { type: "segmented", options: ["neutral", "primary"] as const },  defaultValue: "neutral", omitWhen: "neutral" },
-        { name: "disabled", control: { type: "toggle" },                                               defaultValue: false,     omitWhen: false },
+        { name: "disabled",    control: { type: "toggle" },                                            defaultValue: false,  omitWhen: false },
+        { name: "collapsible", control: { type: "toggle" },                                            defaultValue: false,  omitWhen: false },
       ]}
       staticProps={{ columns: "{columns}", onChange: "{setColumns}" }}
       render={(v) => (
@@ -63,6 +66,7 @@ export default function KanbanDemo() {
           size={v.size as string}
           tone={v.tone as string}
           disabled={v.disabled as boolean}
+          collapsible={v.collapsible as boolean}
         />
       )}
     />

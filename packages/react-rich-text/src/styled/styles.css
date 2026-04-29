@@ -293,6 +293,20 @@
 }
 
 /* ============================================================================
+ * Word count footer
+ * ========================================================================== */
+.rrt2-wordcount {
+  padding: 0.2rem 0.75rem;
+  font-size: 0.72rem;
+  color: var(--rrt2-placeholder-fg);
+  border-top: 1px solid var(--rrt2-border);
+  text-align: right;
+  user-select: none;
+  background: var(--rrt2-toolbar-bg);
+  border-radius: 0 0 calc(var(--rrt2-radius) - 1px) calc(var(--rrt2-radius) - 1px);
+}
+
+/* ============================================================================
  * Reduced motion
  * ========================================================================== */
 @media (prefers-reduced-motion: reduce) {

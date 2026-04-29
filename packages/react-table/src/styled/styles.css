@@ -59,6 +59,7 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .rtbl-filter-label {
@@ -361,6 +362,51 @@
   --rtbl-input-fg: #fafafa;
   --rtbl-input-focus: #818cf8;
 }
+
+/* ============================================================================
+ * Sticky columns
+ * ========================================================================== */
+[data-sticky="left"] {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background: var(--rtbl-bg, #fff);
+}
+
+[data-sticky="right"] {
+  position: sticky;
+  right: 0;
+  z-index: 2;
+  background: var(--rtbl-bg, #fff);
+}
+
+[data-theme="dark"] [data-sticky="left"],
+[data-theme="dark"] [data-sticky="right"] {
+  background: var(--rtbl-dark-bg, #18181b);
+}
+
+/* ============================================================================
+ * Clickable rows
+ * ========================================================================== */
+.rtbl-table tbody tr[data-clickable="true"] { cursor: pointer; }
+
+/* ============================================================================
+ * Per-column filter inputs
+ * ========================================================================== */
+.rtbl-col-filter {
+  display: block;
+  width: 100%;
+  margin-top: 4px;
+  padding: 2px 6px;
+  font-size: 0.75rem;
+  border: 1px solid var(--rtbl-border, #e5e7eb);
+  border-radius: 4px;
+  background: var(--rtbl-bg, #fff);
+  color: inherit;
+  outline: none;
+}
+
+.rtbl-col-filter:focus { border-color: var(--rtbl-accent, #6366f1); }
 
 /* ============================================================================
  * Reduced motion

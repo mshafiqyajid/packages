@@ -18,6 +18,7 @@ export interface UseNumberInputOptions {
   precision?: number;
   disabled?: boolean;
   readOnly?: boolean;
+  clampOnBlur?: boolean;
 }
 
 export interface UseNumberInputResult {
@@ -50,6 +51,7 @@ export interface UseNumberInputResult {
   increment: () => void;
   decrement: () => void;
   clampedValue: number | undefined;
+  handleBlur: () => void;
 }
 
 function clamp(value: number, min?: number, max?: number): number {
@@ -78,6 +80,7 @@ export function useNumberInput({
   precision,
   disabled = false,
   readOnly = false,
+  clampOnBlur = true,
 }: UseNumberInputOptions = {}): UseNumberInputResult {
   const isControlled = controlledValue !== undefined;
 
@@ -139,8 +142,15 @@ export function useNumberInput({
       setInputText(toFixed(fallback, resolvedPrecision));
       return;
     }
-    commit(parsed);
-  }, [inputText, currentValue, min, resolvedPrecision, commit]);
+    if (clampOnBlur !== false) {
+      commit(parsed);
+    } else {
+      const rounded = round(parsed, resolvedPrecision);
+      if (!isControlled) setInternalValue(rounded);
+      setInputText(toFixed(rounded, resolvedPrecision));
+      onChange?.(rounded);
+    }
+  }, [inputText, currentValue, min, resolvedPrecision, commit, clampOnBlur, isControlled, onChange]);
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent<HTMLInputElement>) => {
@@ -216,5 +226,6 @@ export function useNumberInput({
     increment,
     decrement,
     clampedValue,
+    handleBlur,
   };
 }

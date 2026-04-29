@@ -5,7 +5,7 @@ import "@mshafiqyajid/react-tag-input/styles.css";
 
 const SUGGESTIONS = ["React", "TypeScript", "CSS", "Node.js", "GraphQL", "Tailwind", "Next.js", "Astro"];
 
-function TagInputWrapper({ size, tone, tagVariant, disabled }: { size: string; tone: string; tagVariant: string; disabled: boolean }) {
+function TagInputWrapper({ size, tone, tagVariant, disabled, sortable }: { size: string; tone: string; tagVariant: string; disabled: boolean; sortable: boolean }) {
   const [tags, setTags] = useState<string[]>(["React", "TypeScript"]);
   return (
     <TagInputStyled
@@ -15,6 +15,7 @@ function TagInputWrapper({ size, tone, tagVariant, disabled }: { size: string; t
       size={size as "sm" | "md" | "lg"}
       tone={tone as "neutral" | "primary" | "success" | "danger"}
       tagVariant={tagVariant as "solid" | "outline" | "soft"}
+      sortable={sortable}
       label="Tags"
       placeholder="Add a tag..."
       disabled={disabled}
@@ -32,7 +33,8 @@ export default function TagInputDemo() {
         { name: "size",       control: { type: "segmented", options: ["sm","md","lg"] as const },                         defaultValue: "md",      omitWhen: "md" },
         { name: "tone",       control: { type: "segmented", options: ["neutral","primary","success","danger"] as const }, defaultValue: "neutral", omitWhen: "neutral" },
         { name: "tagVariant", control: { type: "segmented", options: ["solid","outline","soft"] as const },               defaultValue: "solid",   omitWhen: "solid" },
-        { name: "disabled",   control: { type: "toggle" },                                                                defaultValue: false,     omitWhen: false },
+        { name: "disabled",  control: { type: "toggle" },                                                                 defaultValue: false,  omitWhen: false },
+        { name: "sortable",  control: { type: "toggle" },                                                                 defaultValue: false,  omitWhen: false },
       ]}
       staticProps={{ value: "{tags}", onChange: "{setTags}" }}
       render={(v) => (
@@ -41,6 +43,7 @@ export default function TagInputDemo() {
           tone={v.tone as string}
           tagVariant={v.tagVariant as string}
           disabled={v.disabled as boolean}
+          sortable={v.sortable as boolean}
         />
       )}
     />

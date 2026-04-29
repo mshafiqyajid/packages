@@ -33,6 +33,12 @@ const [range, setRange] = useState<[Date, Date] | null>(null);
         <tr><td>size</td><td>"sm" | "md" | "lg"</td><td>"md"</td><td>Input size</td></tr>
         <tr><td>tone</td><td>"neutral" | "primary"</td><td>"neutral"</td><td>Color tone</td></tr>
         <tr><td>disabled</td><td>boolean</td><td>false</td><td>Disable interaction</td></tr>
+        <tr><td>clearable</td><td>boolean</td><td>false</td><td>Show × button to clear selection</td></tr>
+        <tr><td>weekStartsOn</td><td>0–6</td><td>0</td><td>Day the week starts on (0=Sun)</td></tr>
+        <tr><td>locale</td><td>string</td><td>"en-US"</td><td>Locale for month/day names</td></tr>
+        <tr><td>onMonthChange</td><td>(month, year) =&gt; void</td><td>—</td><td>Navigation callback</td></tr>
+        <tr><td>onYearChange</td><td>(year) =&gt; void</td><td>—</td><td>Year change callback</td></tr>
+        <tr><td>disabledDates</td><td>Date[] | (date) =&gt; boolean</td><td>—</td><td>Dates to disable</td></tr>
       </tbody></table>
     </div>
   </PackagePageShell>

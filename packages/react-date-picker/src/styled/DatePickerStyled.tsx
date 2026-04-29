@@ -5,13 +5,14 @@ import {
   useCallback,
   useEffect,
   useId,
+  useMemo,
   type KeyboardEvent,
   type CSSProperties,
 } from "react";
 import { createPortal } from "react-dom";
 import { useDatePicker } from "../useDatePicker";
 import type { DatePickerMode, RangeValue } from "../useDatePicker";
-import { formatDate, MONTH_ABBR, DAY_ABBR } from "../dateUtils";
+import { formatDate } from "../dateUtils";
 
 export type DatePickerSize = "sm" | "md" | "lg";
 export type DatePickerTone = "neutral" | "primary";
@@ -29,6 +30,12 @@ export interface DatePickerStyledProps {
   size?: DatePickerSize;
   tone?: DatePickerTone;
   className?: string;
+  disabledDates?: Date[] | ((date: Date) => boolean);
+  weekStartsOn?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+  locale?: string;
+  clearable?: boolean;
+  onMonthChange?: (month: number, year: number) => void;
+  onYearChange?: (year: number) => void;
 }
 
 function formatValue(
@@ -71,6 +78,12 @@ export const DatePickerStyled = forwardRef<HTMLDivElement, DatePickerStyledProps
       size = "md",
       tone = "neutral",
       className,
+      disabledDates,
+      weekStartsOn = 0,
+      locale,
+      clearable = false,
+      onMonthChange,
+      onYearChange,
     },
     ref,
   ) {
@@ -95,7 +108,31 @@ export const DatePickerStyled = forwardRef<HTMLDivElement, DatePickerStyledProps
       minDate,
       maxDate,
       disabled,
+      disabledDates,
+      weekStartsOn,
+      locale,
     });
+
+    // Locale-aware month name and day abbreviations
+    const resolvedLocale = locale ?? "en-US";
+
+    const monthName = useMemo(
+      () =>
+        new Intl.DateTimeFormat(resolvedLocale, { month: "long" }).format(
+          new Date(picker.year, picker.month, 1),
+        ),
+      [resolvedLocale, picker.year, picker.month],
+    );
+
+    const dayAbbrs = useMemo(
+      () =>
+        Array.from({ length: 7 }, (_, i) => {
+          // Jan 2 2000 is a Sunday (day 0); shift by weekStartsOn to rotate the row
+          const d = new Date(2000, 0, 2 + ((i + weekStartsOn) % 7));
+          return new Intl.DateTimeFormat(resolvedLocale, { weekday: "short" }).format(d);
+        }),
+      [resolvedLocale, weekStartsOn],
+    );
 
     const updatePosition = useCallback(() => {
       if (!triggerRef.current) return;
@@ -187,6 +224,34 @@ export const DatePickerStyled = forwardRef<HTMLDivElement, DatePickerStyledProps
       }
     }, [moveFocus, closeCalendar]);
 
+    const handlePrevMonth = useCallback(() => {
+      picker.prevMonth();
+      // After prevMonth the view state hasn't re-rendered yet; compute the
+      // previous month values manually so callbacks receive the right values.
+      const prev = picker.month === 0
+        ? { month: 11, year: picker.year - 1 }
+        : { month: picker.month - 1, year: picker.year };
+      onMonthChange?.(prev.month, prev.year);
+    }, [picker, onMonthChange]);
+
+    const handleNextMonth = useCallback(() => {
+      picker.nextMonth();
+      const next = picker.month === 11
+        ? { month: 0, year: picker.year + 1 }
+        : { month: picker.month + 1, year: picker.year };
+      onMonthChange?.(next.month, next.year);
+    }, [picker, onMonthChange]);
+
+    const handleSetYear = useCallback((year: number) => {
+      picker.setYear(year);
+      onYearChange?.(year);
+    }, [picker, onYearChange]);
+
+    const handleClear = useCallback((e: React.MouseEvent) => {
+      e.stopPropagation();
+      onChange?.(null);
+    }, [onChange]);
+
     const displayValue = formatValue(
       value !== undefined ? value : picker.selected,
       format,
@@ -230,6 +295,18 @@ export const DatePickerStyled = forwardRef<HTMLDivElement, DatePickerStyledProps
             </svg>
           </span>
           <span className="rdp-trigger-text">{displayValue}</span>
+          {clearable && hasValue && (
+            <button
+              type="button"
+              className="rdp-clear-btn"
+              aria-label="Clear"
+              onClick={handleClear}
+            >
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                <path d="M1 1l10 10M11 1L1 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+              </svg>
+            </button>
+          )}
         </button>
 
         {mounted && open && createPortal(
@@ -251,7 +328,7 @@ export const DatePickerStyled = forwardRef<HTMLDivElement, DatePickerStyledProps
                 type="button"
                 className="rdp-nav-btn"
                 aria-label="Previous month"
-                onClick={picker.prevMonth}
+                onClick={handlePrevMonth}
               >
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                   <path d="M10 12L6 8l4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -260,16 +337,21 @@ export const DatePickerStyled = forwardRef<HTMLDivElement, DatePickerStyledProps
 
               <div className="rdp-month-year">
                 <span className="rdp-month-label">
-                  {MONTH_ABBR[picker.month]}
+                  {monthName}
                 </span>
-                <span className="rdp-year-label">{picker.year}</span>
+                <span
+                  className="rdp-year-label"
+                  onClick={() => handleSetYear(picker.year)}
+                >
+                  {picker.year}
+                </span>
               </div>
 
               <button
                 type="button"
                 className="rdp-nav-btn"
                 aria-label="Next month"
-                onClick={picker.nextMonth}
+                onClick={handleNextMonth}
               >
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
                   <path d="M6 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -278,14 +360,14 @@ export const DatePickerStyled = forwardRef<HTMLDivElement, DatePickerStyledProps
             </div>
 
             <div className="rdp-weekdays" role="row">
-              {DAY_ABBR.map((d) => (
+              {dayAbbrs.map((d) => (
                 <abbr key={d} className="rdp-weekday" title={d} aria-label={d}>
                   {d.slice(0, 2)}
                 </abbr>
               ))}
             </div>
 
-            <div className="rdp-grid" role="grid" aria-label={`${MONTH_ABBR[picker.month]} ${picker.year}`}>
+            <div className="rdp-grid" role="grid" aria-label={`${monthName} ${picker.year}`}>
               {picker.days.map((date) => {
                 const dayProps = picker.getDayProps(date);
                 const isOutside = dayProps["data-outside-month"];

@@ -34,6 +34,13 @@ const [columns, setColumns] = useState<KanbanColumn[]>([
         <tr><td>size</td><td>"sm" | "md" | "lg"</td><td>"md"</td><td>Card and text size</td></tr>
         <tr><td>tone</td><td>"neutral" | "primary"</td><td>"neutral"</td><td>Accent color</td></tr>
         <tr><td>disabled</td><td>boolean</td><td>false</td><td>Disable drag and card creation</td></tr>
+        <tr><td>onCardAdd</td><td>(card, columnId) =&gt; void</td><td>—</td><td>Card added callback</td></tr>
+        <tr><td>onCardRemove</td><td>(card, columnId) =&gt; void</td><td>—</td><td>Card removed callback</td></tr>
+        <tr><td>onCardMove</td><td>(card, from, to) =&gt; void</td><td>—</td><td>Card moved between columns callback</td></tr>
+        <tr><td>addColumnPlaceholder</td><td>string</td><td>—</td><td>Shows "+ Add column" button with this label</td></tr>
+        <tr><td>maxCardsPerColumn</td><td>number</td><td>—</td><td>Per-column card limit</td></tr>
+        <tr><td>cardDraggable</td><td>boolean | (card, col) =&gt; boolean</td><td>true</td><td>Control per-card drag</td></tr>
+        <tr><td>collapsible</td><td>boolean</td><td>false</td><td>Columns can collapse</td></tr>
       </tbody></table>
     </div>
   </PackagePageShell>

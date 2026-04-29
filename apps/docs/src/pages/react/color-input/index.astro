@@ -35,6 +35,11 @@ const [color, setColor] = useState("#6366f1");
         <tr><td>size</td><td>"sm" | "md" | "lg"</td><td>"md"</td><td>Input size</td></tr>
         <tr><td>tone</td><td>"neutral" | "primary" | "danger"</td><td>"neutral"</td><td>Color tone</td></tr>
         <tr><td>disabled</td><td>boolean</td><td>false</td><td>Disable interaction</td></tr>
+        <tr><td>presets</td><td>string[]</td><td>(built-in 12 colors)</td><td>Custom preset swatches</td></tr>
+        <tr><td>showAlpha</td><td>boolean</td><td>false</td><td>Alpha channel slider</td></tr>
+        <tr><td>eyeDropper</td><td>boolean</td><td>false</td><td>EyeDropper API button (Chrome only)</td></tr>
+        <tr><td>onOpen</td><td>() =&gt; void</td><td>—</td><td>Picker open callback</td></tr>
+        <tr><td>onClose</td><td>() =&gt; void</td><td>—</td><td>Picker close callback</td></tr>
       </tbody></table>
     </div>
   </PackagePageShell>

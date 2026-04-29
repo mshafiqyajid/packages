@@ -21,6 +21,8 @@ export interface TableStyledProps<T extends Record<string, unknown>>
   loading?: boolean;
   emptyText?: ReactNode;
   caption?: string;
+  onRowClick?: (row: T) => void;
+  toolbar?: ReactNode;
 }
 
 const SKELETON_ROWS = 5;
@@ -51,6 +53,9 @@ function TableStyledInner<T extends Record<string, unknown>>(
     onSort,
     onFilter,
     onSelect,
+    rowKey,
+    page: controlledPage,
+    onPageChange,
     size = "md",
     tone = "neutral",
     striped = false,
@@ -60,6 +65,8 @@ function TableStyledInner<T extends Record<string, unknown>>(
     loading = false,
     emptyText = "No data",
     caption,
+    onRowClick,
+    toolbar,
   } = props;
 
   const filterId = useId();
@@ -78,6 +85,9 @@ function TableStyledInner<T extends Record<string, unknown>>(
     allSelected,
     filterValue,
     setFilterValue,
+    columnFilters,
+    setColumnFilter,
+    getRowId,
   } = useTable<T>({
     data,
     columns,
@@ -87,14 +97,12 @@ function TableStyledInner<T extends Record<string, unknown>>(
     onSort,
     onFilter,
     onSelect,
+    rowKey,
+    page: controlledPage,
+    onPageChange,
   });
 
-  const pageRowIds = rows.map((row, i) => {
-    if ("id" in row && (typeof row.id === "string" || typeof row.id === "number")) {
-      return String(row.id);
-    }
-    return String((page - 1) * pageSize + i);
-  });
+  const pageRowIds = rows.map((row, i) => getRowId(row, (page - 1) * pageSize + i));
 
   const skeletonCols = selectable ? columns.length + 1 : columns.length;
 
@@ -123,6 +131,7 @@ function TableStyledInner<T extends Record<string, unknown>>(
           placeholder="Search…"
           aria-label="Filter table rows"
         />
+        {toolbar}
       </div>
 
       <div className="rtbl-scroll-wrap">
@@ -154,7 +163,11 @@ function TableStyledInner<T extends Record<string, unknown>>(
                     .filter(Boolean)
                     .join(" ")}
                   scope="col"
-                  style={col.width !== undefined ? { width: col.width } : undefined}
+                  style={{
+                    ...(col.width !== undefined ? { width: col.width } : {}),
+                    ...(col.align ? { textAlign: col.align } : {}),
+                  }}
+                  data-sticky={col.sticky ?? undefined}
                   aria-sort={
                     col.sortable && sortKey === col.key
                       ? sortDir === "asc"
@@ -186,6 +199,19 @@ function TableStyledInner<T extends Record<string, unknown>>(
                       />
                     )}
                   </span>
+                  {col.filterable && (
+                    <input
+                      type="text"
+                      className="rtbl-col-filter"
+                      value={columnFilters[col.key] ?? ""}
+                      onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                        setColumnFilter(col.key, e.target.value)
+                      }
+                      placeholder={`Filter…`}
+                      aria-label={`Filter by ${col.header}`}
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  )}
                 </th>
               ))}
             </tr>
@@ -219,6 +245,8 @@ function TableStyledInner<T extends Record<string, unknown>>(
                     key={rowId}
                     className="rtbl-tr"
                     data-selected={isSelected ? "true" : undefined}
+                    data-clickable={onRowClick ? "true" : undefined}
+                    onClick={onRowClick ? () => onRowClick(row) : undefined}
                   >
                     {selectable && (
                       <td className="rtbl-td rtbl-td--check">
@@ -232,7 +260,12 @@ function TableStyledInner<T extends Record<string, unknown>>(
                       </td>
                     )}
                     {columns.map((col: ColumnDef<T>) => (
-                      <td key={col.key} className="rtbl-td">
+                      <td
+                        key={col.key}
+                        className="rtbl-td"
+                        style={col.align ? { textAlign: col.align } : undefined}
+                        data-sticky={col.sticky ?? undefined}
+                      >
                         {col.render ? col.render(row) : String(row[col.key] ?? "")}
                       </td>
                     ))}

@@ -62,12 +62,15 @@ export function isBetween(date: Date, start: Date, end: Date): boolean {
 }
 
 /** Returns the dates that make up the calendar grid for a given month/year.
- *  Always 6 rows × 7 columns (42 cells). Week starts on Sunday. */
-export function getCalendarDays(year: number, month: number): Date[] {
+ *  Always 6 rows × 7 columns (42 cells). `weekStartsOn` controls which day
+ *  opens each row (0 = Sunday … 6 = Saturday, default 0). */
+export function getCalendarDays(year: number, month: number, weekStartsOn: number = 0): Date[] {
   const first = new Date(year, month, 1);
-  const startDow = first.getDay();
+  const rawDow = first.getDay();
+  // How many days before the 1st we need to show
+  const offset = (rawDow - weekStartsOn + 7) % 7;
   const days: Date[] = [];
-  for (let i = -startDow; i < 42 - startDow; i++) {
+  for (let i = -offset; i < 42 - offset; i++) {
     days.push(new Date(year, month, 1 + i));
   }
   return days;

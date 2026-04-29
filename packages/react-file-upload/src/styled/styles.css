@@ -1,370 +1,351 @@
 /* ============================================================================
  * react-file-upload — styled component
- *
- * Themable via CSS variables.
- * Dark mode: [data-theme="dark"] ancestor only — no prefers-color-scheme.
+ * Dark mode: [data-theme="dark"] ancestor only.
  * ========================================================================== */
 
 :root {
   --rfu-bg: #ffffff;
   --rfu-fg: #18181b;
-  --rfu-border: #d4d4d8;
+  --rfu-border: #e4e4e7;
   --rfu-border-active: #6366f1;
-  --rfu-border-reject: #dc2626;
-  --rfu-bg-dropzone: #fafafa;
-  --rfu-bg-drag-over: #eef2ff;
-  --rfu-bg-drag-reject: #fef2f2;
-  --rfu-bg-file-item: #f4f4f5;
-  --rfu-bg-remove: #e4e4e7;
-  --rfu-bg-remove-hover: #d4d4d8;
-  --rfu-fg-muted: #71717a;
-  --rfu-fg-hint: #a1a1aa;
-  --rfu-fg-browse: #6366f1;
-  --rfu-fg-browse-hover: #4f46e5;
-  --rfu-radius: 10px;
-  --rfu-radius-sm: 6px;
-  --rfu-duration: 150ms;
+  --rfu-border-reject: #ef4444;
+  --rfu-dz-bg: #fafafa;
+  --rfu-dz-bg-hover: #f0f0ff;
+  --rfu-dz-bg-reject: #fff1f2;
+  --rfu-icon-color: #a1a1aa;
+  --rfu-icon-active: #6366f1;
+  --rfu-icon-reject: #ef4444;
+  --rfu-hint-color: #a1a1aa;
+  --rfu-browse-color: #6366f1;
+  --rfu-browse-hover: #4f46e5;
+  --rfu-chip-bg: #f4f4f5;
+  --rfu-chip-fg: #71717a;
+  --rfu-row-bg: #f4f4f5;
+  --rfu-row-border: #e4e4e7;
+  --rfu-row-name-color: #18181b;
+  --rfu-row-size-color: #a1a1aa;
+  --rfu-row-ext-bg: #e4e4e7;
+  --rfu-row-ext-fg: #52525b;
+  --rfu-remove-bg: #e4e4e7;
+  --rfu-remove-hover: #d4d4d8;
+  --rfu-thumb-radius: 8px;
+  --rfu-radius: 12px;
+  --rfu-radius-sm: 8px;
   --rfu-ease: cubic-bezier(0.16, 1, 0.3, 1);
-  --rfu-shadow-dropzone: 0 1px 3px rgba(0, 0, 0, 0.06);
-  --rfu-font-size-label: 0.9rem;
-  --rfu-font-size-hint: 0.78rem;
-  --rfu-font-size-file: 0.82rem;
+  --rfu-dur: 180ms;
 }
 
-/* ============================================================================
- * Root
- * ========================================================================== */
+/* Root */
 .rfu-root {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.875rem;
   font-family: inherit;
+  width: 100%;
 }
 
-/* ============================================================================
- * Dropzone
- * ========================================================================== */
+/* ── Dropzone ──────────────────────────────────────────────────── */
 .rfu-dropzone {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 2.5rem 1.5rem;
-  background: var(--rfu-bg-dropzone);
+  padding: 2.5rem 2rem;
+  background: var(--rfu-dz-bg);
   border: 2px dashed var(--rfu-border);
   border-radius: var(--rfu-radius);
-  box-shadow: var(--rfu-shadow-dropzone);
   cursor: pointer;
-  user-select: none;
   outline: none;
-  transition:
-    border-color var(--rfu-duration) var(--rfu-ease),
-    background var(--rfu-duration) var(--rfu-ease);
+  transition: border-color var(--rfu-dur) var(--rfu-ease), background var(--rfu-dur) var(--rfu-ease), transform var(--rfu-dur) var(--rfu-ease);
 }
-
 .rfu-dropzone:focus-visible {
   outline: 2px solid var(--rfu-border-active);
   outline-offset: 2px;
 }
-
 .rfu-dropzone[data-drag-over="true"] {
   border-color: var(--rfu-border-active);
-  background: var(--rfu-bg-drag-over);
+  background: var(--rfu-dz-bg-hover);
 }
-
-.rfu-dropzone[data-drag-reject="true"] {
+.rfu-dropzone[data-drag-reject="true"],
+.rfu-dropzone.rfu-dropzone--reject {
   border-color: var(--rfu-border-reject);
-  background: var(--rfu-bg-drag-reject);
+  background: var(--rfu-dz-bg-reject);
+  animation: rfu-shake 0.35s ease;
 }
-
 .rfu-dropzone[data-disabled="true"] {
+  opacity: 0.5;
   cursor: not-allowed;
-  opacity: 0.55;
+  pointer-events: none;
+}
+.rfu-root[data-size="sm"] .rfu-dropzone { padding: 1.5rem 1.25rem; }
+.rfu-root[data-size="lg"] .rfu-dropzone { padding: 3.5rem 2.5rem; }
+
+/* Icon wrap — scales up on drag */
+.rfu-dz-icon-wrap {
+  color: var(--rfu-icon-color);
+  transition: transform var(--rfu-dur) var(--rfu-ease), color var(--rfu-dur) var(--rfu-ease);
+}
+.rfu-dz-icon-wrap[data-drag-over="true"] {
+  transform: scale(1.15) translateY(-2px);
+  color: var(--rfu-icon-active);
+}
+.rfu-dropzone[data-drag-reject="true"] .rfu-dz-icon-wrap {
+  color: var(--rfu-icon-reject);
 }
 
-/* ============================================================================
- * Dropzone sizes
- * ========================================================================== */
-.rfu-root[data-size="sm"] .rfu-dropzone {
-  padding: 1.5rem 1rem;
-}
-
-.rfu-root[data-size="lg"] .rfu-dropzone {
-  padding: 3.5rem 2rem;
-}
-
-/* ============================================================================
- * Upload icon
- * ========================================================================== */
-.rfu-upload-icon {
-  color: var(--rfu-fg-muted);
-  flex-shrink: 0;
-  transition: color var(--rfu-duration) var(--rfu-ease);
-}
-
-.rfu-dropzone[data-drag-over="true"] .rfu-upload-icon {
-  color: var(--rfu-border-active);
-}
-
-.rfu-dropzone[data-drag-reject="true"] .rfu-upload-icon {
-  color: var(--rfu-border-reject);
-}
-
-.rfu-root[data-size="sm"] .rfu-upload-icon {
-  width: 24px;
-  height: 24px;
-}
-
-.rfu-root[data-size="lg"] .rfu-upload-icon {
-  width: 40px;
-  height: 40px;
-}
-
-/* ============================================================================
- * Dropzone label + hint
- * ========================================================================== */
-.rfu-dropzone-label {
+/* Labels */
+.rfu-dz-label {
   margin: 0;
-  font-size: var(--rfu-font-size-label);
-  font-weight: 500;
+  font-size: 0.9rem;
+  font-weight: 600;
   color: var(--rfu-fg);
   text-align: center;
   pointer-events: none;
 }
+.rfu-dropzone[data-drag-reject="true"] .rfu-dz-label { color: var(--rfu-border-reject); }
+.rfu-dropzone[data-drag-over="true"] .rfu-dz-label { color: var(--rfu-border-active); }
 
-.rfu-dropzone[data-drag-reject="true"] .rfu-dropzone-label {
-  color: var(--rfu-border-reject);
-}
-
-.rfu-dropzone-hint {
+.rfu-dz-sub {
   margin: 0;
-  font-size: var(--rfu-font-size-hint);
-  color: var(--rfu-fg-hint);
+  font-size: 0.8rem;
+  color: var(--rfu-hint-color);
   text-align: center;
-  pointer-events: none;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.3rem;
 }
-
-.rfu-dropzone-browse {
-  color: var(--rfu-fg-browse);
-  font-weight: 500;
+.rfu-dz-browse {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  font-size: inherit;
+  color: var(--rfu-browse-color);
+  font-weight: 600;
   cursor: pointer;
-  pointer-events: auto;
-  transition: color var(--rfu-duration) var(--rfu-ease);
+  transition: color var(--rfu-dur);
+}
+.rfu-dz-browse:hover:not(:disabled) { color: var(--rfu-browse-hover); text-decoration: underline; }
+.rfu-dz-constraints {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+}
+.rfu-dz-accept {
+  margin: 0.25rem 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  justify-content: center;
+}
+.rfu-dz-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  background: var(--rfu-chip-bg);
+  color: var(--rfu-chip-fg);
+  font-size: 0.72rem;
+  font-weight: 500;
 }
 
-.rfu-dropzone-browse:hover {
-  color: var(--rfu-fg-browse-hover);
-}
-
-/* ============================================================================
- * Button variant
- * ========================================================================== */
-.rfu-button-trigger {
+/* ── Button variant ────────────────────────────────────────────── */
+.rfu-btn-trigger {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  padding: 0.5rem 1rem;
-  background: var(--rfu-fg-browse);
-  color: #ffffff;
+  padding: 0.5rem 1.125rem;
+  background: var(--rfu-border-active);
+  color: #fff;
   border: none;
   border-radius: var(--rfu-radius-sm);
-  font-size: var(--rfu-font-size-label);
+  font-size: 0.875rem;
   font-weight: 500;
   font-family: inherit;
   cursor: pointer;
-  transition:
-    background var(--rfu-duration) var(--rfu-ease),
-    opacity var(--rfu-duration) var(--rfu-ease);
+  transition: background var(--rfu-dur) var(--rfu-ease), opacity var(--rfu-dur);
 }
+.rfu-btn-trigger:hover:not(:disabled) { background: #4f46e5; }
+.rfu-btn-trigger:focus-visible { outline: 2px solid var(--rfu-border-active); outline-offset: 2px; }
+.rfu-btn-trigger:disabled { opacity: 0.5; cursor: not-allowed; }
+.rfu-root[data-size="sm"] .rfu-btn-trigger { padding: 0.35rem 0.75rem; font-size: 0.8rem; }
+.rfu-root[data-size="lg"] .rfu-btn-trigger { padding: 0.65rem 1.25rem; font-size: 1rem; }
 
-.rfu-button-trigger:hover:not(:disabled) {
-  background: var(--rfu-fg-browse-hover);
-}
-
-.rfu-button-trigger:focus-visible {
-  outline: 2px solid var(--rfu-border-active);
-  outline-offset: 2px;
-}
-
-.rfu-button-trigger:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-}
-
-.rfu-root[data-size="sm"] .rfu-button-trigger {
-  padding: 0.35rem 0.75rem;
-  font-size: 0.8rem;
-}
-
-.rfu-root[data-size="lg"] .rfu-button-trigger {
-  padding: 0.65rem 1.25rem;
-  font-size: 1rem;
-}
-
-.rfu-root[data-variant="button"] .rfu-upload-icon {
-  width: 16px;
-  height: 16px;
-  color: inherit;
-}
-
-/* ============================================================================
- * File list
- * ========================================================================== */
-.rfu-file-list {
+/* ── Image thumbnail grid ──────────────────────────────────────── */
+.rfu-thumb-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 0.625rem;
   list-style: none;
   margin: 0;
   padding: 0;
+}
+.rfu-root[data-size="sm"] .rfu-thumb-grid { grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 0.4rem; }
+.rfu-root[data-size="lg"] .rfu-thumb-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+
+.rfu-thumb-item {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  gap: 0.3rem;
 }
-
-.rfu-file-item {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.5rem 0.6rem;
-  background: var(--rfu-bg-file-item);
-  border-radius: var(--rfu-radius-sm);
-  border: 1px solid var(--rfu-border);
-}
-
-/* ============================================================================
- * File thumbnail
- * ========================================================================== */
-.rfu-file-thumb {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 4px;
-  background: var(--rfu-bg);
-  border: 1px solid var(--rfu-border);
-  flex-shrink: 0;
+.rfu-thumb-wrap {
+  position: relative;
+  border-radius: var(--rfu-thumb-radius);
   overflow: hidden;
+  aspect-ratio: 1;
+  background: var(--rfu-row-bg);
+  border: 1px solid var(--rfu-border);
 }
-
-.rfu-root[data-size="sm"] .rfu-file-thumb {
-  width: 28px;
-  height: 28px;
-}
-
-.rfu-root[data-size="lg"] .rfu-file-thumb {
-  width: 44px;
-  height: 44px;
-}
-
-.rfu-file-preview {
+.rfu-thumb-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
+}
+.rfu-thumb-remove {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.55);
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity var(--rfu-dur);
+  backdrop-filter: blur(2px);
+}
+.rfu-thumb-wrap:hover .rfu-thumb-remove { opacity: 1; }
+.rfu-thumb-name {
+  font-size: 0.7rem;
+  color: var(--rfu-row-size-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
 }
 
-.rfu-icon {
-  width: 16px;
-  height: 16px;
-  color: var(--rfu-fg-muted);
+/* ── File rows (non-image / button variant) ─────────────────────── */
+.rfu-file-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.rfu-file-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.625rem;
+  background: var(--rfu-row-bg);
+  border: 1px solid var(--rfu-row-border);
+  border-radius: var(--rfu-radius-sm);
+  transition: border-color var(--rfu-dur);
+}
+.rfu-file-row:hover { border-color: var(--rfu-border-active); }
+.rfu-file-row-icon {
+  display: flex;
+  align-items: center;
+  color: var(--rfu-icon-color);
   flex-shrink: 0;
 }
-
-/* ============================================================================
- * File info
- * ========================================================================== */
-.rfu-file-info {
+.rfu-file-row-ext {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  background: var(--rfu-row-ext-bg);
+  color: var(--rfu-row-ext-fg);
+  flex-shrink: 0;
+  letter-spacing: 0.03em;
+}
+.rfu-file-row-info {
   display: flex;
   flex-direction: column;
   flex: 1;
   min-width: 0;
-  gap: 0.1rem;
+  gap: 0.05rem;
 }
-
-.rfu-file-name {
-  font-size: var(--rfu-font-size-file);
+.rfu-file-row-name {
+  font-size: 0.82rem;
   font-weight: 500;
-  color: var(--rfu-fg);
+  color: var(--rfu-row-name-color);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-
-.rfu-file-meta {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
+.rfu-file-row-size {
   font-size: 0.72rem;
-  color: var(--rfu-fg-hint);
+  color: var(--rfu-row-size-color);
 }
-
-.rfu-file-type {
-  background: var(--rfu-bg-remove);
-  padding: 0.1rem 0.35rem;
-  border-radius: 3px;
-  font-size: 0.68rem;
-}
-
-/* ============================================================================
- * Remove button
- * ========================================================================== */
-.rfu-file-remove {
+.rfu-file-row-remove {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
-  padding: 0;
-  background: var(--rfu-bg-remove);
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  background: var(--rfu-remove-bg);
   border: none;
-  border-radius: 4px;
-  color: var(--rfu-fg-muted);
+  color: var(--rfu-chip-fg);
   cursor: pointer;
   flex-shrink: 0;
-  transition:
-    background var(--rfu-duration) var(--rfu-ease),
-    color var(--rfu-duration) var(--rfu-ease);
+  transition: background var(--rfu-dur), color var(--rfu-dur);
+}
+.rfu-file-row-remove:hover { background: var(--rfu-remove-hover); color: var(--rfu-fg); }
+.rfu-file-row-remove:focus-visible { outline: 2px solid var(--rfu-border-active); outline-offset: 2px; }
+
+/* ── Animations ─────────────────────────────────────────────────── */
+@keyframes rfu-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
 }
 
-.rfu-file-remove:hover {
-  background: var(--rfu-bg-remove-hover);
-  color: var(--rfu-fg);
-}
-
-.rfu-file-remove:focus-visible {
-  outline: 2px solid var(--rfu-border-active);
-  outline-offset: 2px;
-}
-
-/* ============================================================================
- * Dark mode — [data-theme="dark"] only, no prefers-color-scheme
- * ========================================================================== */
-[data-theme="dark"] {
+/* ── Dark mode ──────────────────────────────────────────────────── */
+[data-theme="dark"] .rfu-root {
   --rfu-bg: #09090b;
   --rfu-fg: #fafafa;
   --rfu-border: #3f3f46;
   --rfu-border-active: #818cf8;
   --rfu-border-reject: #f87171;
-  --rfu-bg-dropzone: #18181b;
-  --rfu-bg-drag-over: #1e1b4b;
-  --rfu-bg-drag-reject: #450a0a;
-  --rfu-bg-file-item: #27272a;
-  --rfu-bg-remove: #3f3f46;
-  --rfu-bg-remove-hover: #52525b;
-  --rfu-fg-muted: #a1a1aa;
-  --rfu-fg-hint: #71717a;
-  --rfu-fg-browse: #818cf8;
-  --rfu-fg-browse-hover: #a5b4fc;
+  --rfu-dz-bg: #18181b;
+  --rfu-dz-bg-hover: #1e1b4b;
+  --rfu-dz-bg-reject: #450a0a;
+  --rfu-icon-color: #52525b;
+  --rfu-icon-active: #818cf8;
+  --rfu-icon-reject: #f87171;
+  --rfu-hint-color: #71717a;
+  --rfu-browse-color: #818cf8;
+  --rfu-browse-hover: #a5b4fc;
+  --rfu-chip-bg: #27272a;
+  --rfu-chip-fg: #a1a1aa;
+  --rfu-row-bg: #27272a;
+  --rfu-row-border: #3f3f46;
+  --rfu-row-name-color: #fafafa;
+  --rfu-row-size-color: #71717a;
+  --rfu-row-ext-bg: #3f3f46;
+  --rfu-row-ext-fg: #a1a1aa;
+  --rfu-remove-bg: #3f3f46;
+  --rfu-remove-hover: #52525b;
 }
 
-/* ============================================================================
- * Reduced motion
- * ========================================================================== */
+/* ── Reduced motion ─────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
-  .rfu-dropzone,
-  .rfu-upload-icon,
-  .rfu-dropzone-browse,
-  .rfu-button-trigger,
-  .rfu-file-remove {
-    transition: none;
-  }
+  .rfu-dropzone, .rfu-dz-icon-wrap, .rfu-dz-browse, .rfu-btn-trigger, .rfu-file-row-remove, .rfu-thumb-remove { transition: none; }
+  .rfu-dropzone.rfu-dropzone--reject { animation: none; }
 }

@@ -287,6 +287,97 @@
 }
 
 /* ============================================================================
+ * Card metadata — description, label, priority
+ * ========================================================================== */
+
+.rkb-card-desc {
+  display: block;
+  font-size: 0.78em;
+  color: var(--rkb-handle-color);
+  margin-top: 3px;
+  line-height: 1.4;
+}
+
+.rkb-card-label {
+  display: inline-block;
+  font-size: 0.68em;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--rkb-badge-bg);
+  color: var(--rkb-badge-fg);
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+.rkb-card-priority {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+
+.rkb-card-priority[data-priority="low"]    { background: #22c55e; }
+.rkb-card-priority[data-priority="medium"] { background: #eab308; }
+.rkb-card-priority[data-priority="high"]   { background: #f97316; }
+.rkb-card-priority[data-priority="urgent"] { background: #ef4444; }
+
+/* ============================================================================
+ * Add column button
+ * ========================================================================== */
+
+.rkb-add-column {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 200px;
+  padding: 12px;
+  border: 2px dashed var(--rkb-handle-color);
+  border-radius: var(--rkb-column-radius);
+  background: transparent;
+  color: var(--rkb-handle-color);
+  cursor: pointer;
+  font-size: var(--rkb-font-size);
+  font-family: inherit;
+  transition: border-color 140ms, color 140ms;
+  align-self: flex-start;
+}
+
+.rkb-add-column:hover {
+  border-color: var(--rkb-add-fg);
+  color: var(--rkb-add-fg);
+}
+
+/* ============================================================================
+ * Column states — at-max, collapsed
+ * ========================================================================== */
+
+.rkb-column[data-at-max="true"] { opacity: 0.7; }
+
+.rkb-column[data-collapsed="true"] .rkb-cards,
+.rkb-column[data-collapsed="true"] .rkb-add-card { display: none; }
+
+/* ============================================================================
+ * Column collapse button
+ * ========================================================================== */
+
+.rkb-column-collapse-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px 4px;
+  color: var(--rkb-handle-color);
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  transition: color 140ms;
+}
+
+.rkb-column-collapse-btn:hover { color: var(--rkb-header-fg); }
+
+/* ============================================================================
  * Reduced motion
  * ========================================================================== */
 

@@ -18,11 +18,15 @@ const [price, setPrice] = useState<number | undefined>(0);
   value={price}
   onChange={setPrice}
   format="currency"
-  currency="USD"
+  currency="MYR"
   min={0}
   label="Price"
   tone="primary"
-/>`} />
+/>
+
+// Prefix/suffix
+<NumberInputStyled value={weight} onChange={setWeight} suffix="kg" />
+<NumberInputStyled value={amount} onChange={setAmount} prefix="RM" />`} />
     </div>
     <div class="pkg-section"><H2>API</H2>
       <table class="props-table"><thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
@@ -41,6 +45,12 @@ const [price, setPrice] = useState<number | undefined>(0);
         <tr><td>size</td><td>"sm" | "md" | "lg"</td><td>"md"</td><td>Input size</td></tr>
         <tr><td>tone</td><td>"neutral" | "primary" | "success" | "danger"</td><td>"neutral"</td><td>Color tone</td></tr>
         <tr><td>disabled</td><td>boolean</td><td>false</td><td>Disable interaction</td></tr>
+        <tr><td>showStepper</td><td>boolean</td><td>true</td><td>Show +/− increment buttons</td></tr>
+        <tr><td>onBlur</td><td>FocusEventHandler</td><td>—</td><td>Blur callback</td></tr>
+        <tr><td>onFocus</td><td>FocusEventHandler</td><td>—</td><td>Focus callback</td></tr>
+        <tr><td>prefix</td><td>string</td><td>—</td><td>Text before value (e.g. "RM")</td></tr>
+        <tr><td>suffix</td><td>string</td><td>—</td><td>Text after value (e.g. "kg")</td></tr>
+        <tr><td>clampOnBlur</td><td>boolean</td><td>true</td><td>Snap to min/max on blur</td></tr>
       </tbody></table>
     </div>
   </PackagePageShell>

@@ -1,4 +1,4 @@
-import { forwardRef, useId, useRef, useCallback, type ChangeEvent } from "react";
+import { forwardRef, useId, useRef, useCallback, type ChangeEvent, type FocusEventHandler } from "react";
 import { useNumberInput, type UseNumberInputOptions } from "../useNumberInput";
 
 export type NumberInputSize = "sm" | "md" | "lg";
@@ -17,6 +17,11 @@ export interface NumberInputStyledProps extends UseNumberInputOptions {
   error?: string;
   className?: string;
   id?: string;
+  showStepper?: boolean;
+  prefix?: string;
+  suffix?: string;
+  onBlur?: FocusEventHandler<HTMLInputElement>;
+  onFocus?: FocusEventHandler<HTMLInputElement>;
 }
 
 function formatValue(
@@ -29,9 +34,10 @@ function formatValue(
   if (value === undefined) return "";
 
   if (format === "currency") {
+    if (!currency) return value !== undefined ? String(value) : "";
     return new Intl.NumberFormat(locale, {
       style: "currency",
-      currency: currency ?? "USD",
+      currency,
       minimumFractionDigits: precision ?? 2,
       maximumFractionDigits: precision ?? 2,
     }).format(value);
@@ -76,6 +82,12 @@ export const NumberInputStyled = forwardRef<
     precision,
     disabled = false,
     readOnly = false,
+    clampOnBlur,
+    showStepper = true,
+    prefix,
+    suffix,
+    onBlur: onBlurProp,
+    onFocus: onFocusProp,
   },
   ref,
 ) {
@@ -89,6 +101,7 @@ export const NumberInputStyled = forwardRef<
     incrementProps,
     decrementProps,
     clampedValue,
+    handleBlur: hookHandleBlur,
   } = useNumberInput({
     value,
     defaultValue,
@@ -99,6 +112,7 @@ export const NumberInputStyled = forwardRef<
     precision,
     disabled,
     readOnly,
+    clampOnBlur,
   });
 
   const isFormatted = format !== "decimal";
@@ -109,14 +123,16 @@ export const NumberInputStyled = forwardRef<
   const inputRef = useRef<HTMLInputElement>(null);
   const isFocused = useRef(false);
 
-  const handleFocus = useCallback(() => {
+  const handleFocus = useCallback<FocusEventHandler<HTMLInputElement>>((e) => {
     isFocused.current = true;
-  }, []);
+    onFocusProp?.(e);
+  }, [onFocusProp]);
 
-  const handleBlur = useCallback(() => {
+  const handleBlur = useCallback<FocusEventHandler<HTMLInputElement>>((e) => {
     isFocused.current = false;
-    inputProps.onBlur();
-  }, [inputProps]);
+    hookHandleBlur();
+    onBlurProp?.(e);
+  }, [hookHandleBlur, onBlurProp]);
 
   const handleChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
@@ -157,14 +173,22 @@ export const NumberInputStyled = forwardRef<
       )}
 
       <div className="rni-control">
-        <button
-          type="button"
-          className="rni-btn rni-btn--decrement"
-          {...decrementProps}
-          aria-label="Decrement"
-        >
-          <span aria-hidden="true">−</span>
-        </button>
+        {showStepper !== false && (
+          <button
+            type="button"
+            className="rni-btn rni-btn--decrement"
+            {...decrementProps}
+            aria-label="Decrement"
+          >
+            <span aria-hidden="true">−</span>
+          </button>
+        )}
+
+        {prefix && (
+          <span className="rni-adornment rni-adornment--prefix" aria-hidden="true">
+            {prefix}
+          </span>
+        )}
 
         <input
           ref={(el) => {
@@ -191,14 +215,22 @@ export const NumberInputStyled = forwardRef<
           aria-invalid={hasError ? "true" : undefined}
         />
 
-        <button
-          type="button"
-          className="rni-btn rni-btn--increment"
-          {...incrementProps}
-          aria-label="Increment"
-        >
-          <span aria-hidden="true">+</span>
-        </button>
+        {suffix && (
+          <span className="rni-adornment rni-adornment--suffix" aria-hidden="true">
+            {suffix}
+          </span>
+        )}
+
+        {showStepper !== false && (
+          <button
+            type="button"
+            className="rni-btn rni-btn--increment"
+            {...incrementProps}
+            aria-label="Increment"
+          >
+            <span aria-hidden="true">+</span>
+          </button>
+        )}
       </div>
 
       {hint && !error && (

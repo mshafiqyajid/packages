@@ -22,7 +22,7 @@ import {
 
 export type ColorInputSize = "sm" | "md" | "lg";
 export type ColorInputTone = "neutral" | "primary" | "danger";
-export type ColorInputFormat = "hex" | "rgb";
+export type ColorInputFormat = "hex" | "rgb" | "hsl";
 
 export interface ColorInputStyledProps {
   value?: string;
@@ -37,6 +37,11 @@ export interface ColorInputStyledProps {
   format?: ColorInputFormat;
   showCopyButton?: boolean;
   className?: string;
+  presets?: string[];
+  showAlpha?: boolean;
+  eyeDropper?: boolean;
+  onOpen?: () => void;
+  onClose?: () => void;
 }
 
 const PRESETS = [
@@ -199,6 +204,11 @@ export const ColorInputStyled = forwardRef<HTMLDivElement, ColorInputStyledProps
       format = "hex",
       showCopyButton = false,
       className,
+      presets,
+      showAlpha = false,
+      eyeDropper = false,
+      onOpen,
+      onClose,
     },
     ref,
   ) {
@@ -216,8 +226,10 @@ export const ColorInputStyled = forwardRef<HTMLDivElement, ColorInputStyledProps
       isValidHex(currentHex) ? hexToHsl(currentHex) : { h: 0, s: 0, l: 0 },
     );
 
+    const [alpha, setAlpha] = useState(1);
     const [copied, setCopied] = useState(false);
     const [mounted, setMounted] = useState(false);
+    const supportsEyeDropper = typeof window !== "undefined" && "EyeDropper" in window;
     const [popoverPos, setPopoverPos] = useState<{ top: number; left: number }>({
       top: -9999,
       left: -9999,
@@ -234,6 +246,19 @@ export const ColorInputStyled = forwardRef<HTMLDivElement, ColorInputStyledProps
         setHsl(hexToHsl(currentHex));
       }
     }, [currentHex]);
+
+    const onOpenRef = useRef(onOpen);
+    onOpenRef.current = onOpen;
+    const onCloseRef = useRef(onClose);
+    onCloseRef.current = onClose;
+
+    useEffect(() => {
+      if (isOpen) {
+        onOpenRef.current?.();
+      } else {
+        onCloseRef.current?.();
+      }
+    }, [isOpen]);
 
     const updatePopoverPos = useCallback(() => {
       if (!wrapperRef.current || !popoverRef.current) return;
@@ -315,24 +340,49 @@ export const ColorInputStyled = forwardRef<HTMLDivElement, ColorInputStyledProps
     );
 
     const handleCopy = useCallback(() => {
-      const text = format === "rgb"
-        ? rgbToString(hexToRgb(currentHex))
-        : currentHex;
+      let text: string;
+      if (format === "rgb") {
+        if (showAlpha) {
+          const { r, g, b } = hexToRgb(currentHex);
+          text = `rgba(${r}, ${g}, ${b}, ${alpha})`;
+        } else {
+          text = rgbToString(hexToRgb(currentHex));
+        }
+      } else if (format === "hsl") {
+        const { h, s, l } = hexToHsl(currentHex);
+        text = showAlpha ? `hsla(${h}, ${s}%, ${l}%, ${alpha})` : `hsl(${h}, ${s}%, ${l}%)`;
+      } else {
+        text = currentHex;
+      }
       void navigator.clipboard.writeText(text).then(() => {
         setCopied(true);
         if (copyTimer.current) clearTimeout(copyTimer.current);
         copyTimer.current = setTimeout(() => setCopied(false), 1500);
       });
-    }, [currentHex, format]);
+    }, [currentHex, format, showAlpha, alpha]);
 
     useEffect(() => () => {
       if (copyTimer.current) clearTimeout(copyTimer.current);
     }, []);
 
-    const displayValue =
-      format === "rgb" && isValidHex(currentHex)
+    const handleHslInputChange = useCallback(
+      (e: ChangeEvent<HTMLInputElement>) => {
+        const raw = e.target.value;
+        const match = raw.match(/hsl\(\s*(\d+)\s*,\s*(\d+)%?\s*,\s*(\d+)%?\s*\)/i);
+        if (match) {
+          setHex(hslToHex({ h: Number(match[1]), s: Number(match[2]), l: Number(match[3]) }));
+        }
+      },
+      [setHex],
+    );
+
+    const displayValue = isValidHex(currentHex)
+      ? format === "rgb"
         ? rgbToString(hexToRgb(currentHex))
-        : inputProps.value;
+        : format === "hsl"
+          ? (() => { const { h, s, l } = hexToHsl(currentHex); return `hsl(${h}, ${s}%, ${l}%)`; })()
+          : inputProps.value
+      : inputProps.value;
 
     const classes = [
       "rci-root",
@@ -357,7 +407,13 @@ export const ColorInputStyled = forwardRef<HTMLDivElement, ColorInputStyledProps
             {...swatchProps}
             className="rci-swatch"
             aria-label="Open color picker"
-            style={{ "--rci-swatch-color": currentHex } as CSSProperties}
+            style={
+              {
+                "--rci-swatch-color": showAlpha
+                  ? (() => { const { r, g, b } = hexToRgb(currentHex); return `rgba(${r}, ${g}, ${b}, ${alpha})`; })()
+                  : currentHex,
+              } as CSSProperties
+            }
           />
           <input
             {...inputProps}
@@ -367,7 +423,9 @@ export const ColorInputStyled = forwardRef<HTMLDivElement, ColorInputStyledProps
             onChange={
               format === "hex"
                 ? inputProps.onChange
-                : handleHexInputChange
+                : format === "hsl"
+                  ? handleHslInputChange
+                  : handleHexInputChange
             }
             aria-invalid={!isValid || !!error}
             aria-describedby={
@@ -376,6 +434,25 @@ export const ColorInputStyled = forwardRef<HTMLDivElement, ColorInputStyledProps
             spellCheck={false}
             autoComplete="off"
           />
+          {eyeDropper && supportsEyeDropper && (
+            <button
+              type="button"
+              className="rci-eyedropper-btn"
+              aria-label="Pick color from screen"
+              disabled={disabled}
+              onClick={() => {
+                const dropper = new (window as any).EyeDropper();
+                dropper.open().then((result: any) => {
+                  setHex(result.sRGBHex);
+                  if (onChange) onChange(result.sRGBHex);
+                }).catch(() => { /* user cancelled */ });
+              }}
+            >
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <path d="M10.5 1.5a1.5 1.5 0 0 1 2 2L5 11l-3 1 1-3 7.5-7.5z" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+          )}
           {showCopyButton && (
             <button
               type="button"
@@ -431,10 +508,28 @@ export const ColorInputStyled = forwardRef<HTMLDivElement, ColorInputStyledProps
                 onChangeSL={handleSLChange}
               />
               <HueSlider hue={hsl.h} onChange={handleHueChange} />
+              {showAlpha && (
+                <input
+                  type="range"
+                  className="rci-alpha-slider"
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  value={alpha}
+                  aria-label="Alpha (opacity)"
+                  onChange={(e) => setAlpha(Number(e.target.value))}
+                />
+              )}
               <div className="rci-hex-row">
                 <div
                   className="rci-preview"
-                  style={{ "--rci-swatch-color": currentHex } as CSSProperties}
+                  style={
+                    {
+                      "--rci-swatch-color": showAlpha
+                        ? (() => { const { r, g, b } = hexToRgb(currentHex); return `rgba(${r}, ${g}, ${b}, ${alpha})`; })()
+                        : currentHex,
+                    } as CSSProperties
+                  }
                 />
                 <input
                   className="rci-hex-input"
@@ -446,19 +541,21 @@ export const ColorInputStyled = forwardRef<HTMLDivElement, ColorInputStyledProps
                   aria-label="Hex color value"
                 />
               </div>
-              <div className="rci-presets">
-                {PRESETS.map((preset) => (
-                  <button
-                    key={preset}
-                    type="button"
-                    className="rci-preset"
-                    aria-label={preset}
-                    data-active={currentHex === preset ? "true" : undefined}
-                    style={{ "--rci-swatch-color": preset } as CSSProperties}
-                    onClick={() => setHex(preset)}
-                  />
-                ))}
-              </div>
+              {(presets === undefined || presets.length > 0) && (
+                <div className="rci-presets">
+                  {(presets ?? PRESETS).map((preset) => (
+                    <button
+                      key={preset}
+                      type="button"
+                      className="rci-preset"
+                      aria-label={preset}
+                      data-active={currentHex === preset ? "true" : undefined}
+                      style={{ "--rci-swatch-color": preset } as CSSProperties}
+                      onClick={() => setHex(preset)}
+                    />
+                  ))}
+                </div>
+              )}
             </div>,
             document.body,
           )}

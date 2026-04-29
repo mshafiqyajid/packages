@@ -35,6 +35,10 @@ const [phone, setPhone] = useState("");
         <tr><td>size</td><td>"sm" | "md" | "lg"</td><td>"md"</td><td>Input size</td></tr>
         <tr><td>tone</td><td>"neutral" | "primary" | "success" | "danger"</td><td>"neutral"</td><td>Color tone</td></tr>
         <tr><td>disabled</td><td>boolean</td><td>false</td><td>Disable interaction</td></tr>
+        <tr><td>countries</td><td>string[]</td><td>—</td><td>Whitelist of ISO-2 country codes</td></tr>
+        <tr><td>onCountryChange</td><td>(country) =&gt; void</td><td>—</td><td>Country change callback</td></tr>
+        <tr><td>outputFormat</td><td>"national" | "international" | "e164"</td><td>"national"</td><td>Output format for onChange value</td></tr>
+        <tr><td>readOnly</td><td>boolean</td><td>false</td><td>Read-only input</td></tr>
       </tbody></table>
     </div>
   </PackagePageShell>

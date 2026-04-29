@@ -7,6 +7,7 @@ import {
   useCallback,
   type KeyboardEvent,
   type MouseEvent,
+  type ReactNode,
 } from "react";
 import { createPortal } from "react-dom";
 import { useTagInput, type UseTagInputOptions } from "../useTagInput";
@@ -25,6 +26,8 @@ export interface TagInputStyledProps extends UseTagInputOptions {
   tagVariant?: TagVariant;
   tagTone?: TagInputTone;
   className?: string;
+  renderTag?: (tag: string, index: number, onRemove: () => void) => ReactNode;
+  sortable?: boolean;
 }
 
 export const TagInputStyled = forwardRef<HTMLDivElement, TagInputStyledProps>(
@@ -39,6 +42,10 @@ export const TagInputStyled = forwardRef<HTMLDivElement, TagInputStyledProps>(
       disabled = false,
       delimiter = ["Enter", ","],
       validate,
+      maxLength,
+      onTagAdd,
+      onTagRemove,
+      caseSensitive = false,
       size = "md",
       tone = "neutral",
       placeholder,
@@ -48,6 +55,8 @@ export const TagInputStyled = forwardRef<HTMLDivElement, TagInputStyledProps>(
       tagVariant = "solid",
       tagTone,
       className,
+      renderTag,
+      sortable = false,
     },
     ref,
   ) {
@@ -75,7 +84,14 @@ export const TagInputStyled = forwardRef<HTMLDivElement, TagInputStyledProps>(
       disabled,
       delimiter,
       validate,
+      maxLength,
+      onTagAdd,
+      onTagRemove,
+      caseSensitive,
     });
+
+    const [dragIndex, setDragIndex] = useState<number | null>(null);
+    const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
     const inputRef = useRef<HTMLInputElement>(null);
     const wrapperRef = useRef<HTMLDivElement>(null);
@@ -155,30 +171,76 @@ export const TagInputStyled = forwardRef<HTMLDivElement, TagInputStyledProps>(
           onClick={handleWrapperClick}
           role="none"
         >
-          {tags.map((tag, i) => (
-            <span
-              key={i}
-              className="rti-tag"
-              data-variant={tagVariant}
-              data-tone={resolvedTagTone}
-            >
-              <span className="rti-tag-label">{tag}</span>
-              {!disabled && (
-                <button
-                  type="button"
-                  className="rti-tag-remove"
-                  aria-label={`Remove ${tag}`}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    removeTag(i);
-                  }}
-                  tabIndex={-1}
+          {tags.map((tag, i) => {
+            const onRemove = () => removeTag(i);
+
+            if (renderTag) {
+              return (
+                <span
+                  key={i}
+                  draggable={sortable}
+                  data-sortable={sortable ? "true" : undefined}
+                  data-drag-over={dragOverIndex === i ? "true" : undefined}
+                  onDragStart={sortable ? () => setDragIndex(i) : undefined}
+                  onDragOver={sortable ? (e) => { e.preventDefault(); setDragOverIndex(i); } : undefined}
+                  onDragLeave={sortable ? () => setDragOverIndex(null) : undefined}
+                  onDrop={sortable ? (e) => {
+                    e.preventDefault();
+                    setDragOverIndex(null);
+                    if (dragIndex === null || dragIndex === i) { setDragIndex(null); return; }
+                    const next = [...tags];
+                    const [moved] = next.splice(dragIndex, 1);
+                    if (moved !== undefined) next.splice(i, 0, moved);
+                    onChange?.(next);
+                    setDragIndex(null);
+                  } : undefined}
                 >
-                  ×
-                </button>
-              )}
-            </span>
-          ))}
+                  {renderTag(tag, i, onRemove)}
+                </span>
+              );
+            }
+
+            return (
+              <span
+                key={i}
+                className="rti-tag"
+                data-variant={tagVariant}
+                data-tone={resolvedTagTone}
+                draggable={sortable}
+                data-sortable={sortable ? "true" : undefined}
+                data-drag-over={dragOverIndex === i ? "true" : undefined}
+                onDragStart={sortable ? () => setDragIndex(i) : undefined}
+                onDragOver={sortable ? (e) => { e.preventDefault(); setDragOverIndex(i); } : undefined}
+                onDragLeave={sortable ? () => setDragOverIndex(null) : undefined}
+                onDrop={sortable ? (e) => {
+                  e.preventDefault();
+                  setDragOverIndex(null);
+                  if (dragIndex === null || dragIndex === i) { setDragIndex(null); return; }
+                  const next = [...tags];
+                  const [moved] = next.splice(dragIndex, 1);
+                  if (moved !== undefined) next.splice(i, 0, moved);
+                  onChange?.(next);
+                  setDragIndex(null);
+                } : undefined}
+              >
+                <span className="rti-tag-label">{tag}</span>
+                {!disabled && (
+                  <button
+                    type="button"
+                    className="rti-tag-remove"
+                    aria-label={`Remove ${tag}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onRemove();
+                    }}
+                    tabIndex={-1}
+                  >
+                    ×
+                  </button>
+                )}
+              </span>
+            );
+          })}
 
           <input
             {...inputProps}
