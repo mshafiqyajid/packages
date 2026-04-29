@@ -17,6 +17,7 @@
     "playground:otp-input": "npm run playground --workspace=@mshafiqyajid/react-otp-input",
     "playground:segmented-control": "npm run playground --workspace=@mshafiqyajid/react-segmented-control",
     "playground:rating": "npm run playground --workspace=@mshafiqyajid/react-rating",
+    "playground:color": "npm run playground --workspace=@mshafiqyajid/react-color",
     "changeset": "changeset",
     "release": "npm run build && changeset publish"
   },
