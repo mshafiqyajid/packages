@@ -1,0 +1,438 @@
+/* ============================================================================
+ * react-color-input — styled component
+ *
+ * Popover is portalled to document.body — position is set via inline style.
+ * Themable via CSS variables. Dark mode via [data-theme="dark"] ancestor only.
+ * CSS prefix: rci-
+ * ========================================================================== */
+
+:root {
+  --rci-border: #d1d5db;
+  --rci-border-focus: #6366f1;
+  --rci-bg: #ffffff;
+  --rci-bg-popover: #ffffff;
+  --rci-fg: #111827;
+  --rci-fg-muted: #6b7280;
+  --rci-radius: 6px;
+  --rci-radius-lg: 10px;
+  --rci-shadow: 0 4px 12px rgba(0, 0, 0, 0.12), 0 1px 3px rgba(0, 0, 0, 0.08);
+  --rci-duration: 140ms;
+  --rci-ease: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* tones */
+  --rci-tone-neutral: #6b7280;
+  --rci-tone-primary: #6366f1;
+  --rci-tone-danger: #dc2626;
+
+  /* sizes */
+  --rci-h-sm: 30px;
+  --rci-h-md: 36px;
+  --rci-h-lg: 42px;
+  --rci-swatch-sm: 22px;
+  --rci-swatch-md: 26px;
+  --rci-swatch-lg: 30px;
+  --rci-font-sm: 0.75rem;
+  --rci-font-md: 0.875rem;
+  --rci-font-lg: 1rem;
+}
+
+/* ============================================================================
+ * Root wrapper
+ * ========================================================================== */
+.rci-root {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* ============================================================================
+ * Label
+ * ========================================================================== */
+.rci-label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--rci-fg);
+  line-height: 1.4;
+  user-select: none;
+}
+
+/* ============================================================================
+ * Field row
+ * ========================================================================== */
+.rci-field {
+  display: flex;
+  align-items: center;
+  background: var(--rci-bg);
+  border: 1.5px solid var(--rci-border);
+  border-radius: var(--rci-radius);
+  transition: border-color var(--rci-duration) var(--rci-ease),
+    box-shadow var(--rci-duration) var(--rci-ease);
+  overflow: hidden;
+}
+
+.rci-field:focus-within {
+  border-color: var(--rci-border-focus);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+/* sizes */
+.rci-root--sm .rci-field { height: var(--rci-h-sm); }
+.rci-root--md .rci-field { height: var(--rci-h-md); }
+.rci-root--lg .rci-field { height: var(--rci-h-lg); }
+
+/* tones */
+.rci-root--primary .rci-field:focus-within {
+  border-color: var(--rci-tone-primary);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.rci-root--danger .rci-field,
+.rci-root--error .rci-field {
+  border-color: var(--rci-tone-danger);
+}
+
+.rci-root--danger .rci-field:focus-within,
+.rci-root--error .rci-field:focus-within {
+  border-color: var(--rci-tone-danger);
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15);
+}
+
+/* disabled */
+.rci-root--disabled .rci-field {
+  background: #f9fafb;
+  border-color: #e5e7eb;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* ============================================================================
+ * Swatch button
+ * ========================================================================== */
+.rci-swatch {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0 6px 0 8px;
+  height: 100%;
+}
+
+.rci-swatch::after {
+  content: "";
+  display: block;
+  border-radius: 4px;
+  background: var(--rci-swatch-color, #000);
+  border: 1.5px solid rgba(0, 0, 0, 0.15);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+}
+
+.rci-root--sm .rci-swatch::after {
+  width: var(--rci-swatch-sm);
+  height: var(--rci-swatch-sm);
+}
+
+.rci-root--md .rci-swatch::after {
+  width: var(--rci-swatch-md);
+  height: var(--rci-swatch-md);
+}
+
+.rci-root--lg .rci-swatch::after {
+  width: var(--rci-swatch-lg);
+  height: var(--rci-swatch-lg);
+}
+
+.rci-swatch:disabled {
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.rci-swatch:not(:disabled):hover::after {
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.3), 0 0 0 2px rgba(99, 102, 241, 0.25);
+}
+
+/* ============================================================================
+ * Text input
+ * ========================================================================== */
+.rci-input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--rci-fg);
+  font-family: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, monospace;
+  padding: 0 8px;
+  height: 100%;
+}
+
+.rci-root--sm .rci-input { font-size: var(--rci-font-sm); }
+.rci-root--md .rci-input { font-size: var(--rci-font-md); }
+.rci-root--lg .rci-input { font-size: var(--rci-font-lg); }
+
+.rci-input:disabled {
+  cursor: not-allowed;
+  color: var(--rci-fg-muted);
+}
+
+/* ============================================================================
+ * Copy button
+ * ========================================================================== */
+.rci-copy-btn {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 100%;
+  border: none;
+  background: transparent;
+  color: var(--rci-fg-muted);
+  cursor: pointer;
+  transition: color var(--rci-duration) ease;
+}
+
+.rci-copy-btn:hover:not(:disabled) {
+  color: var(--rci-fg);
+}
+
+.rci-copy-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* ============================================================================
+ * Hint / Error text
+ * ========================================================================== */
+.rci-hint {
+  font-size: 0.75rem;
+  color: var(--rci-fg-muted);
+  line-height: 1.4;
+}
+
+.rci-error {
+  font-size: 0.75rem;
+  color: var(--rci-tone-danger);
+  line-height: 1.4;
+}
+
+/* ============================================================================
+ * Popover
+ * ========================================================================== */
+.rci-popover {
+  width: 224px;
+  background: var(--rci-bg-popover);
+  border: 1px solid var(--rci-border);
+  border-radius: var(--rci-radius-lg);
+  box-shadow: var(--rci-shadow);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  opacity: 0;
+  scale: 0.96;
+  pointer-events: none;
+  transition:
+    opacity var(--rci-duration) var(--rci-ease),
+    scale var(--rci-duration) var(--rci-ease);
+}
+
+.rci-popover[data-open="true"] {
+  opacity: 1;
+  scale: 1;
+  pointer-events: auto;
+}
+
+/* ============================================================================
+ * Gradient picker
+ * ========================================================================== */
+.rci-gradient {
+  width: 100%;
+  height: 128px;
+  border-radius: 6px;
+  overflow: hidden;
+  cursor: crosshair;
+  background: var(--rci-hue-color, #ff0000);
+  position: relative;
+  flex-shrink: 0;
+}
+
+.rci-gradient-white,
+.rci-gradient-black {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+
+.rci-gradient-white {
+  background: linear-gradient(to right, #fff 0%, transparent 100%);
+}
+
+.rci-gradient-black {
+  background: linear-gradient(to bottom, transparent 0%, #000 100%);
+}
+
+.rci-gradient-thumb {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.3);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+/* ============================================================================
+ * Hue slider
+ * ========================================================================== */
+.rci-hue-track {
+  position: relative;
+  width: 100%;
+  height: 12px;
+  border-radius: 6px;
+  background: linear-gradient(
+    to right,
+    #ff0000 0%,
+    #ffff00 16.67%,
+    #00ff00 33.33%,
+    #00ffff 50%,
+    #0000ff 66.67%,
+    #ff00ff 83.33%,
+    #ff0000 100%
+  );
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.rci-hue-thumb {
+  position: absolute;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.3);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+/* ============================================================================
+ * Hex input row
+ * ========================================================================== */
+.rci-hex-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rci-preview {
+  width: 26px;
+  height: 26px;
+  border-radius: 4px;
+  background: var(--rci-swatch-color, #000);
+  border: 1.5px solid rgba(0, 0, 0, 0.12);
+  flex-shrink: 0;
+}
+
+.rci-hex-input {
+  flex: 1;
+  min-width: 0;
+  height: 26px;
+  padding: 0 6px;
+  border: 1.5px solid var(--rci-border);
+  border-radius: 4px;
+  background: var(--rci-bg);
+  color: var(--rci-fg);
+  font-size: 0.78rem;
+  font-family: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, monospace;
+  outline: none;
+  transition: border-color var(--rci-duration) ease;
+}
+
+.rci-hex-input:focus {
+  border-color: var(--rci-border-focus);
+}
+
+/* ============================================================================
+ * Preset swatches
+ * ========================================================================== */
+.rci-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.rci-preset {
+  width: 18px;
+  height: 18px;
+  border-radius: 3px;
+  border: 1.5px solid rgba(0, 0, 0, 0.12);
+  background: var(--rci-swatch-color, #000);
+  cursor: pointer;
+  padding: 0;
+  transition: transform 80ms ease, box-shadow 80ms ease;
+}
+
+.rci-preset:hover {
+  transform: scale(1.15);
+}
+
+.rci-preset[data-active="true"] {
+  box-shadow: 0 0 0 2px var(--rci-bg-popover), 0 0 0 3.5px var(--rci-border-focus);
+}
+
+/* ============================================================================
+ * Dark mode — [data-theme="dark"] ONLY, no prefers-color-scheme
+ * ========================================================================== */
+[data-theme="dark"] {
+  --rci-border: #374151;
+  --rci-border-focus: #818cf8;
+  --rci-bg: #1f2937;
+  --rci-bg-popover: #1f2937;
+  --rci-fg: #f9fafb;
+  --rci-fg-muted: #9ca3af;
+  --rci-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.3);
+  --rci-tone-primary: #818cf8;
+  --rci-tone-danger: #f87171;
+}
+
+[data-theme="dark"] .rci-root--primary .rci-field:focus-within {
+  box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.2);
+}
+
+[data-theme="dark"] .rci-root--danger .rci-field:focus-within,
+[data-theme="dark"] .rci-root--error .rci-field:focus-within {
+  box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.2);
+}
+
+[data-theme="dark"] .rci-field:focus-within {
+  box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.2);
+}
+
+[data-theme="dark"] .rci-root--disabled .rci-field {
+  background: #111827;
+  border-color: #1f2937;
+}
+
+[data-theme="dark"] .rci-preset[data-active="true"] {
+  box-shadow: 0 0 0 2px var(--rci-bg-popover), 0 0 0 3.5px var(--rci-border-focus);
+}
+
+/* ============================================================================
+ * Reduced motion
+ * ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .rci-popover {
+    transition: opacity var(--rci-duration) ease;
+    scale: 1 !important;
+  }
+
+  .rci-field {
+    transition: border-color var(--rci-duration) ease;
+  }
+}

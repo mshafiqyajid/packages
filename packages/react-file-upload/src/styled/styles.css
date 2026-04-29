@@ -1,0 +1,370 @@
+/* ============================================================================
+ * react-file-upload — styled component
+ *
+ * Themable via CSS variables.
+ * Dark mode: [data-theme="dark"] ancestor only — no prefers-color-scheme.
+ * ========================================================================== */
+
+:root {
+  --rfu-bg: #ffffff;
+  --rfu-fg: #18181b;
+  --rfu-border: #d4d4d8;
+  --rfu-border-active: #6366f1;
+  --rfu-border-reject: #dc2626;
+  --rfu-bg-dropzone: #fafafa;
+  --rfu-bg-drag-over: #eef2ff;
+  --rfu-bg-drag-reject: #fef2f2;
+  --rfu-bg-file-item: #f4f4f5;
+  --rfu-bg-remove: #e4e4e7;
+  --rfu-bg-remove-hover: #d4d4d8;
+  --rfu-fg-muted: #71717a;
+  --rfu-fg-hint: #a1a1aa;
+  --rfu-fg-browse: #6366f1;
+  --rfu-fg-browse-hover: #4f46e5;
+  --rfu-radius: 10px;
+  --rfu-radius-sm: 6px;
+  --rfu-duration: 150ms;
+  --rfu-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --rfu-shadow-dropzone: 0 1px 3px rgba(0, 0, 0, 0.06);
+  --rfu-font-size-label: 0.9rem;
+  --rfu-font-size-hint: 0.78rem;
+  --rfu-font-size-file: 0.82rem;
+}
+
+/* ============================================================================
+ * Root
+ * ========================================================================== */
+.rfu-root {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  font-family: inherit;
+}
+
+/* ============================================================================
+ * Dropzone
+ * ========================================================================== */
+.rfu-dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 2.5rem 1.5rem;
+  background: var(--rfu-bg-dropzone);
+  border: 2px dashed var(--rfu-border);
+  border-radius: var(--rfu-radius);
+  box-shadow: var(--rfu-shadow-dropzone);
+  cursor: pointer;
+  user-select: none;
+  outline: none;
+  transition:
+    border-color var(--rfu-duration) var(--rfu-ease),
+    background var(--rfu-duration) var(--rfu-ease);
+}
+
+.rfu-dropzone:focus-visible {
+  outline: 2px solid var(--rfu-border-active);
+  outline-offset: 2px;
+}
+
+.rfu-dropzone[data-drag-over="true"] {
+  border-color: var(--rfu-border-active);
+  background: var(--rfu-bg-drag-over);
+}
+
+.rfu-dropzone[data-drag-reject="true"] {
+  border-color: var(--rfu-border-reject);
+  background: var(--rfu-bg-drag-reject);
+}
+
+.rfu-dropzone[data-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+/* ============================================================================
+ * Dropzone sizes
+ * ========================================================================== */
+.rfu-root[data-size="sm"] .rfu-dropzone {
+  padding: 1.5rem 1rem;
+}
+
+.rfu-root[data-size="lg"] .rfu-dropzone {
+  padding: 3.5rem 2rem;
+}
+
+/* ============================================================================
+ * Upload icon
+ * ========================================================================== */
+.rfu-upload-icon {
+  color: var(--rfu-fg-muted);
+  flex-shrink: 0;
+  transition: color var(--rfu-duration) var(--rfu-ease);
+}
+
+.rfu-dropzone[data-drag-over="true"] .rfu-upload-icon {
+  color: var(--rfu-border-active);
+}
+
+.rfu-dropzone[data-drag-reject="true"] .rfu-upload-icon {
+  color: var(--rfu-border-reject);
+}
+
+.rfu-root[data-size="sm"] .rfu-upload-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.rfu-root[data-size="lg"] .rfu-upload-icon {
+  width: 40px;
+  height: 40px;
+}
+
+/* ============================================================================
+ * Dropzone label + hint
+ * ========================================================================== */
+.rfu-dropzone-label {
+  margin: 0;
+  font-size: var(--rfu-font-size-label);
+  font-weight: 500;
+  color: var(--rfu-fg);
+  text-align: center;
+  pointer-events: none;
+}
+
+.rfu-dropzone[data-drag-reject="true"] .rfu-dropzone-label {
+  color: var(--rfu-border-reject);
+}
+
+.rfu-dropzone-hint {
+  margin: 0;
+  font-size: var(--rfu-font-size-hint);
+  color: var(--rfu-fg-hint);
+  text-align: center;
+  pointer-events: none;
+}
+
+.rfu-dropzone-browse {
+  color: var(--rfu-fg-browse);
+  font-weight: 500;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: color var(--rfu-duration) var(--rfu-ease);
+}
+
+.rfu-dropzone-browse:hover {
+  color: var(--rfu-fg-browse-hover);
+}
+
+/* ============================================================================
+ * Button variant
+ * ========================================================================== */
+.rfu-button-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1rem;
+  background: var(--rfu-fg-browse);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--rfu-radius-sm);
+  font-size: var(--rfu-font-size-label);
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition:
+    background var(--rfu-duration) var(--rfu-ease),
+    opacity var(--rfu-duration) var(--rfu-ease);
+}
+
+.rfu-button-trigger:hover:not(:disabled) {
+  background: var(--rfu-fg-browse-hover);
+}
+
+.rfu-button-trigger:focus-visible {
+  outline: 2px solid var(--rfu-border-active);
+  outline-offset: 2px;
+}
+
+.rfu-button-trigger:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.rfu-root[data-size="sm"] .rfu-button-trigger {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.8rem;
+}
+
+.rfu-root[data-size="lg"] .rfu-button-trigger {
+  padding: 0.65rem 1.25rem;
+  font-size: 1rem;
+}
+
+.rfu-root[data-variant="button"] .rfu-upload-icon {
+  width: 16px;
+  height: 16px;
+  color: inherit;
+}
+
+/* ============================================================================
+ * File list
+ * ========================================================================== */
+.rfu-file-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.rfu-file-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.6rem;
+  background: var(--rfu-bg-file-item);
+  border-radius: var(--rfu-radius-sm);
+  border: 1px solid var(--rfu-border);
+}
+
+/* ============================================================================
+ * File thumbnail
+ * ========================================================================== */
+.rfu-file-thumb {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 4px;
+  background: var(--rfu-bg);
+  border: 1px solid var(--rfu-border);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.rfu-root[data-size="sm"] .rfu-file-thumb {
+  width: 28px;
+  height: 28px;
+}
+
+.rfu-root[data-size="lg"] .rfu-file-thumb {
+  width: 44px;
+  height: 44px;
+}
+
+.rfu-file-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.rfu-icon {
+  width: 16px;
+  height: 16px;
+  color: var(--rfu-fg-muted);
+  flex-shrink: 0;
+}
+
+/* ============================================================================
+ * File info
+ * ========================================================================== */
+.rfu-file-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  gap: 0.1rem;
+}
+
+.rfu-file-name {
+  font-size: var(--rfu-font-size-file);
+  font-weight: 500;
+  color: var(--rfu-fg);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rfu-file-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.72rem;
+  color: var(--rfu-fg-hint);
+}
+
+.rfu-file-type {
+  background: var(--rfu-bg-remove);
+  padding: 0.1rem 0.35rem;
+  border-radius: 3px;
+  font-size: 0.68rem;
+}
+
+/* ============================================================================
+ * Remove button
+ * ========================================================================== */
+.rfu-file-remove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  background: var(--rfu-bg-remove);
+  border: none;
+  border-radius: 4px;
+  color: var(--rfu-fg-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition:
+    background var(--rfu-duration) var(--rfu-ease),
+    color var(--rfu-duration) var(--rfu-ease);
+}
+
+.rfu-file-remove:hover {
+  background: var(--rfu-bg-remove-hover);
+  color: var(--rfu-fg);
+}
+
+.rfu-file-remove:focus-visible {
+  outline: 2px solid var(--rfu-border-active);
+  outline-offset: 2px;
+}
+
+/* ============================================================================
+ * Dark mode — [data-theme="dark"] only, no prefers-color-scheme
+ * ========================================================================== */
+[data-theme="dark"] {
+  --rfu-bg: #09090b;
+  --rfu-fg: #fafafa;
+  --rfu-border: #3f3f46;
+  --rfu-border-active: #818cf8;
+  --rfu-border-reject: #f87171;
+  --rfu-bg-dropzone: #18181b;
+  --rfu-bg-drag-over: #1e1b4b;
+  --rfu-bg-drag-reject: #450a0a;
+  --rfu-bg-file-item: #27272a;
+  --rfu-bg-remove: #3f3f46;
+  --rfu-bg-remove-hover: #52525b;
+  --rfu-fg-muted: #a1a1aa;
+  --rfu-fg-hint: #71717a;
+  --rfu-fg-browse: #818cf8;
+  --rfu-fg-browse-hover: #a5b4fc;
+}
+
+/* ============================================================================
+ * Reduced motion
+ * ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .rfu-dropzone,
+  .rfu-upload-icon,
+  .rfu-dropzone-browse,
+  .rfu-button-trigger,
+  .rfu-file-remove {
+    transition: none;
+  }
+}

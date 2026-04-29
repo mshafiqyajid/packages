@@ -1,0 +1,294 @@
+/* ============================================================================
+ * react-kanban — styled component
+ *
+ * Dark mode via [data-theme="dark"] ancestor only.
+ * No @media (prefers-color-scheme: dark).
+ * ========================================================================== */
+
+:root {
+  --rkb-bg: #f4f4f5;
+  --rkb-fg: #18181b;
+  --rkb-column-bg: #e4e4e7;
+  --rkb-column-radius: 10px;
+  --rkb-card-bg: #ffffff;
+  --rkb-card-fg: #18181b;
+  --rkb-card-radius: 6px;
+  --rkb-card-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --rkb-card-shadow-drag: 0 8px 24px rgba(0, 0, 0, 0.14), 0 2px 6px rgba(0, 0, 0, 0.08);
+  --rkb-handle-color: #a1a1aa;
+  --rkb-badge-bg: #d4d4d8;
+  --rkb-badge-fg: #52525b;
+  --rkb-header-fg: #3f3f46;
+  --rkb-drop-highlight: rgba(99, 102, 241, 0.12);
+  --rkb-drop-border: #6366f1;
+  --rkb-empty-fg: #a1a1aa;
+  --rkb-add-fg: #6366f1;
+  --rkb-gap: 12px;
+  --rkb-column-padding: 12px;
+  --rkb-card-padding: 10px 12px;
+  --rkb-font-size: 0.875rem;
+  --rkb-title-size: 0.8125rem;
+  --rkb-badge-size: 0.72rem;
+  --rkb-duration: 140ms;
+  --rkb-ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ============================================================================
+ * Board
+ * ========================================================================== */
+
+.rkb-board {
+  display: grid;
+  gap: var(--rkb-gap);
+  overflow-x: auto;
+  padding: var(--rkb-gap);
+  background: var(--rkb-bg);
+  border-radius: var(--rkb-column-radius);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.rkb-board[data-disabled="true"] {
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+/* ============================================================================
+ * Column
+ * ========================================================================== */
+
+.rkb-column {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--rkb-column-bg);
+  border-radius: var(--rkb-column-radius);
+  padding: var(--rkb-column-padding);
+  min-height: 120px;
+  transition: background var(--rkb-duration) var(--rkb-ease),
+    box-shadow var(--rkb-duration) var(--rkb-ease);
+  border: 2px solid transparent;
+  box-sizing: border-box;
+}
+
+.rkb-column[data-drag-over="true"] {
+  background: var(--rkb-drop-highlight);
+  border-color: var(--rkb-drop-border);
+}
+
+/* ============================================================================
+ * Column header
+ * ========================================================================== */
+
+.rkb-column-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-bottom: 8px;
+}
+
+.rkb-column-title {
+  font-size: var(--rkb-title-size);
+  font-weight: 600;
+  color: var(--rkb-header-fg);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rkb-column-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--rkb-badge-bg);
+  color: var(--rkb-badge-fg);
+  font-size: var(--rkb-badge-size);
+  font-weight: 600;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+/* ============================================================================
+ * Cards list
+ * ========================================================================== */
+
+.rkb-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+/* ============================================================================
+ * Card
+ * ========================================================================== */
+
+.rkb-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background: var(--rkb-card-bg);
+  color: var(--rkb-card-fg);
+  border-radius: var(--rkb-card-radius);
+  padding: var(--rkb-card-padding);
+  font-size: var(--rkb-font-size);
+  line-height: 1.5;
+  box-shadow: var(--rkb-card-shadow);
+  cursor: grab;
+  user-select: none;
+  transition: opacity var(--rkb-duration) var(--rkb-ease),
+    box-shadow var(--rkb-duration) var(--rkb-ease),
+    transform var(--rkb-duration) var(--rkb-ease);
+  box-sizing: border-box;
+}
+
+.rkb-card:active {
+  cursor: grabbing;
+}
+
+.rkb-card[data-dragging="true"] {
+  opacity: 0.4;
+  box-shadow: var(--rkb-card-shadow-drag);
+  transform: scale(0.98);
+}
+
+/* ============================================================================
+ * Drag handle
+ * ========================================================================== */
+
+.rkb-card-handle {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  color: var(--rkb-handle-color);
+  padding-top: 2px;
+}
+
+.rkb-card-content {
+  flex: 1;
+  word-break: break-word;
+}
+
+/* ============================================================================
+ * Empty state
+ * ========================================================================== */
+
+.rkb-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60px;
+  border: 2px dashed var(--rkb-handle-color);
+  border-radius: var(--rkb-card-radius);
+}
+
+.rkb-empty-label {
+  font-size: 0.75rem;
+  color: var(--rkb-empty-fg);
+}
+
+/* ============================================================================
+ * Add card placeholder
+ * ========================================================================== */
+
+.rkb-add-card {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border-radius: var(--rkb-card-radius);
+  color: var(--rkb-add-fg);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background var(--rkb-duration) var(--rkb-ease);
+}
+
+.rkb-add-card:hover {
+  background: rgba(99, 102, 241, 0.08);
+}
+
+.rkb-add-card-icon {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+/* ============================================================================
+ * Sizes
+ * ========================================================================== */
+
+.rkb-board[data-size="sm"] {
+  --rkb-font-size: 0.8rem;
+  --rkb-title-size: 0.72rem;
+  --rkb-card-padding: 7px 10px;
+  --rkb-column-padding: 8px;
+  --rkb-gap: 8px;
+}
+
+.rkb-board[data-size="lg"] {
+  --rkb-font-size: 0.9375rem;
+  --rkb-title-size: 0.875rem;
+  --rkb-card-padding: 13px 16px;
+  --rkb-column-padding: 16px;
+  --rkb-gap: 16px;
+}
+
+/* ============================================================================
+ * Tones
+ * ========================================================================== */
+
+.rkb-board[data-tone="primary"][data-tone] {
+  --rkb-column-bg: #eef2ff;
+  --rkb-drop-highlight: rgba(99, 102, 241, 0.15);
+  --rkb-badge-bg: #c7d2fe;
+  --rkb-badge-fg: #3730a3;
+  --rkb-header-fg: #4338ca;
+}
+
+/* ============================================================================
+ * Dark mode — only via [data-theme="dark"], never prefers-color-scheme
+ * ========================================================================== */
+
+[data-theme="dark"] .rkb-board {
+  --rkb-bg: #09090b;
+  --rkb-fg: #fafafa;
+  --rkb-column-bg: #18181b;
+  --rkb-card-bg: #27272a;
+  --rkb-card-fg: #fafafa;
+  --rkb-handle-color: #52525b;
+  --rkb-badge-bg: #3f3f46;
+  --rkb-badge-fg: #a1a1aa;
+  --rkb-header-fg: #a1a1aa;
+  --rkb-drop-highlight: rgba(129, 140, 248, 0.15);
+  --rkb-drop-border: #818cf8;
+  --rkb-empty-fg: #52525b;
+  --rkb-add-fg: #818cf8;
+  --rkb-card-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
+  --rkb-card-shadow-drag: 0 8px 24px rgba(0, 0, 0, 0.5), 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .rkb-board[data-tone="primary"][data-tone] {
+  --rkb-column-bg: #1e1b4b;
+  --rkb-badge-bg: #312e81;
+  --rkb-badge-fg: #c7d2fe;
+  --rkb-header-fg: #a5b4fc;
+  --rkb-drop-highlight: rgba(129, 140, 248, 0.2);
+}
+
+/* ============================================================================
+ * Reduced motion
+ * ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .rkb-card,
+  .rkb-column {
+    transition: none;
+  }
+}

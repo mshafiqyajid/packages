@@ -1,0 +1,40 @@
+---
+import DocLayout from "~/layouts/DocLayout.astro";
+import PackagePageShell from "~/components/PackagePageShell.astro";
+import H2 from "~/components/H2.astro";
+import CodeBlock from "~/components/CodeBlock.astro";
+import RichTextDemo from "~/components/demos/RichTextDemo";
+---
+<DocLayout title="react-rich-text" description="Rich text editor with toolbar, bold/italic/underline, lists, alignment, and HTML output." pkg="rich-text">
+  <PackagePageShell name="react-rich-text" version="0.1.0" description="Headless rich text hook and styled component. contentEditable-based WYSIWYG editor. Bold, italic, underline, strikethrough, lists, alignment. No external deps." size="~8 KB">
+    <div class="pkg-section"><H2>Playground</H2><RichTextDemo client:load /></div>
+    <div class="pkg-section"><H2>Install</H2><CodeBlock lang="bash" code="npm install @mshafiqyajid/react-rich-text" /></div>
+    <div class="pkg-section"><H2>Quick start</H2>
+      <CodeBlock lang="tsx" code={`import { RichTextStyled } from "@mshafiqyajid/react-rich-text/styled";
+import "@mshafiqyajid/react-rich-text/styles.css";
+
+const [html, setHtml] = useState("");
+<RichTextStyled
+  value={html}
+  onChange={setHtml}
+  placeholder="Write something..."
+  tone="primary"
+/>`} />
+    </div>
+    <div class="pkg-section"><H2>API</H2>
+      <table class="props-table"><thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+        <tr><td>value</td><td>string</td><td>—</td><td>Controlled HTML string</td></tr>
+        <tr><td>defaultValue</td><td>string</td><td>""</td><td>Uncontrolled initial HTML</td></tr>
+        <tr><td>onChange</td><td>(html) =&gt; void</td><td>—</td><td>Called on content change</td></tr>
+        <tr><td>placeholder</td><td>string</td><td>—</td><td>Placeholder text when empty</td></tr>
+        <tr><td>showToolbar</td><td>boolean</td><td>true</td><td>Show formatting toolbar</td></tr>
+        <tr><td>toolbarItems</td><td>ToolbarItem[]</td><td>all</td><td>Which toolbar buttons to show</td></tr>
+        <tr><td>minHeight</td><td>string</td><td>"120px"</td><td>Minimum editor height</td></tr>
+        <tr><td>maxHeight</td><td>string</td><td>—</td><td>Maximum editor height (scrolls)</td></tr>
+        <tr><td>size</td><td>"sm" | "md" | "lg"</td><td>"md"</td><td>Font and padding size</td></tr>
+        <tr><td>tone</td><td>"neutral" | "primary"</td><td>"neutral"</td><td>Accent color</td></tr>
+        <tr><td>disabled</td><td>boolean</td><td>false</td><td>Make editor read-only</td></tr>
+      </tbody></table>
+    </div>
+  </PackagePageShell>
+</DocLayout>

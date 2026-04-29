@@ -1,0 +1,45 @@
+---
+import DocLayout from "~/layouts/DocLayout.astro";
+import PackagePageShell from "~/components/PackagePageShell.astro";
+import H2 from "~/components/H2.astro";
+import CodeBlock from "~/components/CodeBlock.astro";
+import TableDemo from "~/components/demos/TableDemo";
+---
+<DocLayout title="react-table" description="Data table with sorting, filtering, pagination, row selection, and sticky header." pkg="table">
+  <PackagePageShell name="react-table" version="0.1.0" description="Headless table hook and styled component. Sort, filter, paginate, select rows. Generic TypeScript, sticky header, loading skeleton, empty state." size="~9 KB">
+    <div class="pkg-section"><H2>Playground</H2><TableDemo client:load /></div>
+    <div class="pkg-section"><H2>Install</H2><CodeBlock lang="bash" code="npm install @mshafiqyajid/react-table" /></div>
+    <div class="pkg-section"><H2>Quick start</H2>
+      <CodeBlock lang="tsx" code={`import { TableStyled } from "@mshafiqyajid/react-table/styled";
+import type { ColumnDef } from "@mshafiqyajid/react-table";
+import "@mshafiqyajid/react-table/styles.css";
+
+type User = { id: number; name: string; email: string };
+const columns: ColumnDef<User>[] = [
+  { key: "name",  header: "Name",  sortable: true },
+  { key: "email", header: "Email", filterable: true },
+];
+<TableStyled data={users} columns={columns} sortable filterable paginate pageSize={10} hoverable />`} />
+    </div>
+    <div class="pkg-section"><H2>API</H2>
+      <table class="props-table"><thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+        <tr><td>data</td><td>T[]</td><td>—</td><td>Array of row objects</td></tr>
+        <tr><td>columns</td><td>ColumnDef&lt;T&gt;[]</td><td>—</td><td>Column definitions</td></tr>
+        <tr><td>sortable</td><td>boolean</td><td>false</td><td>Enable column sorting</td></tr>
+        <tr><td>filterable</td><td>boolean</td><td>false</td><td>Enable per-column filter inputs</td></tr>
+        <tr><td>selectable</td><td>boolean</td><td>false</td><td>Enable row checkboxes</td></tr>
+        <tr><td>paginate</td><td>boolean</td><td>false</td><td>Enable pagination</td></tr>
+        <tr><td>pageSize</td><td>number</td><td>10</td><td>Rows per page</td></tr>
+        <tr><td>size</td><td>"sm" | "md" | "lg"</td><td>"md"</td><td>Row density</td></tr>
+        <tr><td>tone</td><td>"neutral" | "primary"</td><td>"neutral"</td><td>Accent color</td></tr>
+        <tr><td>striped</td><td>boolean</td><td>false</td><td>Alternating row background</td></tr>
+        <tr><td>bordered</td><td>boolean</td><td>false</td><td>Cell borders</td></tr>
+        <tr><td>hoverable</td><td>boolean</td><td>true</td><td>Row hover highlight</td></tr>
+        <tr><td>stickyHeader</td><td>boolean</td><td>false</td><td>Freeze header on scroll</td></tr>
+        <tr><td>loading</td><td>boolean</td><td>false</td><td>Show skeleton rows</td></tr>
+        <tr><td>emptyText</td><td>ReactNode</td><td>"No data"</td><td>Empty state content</td></tr>
+        <tr><td>caption</td><td>string</td><td>—</td><td>Accessible table caption</td></tr>
+      </tbody></table>
+    </div>
+  </PackagePageShell>
+</DocLayout>

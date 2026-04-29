@@ -1,0 +1,306 @@
+/* ============================================================================
+ * react-rich-text — styled component
+ *
+ * Themable via CSS variables. Dark mode via [data-theme="dark"] ancestor.
+ * Prefix: rrt2- (rrt- is taken by react-rating)
+ * ========================================================================== */
+
+:root {
+  --rrt2-bg: #ffffff;
+  --rrt2-fg: #18181b;
+  --rrt2-border: #d4d4d8;
+  --rrt2-border-focus: #6366f1;
+  --rrt2-radius: 8px;
+  --rrt2-toolbar-bg: #f4f4f5;
+  --rrt2-toolbar-btn-bg: transparent;
+  --rrt2-toolbar-btn-bg-hover: #e4e4e7;
+  --rrt2-toolbar-btn-bg-active: #6366f1;
+  --rrt2-toolbar-btn-fg-active: #ffffff;
+  --rrt2-toolbar-separator: #d4d4d8;
+  --rrt2-placeholder-fg: #a1a1aa;
+  --rrt2-disabled-bg: #f4f4f5;
+  --rrt2-disabled-fg: #a1a1aa;
+  --rrt2-font-size-sm: 0.8rem;
+  --rrt2-font-size-md: 0.9rem;
+  --rrt2-font-size-lg: 1rem;
+  --rrt2-padding-sm: 0.4rem 0.6rem;
+  --rrt2-padding-md: 0.5rem 0.75rem;
+  --rrt2-padding-lg: 0.65rem 0.9rem;
+  --rrt2-toolbar-padding-sm: 0.25rem 0.4rem;
+  --rrt2-toolbar-padding-md: 0.35rem 0.5rem;
+  --rrt2-toolbar-padding-lg: 0.45rem 0.65rem;
+}
+
+/* ============================================================================
+ * Root wrapper
+ * ========================================================================== */
+.rrt2-root {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--rrt2-border);
+  border-radius: var(--rrt2-radius);
+  background: var(--rrt2-bg);
+  font-family: inherit;
+  transition: border-color 150ms ease;
+}
+
+.rrt2-root:focus-within {
+  border-color: var(--rrt2-border-focus);
+  outline: none;
+}
+
+.rrt2-root--disabled {
+  background: var(--rrt2-disabled-bg);
+  color: var(--rrt2-disabled-fg);
+  cursor: not-allowed;
+}
+
+/* ============================================================================
+ * Toolbar
+ * ========================================================================== */
+.rrt2-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px;
+  padding: 0.3rem 0.4rem;
+  border-bottom: 1px solid var(--rrt2-border);
+  background: var(--rrt2-toolbar-bg);
+  border-radius: calc(var(--rrt2-radius) - 1px) calc(var(--rrt2-radius) - 1px) 0 0;
+}
+
+.rrt2-toolbar__group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.rrt2-toolbar__group + .rrt2-toolbar__group {
+  margin-left: 4px;
+  padding-left: 6px;
+  border-left: 1px solid var(--rrt2-toolbar-separator);
+}
+
+.rrt2-toolbar__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.8rem;
+  height: 1.8rem;
+  padding: 0 0.25rem;
+  border: none;
+  border-radius: 4px;
+  background: var(--rrt2-toolbar-btn-bg);
+  color: var(--rrt2-fg);
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-family: inherit;
+  line-height: 1;
+  transition: background 100ms ease, color 100ms ease;
+  user-select: none;
+}
+
+.rrt2-toolbar__btn:hover:not(:disabled) {
+  background: var(--rrt2-toolbar-btn-bg-hover);
+}
+
+.rrt2-toolbar__btn--active,
+.rrt2-toolbar__btn[data-active="true"] {
+  background: var(--rrt2-toolbar-btn-bg-active);
+  color: var(--rrt2-toolbar-btn-fg-active);
+}
+
+.rrt2-toolbar__btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Size adjustments for toolbar */
+.rrt2-root[data-size="sm"] .rrt2-toolbar__btn {
+  min-width: 1.5rem;
+  height: 1.5rem;
+  font-size: 0.72rem;
+}
+
+.rrt2-root[data-size="lg"] .rrt2-toolbar__btn {
+  min-width: 2.1rem;
+  height: 2.1rem;
+  font-size: 0.9rem;
+}
+
+/* ============================================================================
+ * Editor wrap — handles placeholder
+ * ========================================================================== */
+.rrt2-editor-wrap {
+  position: relative;
+  flex: 1;
+}
+
+.rrt2-editor-wrap[data-placeholder]::before {
+  content: attr(data-placeholder);
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  pointer-events: none;
+  color: var(--rrt2-placeholder-fg);
+  font-size: var(--rrt2-font-size-md);
+  padding: var(--rrt2-padding-md);
+  opacity: 0;
+}
+
+/* Show placeholder only when editor is empty (no child nodes with text) */
+.rrt2-editor:empty + .rrt2-editor-wrap::before,
+.rrt2-editor-wrap:has(.rrt2-editor:empty)::before {
+  opacity: 1;
+}
+
+/* Use the simpler sibling approach for broader compatibility */
+.rrt2-editor-wrap[data-placeholder] > .rrt2-editor:empty ~ * {
+  display: none;
+}
+
+/* Fallback approach: show placeholder via direct child */
+.rrt2-editor:empty {
+  position: relative;
+}
+
+/* Simpler placeholder: use the wrap's ::before, triggered by editor being empty */
+.rrt2-editor-wrap[data-placeholder]:has(.rrt2-editor:empty)::before {
+  opacity: 1;
+}
+
+/* ============================================================================
+ * Editor area
+ * ========================================================================== */
+.rrt2-editor {
+  width: 100%;
+  box-sizing: border-box;
+  outline: none;
+  font-size: var(--rrt2-font-size-md);
+  color: var(--rrt2-fg);
+  padding: var(--rrt2-padding-md);
+  line-height: 1.6;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
+.rrt2-editor > * + * {
+  margin-top: 0.5em;
+}
+
+.rrt2-editor p,
+.rrt2-editor div {
+  margin: 0;
+}
+
+.rrt2-editor h1 {
+  font-size: 1.5em;
+  font-weight: 700;
+  margin: 0.5em 0 0.25em;
+}
+
+.rrt2-editor h2 {
+  font-size: 1.25em;
+  font-weight: 600;
+  margin: 0.5em 0 0.25em;
+}
+
+.rrt2-editor ul,
+.rrt2-editor ol {
+  padding-left: 1.5em;
+  margin: 0.25em 0;
+}
+
+.rrt2-editor blockquote {
+  border-left: 3px solid var(--rrt2-border-focus);
+  padding-left: 0.75em;
+  margin: 0.5em 0;
+  color: var(--rrt2-placeholder-fg);
+  font-style: italic;
+}
+
+.rrt2-editor a {
+  color: var(--rrt2-border-focus);
+  text-decoration: underline;
+}
+
+/* ============================================================================
+ * Sizes
+ * ========================================================================== */
+.rrt2-root[data-size="sm"] .rrt2-editor {
+  font-size: var(--rrt2-font-size-sm);
+  padding: var(--rrt2-padding-sm);
+}
+
+.rrt2-root[data-size="sm"] .rrt2-editor-wrap[data-placeholder]::before {
+  font-size: var(--rrt2-font-size-sm);
+  padding: var(--rrt2-padding-sm);
+}
+
+.rrt2-root[data-size="lg"] .rrt2-editor {
+  font-size: var(--rrt2-font-size-lg);
+  padding: var(--rrt2-padding-lg);
+}
+
+.rrt2-root[data-size="lg"] .rrt2-editor-wrap[data-placeholder]::before {
+  font-size: var(--rrt2-font-size-lg);
+  padding: var(--rrt2-padding-lg);
+}
+
+/* ============================================================================
+ * Tones
+ * ========================================================================== */
+.rrt2-root[data-tone="primary"] {
+  --rrt2-border-focus: #6366f1;
+  --rrt2-toolbar-btn-bg-active: #6366f1;
+}
+
+/* ============================================================================
+ * Disabled / read-only states
+ * ========================================================================== */
+.rrt2-root[data-disabled="true"] .rrt2-editor {
+  color: var(--rrt2-disabled-fg);
+  cursor: not-allowed;
+  user-select: none;
+}
+
+.rrt2-root[data-readonly="true"] .rrt2-toolbar {
+  display: none;
+}
+
+/* ============================================================================
+ * Dark mode — [data-theme="dark"] only, no @media prefers-color-scheme
+ * ========================================================================== */
+[data-theme="dark"] .rrt2-root {
+  --rrt2-bg: #18181b;
+  --rrt2-fg: #fafafa;
+  --rrt2-border: #3f3f46;
+  --rrt2-border-focus: #818cf8;
+  --rrt2-toolbar-bg: #27272a;
+  --rrt2-toolbar-btn-bg-hover: #3f3f46;
+  --rrt2-toolbar-btn-bg-active: #818cf8;
+  --rrt2-toolbar-btn-fg-active: #ffffff;
+  --rrt2-toolbar-separator: #3f3f46;
+  --rrt2-placeholder-fg: #71717a;
+  --rrt2-disabled-bg: #27272a;
+  --rrt2-disabled-fg: #71717a;
+}
+
+[data-theme="dark"] .rrt2-root[data-tone="primary"] {
+  --rrt2-border-focus: #818cf8;
+  --rrt2-toolbar-btn-bg-active: #818cf8;
+}
+
+/* ============================================================================
+ * Reduced motion
+ * ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .rrt2-root {
+    transition: none;
+  }
+
+  .rrt2-toolbar__btn {
+    transition: none;
+  }
+}

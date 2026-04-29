@@ -177,6 +177,86 @@ const packages = [
     size: "~6 KB",
     tags: ["status", "connector", "vertical"],
   },
+  {
+    slug: "date-picker",
+    name: "react-date-picker",
+    desc: "Accessible date picker with single and range selection, keyboard navigation, min/max dates, and portal calendar.",
+    version: "0.1.0",
+    size: "~10 KB",
+    tags: ["range", "portal", "a11y"],
+  },
+  {
+    slug: "file-upload",
+    name: "react-file-upload",
+    desc: "File upload with drag-and-drop dropzone, image preview, size limits, multiple file support, and button variant.",
+    version: "0.1.0",
+    size: "~7 KB",
+    tags: ["drag-and-drop", "preview", "validation"],
+  },
+  {
+    slug: "number-input",
+    name: "react-number-input",
+    desc: "Number input with increment/decrement, decimal/currency/percent formatting via Intl.NumberFormat, and step control.",
+    version: "0.1.0",
+    size: "~6 KB",
+    tags: ["currency", "intl", "step"],
+  },
+  {
+    slug: "phone-input",
+    name: "react-phone-input",
+    desc: "Phone number input with country selector, flag emoji, dial code, 30+ countries, and E.164 output.",
+    version: "0.1.0",
+    size: "~7 KB",
+    tags: ["country", "flag", "dial code"],
+  },
+  {
+    slug: "color-input",
+    name: "react-color-input",
+    desc: "Color input with swatch preview, picker popover, hex/rgb/hsl formats, preset swatches, and copy button.",
+    version: "0.1.0",
+    size: "~9 KB",
+    tags: ["picker", "hex", "portal"],
+  },
+  {
+    slug: "tag-input",
+    name: "react-tag-input",
+    desc: "Tag input with chip-style tags, autocomplete dropdown, duplicate prevention, max limit, and custom validation.",
+    version: "0.1.0",
+    size: "~8 KB",
+    tags: ["chips", "autocomplete", "validation"],
+  },
+  {
+    slug: "rich-text",
+    name: "react-rich-text",
+    desc: "Rich text editor with toolbar, bold/italic/underline/lists/alignment. contentEditable-based, zero external deps.",
+    version: "0.1.0",
+    size: "~8 KB",
+    tags: ["wysiwyg", "toolbar", "zero deps"],
+  },
+  {
+    slug: "table",
+    name: "react-table",
+    desc: "Data table with sort, filter, pagination, row selection, sticky header, loading skeleton, and generic TypeScript.",
+    version: "0.1.0",
+    size: "~9 KB",
+    tags: ["sort", "paginate", "generic"],
+  },
+  {
+    slug: "chart",
+    name: "react-chart",
+    desc: "Pure SVG bar, line, and pie charts with animations, legends, multi-series, and zero external dependencies.",
+    version: "0.1.0",
+    size: "~10 KB",
+    tags: ["svg", "animated", "zero deps"],
+  },
+  {
+    slug: "kanban",
+    name: "react-kanban",
+    desc: "Drag-and-drop kanban board with columns, cards, inline add, and HTML5 DnD — no external DnD library.",
+    version: "0.1.0",
+    size: "~9 KB",
+    tags: ["drag-and-drop", "html5 dnd", "columns"],
+  },
 ];
 ---
 
@@ -210,7 +290,7 @@ const packages = [
         <div class="hero__inner">
           <div class="hero__eyebrow">
             <span class="hero__dot"></span>
-            19 packages · React · TypeScript · Zero deps
+            29 packages · React · TypeScript · Zero deps
           </div>
           <h1 class="hero__title">
             Tiny, polished<br />
@@ -234,7 +314,7 @@ const packages = [
         <div class="packages__inner">
           <div class="packages__header">
             <h2 class="packages__heading">All packages</h2>
-            <span class="packages__count">19 packages</span>
+            <span class="packages__count">29 packages</span>
           </div>
           <div class="packages__grid">
             {packages.map((pkg) => (

@@ -1,0 +1,379 @@
+/* ============================================================================
+ * react-table — styled component
+ *
+ * Themable via CSS variables. Dark mode via [data-theme="dark"] ancestor only.
+ * NO @media (prefers-color-scheme: dark).
+ * ========================================================================== */
+
+:root {
+  --rtbl-bg: #ffffff;
+  --rtbl-fg: #18181b;
+  --rtbl-border: #e4e4e7;
+  --rtbl-header-bg: #f4f4f5;
+  --rtbl-header-fg: #18181b;
+  --rtbl-stripe-bg: #fafafa;
+  --rtbl-hover-bg: #f0f9ff;
+  --rtbl-selected-bg: #eff6ff;
+  --rtbl-selected-border: #bfdbfe;
+  --rtbl-primary: #6366f1;
+  --rtbl-primary-light: #e0e7ff;
+  --rtbl-radius: 8px;
+  --rtbl-font-size-sm: 0.78rem;
+  --rtbl-font-size-md: 0.875rem;
+  --rtbl-font-size-lg: 1rem;
+  --rtbl-cell-pad-sm: 0.3rem 0.6rem;
+  --rtbl-cell-pad-md: 0.55rem 0.9rem;
+  --rtbl-cell-pad-lg: 0.8rem 1.1rem;
+  --rtbl-skeleton-bg: #e4e4e7;
+  --rtbl-skeleton-shine: #f4f4f5;
+  --rtbl-pagination-gap: 0.25rem;
+  --rtbl-input-bg: #ffffff;
+  --rtbl-input-border: #d4d4d8;
+  --rtbl-input-fg: #18181b;
+  --rtbl-input-focus: #6366f1;
+}
+
+/* ============================================================================
+ * Root wrapper
+ * ========================================================================== */
+.rtbl-root {
+  font-size: var(--rtbl-font-size-md);
+  color: var(--rtbl-fg);
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.rtbl-root[data-size="sm"] {
+  font-size: var(--rtbl-font-size-sm);
+}
+
+.rtbl-root[data-size="lg"] {
+  font-size: var(--rtbl-font-size-lg);
+}
+
+/* ============================================================================
+ * Toolbar / Filter
+ * ========================================================================== */
+.rtbl-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.rtbl-filter-label {
+  font-size: 0.8em;
+  font-weight: 500;
+  color: var(--rtbl-fg);
+  opacity: 0.7;
+  white-space: nowrap;
+}
+
+.rtbl-filter {
+  flex: 1;
+  max-width: 280px;
+  padding: 0.35rem 0.65rem;
+  font-size: 0.875em;
+  border: 1px solid var(--rtbl-input-border);
+  border-radius: 6px;
+  background: var(--rtbl-input-bg);
+  color: var(--rtbl-input-fg);
+  outline: none;
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.rtbl-filter:focus {
+  border-color: var(--rtbl-input-focus);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--rtbl-input-focus) 20%, transparent);
+}
+
+/* ============================================================================
+ * Scroll wrapper
+ * ========================================================================== */
+.rtbl-scroll-wrap {
+  overflow-x: auto;
+  border-radius: var(--rtbl-radius);
+  border: 1px solid var(--rtbl-border);
+}
+
+/* ============================================================================
+ * Table
+ * ========================================================================== */
+.rtbl-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--rtbl-bg);
+  border-spacing: 0;
+}
+
+.rtbl-caption {
+  caption-side: top;
+  text-align: left;
+  padding: 0.5rem 0.9rem;
+  font-size: 0.85em;
+  font-weight: 600;
+  color: var(--rtbl-fg);
+  opacity: 0.7;
+}
+
+/* ============================================================================
+ * Header
+ * ========================================================================== */
+.rtbl-thead {
+  background: var(--rtbl-header-bg);
+  color: var(--rtbl-header-fg);
+}
+
+.rtbl-table[data-sticky-header="true"] .rtbl-thead {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.rtbl-th {
+  text-align: left;
+  padding: var(--rtbl-cell-pad-md);
+  font-weight: 600;
+  border-bottom: 2px solid var(--rtbl-border);
+  white-space: nowrap;
+  user-select: none;
+}
+
+.rtbl-root[data-size="sm"] .rtbl-th {
+  padding: var(--rtbl-cell-pad-sm);
+}
+
+.rtbl-root[data-size="lg"] .rtbl-th {
+  padding: var(--rtbl-cell-pad-lg);
+}
+
+.rtbl-th--sortable {
+  cursor: pointer;
+}
+
+.rtbl-th--sortable:hover {
+  background: color-mix(in srgb, var(--rtbl-header-bg) 80%, var(--rtbl-border));
+}
+
+.rtbl-th--check,
+.rtbl-td--check {
+  width: 2.5rem;
+  text-align: center;
+}
+
+.rtbl-th-inner {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+/* ============================================================================
+ * Sort icon
+ * ========================================================================== */
+.rtbl-sort-icon {
+  font-size: 0.7em;
+  opacity: 0.4;
+  transition: opacity 120ms ease;
+}
+
+.rtbl-sort-icon[data-active="true"] {
+  opacity: 1;
+  color: var(--rtbl-primary);
+}
+
+/* ============================================================================
+ * Body
+ * ========================================================================== */
+.rtbl-tbody .rtbl-tr {
+  border-bottom: 1px solid var(--rtbl-border);
+  transition: background 120ms ease;
+}
+
+.rtbl-tbody .rtbl-tr:last-child {
+  border-bottom: none;
+}
+
+.rtbl-root[data-hoverable="true"] .rtbl-tbody .rtbl-tr:hover {
+  background: var(--rtbl-hover-bg);
+}
+
+.rtbl-root[data-striped="true"] .rtbl-tbody .rtbl-tr:nth-child(even) {
+  background: var(--rtbl-stripe-bg);
+}
+
+.rtbl-root[data-striped="true"][data-hoverable="true"]
+  .rtbl-tbody
+  .rtbl-tr:nth-child(even):hover {
+  background: var(--rtbl-hover-bg);
+}
+
+.rtbl-tbody .rtbl-tr[data-selected="true"] {
+  background: var(--rtbl-selected-bg);
+  outline: 1px solid var(--rtbl-selected-border);
+  outline-offset: -1px;
+}
+
+.rtbl-td {
+  padding: var(--rtbl-cell-pad-md);
+  vertical-align: middle;
+}
+
+.rtbl-root[data-size="sm"] .rtbl-td {
+  padding: var(--rtbl-cell-pad-sm);
+}
+
+.rtbl-root[data-size="lg"] .rtbl-td {
+  padding: var(--rtbl-cell-pad-lg);
+}
+
+/* ============================================================================
+ * Bordered variant
+ * ========================================================================== */
+.rtbl-root[data-bordered="true"] .rtbl-th,
+.rtbl-root[data-bordered="true"] .rtbl-td {
+  border: 1px solid var(--rtbl-border);
+}
+
+/* ============================================================================
+ * Empty state
+ * ========================================================================== */
+.rtbl-td--empty {
+  text-align: center;
+  padding: 2.5rem 1rem;
+  color: var(--rtbl-fg);
+  opacity: 0.45;
+  font-style: italic;
+}
+
+/* ============================================================================
+ * Skeleton loading
+ * ========================================================================== */
+.rtbl-skeleton {
+  display: block;
+  height: 0.85em;
+  border-radius: 4px;
+  background: linear-gradient(
+    90deg,
+    var(--rtbl-skeleton-bg) 25%,
+    var(--rtbl-skeleton-shine) 50%,
+    var(--rtbl-skeleton-bg) 75%
+  );
+  background-size: 200% 100%;
+  animation: rtbl-shimmer 1.4s infinite;
+}
+
+@keyframes rtbl-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ============================================================================
+ * Checkbox
+ * ========================================================================== */
+.rtbl-checkbox {
+  width: 1rem;
+  height: 1rem;
+  cursor: pointer;
+  accent-color: var(--rtbl-primary);
+}
+
+/* ============================================================================
+ * Pagination
+ * ========================================================================== */
+.rtbl-pagination {
+  display: flex;
+  align-items: center;
+  gap: var(--rtbl-pagination-gap);
+  justify-content: flex-end;
+}
+
+.rtbl-page-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2rem;
+  height: 2rem;
+  padding: 0 0.4rem;
+  border: 1px solid var(--rtbl-border);
+  border-radius: 5px;
+  background: var(--rtbl-bg);
+  color: var(--rtbl-fg);
+  font-size: 0.875em;
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease;
+  line-height: 1;
+}
+
+.rtbl-page-btn:hover:not(:disabled) {
+  background: var(--rtbl-header-bg);
+  border-color: var(--rtbl-primary);
+}
+
+.rtbl-page-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.rtbl-root[data-tone="primary"] .rtbl-page-btn:not(:disabled):focus-visible {
+  outline: 2px solid var(--rtbl-primary);
+  outline-offset: 2px;
+}
+
+.rtbl-page-info {
+  font-size: 0.85em;
+  padding: 0 0.4rem;
+  color: var(--rtbl-fg);
+  opacity: 0.7;
+  white-space: nowrap;
+}
+
+/* ============================================================================
+ * Primary tone overrides
+ * ========================================================================== */
+.rtbl-root[data-tone="primary"] .rtbl-th--sortable:hover {
+  background: color-mix(in srgb, var(--rtbl-primary-light) 60%, var(--rtbl-header-bg));
+}
+
+.rtbl-root[data-tone="primary"] .rtbl-filter:focus {
+  border-color: var(--rtbl-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--rtbl-primary) 20%, transparent);
+}
+
+/* ============================================================================
+ * Dark mode — [data-theme="dark"] ancestor only
+ * ========================================================================== */
+[data-theme="dark"] .rtbl-root {
+  --rtbl-bg: #18181b;
+  --rtbl-fg: #fafafa;
+  --rtbl-border: #3f3f46;
+  --rtbl-header-bg: #27272a;
+  --rtbl-header-fg: #fafafa;
+  --rtbl-stripe-bg: #1c1c1f;
+  --rtbl-hover-bg: #1e293b;
+  --rtbl-selected-bg: #1e3a5f;
+  --rtbl-selected-border: #3b82f6;
+  --rtbl-primary: #818cf8;
+  --rtbl-primary-light: #312e81;
+  --rtbl-skeleton-bg: #3f3f46;
+  --rtbl-skeleton-shine: #52525b;
+  --rtbl-input-bg: #27272a;
+  --rtbl-input-border: #52525b;
+  --rtbl-input-fg: #fafafa;
+  --rtbl-input-focus: #818cf8;
+}
+
+/* ============================================================================
+ * Reduced motion
+ * ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .rtbl-skeleton {
+    animation: none;
+    background: var(--rtbl-skeleton-bg);
+  }
+
+  .rtbl-page-btn,
+  .rtbl-tbody .rtbl-tr,
+  .rtbl-filter {
+    transition: none;
+  }
+}

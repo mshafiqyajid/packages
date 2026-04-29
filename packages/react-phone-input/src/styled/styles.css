@@ -1,0 +1,328 @@
+/* ============================================================================
+ * react-phone-input — styled component
+ *
+ * Dark mode via [data-theme="dark"] ancestor only.
+ * Never @media (prefers-color-scheme: dark).
+ * ========================================================================== */
+
+:root {
+  --rphi-bg: #ffffff;
+  --rphi-fg: #18181b;
+  --rphi-border: #d4d4d8;
+  --rphi-border-focus: #6366f1;
+  --rphi-placeholder: #a1a1aa;
+  --rphi-selector-bg: #f4f4f5;
+  --rphi-selector-hover-bg: #e4e4e7;
+  --rphi-dropdown-bg: #ffffff;
+  --rphi-dropdown-border: #e4e4e7;
+  --rphi-dropdown-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  --rphi-option-hover-bg: #f4f4f5;
+  --rphi-option-selected-bg: #ede9fe;
+  --rphi-option-selected-fg: #4f46e5;
+  --rphi-label-fg: #3f3f46;
+  --rphi-hint-fg: #71717a;
+  --rphi-error-fg: #dc2626;
+  --rphi-radius: 8px;
+  --rphi-height-sm: 32px;
+  --rphi-height-md: 40px;
+  --rphi-height-lg: 48px;
+  --rphi-font-sm: 0.8rem;
+  --rphi-font-md: 0.875rem;
+  --rphi-font-lg: 1rem;
+  --rphi-duration: 150ms;
+}
+
+/* ============================================================================
+ * Root wrapper
+ * ========================================================================== */
+.rphi-root {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-family: inherit;
+  font-size: var(--rphi-font-md);
+}
+
+.rphi-root[data-size="sm"] { font-size: var(--rphi-font-sm); }
+.rphi-root[data-size="lg"] { font-size: var(--rphi-font-lg); }
+
+/* ============================================================================
+ * Label
+ * ========================================================================== */
+.rphi-label {
+  display: block;
+  font-size: 0.8em;
+  font-weight: 500;
+  color: var(--rphi-label-fg);
+  margin-bottom: 2px;
+}
+
+/* ============================================================================
+ * Field row (selector + input)
+ * ========================================================================== */
+.rphi-field {
+  display: flex;
+  align-items: stretch;
+  border: 1.5px solid var(--rphi-border);
+  border-radius: var(--rphi-radius);
+  background: var(--rphi-bg);
+  transition: border-color var(--rphi-duration) ease, box-shadow var(--rphi-duration) ease;
+  overflow: visible;
+  position: relative;
+}
+
+.rphi-field:focus-within {
+  border-color: var(--rphi-border-focus);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.rphi-root[data-disabled="true"] .rphi-field {
+  opacity: 0.55;
+  pointer-events: none;
+  background: var(--rphi-selector-bg);
+}
+
+/* Tone overrides on focus */
+.rphi-root[data-tone="primary"][data-tone] .rphi-field:focus-within {
+  --rphi-border-focus: #6366f1;
+}
+
+.rphi-root[data-tone="success"][data-tone] .rphi-field:focus-within {
+  --rphi-border-focus: #16a34a;
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.15);
+}
+
+.rphi-root[data-tone="danger"][data-tone] .rphi-field {
+  border-color: var(--rphi-error-fg);
+}
+
+.rphi-root[data-tone="danger"][data-tone] .rphi-field:focus-within {
+  --rphi-border-focus: #dc2626;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15);
+}
+
+/* ============================================================================
+ * Country selector button
+ * ========================================================================== */
+.rphi-selector-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.rphi-selector {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: var(--rphi-height-md);
+  padding: 0 10px 0 10px;
+  background: var(--rphi-selector-bg);
+  border: none;
+  border-right: 1.5px solid var(--rphi-border);
+  border-radius: calc(var(--rphi-radius) - 1.5px) 0 0 calc(var(--rphi-radius) - 1.5px);
+  cursor: pointer;
+  color: var(--rphi-fg);
+  font-size: inherit;
+  font-family: inherit;
+  transition: background var(--rphi-duration) ease;
+  white-space: nowrap;
+  outline: none;
+}
+
+.rphi-root[data-size="sm"] .rphi-selector { height: var(--rphi-height-sm); padding: 0 8px; }
+.rphi-root[data-size="lg"] .rphi-selector { height: var(--rphi-height-lg); padding: 0 12px; }
+
+.rphi-selector:hover {
+  background: var(--rphi-selector-hover-bg);
+}
+
+.rphi-selector:focus-visible {
+  outline: 2px solid var(--rphi-border-focus);
+  outline-offset: -2px;
+}
+
+/* ============================================================================
+ * Flag + dial code + chevron inside selector
+ * ========================================================================== */
+.rphi-flag {
+  font-size: 1.1em;
+  line-height: 1;
+}
+
+.rphi-dial {
+  font-size: 0.85em;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+.rphi-chevron {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 5px solid currentColor;
+  opacity: 0.6;
+  margin-left: 2px;
+  transition: transform var(--rphi-duration) ease;
+}
+
+.rphi-selector[aria-expanded="true"] .rphi-chevron {
+  transform: rotate(180deg);
+}
+
+/* ============================================================================
+ * Phone number input
+ * ========================================================================== */
+.rphi-input {
+  flex: 1;
+  min-width: 0;
+  height: var(--rphi-height-md);
+  padding: 0 12px;
+  border: none;
+  border-radius: 0 calc(var(--rphi-radius) - 1.5px) calc(var(--rphi-radius) - 1.5px) 0;
+  background: transparent;
+  color: var(--rphi-fg);
+  font-size: inherit;
+  font-family: inherit;
+  outline: none;
+}
+
+.rphi-root[data-size="sm"] .rphi-input { height: var(--rphi-height-sm); padding: 0 8px; }
+.rphi-root[data-size="lg"] .rphi-input { height: var(--rphi-height-lg); padding: 0 14px; }
+
+.rphi-input::placeholder {
+  color: var(--rphi-placeholder);
+}
+
+/* ============================================================================
+ * Dropdown
+ * ========================================================================== */
+.rphi-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 9999;
+  min-width: 240px;
+  max-height: 280px;
+  overflow-y: auto;
+  background: var(--rphi-dropdown-bg);
+  border: 1.5px solid var(--rphi-dropdown-border);
+  border-radius: var(--rphi-radius);
+  box-shadow: var(--rphi-dropdown-shadow);
+  overscroll-behavior: contain;
+  animation: rphi-dropdown-in var(--rphi-duration) ease;
+}
+
+@keyframes rphi-dropdown-in {
+  from { opacity: 0; translate: 0 -6px; }
+  to   { opacity: 1; translate: 0 0; }
+}
+
+/* ============================================================================
+ * Dropdown option
+ * ========================================================================== */
+.rphi-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  background: transparent;
+  color: var(--rphi-fg);
+  font-size: var(--rphi-font-md);
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--rphi-duration) ease;
+}
+
+.rphi-option:hover,
+.rphi-option:focus-visible {
+  background: var(--rphi-option-hover-bg);
+  outline: none;
+}
+
+.rphi-option[data-selected="true"] {
+  background: var(--rphi-option-selected-bg);
+  color: var(--rphi-option-selected-fg);
+  font-weight: 500;
+}
+
+.rphi-option-name {
+  flex: 1;
+}
+
+.rphi-option-dial {
+  font-size: 0.8em;
+  color: var(--rphi-hint-fg);
+}
+
+.rphi-option[data-selected="true"] .rphi-option-dial {
+  color: var(--rphi-option-selected-fg);
+  opacity: 0.7;
+}
+
+/* ============================================================================
+ * Hint and error
+ * ========================================================================== */
+.rphi-hint {
+  font-size: 0.78em;
+  color: var(--rphi-hint-fg);
+}
+
+.rphi-error {
+  font-size: 0.78em;
+  color: var(--rphi-error-fg);
+}
+
+/* ============================================================================
+ * Dark mode — [data-theme="dark"] ancestor only
+ * ========================================================================== */
+[data-theme="dark"] {
+  --rphi-bg: #18181b;
+  --rphi-fg: #fafafa;
+  --rphi-border: #3f3f46;
+  --rphi-border-focus: #818cf8;
+  --rphi-placeholder: #52525b;
+  --rphi-selector-bg: #27272a;
+  --rphi-selector-hover-bg: #3f3f46;
+  --rphi-dropdown-bg: #1c1c1f;
+  --rphi-dropdown-border: #3f3f46;
+  --rphi-dropdown-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  --rphi-option-hover-bg: #27272a;
+  --rphi-option-selected-bg: #312e81;
+  --rphi-option-selected-fg: #a5b4fc;
+  --rphi-label-fg: #d4d4d8;
+  --rphi-hint-fg: #71717a;
+  --rphi-error-fg: #f87171;
+}
+
+[data-theme="dark"] .rphi-root[data-tone="success"][data-tone] .rphi-field:focus-within {
+  --rphi-border-focus: #4ade80;
+  box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.15);
+}
+
+[data-theme="dark"] .rphi-root[data-tone="danger"][data-tone] .rphi-field {
+  border-color: var(--rphi-error-fg);
+}
+
+[data-theme="dark"] .rphi-root[data-tone="danger"][data-tone] .rphi-field:focus-within {
+  --rphi-border-focus: #f87171;
+  box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.15);
+}
+
+/* ============================================================================
+ * Reduced motion
+ * ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .rphi-field,
+  .rphi-selector,
+  .rphi-chevron,
+  .rphi-option {
+    transition: none;
+  }
+  .rphi-dropdown {
+    animation: none;
+  }
+}

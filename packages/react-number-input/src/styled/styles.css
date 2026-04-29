@@ -1,0 +1,279 @@
+/* ============================================================================
+ * react-number-input — styled component
+ *
+ * Themable via CSS variables.
+ * Dark mode via [data-theme="dark"] ancestor only.
+ * ========================================================================== */
+
+:root {
+  --rni-font-size-sm: 0.8125rem;
+  --rni-font-size-md: 0.9375rem;
+  --rni-font-size-lg: 1.0625rem;
+
+  --rni-height-sm: 2rem;
+  --rni-height-md: 2.5rem;
+  --rni-height-lg: 3rem;
+
+  --rni-radius: 8px;
+  --rni-gap: 0;
+  --rni-duration: 150ms;
+  --rni-ease: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* neutral */
+  --rni-bg: #ffffff;
+  --rni-fg: #18181b;
+  --rni-placeholder: #a1a1aa;
+  --rni-border: #d4d4d8;
+  --rni-border-focus: #6366f1;
+  --rni-btn-bg: #f4f4f5;
+  --rni-btn-bg-hover: #e4e4e7;
+  --rni-btn-fg: #52525b;
+  --rni-shadow-focus: 0 0 0 3px rgba(99, 102, 241, 0.18);
+
+  /* label/hint/error */
+  --rni-label-fg: #3f3f46;
+  --rni-hint-fg: #71717a;
+  --rni-error-fg: #dc2626;
+  --rni-error-border: #dc2626;
+  --rni-error-shadow: 0 0 0 3px rgba(220, 38, 38, 0.18);
+}
+
+/* ============================================================================
+ * Root wrapper
+ * ========================================================================== */
+.rni-root {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-family: inherit;
+}
+
+/* ============================================================================
+ * Label
+ * ========================================================================== */
+.rni-label {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--rni-label-fg);
+  line-height: 1.4;
+}
+
+/* ============================================================================
+ * Control row (decrement / input / increment)
+ * ========================================================================== */
+.rni-control {
+  display: inline-flex;
+  align-items: stretch;
+  border: 1.5px solid var(--rni-border);
+  border-radius: var(--rni-radius);
+  background: var(--rni-bg);
+  overflow: hidden;
+  transition: border-color var(--rni-duration) var(--rni-ease),
+    box-shadow var(--rni-duration) var(--rni-ease);
+}
+
+.rni-control:focus-within {
+  border-color: var(--rni-border-focus);
+  box-shadow: var(--rni-shadow-focus);
+}
+
+/* ============================================================================
+ * Input
+ * ========================================================================== */
+.rni-input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--rni-fg);
+  text-align: center;
+  font-size: var(--rni-font-size-md);
+  font-family: inherit;
+  padding: 0 0.25rem;
+  height: var(--rni-height-md);
+  line-height: var(--rni-height-md);
+  cursor: text;
+}
+
+.rni-input::placeholder {
+  color: var(--rni-placeholder);
+}
+
+.rni-input:disabled {
+  cursor: not-allowed;
+}
+
+/* ============================================================================
+ * Stepper buttons
+ * ========================================================================== */
+.rni-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: var(--rni-height-md);
+  flex-shrink: 0;
+  background: var(--rni-btn-bg);
+  color: var(--rni-btn-fg);
+  border: none;
+  outline: none;
+  cursor: pointer;
+  font-size: 1.15rem;
+  font-weight: 500;
+  user-select: none;
+  transition: background var(--rni-duration) var(--rni-ease),
+    color var(--rni-duration) var(--rni-ease);
+  line-height: 1;
+}
+
+.rni-btn:hover:not(:disabled) {
+  background: var(--rni-btn-bg-hover);
+}
+
+.rni-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.rni-btn--decrement {
+  border-right: 1.5px solid var(--rni-border);
+}
+
+.rni-btn--increment {
+  border-left: 1.5px solid var(--rni-border);
+}
+
+/* ============================================================================
+ * Sizes
+ * ========================================================================== */
+.rni-root--sm .rni-input,
+.rni-root--sm .rni-btn {
+  height: var(--rni-height-sm);
+  line-height: var(--rni-height-sm);
+  font-size: var(--rni-font-size-sm);
+}
+
+.rni-root--sm .rni-btn {
+  width: 1.875rem;
+  font-size: 1rem;
+}
+
+.rni-root--lg .rni-input,
+.rni-root--lg .rni-btn {
+  height: var(--rni-height-lg);
+  line-height: var(--rni-height-lg);
+  font-size: var(--rni-font-size-lg);
+}
+
+.rni-root--lg .rni-btn {
+  width: 2.5rem;
+  font-size: 1.25rem;
+}
+
+/* ============================================================================
+ * Tones — doubled attribute specificity to beat theme selectors
+ * ========================================================================== */
+.rni-root[data-tone="primary"][data-tone] .rni-control:focus-within {
+  --rni-border-focus: #6366f1;
+  --rni-shadow-focus: 0 0 0 3px rgba(99, 102, 241, 0.18);
+}
+
+.rni-root[data-tone="success"][data-tone] .rni-control:focus-within {
+  --rni-border-focus: #16a34a;
+  --rni-shadow-focus: 0 0 0 3px rgba(22, 163, 74, 0.18);
+}
+
+.rni-root[data-tone="danger"][data-tone] .rni-control {
+  --rni-border: var(--rni-error-border);
+}
+
+.rni-root[data-tone="danger"][data-tone] .rni-control:focus-within {
+  --rni-border-focus: var(--rni-error-border);
+  --rni-shadow-focus: var(--rni-error-shadow);
+}
+
+/* ============================================================================
+ * Error state
+ * ========================================================================== */
+.rni-root[data-error="true"] .rni-control {
+  border-color: var(--rni-error-border);
+}
+
+.rni-root[data-error="true"] .rni-control:focus-within {
+  border-color: var(--rni-error-border);
+  box-shadow: var(--rni-error-shadow);
+}
+
+/* ============================================================================
+ * Disabled / read-only state
+ * ========================================================================== */
+.rni-root--disabled .rni-control {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.rni-root--readonly .rni-control {
+  background: #f4f4f5;
+}
+
+/* ============================================================================
+ * Hint / error text
+ * ========================================================================== */
+.rni-hint {
+  font-size: 0.75rem;
+  color: var(--rni-hint-fg);
+  line-height: 1.4;
+}
+
+.rni-error {
+  font-size: 0.75rem;
+  color: var(--rni-error-fg);
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+/* ============================================================================
+ * Dark mode — [data-theme="dark"] only, never @media prefers-color-scheme
+ * ========================================================================== */
+[data-theme="dark"] {
+  --rni-bg: #18181b;
+  --rni-fg: #fafafa;
+  --rni-placeholder: #52525b;
+  --rni-border: #3f3f46;
+  --rni-border-focus: #818cf8;
+  --rni-btn-bg: #27272a;
+  --rni-btn-bg-hover: #3f3f46;
+  --rni-btn-fg: #a1a1aa;
+  --rni-shadow-focus: 0 0 0 3px rgba(129, 140, 248, 0.22);
+  --rni-label-fg: #d4d4d8;
+  --rni-hint-fg: #71717a;
+  --rni-error-fg: #f87171;
+  --rni-error-border: #f87171;
+  --rni-error-shadow: 0 0 0 3px rgba(248, 113, 113, 0.22);
+}
+
+[data-theme="dark"] .rni-root[data-tone="primary"][data-tone] .rni-control:focus-within {
+  --rni-border-focus: #818cf8;
+  --rni-shadow-focus: 0 0 0 3px rgba(129, 140, 248, 0.22);
+}
+
+[data-theme="dark"] .rni-root[data-tone="success"][data-tone] .rni-control:focus-within {
+  --rni-border-focus: #4ade80;
+  --rni-shadow-focus: 0 0 0 3px rgba(74, 222, 128, 0.22);
+}
+
+[data-theme="dark"] .rni-root--readonly .rni-control {
+  background: #27272a;
+}
+
+/* ============================================================================
+ * Reduced motion
+ * ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .rni-control,
+  .rni-btn {
+    transition: none;
+  }
+}
