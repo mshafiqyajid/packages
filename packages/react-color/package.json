@@ -1,6 +1,6 @@
 {
   "name": "@mshafiqyajid/react-color",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Tiny, modern color picker components for React. Zero dependencies, SSR-safe, fully typed. Drop-in replacement for react-color.",
   "keywords": [
     "react",

@@ -1,5 +1,11 @@
 # @mshafiqyajid/react-otp-input
 
+## 0.1.2
+
+### Patch Changes
+
+- 0d8d416: Add react-tooltip package; update npm homepage to docs site for all packages
+
 ## 0.1.1
 
 ### Patch Changes

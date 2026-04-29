@@ -1,6 +1,6 @@
 {
   "name": "@mshafiqyajid/react-tooltip",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Headless tooltip hook and styled component for React. Accessible, keyboard-friendly, smart flip positioning, animated, SSR-safe, fully typed.",
   "keywords": [
     "react",
