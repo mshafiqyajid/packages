@@ -15,22 +15,22 @@
   --warning: #f59e0b;
   --radius: 8px;
   --radius-lg: 12px;
-  --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
-  --shadow-md: 0 4px 16px rgba(0,0,0,0.06);
-  --shadow-lg: 0 20px 40px -12px rgba(0,0,0,0.18);
-  --sidebar-width: 260px;
-  --header-height: 60px;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05), 0 1px 1px rgba(0,0,0,0.03);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.07), 0 1px 3px rgba(0,0,0,0.04);
+  --shadow-lg: 0 20px 40px -12px rgba(0,0,0,0.16);
+  --sidebar-width: 240px;
+  --header-height: 58px;
 }
 
 [data-theme="dark"] {
-  --bg: #09090b;
-  --bg-elevated: #18181b;
-  --bg-subtle: #27272a;
-  --fg: #fafafa;
+  --bg: #0a0a0b;
+  --bg-elevated: #111113;
+  --bg-subtle: #1c1c1f;
+  --fg: #f4f4f5;
   --fg-muted: #a1a1aa;
-  --fg-subtle: #71717a;
-  --border: #27272a;
-  --border-strong: #3f3f46;
+  --fg-subtle: #52525b;
+  --border: #1f1f23;
+  --border-strong: #2e2e33;
   --accent: #818cf8;
   --accent-hover: #a5b4fc;
   --shadow-md: 0 4px 16px rgba(0,0,0,0.4);
@@ -48,12 +48,12 @@ body {
   margin: 0;
   font-family: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
   font-size: 15px;
-  line-height: 1.6;
+  line-height: 1.65;
   background: var(--bg);
   color: var(--fg);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  transition: background-color 180ms ease, color 180ms ease;
+  transition: background-color 200ms ease, color 200ms ease;
 }
 
 a {
@@ -76,7 +76,6 @@ pre, code {
   font-size: 0.85em;
 }
 
-/* ---- Code blocks ---- */
 pre {
   background: var(--bg-subtle);
   border: 1px solid var(--border);
@@ -92,9 +91,9 @@ code:not(pre code) {
   border-radius: 4px;
   padding: 0.15em 0.4em;
   font-size: 0.82em;
+  color: var(--fg);
 }
 
-/* ---- Utility classes ---- */
 .visually-hidden {
   position: absolute; width: 1px; height: 1px;
   padding: 0; margin: -1px; overflow: hidden;
@@ -114,34 +113,54 @@ code:not(pre code) {
   text-transform: uppercase;
 }
 .badge--react { background: #dbeafe; color: #1d4ed8; }
-[data-theme="dark"] .badge--react { background: #1e3a5f; color: #93c5fd; }
+[data-theme="dark"] .badge--react { background: rgba(30,58,95,0.6); color: #93c5fd; }
 
 /* ---- Props table ---- */
 .props-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.85rem;
+  font-size: 0.84rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
 }
 .props-table th {
   text-align: left;
-  padding: 0.5rem 0.75rem;
+  padding: 0.55rem 0.85rem;
   background: var(--bg-subtle);
   border-bottom: 1px solid var(--border);
   font-weight: 600;
-  color: var(--fg-muted);
-  font-size: 0.75rem;
+  color: var(--fg-subtle);
+  font-size: 0.72rem;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
 }
 .props-table td {
-  padding: 0.6rem 0.75rem;
+  padding: 0.6rem 0.85rem;
   border-bottom: 1px solid var(--border);
   vertical-align: top;
+  line-height: 1.5;
 }
 .props-table tr:last-child td { border-bottom: none; }
-.props-table td:first-child { font-family: "JetBrains Mono", monospace; font-size: 0.8rem; color: var(--accent); }
-.props-table td:nth-child(2) { font-family: "JetBrains Mono", monospace; font-size: 0.78rem; color: var(--fg-muted); }
-
+.props-table tr:hover td { background: var(--bg-subtle); }
+.props-table td:first-child {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.78rem;
+  color: var(--accent);
+  white-space: nowrap;
+}
+.props-table td:nth-child(2) {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.75rem;
+  color: var(--fg-muted);
+  max-width: 220px;
+}
+.props-table td:nth-child(3) {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.75rem;
+  color: var(--fg-subtle);
+  white-space: nowrap;
+}
 
 /* ---- Heading anchors ---- */
 .heading-anchor {
@@ -153,10 +172,8 @@ code:not(pre code) {
   font-size: 0.85em;
   transition: opacity 140ms ease;
 }
-h1:hover .heading-anchor,
 h2:hover .heading-anchor,
-h3:hover .heading-anchor,
-h4:hover .heading-anchor { opacity: 1; }
+h3:hover .heading-anchor { opacity: 1; }
 .heading-anchor:hover { color: var(--accent); }
 
 /* ---- Demo box ---- */
@@ -170,6 +187,6 @@ h4:hover .heading-anchor { opacity: 1; }
   justify-content: center;
   min-height: 120px;
   background-image:
-    radial-gradient(circle at 20% 0%, rgba(99,102,241,0.07), transparent 50%),
-    radial-gradient(circle at 80% 100%, rgba(236,72,153,0.07), transparent 50%);
+    radial-gradient(circle at 20% 0%, rgba(99,102,241,0.06), transparent 50%),
+    radial-gradient(circle at 80% 100%, rgba(236,72,153,0.06), transparent 50%);
 }

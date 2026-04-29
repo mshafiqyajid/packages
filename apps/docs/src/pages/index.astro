@@ -13,6 +13,14 @@ import {
   ToastPreview,
   SelectPreview,
   ModalPreview,
+  SwitchPreview,
+  BadgePreview,
+  AvatarPreview,
+  ProgressPreview,
+  SliderPreview,
+  PopoverPreview,
+  DropdownMenuPreview,
+  TimelinePreview,
 } from "~/components/LandingPreviews";
 
 const packages = [
@@ -105,6 +113,70 @@ const packages = [
     size: "~11 KB",
     tags: ["focus trap", "drawer", "animated"],
   },
+  {
+    slug: "switch",
+    name: "react-switch",
+    desc: "Toggle switch with sizes, tones, label positioning, and loading spinner inside the thumb.",
+    version: "0.1.0",
+    size: "~5 KB",
+    tags: ["toggle", "accessible", "animated"],
+  },
+  {
+    slug: "badge",
+    name: "react-badge",
+    desc: "Badge, chip, and tag component. Three variants, six tones, dot indicator, count, and dismissible.",
+    version: "0.1.0",
+    size: "~4 KB",
+    tags: ["chip", "tag", "dismissible"],
+  },
+  {
+    slug: "avatar",
+    name: "react-avatar",
+    desc: "Avatar with image, initials fallback, presence status dot, border ring, and group stacking.",
+    version: "0.1.0",
+    size: "~6 KB",
+    tags: ["initials", "group", "status"],
+  },
+  {
+    slug: "progress",
+    name: "react-progress",
+    desc: "Progress bar and circular ring. Indeterminate state, animated stripe, five tones, value display.",
+    version: "0.1.0",
+    size: "~6 KB",
+    tags: ["bar", "circle", "indeterminate"],
+  },
+  {
+    slug: "slider",
+    name: "react-slider",
+    desc: "Range slider with single and dual-thumb mode, marks, value tooltip, and full keyboard navigation.",
+    version: "0.1.0",
+    size: "~8 KB",
+    tags: ["range", "dual thumb", "keyboard"],
+  },
+  {
+    slug: "popover",
+    name: "react-popover",
+    desc: "Click or hover triggered popover with rich content, title, arrow, and smart viewport flip.",
+    version: "0.1.0",
+    size: "~7 KB",
+    tags: ["portal", "rich content", "flip"],
+  },
+  {
+    slug: "dropdown-menu",
+    name: "react-dropdown-menu",
+    desc: "Dropdown menu with items, dividers, icons, four placements, and full keyboard navigation.",
+    version: "0.1.0",
+    size: "~8 KB",
+    tags: ["menu", "keyboard", "portal"],
+  },
+  {
+    slug: "timeline",
+    name: "react-timeline",
+    desc: "Vertical timeline with status-driven dot colours, line/dashed connectors, and alignment options.",
+    version: "0.1.0",
+    size: "~6 KB",
+    tags: ["status", "connector", "vertical"],
+  },
 ];
 ---
 
@@ -138,7 +210,7 @@ const packages = [
         <div class="hero__inner">
           <div class="hero__eyebrow">
             <span class="hero__dot"></span>
-            11 packages · React · TypeScript · Zero deps
+            19 packages · React · TypeScript · Zero deps
           </div>
           <h1 class="hero__title">
             Tiny, polished<br />
@@ -181,6 +253,14 @@ const packages = [
                   {pkg.slug === "toast" && <ToastPreview client:visible />}
                   {pkg.slug === "select" && <SelectPreview client:visible />}
                   {pkg.slug === "modal" && <ModalPreview client:visible />}
+                  {pkg.slug === "switch" && <SwitchPreview client:visible />}
+                  {pkg.slug === "badge" && <BadgePreview client:visible />}
+                  {pkg.slug === "avatar" && <AvatarPreview client:visible />}
+                  {pkg.slug === "progress" && <ProgressPreview client:visible />}
+                  {pkg.slug === "slider" && <SliderPreview client:visible />}
+                  {pkg.slug === "popover" && <PopoverPreview client:visible />}
+                  {pkg.slug === "dropdown-menu" && <DropdownMenuPreview client:visible />}
+                  {pkg.slug === "timeline" && <TimelinePreview client:visible />}
                 </div>
                 <div class="pkg-card__body">
                   <div class="pkg-card__header">
@@ -262,6 +342,14 @@ const packages = [
         "react-toast",
         "react-select",
         "react-modal",
+        "react-switch",
+        "react-badge",
+        "react-avatar",
+        "react-progress",
+        "react-slider",
+        "react-popover",
+        "react-dropdown-menu",
+        "react-timeline",
       ];
       const el = document.getElementById("hero-install-cmd");
       if (el) {

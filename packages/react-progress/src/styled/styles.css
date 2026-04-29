@@ -1,0 +1,264 @@
+/* ============================================================================
+ * react-progress — styled components
+ *
+ * Themable via CSS variables.
+ * Dark mode via [data-theme="dark"] ancestor only — no @media prefers-color-scheme.
+ * ========================================================================== */
+
+:root {
+  /* Track */
+  --rprog-track-bg: #e4e4e7;
+  --rprog-track-radius: 9999px;
+
+  /* Fill — tone: neutral (default) */
+  --rprog-fill-bg: #71717a;
+
+  /* Sizes — bar height */
+  --rprog-height-sm: 4px;
+  --rprog-height-md: 8px;
+  --rprog-height-lg: 14px;
+
+  /* Typography */
+  --rprog-label-color: #3f3f46;
+  --rprog-value-color: #71717a;
+  --rprog-font-size: 0.8rem;
+
+  /* Circle track */
+  --rprog-circle-track-color: #e4e4e7;
+
+  /* Transition */
+  --rprog-duration: 300ms;
+  --rprog-ease: ease-in-out;
+
+  /* Stripe animation */
+  --rprog-stripe-color: rgba(255, 255, 255, 0.2);
+}
+
+/* ============================================================================
+ * ProgressBar — root
+ * ========================================================================== */
+.rprog-bar-root {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+}
+
+/* ============================================================================
+ * ProgressBar — header (label + value)
+ * ========================================================================== */
+.rprog-bar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.rprog-bar-label {
+  font-size: var(--rprog-font-size);
+  color: var(--rprog-label-color);
+  font-weight: 500;
+}
+
+.rprog-bar-value {
+  font-size: var(--rprog-font-size);
+  color: var(--rprog-value-color);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============================================================================
+ * ProgressBar — track
+ * ========================================================================== */
+.rprog-bar-track {
+  width: 100%;
+  background: var(--rprog-track-bg);
+  height: var(--rprog-height-md);
+  overflow: hidden;
+  position: relative;
+}
+
+.rprog-bar-root[data-rounded="true"] .rprog-bar-track {
+  border-radius: var(--rprog-track-radius);
+}
+
+.rprog-bar-root[data-size="sm"] .rprog-bar-track {
+  height: var(--rprog-height-sm);
+}
+
+.rprog-bar-root[data-size="lg"] .rprog-bar-track {
+  height: var(--rprog-height-lg);
+}
+
+/* ============================================================================
+ * ProgressBar — fill
+ * ========================================================================== */
+.rprog-bar-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--rprog-fill-bg);
+  transition: width var(--rprog-duration) var(--rprog-ease);
+  position: relative;
+  overflow: hidden;
+}
+
+.rprog-bar-root[data-rounded="true"] .rprog-bar-fill {
+  border-radius: var(--rprog-track-radius);
+}
+
+/* Stripe overlay */
+.rprog-bar-fill[data-animated="true"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--rprog-stripe-color) 0px,
+    var(--rprog-stripe-color) 8px,
+    transparent 8px,
+    transparent 16px
+  );
+  background-size: 32px 32px;
+  animation: rprog-stripe 800ms linear infinite;
+}
+
+/* Indeterminate slide */
+.rprog-bar-fill[data-indeterminate="true"] {
+  width: 40% !important;
+  animation: rprog-indeterminate 1.4s ease-in-out infinite;
+  border-radius: var(--rprog-track-radius);
+}
+
+/* ============================================================================
+ * Tones — ProgressBar
+ * ========================================================================== */
+.rprog-bar-root[data-tone="primary"] {
+  --rprog-fill-bg: #6366f1;
+}
+
+.rprog-bar-root[data-tone="success"] {
+  --rprog-fill-bg: #16a34a;
+}
+
+.rprog-bar-root[data-tone="warning"] {
+  --rprog-fill-bg: #d97706;
+}
+
+.rprog-bar-root[data-tone="danger"] {
+  --rprog-fill-bg: #dc2626;
+}
+
+/* ============================================================================
+ * ProgressCircle — SVG
+ * ========================================================================== */
+.rprog-circle {
+  display: block;
+  flex-shrink: 0;
+}
+
+.rprog-circle-track {
+  stroke: var(--rprog-circle-track-color);
+}
+
+.rprog-circle-fill {
+  stroke: var(--rprog-fill-bg);
+  transition: stroke-dashoffset var(--rprog-duration) var(--rprog-ease);
+}
+
+.rprog-circle[data-indeterminate="true"] .rprog-circle-fill {
+  animation: rprog-spin 1.4s linear infinite;
+  transform-origin: center;
+}
+
+.rprog-circle-value {
+  fill: var(--rprog-label-color);
+  font-size: 0.28em;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============================================================================
+ * Tones — ProgressCircle
+ * ========================================================================== */
+.rprog-circle[data-tone="primary"] {
+  --rprog-fill-bg: #6366f1;
+}
+
+.rprog-circle[data-tone="success"] {
+  --rprog-fill-bg: #16a34a;
+}
+
+.rprog-circle[data-tone="warning"] {
+  --rprog-fill-bg: #d97706;
+}
+
+.rprog-circle[data-tone="danger"] {
+  --rprog-fill-bg: #dc2626;
+}
+
+/* ============================================================================
+ * Dark mode — [data-theme="dark"] only, no @media prefers-color-scheme
+ * ========================================================================== */
+[data-theme="dark"] {
+  --rprog-track-bg: #3f3f46;
+  --rprog-fill-bg: #a1a1aa;
+  --rprog-label-color: #d4d4d8;
+  --rprog-value-color: #a1a1aa;
+  --rprog-circle-track-color: #3f3f46;
+  --rprog-stripe-color: rgba(255, 255, 255, 0.12);
+}
+
+[data-theme="dark"] .rprog-bar-root[data-tone="primary"],
+[data-theme="dark"] .rprog-circle[data-tone="primary"] {
+  --rprog-fill-bg: #818cf8;
+}
+
+[data-theme="dark"] .rprog-bar-root[data-tone="success"],
+[data-theme="dark"] .rprog-circle[data-tone="success"] {
+  --rprog-fill-bg: #4ade80;
+}
+
+[data-theme="dark"] .rprog-bar-root[data-tone="warning"],
+[data-theme="dark"] .rprog-circle[data-tone="warning"] {
+  --rprog-fill-bg: #fbbf24;
+}
+
+[data-theme="dark"] .rprog-bar-root[data-tone="danger"],
+[data-theme="dark"] .rprog-circle[data-tone="danger"] {
+  --rprog-fill-bg: #f87171;
+}
+
+/* ============================================================================
+ * Animations
+ * ========================================================================== */
+@keyframes rprog-indeterminate {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(280%); }
+}
+
+@keyframes rprog-stripe {
+  0%   { background-position: 0 0; }
+  100% { background-position: 32px 0; }
+}
+
+@keyframes rprog-spin {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ============================================================================
+ * Reduced motion
+ * ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .rprog-bar-fill {
+    transition: none;
+  }
+
+  .rprog-bar-fill[data-animated="true"]::after,
+  .rprog-bar-fill[data-indeterminate="true"],
+  .rprog-circle[data-indeterminate="true"] .rprog-circle-fill {
+    animation: none;
+  }
+
+  .rprog-circle-fill {
+    transition: none;
+  }
+}

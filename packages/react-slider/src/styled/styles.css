@@ -1,0 +1,226 @@
+/* ============================================================================
+ * react-slider — styled component
+ *
+ * Themable via CSS variables.
+ * Dark mode: [data-theme="dark"] ancestor only — no @media prefers-color-scheme.
+ * ========================================================================== */
+
+:root {
+  --rslider-track-height: 6px;
+  --rslider-thumb-size: 18px;
+  --rslider-mark-size: 4px;
+  --rslider-radius: 9999px;
+  --rslider-duration: 120ms;
+  --rslider-ease: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* colors — neutral by default */
+  --rslider-rail-bg: #e4e4e7;
+  --rslider-range-bg: #71717a;
+  --rslider-thumb-bg: #ffffff;
+  --rslider-thumb-border: #71717a;
+  --rslider-thumb-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+  --rslider-thumb-shadow-focus: 0 0 0 3px rgba(113, 113, 122, 0.3);
+  --rslider-mark-bg: #a1a1aa;
+  --rslider-tooltip-bg: #18181b;
+  --rslider-tooltip-fg: #fafafa;
+}
+
+/* ============================================================================
+ * Root
+ * ========================================================================== */
+.rslider-root {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.rslider-root[data-disabled] {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+/* ============================================================================
+ * Track — height matches thumb so thumb is always vertically centered
+ * ========================================================================== */
+.rslider-track {
+  position: relative;
+  width: 100%;
+  height: var(--rslider-thumb-size);
+  display: flex;
+  align-items: center;
+  border-radius: var(--rslider-radius);
+}
+
+/* ============================================================================
+ * Rail (background of the track) — centered vertically in the track
+ * ========================================================================== */
+.rslider-track-rail {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: var(--rslider-track-height);
+  transform: translateY(-50%);
+  border-radius: var(--rslider-radius);
+  background: var(--rslider-rail-bg);
+}
+
+/* ============================================================================
+ * Range fill
+ * ========================================================================== */
+.rslider-range {
+  position: absolute;
+  top: 50%;
+  height: var(--rslider-track-height);
+  transform: translateY(-50%);
+  border-radius: var(--rslider-radius);
+  background: var(--rslider-range-bg);
+  transition: left var(--rslider-duration) var(--rslider-ease),
+    width var(--rslider-duration) var(--rslider-ease);
+  pointer-events: none;
+}
+
+/* ============================================================================
+ * Thumb
+ * ========================================================================== */
+.rslider-thumb {
+  position: absolute;
+  top: 50%;
+  width: var(--rslider-thumb-size);
+  height: var(--rslider-thumb-size);
+  border-radius: 50%;
+  background: var(--rslider-thumb-bg);
+  border: 2px solid var(--rslider-thumb-border);
+  box-shadow: var(--rslider-thumb-shadow);
+  transform: translate(-50%, -50%);
+  transition: left var(--rslider-duration) var(--rslider-ease),
+    box-shadow var(--rslider-duration) ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  outline: none;
+  touch-action: none;
+}
+
+.rslider-thumb:focus-visible {
+  box-shadow: var(--rslider-thumb-shadow-focus);
+}
+
+.rslider-thumb:active {
+  cursor: grabbing;
+}
+
+/* ============================================================================
+ * Value tooltip
+ * ========================================================================== */
+.rslider-tooltip {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--rslider-tooltip-bg);
+  color: var(--rslider-tooltip-fg);
+  font-size: 0.72rem;
+  font-weight: 500;
+  line-height: 1;
+  padding: 0.2rem 0.45rem;
+  border-radius: 4px;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* ============================================================================
+ * Marks
+ * ========================================================================== */
+.rslider-mark {
+  position: absolute;
+  top: 50%;
+  width: var(--rslider-mark-size);
+  height: var(--rslider-mark-size);
+  border-radius: 50%;
+  background: var(--rslider-mark-bg);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+/* ============================================================================
+ * Sizes
+ * ========================================================================== */
+.rslider-root[data-size="sm"] {
+  --rslider-track-height: 4px;
+  --rslider-thumb-size: 14px;
+  --rslider-mark-size: 3px;
+}
+
+.rslider-root[data-size="lg"] {
+  --rslider-track-height: 8px;
+  --rslider-thumb-size: 22px;
+  --rslider-mark-size: 5px;
+}
+
+/* ============================================================================
+ * Tones
+ * ========================================================================== */
+.rslider-root[data-tone="primary"] {
+  --rslider-range-bg: #6366f1;
+  --rslider-thumb-border: #6366f1;
+  --rslider-thumb-shadow-focus: 0 0 0 3px rgba(99, 102, 241, 0.3);
+}
+
+.rslider-root[data-tone="success"] {
+  --rslider-range-bg: #16a34a;
+  --rslider-thumb-border: #16a34a;
+  --rslider-thumb-shadow-focus: 0 0 0 3px rgba(22, 163, 74, 0.3);
+}
+
+.rslider-root[data-tone="danger"] {
+  --rslider-range-bg: #dc2626;
+  --rslider-thumb-border: #dc2626;
+  --rslider-thumb-shadow-focus: 0 0 0 3px rgba(220, 38, 38, 0.3);
+}
+
+/* ============================================================================
+ * Dark mode — [data-theme="dark"] ancestor only
+ * ========================================================================== */
+[data-theme="dark"] {
+  --rslider-rail-bg: #3f3f46;
+  --rslider-range-bg: #a1a1aa;
+  --rslider-thumb-bg: #27272a;
+  --rslider-thumb-border: #a1a1aa;
+  --rslider-thumb-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+  --rslider-thumb-shadow-focus: 0 0 0 3px rgba(161, 161, 170, 0.3);
+  --rslider-mark-bg: #71717a;
+  --rslider-tooltip-bg: #fafafa;
+  --rslider-tooltip-fg: #18181b;
+}
+
+[data-theme="dark"] .rslider-root[data-tone="primary"] {
+  --rslider-range-bg: #818cf8;
+  --rslider-thumb-border: #818cf8;
+  --rslider-thumb-shadow-focus: 0 0 0 3px rgba(129, 140, 248, 0.3);
+}
+
+[data-theme="dark"] .rslider-root[data-tone="success"] {
+  --rslider-range-bg: #4ade80;
+  --rslider-thumb-border: #4ade80;
+  --rslider-thumb-shadow-focus: 0 0 0 3px rgba(74, 222, 128, 0.3);
+}
+
+[data-theme="dark"] .rslider-root[data-tone="danger"] {
+  --rslider-range-bg: #f87171;
+  --rslider-thumb-border: #f87171;
+  --rslider-thumb-shadow-focus: 0 0 0 3px rgba(248, 113, 113, 0.3);
+}
+
+/* ============================================================================
+ * Reduced motion
+ * ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .rslider-range,
+  .rslider-thumb {
+    transition: none;
+  }
+}

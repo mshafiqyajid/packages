@@ -1,0 +1,301 @@
+/* ============================================================================
+ * react-timeline — styled component
+ *
+ * Dark mode via [data-theme="dark"] ancestor only.
+ * ========================================================================== */
+
+:root {
+  --rtl-dot-size: 16px;
+  --rtl-connector-width: 2px;
+  --rtl-item-gap: 0.25rem;
+  --rtl-rail-gap: 0.875rem;
+  --rtl-body-gap: 0.25rem;
+
+  /* Status colours */
+  --rtl-color-default: #d1d5db;
+  --rtl-color-active: #6366f1;
+  --rtl-color-completed: #16a34a;
+  --rtl-color-error: #dc2626;
+  --rtl-color-warning: #d97706;
+
+  /* Connector */
+  --rtl-connector-color: #e4e4e7;
+
+  /* Text */
+  --rtl-title-fg: #18181b;
+  --rtl-description-fg: #71717a;
+  --rtl-date-fg: #a1a1aa;
+
+  /* Dot */
+  --rtl-dot-bg: #ffffff;
+  --rtl-dot-border: var(--rtl-color-default);
+  --rtl-dot-border-width: 2px;
+  --rtl-icon-fg: #ffffff;
+}
+
+/* ============================================================================
+ * Sizes
+ * ========================================================================== */
+.rtl-timeline[data-size="sm"] {
+  --rtl-dot-size: 12px;
+  --rtl-rail-gap: 0.625rem;
+}
+
+.rtl-timeline[data-size="lg"] {
+  --rtl-dot-size: 20px;
+  --rtl-rail-gap: 1.125rem;
+  --rtl-body-gap: 0.375rem;
+}
+
+/* ============================================================================
+ * Tone
+ * ========================================================================== */
+.rtl-timeline[data-tone="primary"] {
+  --rtl-color-active: #6366f1;
+  --rtl-connector-color: #e0e7ff;
+}
+
+/* ============================================================================
+ * Root
+ * ============================================================================ */
+.rtl-timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+}
+
+.rtl-timeline[data-orientation="vertical"]   { flex-direction: column; }
+.rtl-timeline[data-orientation="horizontal"] { flex-direction: row; align-items: flex-start; }
+
+/* ============================================================================
+ * Item
+ * ============================================================================ */
+.rtl-item {
+  display: flex;
+  position: relative;
+}
+
+/* Vertical */
+.rtl-timeline[data-orientation="vertical"] .rtl-item {
+  flex-direction: row;
+  gap: var(--rtl-rail-gap);
+  padding-bottom: 1.5rem;
+}
+
+.rtl-timeline[data-orientation="vertical"] .rtl-item[data-last] {
+  padding-bottom: 0;
+}
+
+.rtl-timeline[data-orientation="vertical"][data-align="right"] .rtl-item {
+  flex-direction: row-reverse;
+}
+
+.rtl-timeline[data-orientation="vertical"][data-align="center"] .rtl-item {
+  justify-content: center;
+}
+
+/* Horizontal */
+.rtl-timeline[data-orientation="horizontal"] .rtl-item {
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+}
+
+/* ============================================================================
+ * Rail
+ * ============================================================================ */
+.rtl-rail {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+}
+
+.rtl-timeline[data-orientation="vertical"] .rtl-rail {
+  flex-direction: column;
+  align-items: center;
+  width: var(--rtl-dot-size);
+}
+
+.rtl-timeline[data-orientation="horizontal"] .rtl-rail {
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+  justify-content: center;
+}
+
+/* ============================================================================
+ * Dot
+ * ============================================================================ */
+.rtl-dot {
+  position: relative;
+  width: var(--rtl-dot-size);
+  height: var(--rtl-dot-size);
+  border-radius: 50%;
+  border: var(--rtl-dot-border-width) solid var(--rtl-dot-border);
+  background: var(--rtl-dot-bg);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  transition: border-color 150ms ease, background 150ms ease;
+}
+
+/* Status-specific dot colours */
+.rtl-item[data-status="active"]    .rtl-dot { border-color: var(--rtl-color-active); background: var(--rtl-color-active); }
+.rtl-item[data-status="completed"] .rtl-dot { border-color: var(--rtl-color-completed); background: var(--rtl-color-completed); }
+.rtl-item[data-status="error"]     .rtl-dot { border-color: var(--rtl-color-error); background: var(--rtl-color-error); }
+.rtl-item[data-status="warning"]   .rtl-dot { border-color: var(--rtl-color-warning); background: var(--rtl-color-warning); }
+
+/* Active pulse ring */
+.rtl-dot-pulse {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: var(--rtl-color-active);
+  opacity: 0.2;
+  animation: rtl-pulse 2s ease-in-out infinite;
+}
+
+@keyframes rtl-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.2; }
+  50%       { transform: scale(1.5); opacity: 0; }
+}
+
+/* ============================================================================
+ * Icon inside dot
+ * ============================================================================ */
+.rtl-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--rtl-icon-fg);
+  line-height: 1;
+  position: relative;
+  z-index: 1;
+}
+
+/* Default status icon uses muted color */
+.rtl-item[data-status="default"] .rtl-icon {
+  color: var(--rtl-description-fg);
+}
+
+/* ============================================================================
+ * Connector
+ * ============================================================================ */
+.rtl-connector {
+  background: var(--rtl-connector-color);
+  flex-shrink: 0;
+  transition: background 150ms ease;
+}
+
+.rtl-timeline[data-orientation="vertical"] .rtl-connector {
+  width: var(--rtl-connector-width);
+  flex: 1;
+  min-height: 1.5rem;
+}
+
+.rtl-timeline[data-orientation="horizontal"] .rtl-connector {
+  height: var(--rtl-connector-width);
+  flex: 1;
+  min-width: 1.5rem;
+}
+
+.rtl-timeline[data-connector="dashed"] .rtl-connector {
+  background: repeating-linear-gradient(
+    to bottom,
+    var(--rtl-connector-color) 0, var(--rtl-connector-color) 5px,
+    transparent 5px, transparent 10px
+  );
+}
+
+.rtl-timeline[data-orientation="horizontal"][data-connector="dashed"] .rtl-connector {
+  background: repeating-linear-gradient(
+    to right,
+    var(--rtl-connector-color) 0, var(--rtl-connector-color) 5px,
+    transparent 5px, transparent 10px
+  );
+}
+
+.rtl-timeline[data-connector="none"] .rtl-connector { display: none; }
+
+/* ============================================================================
+ * Body
+ * ============================================================================ */
+.rtl-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rtl-body-gap);
+  flex: 1;
+  min-width: 0;
+  padding-top: 1px;
+}
+
+.rtl-timeline[data-orientation="horizontal"] .rtl-body {
+  align-items: center;
+  text-align: center;
+  padding: 0.5rem 0.25rem 0;
+}
+
+/* ============================================================================
+ * Text
+ * ============================================================================ */
+.rtl-title {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--rtl-title-fg);
+}
+
+.rtl-timeline[data-size="sm"] .rtl-title { font-size: 0.8rem; }
+.rtl-timeline[data-size="lg"] .rtl-title { font-size: 0.95rem; }
+
+.rtl-description {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--rtl-description-fg);
+}
+
+.rtl-timeline[data-size="sm"] .rtl-description { font-size: 0.75rem; }
+.rtl-timeline[data-size="lg"] .rtl-description { font-size: 0.875rem; }
+
+.rtl-date {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--rtl-date-fg);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.3;
+}
+
+/* ============================================================================
+ * Dark mode
+ * ============================================================================ */
+[data-theme="dark"] {
+  --rtl-dot-bg: #18181b;
+  --rtl-color-default: #52525b;
+  --rtl-connector-color: #3f3f46;
+  --rtl-title-fg: #f4f4f5;
+  --rtl-description-fg: #a1a1aa;
+  --rtl-date-fg: #71717a;
+}
+
+[data-theme="dark"] .rtl-timeline[data-tone="primary"] {
+  --rtl-connector-color: #312e81;
+  --rtl-color-active: #818cf8;
+}
+
+[data-theme="dark"] .rtl-item[data-status="completed"] .rtl-dot { border-color: #4ade80; background: #4ade80; }
+[data-theme="dark"] .rtl-item[data-status="error"]     .rtl-dot { border-color: #f87171; background: #f87171; }
+[data-theme="dark"] .rtl-item[data-status="warning"]   .rtl-dot { border-color: #fbbf24; background: #fbbf24; }
+
+/* ============================================================================
+ * Reduced motion
+ * ============================================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .rtl-dot, .rtl-connector { transition: none; }
+  .rtl-dot-pulse            { animation: none; }
+}

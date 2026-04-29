@@ -1,0 +1,439 @@
+/* ============================================================================
+ * react-badge — styled component
+ *
+ * Themable via CSS variables. Dark mode via [data-theme="dark"] ancestor.
+ * NO @media (prefers-color-scheme: dark) — use [data-theme="dark"] only.
+ * ========================================================================== */
+
+:root {
+  /* Base tokens */
+  --rbadge-radius: 9999px;
+  --rbadge-font-weight: 500;
+  --rbadge-letter-spacing: 0.01em;
+  --rbadge-dot-size: 6px;
+  --rbadge-gap: 0.3em;
+  --rbadge-transition: opacity 120ms ease, background-color 120ms ease;
+
+  /* Neutral — subtle (default) */
+  --rbadge-neutral-subtle-bg: #f4f4f5;
+  --rbadge-neutral-subtle-fg: #3f3f46;
+  --rbadge-neutral-subtle-border: transparent;
+
+  /* Neutral — solid */
+  --rbadge-neutral-solid-bg: #52525b;
+  --rbadge-neutral-solid-fg: #ffffff;
+  --rbadge-neutral-solid-border: transparent;
+
+  /* Neutral — outline */
+  --rbadge-neutral-outline-bg: transparent;
+  --rbadge-neutral-outline-fg: #52525b;
+  --rbadge-neutral-outline-border: #d4d4d8;
+
+  /* Primary */
+  --rbadge-primary-subtle-bg: #ede9fe;
+  --rbadge-primary-subtle-fg: #5b21b6;
+  --rbadge-primary-solid-bg: #6366f1;
+  --rbadge-primary-solid-fg: #ffffff;
+  --rbadge-primary-outline-bg: transparent;
+  --rbadge-primary-outline-fg: #4f46e5;
+  --rbadge-primary-outline-border: #a5b4fc;
+  --rbadge-primary-dot: #6366f1;
+
+  /* Success */
+  --rbadge-success-subtle-bg: #dcfce7;
+  --rbadge-success-subtle-fg: #166534;
+  --rbadge-success-solid-bg: #16a34a;
+  --rbadge-success-solid-fg: #ffffff;
+  --rbadge-success-outline-bg: transparent;
+  --rbadge-success-outline-fg: #15803d;
+  --rbadge-success-outline-border: #86efac;
+  --rbadge-success-dot: #16a34a;
+
+  /* Warning */
+  --rbadge-warning-subtle-bg: #fef9c3;
+  --rbadge-warning-subtle-fg: #854d0e;
+  --rbadge-warning-solid-bg: #ca8a04;
+  --rbadge-warning-solid-fg: #ffffff;
+  --rbadge-warning-outline-bg: transparent;
+  --rbadge-warning-outline-fg: #a16207;
+  --rbadge-warning-outline-border: #fde047;
+  --rbadge-warning-dot: #ca8a04;
+
+  /* Danger */
+  --rbadge-danger-subtle-bg: #fee2e2;
+  --rbadge-danger-subtle-fg: #991b1b;
+  --rbadge-danger-solid-bg: #dc2626;
+  --rbadge-danger-solid-fg: #ffffff;
+  --rbadge-danger-outline-bg: transparent;
+  --rbadge-danger-outline-fg: #b91c1c;
+  --rbadge-danger-outline-border: #fca5a5;
+  --rbadge-danger-dot: #dc2626;
+
+  /* Info */
+  --rbadge-info-subtle-bg: #dbeafe;
+  --rbadge-info-subtle-fg: #1e40af;
+  --rbadge-info-solid-bg: #3b82f6;
+  --rbadge-info-solid-fg: #ffffff;
+  --rbadge-info-outline-bg: transparent;
+  --rbadge-info-outline-fg: #1d4ed8;
+  --rbadge-info-outline-border: #93c5fd;
+  --rbadge-info-dot: #3b82f6;
+}
+
+/* ============================================================================
+ * Base badge
+ * ========================================================================== */
+.rbadge-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--rbadge-gap);
+  border-radius: var(--rbadge-radius);
+  font-weight: var(--rbadge-font-weight);
+  letter-spacing: var(--rbadge-letter-spacing);
+  border: 1px solid transparent;
+  white-space: nowrap;
+  line-height: 1;
+  transition: var(--rbadge-transition);
+
+  /* Default: neutral subtle */
+  background-color: var(--rbadge-neutral-subtle-bg);
+  color: var(--rbadge-neutral-subtle-fg);
+  border-color: var(--rbadge-neutral-subtle-border);
+}
+
+/* ============================================================================
+ * Sizes
+ * ========================================================================== */
+.rbadge-badge[data-size="sm"] {
+  padding: 0.15em 0.5em;
+  font-size: 0.7rem;
+}
+
+.rbadge-badge[data-size="md"] {
+  padding: 0.2em 0.65em;
+  font-size: 0.78rem;
+}
+
+.rbadge-badge[data-size="lg"] {
+  padding: 0.3em 0.85em;
+  font-size: 0.875rem;
+}
+
+/* ============================================================================
+ * Variants × Tones
+ * ========================================================================== */
+
+/* --- neutral --- */
+.rbadge-badge[data-tone="neutral"][data-variant="subtle"] {
+  background-color: var(--rbadge-neutral-subtle-bg);
+  color: var(--rbadge-neutral-subtle-fg);
+  border-color: var(--rbadge-neutral-subtle-border);
+}
+.rbadge-badge[data-tone="neutral"][data-variant="solid"] {
+  background-color: var(--rbadge-neutral-solid-bg);
+  color: var(--rbadge-neutral-solid-fg);
+  border-color: var(--rbadge-neutral-solid-border);
+}
+.rbadge-badge[data-tone="neutral"][data-variant="outline"] {
+  background-color: var(--rbadge-neutral-outline-bg);
+  color: var(--rbadge-neutral-outline-fg);
+  border-color: var(--rbadge-neutral-outline-border);
+}
+
+/* --- primary --- */
+.rbadge-badge[data-tone="primary"][data-variant="subtle"] {
+  background-color: var(--rbadge-primary-subtle-bg);
+  color: var(--rbadge-primary-subtle-fg);
+  border-color: transparent;
+}
+.rbadge-badge[data-tone="primary"][data-variant="solid"] {
+  background-color: var(--rbadge-primary-solid-bg);
+  color: var(--rbadge-primary-solid-fg);
+  border-color: transparent;
+}
+.rbadge-badge[data-tone="primary"][data-variant="outline"] {
+  background-color: var(--rbadge-primary-outline-bg);
+  color: var(--rbadge-primary-outline-fg);
+  border-color: var(--rbadge-primary-outline-border);
+}
+
+/* --- success --- */
+.rbadge-badge[data-tone="success"][data-variant="subtle"] {
+  background-color: var(--rbadge-success-subtle-bg);
+  color: var(--rbadge-success-subtle-fg);
+  border-color: transparent;
+}
+.rbadge-badge[data-tone="success"][data-variant="solid"] {
+  background-color: var(--rbadge-success-solid-bg);
+  color: var(--rbadge-success-solid-fg);
+  border-color: transparent;
+}
+.rbadge-badge[data-tone="success"][data-variant="outline"] {
+  background-color: var(--rbadge-success-outline-bg);
+  color: var(--rbadge-success-outline-fg);
+  border-color: var(--rbadge-success-outline-border);
+}
+
+/* --- warning --- */
+.rbadge-badge[data-tone="warning"][data-variant="subtle"] {
+  background-color: var(--rbadge-warning-subtle-bg);
+  color: var(--rbadge-warning-subtle-fg);
+  border-color: transparent;
+}
+.rbadge-badge[data-tone="warning"][data-variant="solid"] {
+  background-color: var(--rbadge-warning-solid-bg);
+  color: var(--rbadge-warning-solid-fg);
+  border-color: transparent;
+}
+.rbadge-badge[data-tone="warning"][data-variant="outline"] {
+  background-color: var(--rbadge-warning-outline-bg);
+  color: var(--rbadge-warning-outline-fg);
+  border-color: var(--rbadge-warning-outline-border);
+}
+
+/* --- danger --- */
+.rbadge-badge[data-tone="danger"][data-variant="subtle"] {
+  background-color: var(--rbadge-danger-subtle-bg);
+  color: var(--rbadge-danger-subtle-fg);
+  border-color: transparent;
+}
+.rbadge-badge[data-tone="danger"][data-variant="solid"] {
+  background-color: var(--rbadge-danger-solid-bg);
+  color: var(--rbadge-danger-solid-fg);
+  border-color: transparent;
+}
+.rbadge-badge[data-tone="danger"][data-variant="outline"] {
+  background-color: var(--rbadge-danger-outline-bg);
+  color: var(--rbadge-danger-outline-fg);
+  border-color: var(--rbadge-danger-outline-border);
+}
+
+/* --- info --- */
+.rbadge-badge[data-tone="info"][data-variant="subtle"] {
+  background-color: var(--rbadge-info-subtle-bg);
+  color: var(--rbadge-info-subtle-fg);
+  border-color: transparent;
+}
+.rbadge-badge[data-tone="info"][data-variant="solid"] {
+  background-color: var(--rbadge-info-solid-bg);
+  color: var(--rbadge-info-solid-fg);
+  border-color: transparent;
+}
+.rbadge-badge[data-tone="info"][data-variant="outline"] {
+  background-color: var(--rbadge-info-outline-bg);
+  color: var(--rbadge-info-outline-fg);
+  border-color: var(--rbadge-info-outline-border);
+}
+
+/* ============================================================================
+ * Shape
+ * ========================================================================== */
+.rbadge-badge[data-shape="square"] {
+  border-radius: 4px;
+}
+
+/* ============================================================================
+ * Uppercase
+ * ========================================================================== */
+.rbadge-badge[data-uppercase="true"] .rbadge-label {
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.68em;
+}
+
+/* ============================================================================
+ * Dot
+ * ========================================================================== */
+.rbadge-dot-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: var(--rbadge-dot-size);
+  height: var(--rbadge-dot-size);
+}
+
+.rbadge-dot {
+  display: inline-block;
+  width: var(--rbadge-dot-size);
+  height: var(--rbadge-dot-size);
+  border-radius: 50%;
+  background-color: currentColor;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.rbadge-dot[data-pulse="true"]::before {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  background-color: currentColor;
+  opacity: 0.35;
+  animation: rbadge-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes rbadge-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.35; }
+  50%       { transform: scale(1.8); opacity: 0; }
+}
+
+.rbadge-badge[data-tone="primary"] .rbadge-dot   { background-color: var(--rbadge-primary-dot); }
+.rbadge-badge[data-tone="success"] .rbadge-dot   { background-color: var(--rbadge-success-dot); }
+.rbadge-badge[data-tone="warning"] .rbadge-dot   { background-color: var(--rbadge-warning-dot); }
+.rbadge-badge[data-tone="danger"]  .rbadge-dot   { background-color: var(--rbadge-danger-dot); }
+.rbadge-badge[data-tone="info"]    .rbadge-dot   { background-color: var(--rbadge-info-dot); }
+
+.rbadge-badge[data-tone="primary"][data-variant="solid"] .rbadge-dot,
+.rbadge-badge[data-tone="success"][data-variant="solid"] .rbadge-dot,
+.rbadge-badge[data-tone="warning"][data-variant="solid"] .rbadge-dot,
+.rbadge-badge[data-tone="danger"][data-variant="solid"]  .rbadge-dot,
+.rbadge-badge[data-tone="info"][data-variant="solid"]    .rbadge-dot,
+.rbadge-badge[data-tone="neutral"][data-variant="solid"] .rbadge-dot {
+  background-color: currentColor;
+}
+
+/* ============================================================================
+ * Icon
+ * ========================================================================== */
+.rbadge-icon {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  line-height: 0;
+}
+
+/* ============================================================================
+ * Count
+ * ========================================================================== */
+.rbadge-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85em;
+  font-weight: 600;
+  min-width: 1.4em;
+  padding: 0 0.3em;
+  border-radius: 9999px;
+  background-color: rgba(0 0 0 / 0.08);
+  line-height: 1.4;
+}
+
+.rbadge-badge[data-variant="solid"] .rbadge-count {
+  background-color: rgba(255 255 255 / 0.2);
+}
+
+/* ============================================================================
+ * Dismiss button
+ * ========================================================================== */
+.rbadge-dismiss {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  border-radius: 50%;
+  padding: 0.1em;
+  opacity: 0.65;
+  transition: opacity 120ms ease, background-color 120ms ease;
+  line-height: 0;
+}
+
+.rbadge-dismiss:hover,
+.rbadge-dismiss:focus-visible {
+  opacity: 1;
+  background-color: rgba(0 0 0 / 0.1);
+  outline: none;
+}
+
+.rbadge-badge[data-variant="solid"] .rbadge-dismiss:hover,
+.rbadge-badge[data-variant="solid"] .rbadge-dismiss:focus-visible {
+  background-color: rgba(255 255 255 / 0.2);
+}
+
+/* ============================================================================
+ * Dark mode — [data-theme="dark"] only, no @media prefers-color-scheme
+ * ========================================================================== */
+[data-theme="dark"] {
+  --rbadge-neutral-subtle-bg: #27272a;
+  --rbadge-neutral-subtle-fg: #d4d4d8;
+  --rbadge-neutral-subtle-border: transparent;
+
+  --rbadge-neutral-solid-bg: #71717a;
+  --rbadge-neutral-solid-fg: #ffffff;
+  --rbadge-neutral-solid-border: transparent;
+
+  --rbadge-neutral-outline-bg: transparent;
+  --rbadge-neutral-outline-fg: #a1a1aa;
+  --rbadge-neutral-outline-border: #52525b;
+
+  --rbadge-primary-subtle-bg: #2e1065;
+  --rbadge-primary-subtle-fg: #c4b5fd;
+  --rbadge-primary-solid-bg: #818cf8;
+  --rbadge-primary-solid-fg: #1e1b4b;
+  --rbadge-primary-outline-bg: transparent;
+  --rbadge-primary-outline-fg: #a5b4fc;
+  --rbadge-primary-outline-border: #4f46e5;
+  --rbadge-primary-dot: #818cf8;
+
+  --rbadge-success-subtle-bg: #052e16;
+  --rbadge-success-subtle-fg: #86efac;
+  --rbadge-success-solid-bg: #4ade80;
+  --rbadge-success-solid-fg: #052e16;
+  --rbadge-success-outline-bg: transparent;
+  --rbadge-success-outline-fg: #86efac;
+  --rbadge-success-outline-border: #166534;
+  --rbadge-success-dot: #4ade80;
+
+  --rbadge-warning-subtle-bg: #422006;
+  --rbadge-warning-subtle-fg: #fde68a;
+  --rbadge-warning-solid-bg: #fbbf24;
+  --rbadge-warning-solid-fg: #422006;
+  --rbadge-warning-outline-bg: transparent;
+  --rbadge-warning-outline-fg: #fde68a;
+  --rbadge-warning-outline-border: #92400e;
+  --rbadge-warning-dot: #fbbf24;
+
+  --rbadge-danger-subtle-bg: #450a0a;
+  --rbadge-danger-subtle-fg: #fca5a5;
+  --rbadge-danger-solid-bg: #f87171;
+  --rbadge-danger-solid-fg: #450a0a;
+  --rbadge-danger-outline-bg: transparent;
+  --rbadge-danger-outline-fg: #fca5a5;
+  --rbadge-danger-outline-border: #991b1b;
+  --rbadge-danger-dot: #f87171;
+
+  --rbadge-info-subtle-bg: #172554;
+  --rbadge-info-subtle-fg: #93c5fd;
+  --rbadge-info-solid-bg: #60a5fa;
+  --rbadge-info-solid-fg: #172554;
+  --rbadge-info-outline-bg: transparent;
+  --rbadge-info-outline-fg: #93c5fd;
+  --rbadge-info-outline-border: #1e40af;
+  --rbadge-info-dot: #60a5fa;
+}
+
+[data-theme="dark"] .rbadge-count {
+  background-color: rgba(255 255 255 / 0.12);
+}
+
+[data-theme="dark"] .rbadge-badge[data-variant="solid"] .rbadge-count {
+  background-color: rgba(0 0 0 / 0.15);
+}
+
+[data-theme="dark"] .rbadge-dismiss:hover,
+[data-theme="dark"] .rbadge-dismiss:focus-visible {
+  background-color: rgba(255 255 255 / 0.12);
+}
+
+/* ============================================================================
+ * Reduced motion
+ * ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .rbadge-badge,
+  .rbadge-dismiss {
+    transition: none;
+  }
+}

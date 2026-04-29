@@ -1,0 +1,262 @@
+/* ============================================================================
+ * react-switch — styled component
+ *
+ * Themable via CSS variables. Dark mode via [data-theme="dark"] ancestor.
+ * NO @media (prefers-color-scheme: dark) — use [data-theme="dark"] only.
+ * ========================================================================== */
+
+:root {
+  /* Track */
+  --rsw-track-bg-off: #d4d4d8;
+  --rsw-track-bg-on:  #18181b;
+  --rsw-track-radius: 9999px;
+  --rsw-duration: 200ms;
+  --rsw-ease: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Thumb */
+  --rsw-thumb-bg: #ffffff;
+  --rsw-thumb-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+
+  /* Focus ring */
+  --rsw-focus-ring: 0 0 0 3px rgba(24, 24, 27, 0.3);
+
+  /* Sizes — sm */
+  --rsw-track-w-sm: 2rem;
+  --rsw-track-h-sm: 1.125rem;
+  --rsw-thumb-size-sm: 0.875rem;
+  --rsw-thumb-inset-sm: 0.125rem;
+
+  /* Sizes — md */
+  --rsw-track-w-md: 2.75rem;
+  --rsw-track-h-md: 1.5rem;
+  --rsw-thumb-size-md: 1.125rem;
+  --rsw-thumb-inset-md: 0.1875rem;
+
+  /* Sizes — lg */
+  --rsw-track-w-lg: 3.5rem;
+  --rsw-track-h-lg: 2rem;
+  --rsw-thumb-size-lg: 1.5rem;
+  --rsw-thumb-inset-lg: 0.25rem;
+
+  /* Spinner */
+  --rsw-spinner-size: 0.625rem;
+  --rsw-spinner-color: rgba(0, 0, 0, 0.4);
+  --rsw-spinner-duration: 700ms;
+}
+
+/* ============================================================================
+ * Root wrapper — inline flex, centres track + label
+ * ========================================================================== */
+.rsw-root {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  vertical-align: middle;
+}
+
+/* ============================================================================
+ * Track — the pill button
+ * ========================================================================== */
+.rsw-track {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  background: var(--rsw-track-bg-off);
+  border-radius: var(--rsw-track-radius);
+  transition: background var(--rsw-duration) var(--rsw-ease);
+  outline: none;
+  flex-shrink: 0;
+}
+
+.rsw-track:focus-visible {
+  box-shadow: var(--rsw-focus-ring);
+}
+
+/* Checked state — track */
+.rsw-track[data-checked="true"] {
+  background: var(--rsw-track-bg-on);
+}
+
+/* Disabled state */
+.rsw-track[data-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+/* Loading state */
+.rsw-track[data-loading="true"] {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+/* ============================================================================
+ * Sizes — track dimensions
+ * ========================================================================== */
+.rsw-track[data-size="sm"] {
+  width: var(--rsw-track-w-sm);
+  height: var(--rsw-track-h-sm);
+}
+
+.rsw-track[data-size="md"] {
+  width: var(--rsw-track-w-md);
+  height: var(--rsw-track-h-md);
+}
+
+.rsw-track[data-size="lg"] {
+  width: var(--rsw-track-w-lg);
+  height: var(--rsw-track-h-lg);
+}
+
+/* ============================================================================
+ * Thumb
+ * ========================================================================== */
+.rsw-thumb {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--rsw-thumb-bg);
+  box-shadow: var(--rsw-thumb-shadow);
+  transition: translate var(--rsw-duration) var(--rsw-ease);
+}
+
+/* Thumb sizing per size */
+.rsw-track[data-size="sm"] .rsw-thumb {
+  width: var(--rsw-thumb-size-sm);
+  height: var(--rsw-thumb-size-sm);
+  left: var(--rsw-thumb-inset-sm);
+}
+
+.rsw-track[data-size="md"] .rsw-thumb {
+  width: var(--rsw-thumb-size-md);
+  height: var(--rsw-thumb-size-md);
+  left: var(--rsw-thumb-inset-md);
+}
+
+.rsw-track[data-size="lg"] .rsw-thumb {
+  width: var(--rsw-thumb-size-lg);
+  height: var(--rsw-thumb-size-lg);
+  left: var(--rsw-thumb-inset-lg);
+}
+
+/* Thumb translate when checked */
+.rsw-track[data-size="sm"][data-checked="true"] .rsw-thumb {
+  translate: calc(
+    var(--rsw-track-w-sm) - var(--rsw-thumb-size-sm) - var(--rsw-thumb-inset-sm) * 2
+  ) 0;
+}
+
+.rsw-track[data-size="md"][data-checked="true"] .rsw-thumb {
+  translate: calc(
+    var(--rsw-track-w-md) - var(--rsw-thumb-size-md) - var(--rsw-thumb-inset-md) * 2
+  ) 0;
+}
+
+.rsw-track[data-size="lg"][data-checked="true"] .rsw-thumb {
+  translate: calc(
+    var(--rsw-track-w-lg) - var(--rsw-thumb-size-lg) - var(--rsw-thumb-inset-lg) * 2
+  ) 0;
+}
+
+/* ============================================================================
+ * Tones — on-state track colour
+ * ========================================================================== */
+.rsw-track[data-tone="primary"][data-checked="true"] {
+  --rsw-track-bg-on: #6366f1;
+  --rsw-focus-ring: 0 0 0 3px rgba(99, 102, 241, 0.35);
+}
+
+.rsw-track[data-tone="success"][data-checked="true"] {
+  --rsw-track-bg-on: #16a34a;
+  --rsw-focus-ring: 0 0 0 3px rgba(22, 163, 74, 0.35);
+}
+
+.rsw-track[data-tone="danger"][data-checked="true"] {
+  --rsw-track-bg-on: #dc2626;
+  --rsw-focus-ring: 0 0 0 3px rgba(220, 38, 38, 0.35);
+}
+
+/* Focus ring tint for tones regardless of checked state */
+.rsw-track[data-tone="primary"]:focus-visible {
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.35);
+}
+
+.rsw-track[data-tone="success"]:focus-visible {
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.35);
+}
+
+.rsw-track[data-tone="danger"]:focus-visible {
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.35);
+}
+
+/* ============================================================================
+ * Label
+ * ========================================================================== */
+.rsw-label {
+  font-size: 0.875rem;
+  line-height: 1.4;
+  user-select: none;
+  cursor: pointer;
+}
+
+/* ============================================================================
+ * Loading spinner inside thumb
+ * ========================================================================== */
+.rsw-spinner {
+  display: block;
+  width: var(--rsw-spinner-size);
+  height: var(--rsw-spinner-size);
+  border-radius: 50%;
+  border: 2px solid transparent;
+  border-top-color: var(--rsw-spinner-color);
+  animation: rsw-spin var(--rsw-spinner-duration) linear infinite;
+}
+
+@keyframes rsw-spin {
+  to {
+    rotate: 360deg;
+  }
+}
+
+/* ============================================================================
+ * Dark mode — [data-theme="dark"] ancestor only
+ * ========================================================================== */
+[data-theme="dark"] {
+  --rsw-track-bg-off: #3f3f46;
+  --rsw-track-bg-on:  #fafafa;
+  --rsw-thumb-bg: #18181b;
+  --rsw-focus-ring: 0 0 0 3px rgba(250, 250, 250, 0.3);
+  --rsw-spinner-color: rgba(255, 255, 255, 0.4);
+}
+
+[data-theme="dark"] .rsw-track[data-tone="primary"][data-checked="true"] {
+  --rsw-track-bg-on: #818cf8;
+}
+
+[data-theme="dark"] .rsw-track[data-tone="success"][data-checked="true"] {
+  --rsw-track-bg-on: #4ade80;
+}
+
+[data-theme="dark"] .rsw-track[data-tone="danger"][data-checked="true"] {
+  --rsw-track-bg-on: #f87171;
+}
+
+/* ============================================================================
+ * Reduced motion
+ * ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .rsw-track,
+  .rsw-thumb {
+    transition: none;
+  }
+
+  .rsw-spinner {
+    animation: none;
+    opacity: 0.5;
+  }
+}

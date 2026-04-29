@@ -1,0 +1,40 @@
+---
+import DocLayout from "~/layouts/DocLayout.astro";
+import PackagePageShell from "~/components/PackagePageShell.astro";
+import H2 from "~/components/H2.astro";
+import CodeBlock from "~/components/CodeBlock.astro";
+import AvatarDemo from "~/components/demos/AvatarDemo";
+---
+<DocLayout title="react-avatar" description="Avatar with image, initials fallback, status dot, and group stacking." pkg="avatar">
+  <PackagePageShell name="react-avatar" version="0.1.0" description="Headless avatar hook and styled component. Image with initials fallback, status indicator, circle/square shape, group stacking with overflow count." size="~6 KB">
+    <div class="pkg-section"><H2>Playground</H2><AvatarDemo client:load /></div>
+    <div class="pkg-section"><H2>Install</H2><CodeBlock lang="bash" code="npm install @mshafiqyajid/react-avatar" /></div>
+    <div class="pkg-section"><H2>Quick start</H2>
+      <CodeBlock lang="tsx" code={`import { AvatarStyled, AvatarGroup } from "@mshafiqyajid/react-avatar/styled";
+import "@mshafiqyajid/react-avatar/styles.css";
+
+<AvatarStyled src="/photo.jpg" name="Shafiq Yajid" status="online" />
+
+// Group
+<AvatarGroup max={3}>
+  <AvatarStyled name="Alice" />
+  <AvatarStyled name="Bob" />
+  <AvatarStyled name="Charlie" />
+  <AvatarStyled name="Dave" />
+</AvatarGroup>`} />
+    </div>
+    <div class="pkg-section"><H2>API</H2>
+      <table class="props-table"><thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+        <tr><td>src</td><td>string</td><td>—</td><td>Image URL</td></tr>
+        <tr><td>name</td><td>string</td><td>—</td><td>Name for initials fallback</td></tr>
+        <tr><td>size</td><td>"xs" | "sm" | "md" | "lg" | "xl"</td><td>"md"</td><td>Size</td></tr>
+        <tr><td>shape</td><td>"circle" | "square"</td><td>"circle"</td><td>Shape</td></tr>
+        <tr><td>status</td><td>"online" | "offline" | "busy" | "away"</td><td>—</td><td>Presence indicator dot</td></tr>
+        <tr><td>border</td><td>boolean</td><td>false</td><td>White border ring</td></tr>
+        <tr><td>fallback</td><td>ReactNode</td><td>—</td><td>Custom fallback content</td></tr>
+        <tr><td>color</td><td>string</td><td>—</td><td>Custom background color e.g. <code>"#6366f1"</code></td></tr>
+        <tr><td>onClick</td><td>() =&gt; void</td><td>—</td><td>Makes avatar clickable with hover effect</td></tr>
+      </tbody></table>
+    </div>
+  </PackagePageShell>
+</DocLayout>

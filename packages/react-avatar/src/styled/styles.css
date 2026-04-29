@@ -1,0 +1,214 @@
+/* ============================================================================
+ * react-avatar — styled component
+ *
+ * Themable via CSS variables. Dark mode via [data-theme="dark"] ancestor.
+ * ========================================================================== */
+
+:root {
+  --rav-size-xs: 1.5rem;
+  --rav-size-sm: 2rem;
+  --rav-size-md: 2.5rem;
+  --rav-size-lg: 3rem;
+  --rav-size-xl: 3.75rem;
+
+  --rav-font-size-xs: 0.6rem;
+  --rav-font-size-sm: 0.75rem;
+  --rav-font-size-md: 0.9rem;
+  --rav-font-size-lg: 1.1rem;
+  --rav-font-size-xl: 1.35rem;
+
+  --rav-bg: #e4e4e7;
+  --rav-fg: #3f3f46;
+  --rav-border-color: #ffffff;
+  --rav-border-width: 2px;
+
+  --rav-status-size-xs: 0.45rem;
+  --rav-status-size-sm: 0.55rem;
+  --rav-status-size-md: 0.6875rem;
+  --rav-status-size-lg: 0.8125rem;
+  --rav-status-size-xl: 1rem;
+  --rav-status-border-color: #ffffff;
+  --rav-status-online: #22c55e;
+  --rav-status-offline: #a1a1aa;
+  --rav-status-busy: #ef4444;
+  --rav-status-away: #f59e0b;
+
+  --rav-group-overlap-sm: -0.375rem;
+  --rav-group-overlap-md: -0.625rem;
+  --rav-group-overlap-lg: -1rem;
+
+  --rav-overflow-bg: #d4d4d8;
+  --rav-overflow-fg: #52525b;
+}
+
+/* ============================================================================
+ * Avatar root — overflow visible so status dot isn't clipped
+ * ========================================================================== */
+.rav-avatar {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  /* overflow visible so status dot sits outside */
+  overflow: visible;
+  background: var(--rav-bg);
+  color: var(--rav-fg);
+  font-weight: 600;
+  font-family: inherit;
+  user-select: none;
+  vertical-align: middle;
+}
+
+/* Avatar root also gets border-radius so background matches the clip shape */
+.rav-avatar[data-shape="circle"] { border-radius: 9999px; }
+.rav-avatar[data-shape="square"] { border-radius: 0.375rem; }
+
+/* ============================================================================
+ * Sizes
+ * ========================================================================== */
+.rav-avatar[data-size="xs"] { width: var(--rav-size-xs); height: var(--rav-size-xs); font-size: var(--rav-font-size-xs); }
+.rav-avatar[data-size="sm"] { width: var(--rav-size-sm); height: var(--rav-size-sm); font-size: var(--rav-font-size-sm); }
+.rav-avatar[data-size="md"] { width: var(--rav-size-md); height: var(--rav-size-md); font-size: var(--rav-font-size-md); }
+.rav-avatar[data-size="lg"] { width: var(--rav-size-lg); height: var(--rav-size-lg); font-size: var(--rav-font-size-lg); }
+.rav-avatar[data-size="xl"] { width: var(--rav-size-xl); height: var(--rav-size-xl); font-size: var(--rav-font-size-xl); }
+
+/* ============================================================================
+ * Shapes — applied to the inner clip wrapper
+ * ========================================================================== */
+.rav-clip {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+
+.rav-avatar[data-shape="circle"] .rav-clip { border-radius: 9999px; }
+.rav-avatar[data-shape="square"] .rav-clip { border-radius: 0.375rem; }
+
+/* ============================================================================
+ * Border ring
+ * ========================================================================== */
+.rav-avatar[data-border="true"] .rav-clip {
+  outline: var(--rav-border-width) solid var(--rav-border-color);
+  outline-offset: 1px;
+}
+
+/* Clickable */
+.rav-avatar[data-clickable="true"] {
+  cursor: pointer;
+}
+.rav-avatar[data-clickable="true"]:hover .rav-clip {
+  filter: brightness(0.92);
+}
+
+/* ============================================================================
+ * Image
+ * ========================================================================== */
+/* Image stacks on top of fallback, fades in once loaded */
+.rav-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  opacity: 0;
+  transition: opacity 150ms ease;
+}
+
+.rav-img[data-status="loaded"] { opacity: 1; }
+
+/* ============================================================================
+ * Fallback (initials / icon)
+ * ========================================================================== */
+.rav-fallback {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  line-height: 1;
+}
+
+.rav-icon {
+  width: 55%;
+  height: 55%;
+  opacity: 0.6;
+}
+
+/* ============================================================================
+ * Status dot — positioned outside .rav-clip, so no clipping
+ * ========================================================================== */
+.rav-status {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  border-radius: 9999px;
+  border: 2px solid var(--rav-status-border-color);
+  box-sizing: border-box;
+  z-index: 1;
+}
+
+.rav-avatar[data-size="xs"] .rav-status  { width: var(--rav-status-size-xs); height: var(--rav-status-size-xs); }
+.rav-avatar[data-size="sm"] .rav-status  { width: var(--rav-status-size-sm); height: var(--rav-status-size-sm); }
+.rav-avatar[data-size="md"] .rav-status  { width: var(--rav-status-size-md); height: var(--rav-status-size-md); }
+.rav-avatar[data-size="lg"] .rav-status  { width: var(--rav-status-size-lg); height: var(--rav-status-size-lg); }
+.rav-avatar[data-size="xl"] .rav-status  { width: var(--rav-status-size-xl); height: var(--rav-status-size-xl); }
+
+.rav-status[data-presence="online"]  { background: var(--rav-status-online); }
+.rav-status[data-presence="offline"] { background: var(--rav-status-offline); }
+.rav-status[data-presence="busy"]    { background: var(--rav-status-busy); }
+.rav-status[data-presence="away"]    { background: var(--rav-status-away); }
+
+/* ============================================================================
+ * AvatarGroup
+ * ========================================================================== */
+.rav-group {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.rav-group-item { display: inline-flex; }
+
+.rav-group[data-spacing="sm"] .rav-group-item + .rav-group-item { margin-left: var(--rav-group-overlap-sm); }
+.rav-group[data-spacing="md"] .rav-group-item + .rav-group-item { margin-left: var(--rav-group-overlap-md); }
+.rav-group[data-spacing="lg"] .rav-group-item + .rav-group-item { margin-left: var(--rav-group-overlap-lg); }
+
+/* ============================================================================
+ * Overflow badge (+N)
+ * ========================================================================== */
+.rav-overflow-label {
+  font-size: 0.7em;
+  font-weight: 700;
+  color: var(--rav-overflow-fg);
+}
+
+.rav-group .rav-avatar:has(.rav-overflow-label) .rav-clip {
+  background: var(--rav-overflow-bg);
+}
+
+/* ============================================================================
+ * Dark mode
+ * ========================================================================== */
+[data-theme="dark"] {
+  --rav-bg: #3f3f46;
+  --rav-fg: #e4e4e7;
+  --rav-border-color: #18181b;
+  --rav-status-border-color: #18181b;
+  --rav-overflow-bg: #52525b;
+  --rav-overflow-fg: #d4d4d8;
+}
+
+/* ============================================================================
+ * Reduced motion
+ * ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .rav-img { transition: none; }
+}

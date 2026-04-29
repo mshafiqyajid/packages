@@ -1,0 +1,188 @@
+/* ============================================================================
+ * react-popover — styled component
+ *
+ * Popover is portalled to document.body — position is set via inline style.
+ * Themable via CSS variables. Dark mode via [data-theme="dark"] ancestor.
+ * ========================================================================== */
+
+:root {
+  --rpop-bg: #ffffff;
+  --rpop-fg: #18181b;
+  --rpop-border: #e4e4e7;
+  --rpop-title-fg: #09090b;
+  --rpop-radius: 8px;
+  --rpop-shadow: 0 4px 16px rgba(0, 0, 0, 0.12), 0 1px 4px rgba(0, 0, 0, 0.08);
+  --rpop-duration: 160ms;
+  --rpop-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --rpop-arrow-size: 6px;
+}
+
+/* ============================================================================
+ * Popover bubble
+ * ========================================================================== */
+.rpop-popover {
+  /* position + top/left set via inline style from JS */
+  pointer-events: auto;
+  width: max-content;
+
+  background: var(--rpop-bg);
+  color: var(--rpop-fg);
+  border: 1px solid var(--rpop-border);
+  border-radius: var(--rpop-radius);
+  box-shadow: var(--rpop-shadow);
+  overflow: visible;
+
+  opacity: 0;
+  scale: 0.95;
+  transition:
+    opacity var(--rpop-duration) var(--rpop-ease),
+    scale var(--rpop-duration) var(--rpop-ease),
+    translate var(--rpop-duration) var(--rpop-ease);
+}
+
+.rpop-popover[data-open="true"] {
+  opacity: 1;
+  scale: 1;
+}
+
+/* Slide-in animation per placement */
+.rpop-popover[data-placement="top"]    { translate: 0 4px; }
+.rpop-popover[data-placement="bottom"] { translate: 0 -4px; }
+.rpop-popover[data-placement="left"]   { translate: 4px 0; }
+.rpop-popover[data-placement="right"]  { translate: -4px 0; }
+
+.rpop-popover[data-placement="top"][data-open="true"],
+.rpop-popover[data-placement="bottom"][data-open="true"],
+.rpop-popover[data-placement="left"][data-open="true"],
+.rpop-popover[data-placement="right"][data-open="true"] {
+  translate: 0 0;
+}
+
+/* ============================================================================
+ * Sizes
+ * ========================================================================== */
+.rpop-popover[data-size="sm"] {
+  max-width: 220px;
+}
+
+.rpop-popover[data-size="md"] {
+  max-width: 320px;
+}
+
+.rpop-popover[data-size="lg"] {
+  max-width: 480px;
+}
+
+/* ============================================================================
+ * Inner layout
+ * ========================================================================== */
+.rpop-inner {
+  padding: 0.75rem 1rem;
+}
+
+.rpop-popover[data-size="sm"] .rpop-inner {
+  padding: 0.5rem 0.75rem;
+}
+
+.rpop-popover[data-size="lg"] .rpop-inner {
+  padding: 1rem 1.25rem;
+}
+
+/* ============================================================================
+ * Title
+ * ========================================================================== */
+.rpop-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--rpop-title-fg);
+  margin: 0 0 0.375rem;
+  padding-bottom: 0.375rem;
+  border-bottom: 1px solid var(--rpop-border);
+}
+
+/* ============================================================================
+ * Content
+ * ========================================================================== */
+.rpop-content {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--rpop-fg);
+}
+
+.rpop-popover[data-size="sm"] .rpop-content {
+  font-size: 0.8rem;
+}
+
+.rpop-popover[data-size="lg"] .rpop-content {
+  font-size: 0.9rem;
+}
+
+/* ============================================================================
+ * Arrow — ::after pseudo-element, rotated square
+ * ========================================================================== */
+.rpop-popover[data-arrow="true"]::after {
+  content: "";
+  position: absolute;
+  width: calc(var(--rpop-arrow-size) * 2);
+  height: calc(var(--rpop-arrow-size) * 2);
+  background: var(--rpop-bg);
+  border: 1px solid var(--rpop-border);
+  rotate: 45deg;
+  border-radius: 2px;
+  z-index: -1;
+}
+
+.rpop-popover[data-arrow="true"][data-placement="top"]::after {
+  bottom: calc(var(--rpop-arrow-size) * -1 + 1px);
+  left: 50%;
+  translate: -50% 0;
+  border-top: none;
+  border-left: none;
+}
+
+.rpop-popover[data-arrow="true"][data-placement="bottom"]::after {
+  top: calc(var(--rpop-arrow-size) * -1 + 1px);
+  left: 50%;
+  translate: -50% 0;
+  border-bottom: none;
+  border-right: none;
+}
+
+.rpop-popover[data-arrow="true"][data-placement="left"]::after {
+  right: calc(var(--rpop-arrow-size) * -1 + 1px);
+  top: 50%;
+  translate: 0 -50%;
+  border-left: none;
+  border-bottom: none;
+}
+
+.rpop-popover[data-arrow="true"][data-placement="right"]::after {
+  left: calc(var(--rpop-arrow-size) * -1 + 1px);
+  top: 50%;
+  translate: 0 -50%;
+  border-right: none;
+  border-top: none;
+}
+
+/* ============================================================================
+ * Dark mode — [data-theme="dark"] only, no prefers-color-scheme
+ * ========================================================================== */
+[data-theme="dark"] {
+  --rpop-bg: #18181b;
+  --rpop-fg: #fafafa;
+  --rpop-border: #3f3f46;
+  --rpop-title-fg: #ffffff;
+  --rpop-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* ============================================================================
+ * Reduced motion
+ * ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .rpop-popover {
+    transition: opacity var(--rpop-duration) ease;
+    scale: 1 !important;
+    translate: 0 0 !important;
+  }
+}
