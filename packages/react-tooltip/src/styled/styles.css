@@ -1,0 +1,184 @@
+/* ============================================================================
+ * react-tooltip — styled component
+ *
+ * Tooltip is portalled to document.body — position is set via inline style.
+ * Themable via CSS variables. Dark mode via [data-theme="dark"] ancestor or
+ * [data-rtt-theme="dark"] on any ancestor.
+ * ========================================================================== */
+
+:root {
+  --rtt-bg: #18181b;
+  --rtt-fg: #fafafa;
+  --rtt-radius: 6px;
+  --rtt-duration: 150ms;
+  --rtt-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --rtt-arrow-size: 5px;
+}
+
+/* ============================================================================
+ * Tooltip bubble
+ * ========================================================================== */
+.rtt-tooltip {
+  /* position + top/left set via inline style from JS */
+  pointer-events: none;
+  width: max-content;
+  max-width: 260px;
+
+  background: var(--rtt-bg);
+  color: var(--rtt-fg);
+  border-radius: var(--rtt-radius);
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.18)) drop-shadow(0 1px 2px rgba(0,0,0,0.1));
+  overflow: visible;
+
+  opacity: 0;
+  transition:
+    opacity var(--rtt-duration) var(--rtt-ease),
+    translate var(--rtt-duration) var(--rtt-ease);
+}
+
+.rtt-tooltip[data-visible="true"] {
+  opacity: 1;
+}
+
+/* Slide-in animation per placement */
+.rtt-tooltip[data-placement="top"]    { translate: 0 4px; }
+.rtt-tooltip[data-placement="bottom"] { translate: 0 -4px; }
+.rtt-tooltip[data-placement="left"]   { translate: 4px 0; }
+.rtt-tooltip[data-placement="right"]  { translate: -4px 0; }
+
+.rtt-tooltip[data-placement="top"][data-visible="true"],
+.rtt-tooltip[data-placement="bottom"][data-visible="true"],
+.rtt-tooltip[data-placement="left"][data-visible="true"],
+.rtt-tooltip[data-placement="right"][data-visible="true"] {
+  translate: 0 0;
+}
+
+/* ============================================================================
+ * Arrow — ::after pseudo-element, rotated square
+ * ========================================================================== */
+.rtt-tooltip::after {
+  content: "";
+  position: absolute;
+  width: calc(var(--rtt-arrow-size) * 2);
+  height: calc(var(--rtt-arrow-size) * 2);
+  background: var(--rtt-bg);
+  rotate: 45deg;
+  border-radius: 2px;
+  z-index: -1;
+}
+
+.rtt-tooltip[data-placement="top"]::after {
+  bottom: calc(var(--rtt-arrow-size) * -1 + 1px);
+  left: 50%;
+  translate: -50% 0;
+}
+
+.rtt-tooltip[data-placement="bottom"]::after {
+  top: calc(var(--rtt-arrow-size) * -1 + 1px);
+  left: 50%;
+  translate: -50% 0;
+}
+
+.rtt-tooltip[data-placement="left"]::after {
+  right: calc(var(--rtt-arrow-size) * -1 + 1px);
+  top: 50%;
+  translate: 0 -50%;
+}
+
+.rtt-tooltip[data-placement="right"]::after {
+  left: calc(var(--rtt-arrow-size) * -1 + 1px);
+  top: 50%;
+  translate: 0 -50%;
+}
+
+/* ============================================================================
+ * Content
+ * ========================================================================== */
+.rtt-content {
+  display: block;
+  white-space: nowrap;
+  padding: 0.35rem 0.7rem;
+  font-size: 0.78rem;
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: 0.01em;
+}
+
+/* ============================================================================
+ * Sizes
+ * ========================================================================== */
+.rtt-tooltip[data-size="sm"] .rtt-content {
+  padding: 0.2rem 0.5rem;
+  font-size: 0.72rem;
+}
+
+.rtt-tooltip[data-size="lg"] .rtt-content {
+  padding: 0.5rem 0.9rem;
+  font-size: 0.85rem;
+}
+
+/* ============================================================================
+ * Multiline
+ * ========================================================================== */
+.rtt-tooltip[data-multiline="true"] {
+  width: auto;
+}
+
+.rtt-tooltip[data-multiline="true"] .rtt-content {
+  white-space: normal;
+}
+
+/* ============================================================================
+ * Tones
+ * ========================================================================== */
+.rtt-tooltip[data-tone="primary"][data-tone] {
+  --rtt-bg: #6366f1;
+  --rtt-fg: #ffffff;
+}
+
+.rtt-tooltip[data-tone="success"][data-tone] {
+  --rtt-bg: #16a34a;
+  --rtt-fg: #ffffff;
+}
+
+.rtt-tooltip[data-tone="danger"][data-tone] {
+  --rtt-bg: #dc2626;
+  --rtt-fg: #ffffff;
+}
+
+/* ============================================================================
+ * Dark mode
+ * ========================================================================== */
+[data-theme="dark"],
+[data-rtt-theme="dark"] {
+  --rtt-bg: #fafafa;
+  --rtt-fg: #18181b;
+}
+
+[data-theme="dark"] .rtt-tooltip[data-tone="primary"][data-tone],
+[data-rtt-theme="dark"] .rtt-tooltip[data-tone="primary"][data-tone] {
+  --rtt-bg: #818cf8;
+  --rtt-fg: #ffffff;
+}
+
+[data-theme="dark"] .rtt-tooltip[data-tone="success"][data-tone],
+[data-rtt-theme="dark"] .rtt-tooltip[data-tone="success"][data-tone] {
+  --rtt-bg: #4ade80;
+  --rtt-fg: #052e16;
+}
+
+[data-theme="dark"] .rtt-tooltip[data-tone="danger"][data-tone],
+[data-rtt-theme="dark"] .rtt-tooltip[data-tone="danger"][data-tone] {
+  --rtt-bg: #f87171;
+  --rtt-fg: #450a0a;
+}
+
+/* ============================================================================
+ * Reduced motion
+ * ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .rtt-tooltip {
+    transition: opacity var(--rtt-duration) ease;
+    translate: 0 0 !important;
+  }
+}

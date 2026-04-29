@@ -7,6 +7,7 @@ import {
   SegmentedControlPreview,
   RatingPreview,
   ColorPreview,
+  TooltipPreview,
 } from "~/components/LandingPreviews";
 
 const packages = [
@@ -46,10 +47,18 @@ const packages = [
     slug: "color",
     name: "react-color",
     desc: "Drop-in replacement for react-color. Zero dependencies, ~11 KB. Hex/RGB/HSL/HSV pickers and pure color math.",
-    version: "0.1.0",
+    version: "0.1.1",
     size: "~11 KB",
     tags: ["color math", "zero deps", "drop-in"],
     highlight: "Drop-in for react-color",
+  },
+  {
+    slug: "tooltip",
+    name: "react-tooltip",
+    desc: "Accessible tooltip with smart flip positioning, animated entry, keyboard dismiss, and zero dependencies.",
+    version: "0.1.0",
+    size: "~6 KB",
+    tags: ["accessible", "animated", "flip"],
   },
 ];
 ---
@@ -84,7 +93,7 @@ const packages = [
         <div class="hero__inner">
           <div class="hero__eyebrow">
             <span class="hero__dot"></span>
-            5 packages · React · TypeScript · Zero deps
+            6 packages · React · TypeScript · Zero deps
           </div>
           <h1 class="hero__title">
             Tiny, polished<br />
@@ -121,6 +130,7 @@ const packages = [
                   {pkg.slug === "segmented-control" && <SegmentedControlPreview client:visible />}
                   {pkg.slug === "rating" && <RatingPreview client:visible />}
                   {pkg.slug === "color" && <ColorPreview client:visible />}
+                  {pkg.slug === "tooltip" && <TooltipPreview client:visible />}
                 </div>
                 <div class="pkg-card__body">
                   <div class="pkg-card__header">
@@ -196,6 +206,7 @@ const packages = [
         "react-segmented-control",
         "react-rating",
         "react-color",
+        "react-tooltip",
       ];
       const el = document.getElementById("hero-install-cmd");
       if (el) {

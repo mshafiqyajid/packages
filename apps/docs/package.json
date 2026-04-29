@@ -15,6 +15,7 @@
     "@mshafiqyajid/react-segmented-control": "^0.1.1",
     "@mshafiqyajid/react-rating": "^0.1.1",
     "@mshafiqyajid/react-color": "^0.1.1",
+    "@mshafiqyajid/react-tooltip": "*",
     "react": "^18.3.0",
     "react-dom": "^18.3.0"
   },

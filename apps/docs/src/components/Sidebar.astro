@@ -8,11 +8,12 @@ const packages = [
   {
     framework: "React",
     items: [
-      { slug: "copy-button",       label: "react-copy-button",       icon: "📋", version: "0.1.1" },
-      { slug: "otp-input",         label: "react-otp-input",         icon: "🔐", version: "0.1.0" },
-      { slug: "segmented-control", label: "react-segmented-control", icon: "🎚️", version: "0.1.0" },
-      { slug: "rating",            label: "react-rating",            icon: "⭐", version: "0.1.0" },
-      { slug: "color",             label: "react-color",             icon: "🎨", version: "0.1.0" },
+      { slug: "copy-button",       label: "Copy Button",       icon: "📋", version: "0.1.2" },
+      { slug: "otp-input",         label: "OTP Input",         icon: "🔐", version: "0.1.1" },
+      { slug: "segmented-control", label: "Segmented Control", icon: "🎚️", version: "0.1.1" },
+      { slug: "rating",            label: "Rating",            icon: "⭐", version: "0.1.1" },
+      { slug: "color",             label: "Color",             icon: "🎨", version: "0.1.1" },
+      { slug: "tooltip",           label: "Tooltip",           icon: "💬", version: "0.1.0" },
     ],
   },
 ];
@@ -41,7 +42,7 @@ const packages = [
                 class:list={["sidebar__link", { "sidebar__link--active": active === item.slug }]}
               >
                 <span class="sidebar__icon" aria-hidden="true">{item.icon}</span>
-                <span class="sidebar__name">{item.label.replace("react-", "")}</span>
+                <span class="sidebar__name">{item.label}</span>
                 <span class="sidebar__version">{item.version}</span>
               </a>
             </li>
@@ -53,8 +54,8 @@ const packages = [
     <div class="sidebar__group sidebar__group--future">
       <div class="sidebar__group-label sidebar__group-label--muted">Coming soon</div>
       <ul class="sidebar__list">
+        <li><span class="sidebar__link sidebar__link--disabled">Modal</span></li>
         <li><span class="sidebar__link sidebar__link--disabled">Vue packages</span></li>
-        <li><span class="sidebar__link sidebar__link--disabled">react-modal</span></li>
       </ul>
     </div>
   </div>

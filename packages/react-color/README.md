@@ -1,5 +1,7 @@
 # @mshafiqyajid/react-color
 
+**[Full docs →](https://docs.shafiqyajid.com/react/color/)**
+
 A tiny, modern color picker for React. Drop-in replacement for [`react-color`](https://www.npmjs.com/package/react-color) — without the 7 heavy dependencies, without the bloated 37 KB bundle, with first-class TypeScript.
 
 **Zero dependencies. ~11 KB. SSR-safe. Fully typed. React 17–19.**

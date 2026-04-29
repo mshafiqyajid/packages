@@ -1,5 +1,7 @@
 # @mshafiqyajid/react-copy-button
 
+**[Full docs →](https://docs.shafiqyajid.com/react/copy-button/)**
+
 A tiny, beautifully styled copy-to-clipboard toolkit for React. Comes in two flavors:
 
 - **Styled** — `<CopyButtonStyled>` with modern defaults: variants, sizes, tones, dark mode, animated copied state, async loading spinner, optional tooltip, full a11y.

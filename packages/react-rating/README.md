@@ -1,5 +1,7 @@
 # @mshafiqyajid/react-rating
 
+**[Full docs →](https://docs.shafiqyajid.com/react/rating/)**
+
 A polished star-rating component for React with half-step support, hover preview, and full keyboard nav. Comes in two flavors:
 
 - **Styled** — `<RatingStyled>` with sizes, tones, label/hint, optional value display.

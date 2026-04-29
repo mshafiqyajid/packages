@@ -1,5 +1,7 @@
 # @mshafiqyajid/react-otp-input
 
+**[Full docs →](https://docs.shafiqyajid.com/react/otp-input/)**
+
 A tiny, beautifully styled OTP / verification-code input for React. Comes in two flavors:
 
 - **Styled** — `<OTPInputStyled>` with variants, sizes, tones, animated focus ring, masking, and full a11y.

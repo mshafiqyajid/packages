@@ -1,0 +1,140 @@
+---
+import DocLayout from "~/layouts/DocLayout.astro";
+import PackagePageShell from "~/components/PackagePageShell.astro";
+import H2 from "~/components/H2.astro";
+import CodeBlock from "~/components/CodeBlock.astro";
+import TooltipDemo from "~/components/demos/TooltipDemo";
+---
+
+<DocLayout
+  title="react-tooltip"
+  description="Accessible tooltip with smart flip positioning, animations, and full keyboard support."
+  pkg="tooltip"
+>
+  <PackagePageShell
+    name="react-tooltip"
+    version="0.1.0"
+    description="Headless tooltip hook and styled component for React. Accessible, keyboard-friendly, smart flip positioning when near viewport edges, animated, SSR-safe, fully typed."
+    size="~6 KB"
+  >
+    <div class="pkg-section">
+      <H2>Playground</H2>
+      <TooltipDemo client:load />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Install</H2>
+      <CodeBlock lang="bash" code="npm install @mshafiqyajid/react-tooltip" />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Quick start</H2>
+      <CodeBlock lang="tsx" code={`import { TooltipStyled } from "@mshafiqyajid/react-tooltip/styled";
+import "@mshafiqyajid/react-tooltip/styles.css";
+
+export function App() {
+  return (
+    <TooltipStyled content="Copy to clipboard" placement="top">
+      <button>Copy</button>
+    </TooltipStyled>
+  );
+}`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Placements</H2>
+      <p>The tooltip defaults to <code>top</code> but automatically flips to the opposite side if it would overflow the viewport.</p>
+      <CodeBlock lang="tsx" code={`<TooltipStyled content="Top" placement="top">...</TooltipStyled>
+<TooltipStyled content="Bottom" placement="bottom">...</TooltipStyled>
+<TooltipStyled content="Left" placement="left">...</TooltipStyled>
+<TooltipStyled content="Right" placement="right">...</TooltipStyled>`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Tones</H2>
+      <CodeBlock lang="tsx" code={`<TooltipStyled content="Neutral" tone="neutral">...</TooltipStyled>
+<TooltipStyled content="Primary" tone="primary">...</TooltipStyled>
+<TooltipStyled content="Success" tone="success">...</TooltipStyled>
+<TooltipStyled content="Danger" tone="danger">...</TooltipStyled>`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Rich content</H2>
+      <p>Pass any JSX to <code>content</code>. Use <code>multiline</code> to allow text to wrap.</p>
+      <CodeBlock lang="tsx" code={`<TooltipStyled
+  multiline
+  content={
+    <span>
+      <strong>⌘ + C</strong> to copy
+    </span>
+  }
+>
+  <button>Copy</button>
+</TooltipStyled>`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Delay</H2>
+      <p>Show delay defaults to <code>0</code> (instant). Increase for less sensitive triggers.</p>
+      <CodeBlock lang="tsx" code={`<TooltipStyled content="Appears after 500ms" delay={500}>...</TooltipStyled>`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Headless</H2>
+      <p>Use <code>useTooltip</code> to build a fully custom tooltip with your own markup and styles.</p>
+      <CodeBlock lang="tsx" code={`import { useTooltip } from "@mshafiqyajid/react-tooltip";
+
+function MyTooltip({ content, children }) {
+  const { triggerProps, tooltipProps, placement, isVisible } = useTooltip({
+    placement: "top",
+    delay: 300,
+  });
+
+  return (
+    <div style={{ position: "relative", display: "inline-flex" }}>
+      <div {...triggerProps}>{children}</div>
+      <div
+        {...tooltipProps}
+        data-placement={placement}
+        style={{
+          position: "absolute",
+          bottom: "calc(100% + 8px)",
+          left: "50%",
+          translate: "-50% 0",
+          opacity: isVisible ? 1 : 0,
+          transition: "opacity 140ms ease",
+          background: "#18181b",
+          color: "#fff",
+          padding: "4px 10px",
+          borderRadius: "6px",
+          fontSize: "0.78rem",
+          whiteSpace: "nowrap",
+          pointerEvents: "none",
+        }}
+      >
+        {content}
+      </div>
+    </div>
+  );
+}`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>API</H2>
+      <table class="props-table">
+        <thead>
+          <tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>content</td><td>ReactNode</td><td>—</td><td>Tooltip text or JSX content</td></tr>
+          <tr><td>placement</td><td>"top" | "bottom" | "left" | "right"</td><td>"top"</td><td>Preferred placement (auto-flips near viewport edges)</td></tr>
+          <tr><td>size</td><td>"sm" | "md" | "lg"</td><td>"md"</td><td>Size of the tooltip bubble</td></tr>
+          <tr><td>tone</td><td>"neutral" | "primary" | "success" | "danger"</td><td>"neutral"</td><td>Color tone</td></tr>
+          <tr><td>delay</td><td>number</td><td>0</td><td>Show delay in ms</td></tr>
+          <tr><td>multiline</td><td>boolean</td><td>false</td><td>Allow content to wrap (useful for rich HTML content)</td></tr>
+          <tr><td>disabled</td><td>boolean</td><td>false</td><td>Disable the tooltip entirely</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </PackagePageShell>
+</DocLayout>

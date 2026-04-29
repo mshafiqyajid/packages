@@ -1,5 +1,7 @@
 # @mshafiqyajid/react-segmented-control
 
+**[Full docs →](https://docs.shafiqyajid.com/react/segmented-control/)**
+
 A polished iOS-style segmented control for React — with a buttery sliding indicator that follows the active segment. Comes in two flavors:
 
 - **Styled** — `<SegmentedControlStyled>` with variants (solid / pill / underline), sizes, tones, full a11y.
