@@ -1,6 +1,6 @@
 {
   "name": "@mshafiqyajid/react-table",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Headless table hook and styled component for React. Sortable, filterable, paginated, selectable, fully typed.",
   "keywords": [
     "react",
