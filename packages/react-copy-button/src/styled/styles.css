@@ -557,55 +557,11 @@
 }
 
 /* ============================================================================
- * Dark mode
+ * Dark mode (explicit override — set data-rcb-theme="dark" on a wrapper,
+ * or rely on the page root having data-theme="dark")
  * ========================================================================== */
-@media (prefers-color-scheme: dark) {
-  .rcb-button {
-    --rcb-bg: #fafafa;
-    --rcb-bg-hover: #e4e4e7;
-    --rcb-bg-active: #d4d4d8;
-    --rcb-fg: #18181b;
-    --rcb-ring: rgba(129, 140, 248, 0.65);
-    --rcb-success-bg: #16a34a;
-    --rcb-success-fg: #ffffff;
-    --rcb-success-glow: rgba(34, 197, 94, 0.55);
-    --rcb-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
-    --rcb-shadow-hover: 0 6px 18px -4px rgba(0, 0, 0, 0.55);
-  }
 
-  /* Tones keep their saturated palette in dark mode for accessible contrast.
-     White text on saturated indigo/green/red passes WCAG AA across modes. */
-  .rcb-button[data-tone="primary"][data-tone] {
-    --rcb-bg: #6366f1;
-    --rcb-bg-hover: #4f46e5;
-    --rcb-bg-active: #4338ca;
-    --rcb-fg: #ffffff;
-  }
-
-  .rcb-button[data-tone="success"][data-tone] {
-    --rcb-bg: #16a34a;
-    --rcb-bg-hover: #15803d;
-    --rcb-bg-active: #166534;
-    --rcb-fg: #ffffff;
-  }
-
-  .rcb-button[data-tone="danger"][data-tone] {
-    --rcb-bg: #dc2626;
-    --rcb-bg-hover: #b91c1c;
-    --rcb-bg-active: #991b1b;
-    --rcb-fg: #ffffff;
-  }
-
-  .rcb-tooltip {
-    background: #fafafa;
-    color: #18181b;
-    box-shadow: 0 4px 14px -2px rgba(0, 0, 0, 0.5);
-  }
-  .rcb-tooltip::after {
-    border-top-color: #fafafa;
-  }
-}
-
+[data-theme="dark"] .rcb-button,
 [data-rcb-theme="dark"] .rcb-button {
   --rcb-bg: #fafafa;
   --rcb-bg-hover: #e4e4e7;
@@ -617,6 +573,42 @@
   --rcb-success-glow: rgba(34, 197, 94, 0.55);
   --rcb-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
   --rcb-shadow-hover: 0 6px 18px -4px rgba(0, 0, 0, 0.55);
+}
+
+[data-theme="dark"] .rcb-button[data-tone="primary"][data-tone],
+[data-rcb-theme="dark"] .rcb-button[data-tone="primary"][data-tone] {
+  --rcb-bg: #6366f1;
+  --rcb-bg-hover: #4f46e5;
+  --rcb-bg-active: #4338ca;
+  --rcb-fg: #ffffff;
+}
+
+[data-theme="dark"] .rcb-button[data-tone="success"][data-tone],
+[data-rcb-theme="dark"] .rcb-button[data-tone="success"][data-tone] {
+  --rcb-bg: #16a34a;
+  --rcb-bg-hover: #15803d;
+  --rcb-bg-active: #166534;
+  --rcb-fg: #ffffff;
+}
+
+[data-theme="dark"] .rcb-button[data-tone="danger"][data-tone],
+[data-rcb-theme="dark"] .rcb-button[data-tone="danger"][data-tone] {
+  --rcb-bg: #dc2626;
+  --rcb-bg-hover: #b91c1c;
+  --rcb-bg-active: #991b1b;
+  --rcb-fg: #ffffff;
+}
+
+[data-theme="dark"] .rcb-tooltip,
+[data-rcb-theme="dark"] .rcb-tooltip {
+  background: #fafafa;
+  color: #18181b;
+  box-shadow: 0 4px 14px -2px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="dark"] .rcb-tooltip::after,
+[data-rcb-theme="dark"] .rcb-tooltip::after {
+  border-top-color: #fafafa;
 }
 
 [data-rcb-theme="light"] .rcb-button {

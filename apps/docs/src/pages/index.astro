@@ -100,7 +100,7 @@ const packages = [
           </div>
           <div class="hero__install">
             <span class="hero__install-prompt">$</span>
-            <span>npm install @mshafiqyajid/react-copy-button</span>
+            <span class="hero__install-cmd" id="hero-install-cmd">npm install @mshafiqyajid/react-copy-button</span>
           </div>
         </div>
       </section>
@@ -189,6 +189,27 @@ const packages = [
         <a href="https://github.com/mshafiqyajid/packages" target="_blank" rel="noreferrer">GitHub</a>
       </div>
     </footer>
+    <script>
+      const pkgs = [
+        "react-copy-button",
+        "react-otp-input",
+        "react-segmented-control",
+        "react-rating",
+        "react-color",
+      ];
+      const el = document.getElementById("hero-install-cmd");
+      if (el) {
+        let i = 0;
+        setInterval(() => {
+          el.classList.add("fade");
+          setTimeout(() => {
+            i = (i + 1) % pkgs.length;
+            el.textContent = `npm install @mshafiqyajid/${pkgs[i]}`;
+            el.classList.remove("fade");
+          }, 300);
+        }, 2500);
+      }
+    </script>
   </body>
 </html>
 
@@ -310,6 +331,12 @@ const packages = [
     box-shadow: var(--shadow-md);
   }
   .hero__install-prompt { color: var(--accent); }
+  .hero__install-cmd {
+    transition: opacity 300ms ease;
+  }
+  .hero__install-cmd.fade {
+    opacity: 0;
+  }
 
   /* Packages grid */
   .packages { padding: 3rem 1.5rem; }

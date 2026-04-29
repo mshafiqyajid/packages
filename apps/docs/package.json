@@ -10,11 +10,11 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@mshafiqyajid/react-copy-button": "^0.1.1",
-    "@mshafiqyajid/react-otp-input": "^0.1.0",
-    "@mshafiqyajid/react-segmented-control": "^0.1.0",
-    "@mshafiqyajid/react-rating": "^0.1.0",
-    "@mshafiqyajid/react-color": "^0.1.0",
+    "@mshafiqyajid/react-copy-button": "*",
+    "@mshafiqyajid/react-otp-input": "*",
+    "@mshafiqyajid/react-segmented-control": "*",
+    "@mshafiqyajid/react-rating": "*",
+    "@mshafiqyajid/react-color": "*",
     "react": "^18.3.0",
     "react-dom": "^18.3.0"
   },

@@ -12,12 +12,7 @@ const { code, lang = "tsx", title } = Astro.props;
 
 const html = await codeToHtml(code, {
   lang,
-  themes: {
-    light: "github-light",
-    dark: "github-dark-default",
-  },
-  defaultColor: false,
-  cssVariablePrefix: "--shiki-",
+  theme: "github-dark-default",
 });
 ---
 
@@ -47,51 +42,37 @@ const html = await codeToHtml(code, {
   });
 </script>
 
-<style is:global>
-  /* Shiki theme switching */
-  :root[data-theme="dark"] .shiki,
-  :root[data-theme="dark"] .shiki span {
-    background-color: var(--shiki-dark-bg) !important;
-    color: var(--shiki-dark) !important;
-    font-style: var(--shiki-dark-font-style) !important;
-    font-weight: var(--shiki-dark-font-weight) !important;
-    text-decoration: var(--shiki-dark-text-decoration) !important;
-  }
-</style>
-
 <style>
   .codeblock {
-    border: 1px solid var(--border);
+    border: 1px solid rgba(255,255,255,0.08);
     border-radius: var(--radius);
     overflow: hidden;
-    background: var(--bg-elevated);
-    box-shadow: var(--shadow-sm);
+    background: #0d0d0f;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.25);
   }
   .codeblock__title {
-    padding: 0.5rem 1rem;
-    background: var(--bg-subtle);
-    border-bottom: 1px solid var(--border);
-    font-size: 0.75rem;
+    padding: 0.45rem 1rem;
+    background: #0d0d0f;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    font-size: 0.72rem;
     font-weight: 600;
+    font-family: "JetBrains Mono", monospace;
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    color: var(--fg-subtle);
+    color: rgba(255,255,255,0.3);
   }
   .codeblock__body {
     position: relative;
   }
   .codeblock__body :global(.shiki) {
     margin: 0;
-    padding: 1rem 1.25rem;
-    background: var(--bg-elevated) !important;
+    padding: 1.1rem 1.25rem;
     font-size: 0.82rem;
-    line-height: 1.65;
+    line-height: 1.75;
     overflow-x: auto;
     border: none;
     border-radius: 0;
-  }
-  .codeblock__body :global(pre.shiki) {
-    background: var(--bg-elevated) !important;
+    font-family: "JetBrains Mono", ui-monospace, monospace;
   }
   .codeblock__copy {
     position: absolute;
@@ -99,10 +80,9 @@ const html = await codeToHtml(code, {
     right: 0.4rem;
     width: 28px;
     height: 28px;
-    border: 1px solid transparent;
-    background: color-mix(in srgb, var(--bg-elevated) 60%, transparent);
-    backdrop-filter: blur(4px);
-    color: var(--fg-muted);
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.06);
+    color: rgba(255,255,255,0.4);
     cursor: pointer;
     border-radius: 6px;
     display: inline-flex;
@@ -114,13 +94,13 @@ const html = await codeToHtml(code, {
   }
   .codeblock:hover .codeblock__copy { opacity: 1; }
   .codeblock__copy:hover {
-    color: var(--fg);
-    background: var(--bg-subtle);
-    border-color: var(--border);
+    background: rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.75);
+    border-color: rgba(255,255,255,0.18);
   }
   .codeblock__copy[data-copied] {
-    color: var(--success);
-    border-color: color-mix(in srgb, var(--success) 30%, transparent);
+    color: #4ade80;
+    border-color: rgba(74,222,128,0.25);
     opacity: 1;
   }
 </style>

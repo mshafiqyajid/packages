@@ -142,25 +142,6 @@ code:not(pre code) {
 .props-table td:first-child { font-family: "JetBrains Mono", monospace; font-size: 0.8rem; color: var(--accent); }
 .props-table td:nth-child(2) { font-family: "JetBrains Mono", monospace; font-size: 0.78rem; color: var(--fg-muted); }
 
-/* ---- Inline JSX highlighting (PropPlayground) ---- */
-.tok-keyword  { color: #a855f7; }
-.tok-comp     { color: #2563eb; }
-.tok-tag-punct{ color: var(--fg-subtle); }
-.tok-attr     { color: #ea580c; }
-.tok-string   { color: #16a34a; }
-.tok-number   { color: #0891b2; }
-.tok-boolean  { color: #0891b2; }
-.tok-comment  { color: var(--fg-subtle); font-style: italic; }
-.tok-expr     { color: #f59e0b; }
-.tok-plain    { color: var(--fg); }
-
-[data-theme="dark"] .tok-keyword  { color: #c084fc; }
-[data-theme="dark"] .tok-comp     { color: #93c5fd; }
-[data-theme="dark"] .tok-attr     { color: #fdba74; }
-[data-theme="dark"] .tok-string   { color: #86efac; }
-[data-theme="dark"] .tok-number   { color: #67e8f9; }
-[data-theme="dark"] .tok-boolean  { color: #67e8f9; }
-[data-theme="dark"] .tok-expr     { color: #fcd34d; }
 
 /* ---- Heading anchors ---- */
 .heading-anchor {

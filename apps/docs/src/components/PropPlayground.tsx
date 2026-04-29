@@ -279,7 +279,9 @@ export default function PropPlayground({
       {/* Bottom: code block */}
       <div className="pp__code-wrap">
         <div className="pp__code-header">
-          <span>Usage</span>
+          <div className="pp__code-header-left">
+            <span className="pp__code-lang">TSX</span>
+          </div>
           <button
             type="button"
             onClick={handleCopy}
@@ -313,7 +315,7 @@ export default function PropPlayground({
           justify-content: center;
           padding: 2rem 1.5rem;
           border-right: 1px solid var(--border);
-          background: radial-gradient(circle at 30% 30%, color-mix(in srgb, var(--accent) 6%, transparent), transparent 70%), var(--bg-elevated);
+          background: radial-gradient(circle at 30% 30%, color-mix(in srgb, var(--accent) 6%, transparent), transparent 70%), var(--bg-subtle);
         }
         @media (max-width: 720px) {
           .pp__preview { border-right: none; border-bottom: 1px solid var(--border); }
@@ -483,56 +485,88 @@ export default function PropPlayground({
           background: var(--bg-subtle);
         }
 
-        /* Code block */
+        /* Code block — always dark, like shadcn/Radix */
         .pp__code-wrap {
           border-top: 1px solid var(--border);
-          background: var(--bg-subtle);
+          background: #0d0d0f;
         }
         .pp__code-header {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 0.5rem 1rem;
-          border-bottom: 1px solid var(--border);
-          font-size: 11px;
+          padding: 0.45rem 1rem;
+          border-bottom: 1px solid rgba(255,255,255,0.07);
+          background: #0d0d0f;
+        }
+        .pp__code-header-left {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+        }
+        .pp__code-lang {
+          font-size: 10px;
           font-weight: 600;
-          text-transform: uppercase;
+          font-family: "JetBrains Mono", monospace;
           letter-spacing: 0.06em;
-          color: var(--fg-subtle);
+          text-transform: uppercase;
+          color: rgba(255,255,255,0.25);
         }
         .pp__copy {
           font: inherit;
           font-size: 11px;
-          font-weight: 600;
+          font-weight: 500;
           padding: 3px 10px;
-          border-radius: 4px;
-          border: 1px solid var(--border);
-          background: var(--bg-elevated);
-          color: var(--fg-muted);
+          border-radius: 5px;
+          border: 1px solid rgba(255,255,255,0.1);
+          background: rgba(255,255,255,0.06);
+          color: rgba(255,255,255,0.45);
           cursor: pointer;
-          transition: all 160ms ease;
+          transition: background 140ms ease, color 140ms ease, border-color 140ms ease;
+          letter-spacing: 0.02em;
         }
         .pp__copy:hover {
-          color: var(--fg);
-          border-color: var(--border-strong);
+          background: rgba(255,255,255,0.1);
+          color: rgba(255,255,255,0.75);
+          border-color: rgba(255,255,255,0.18);
         }
         .pp__copy[data-copied="true"] {
-          background: color-mix(in srgb, var(--success) 15%, transparent);
-          color: var(--success);
-          border-color: color-mix(in srgb, var(--success) 30%, transparent);
+          background: rgba(74, 222, 128, 0.12);
+          color: #4ade80;
+          border-color: rgba(74, 222, 128, 0.25);
         }
         .pp-code {
           margin: 0;
-          padding: 1rem 1.25rem;
-          font-size: 0.78rem;
-          line-height: 1.7;
+          padding: 1.1rem 1.25rem;
+          font-size: 0.79rem;
+          line-height: 1.75;
           font-family: "JetBrains Mono", ui-monospace, monospace;
           overflow-x: auto;
-          background: var(--bg-subtle);
+          background: #0d0d0f;
           border: none;
           border-radius: 0;
           white-space: pre;
+          /* always-dark token palette */
+          --tok-keyword:   #c084fc;
+          --tok-comp:      #93c5fd;
+          --tok-tag-punct: #6b7280;
+          --tok-attr:      #fdba74;
+          --tok-string:    #86efac;
+          --tok-number:    #67e8f9;
+          --tok-boolean:   #67e8f9;
+          --tok-comment:   #4b5563;
+          --tok-expr:      #fcd34d;
+          --tok-plain:     #e2e8f0;
         }
+        .pp-code .tok-keyword   { color: var(--tok-keyword); }
+        .pp-code .tok-comp      { color: var(--tok-comp); }
+        .pp-code .tok-tag-punct { color: var(--tok-tag-punct); }
+        .pp-code .tok-attr      { color: var(--tok-attr); }
+        .pp-code .tok-string    { color: var(--tok-string); }
+        .pp-code .tok-number    { color: var(--tok-number); }
+        .pp-code .tok-boolean   { color: var(--tok-boolean); }
+        .pp-code .tok-comment   { color: var(--tok-comment); font-style: italic; }
+        .pp-code .tok-expr      { color: var(--tok-expr); }
+        .pp-code .tok-plain     { color: var(--tok-plain); }
       `}</style>
     </div>
   );
