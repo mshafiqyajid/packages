@@ -1,5 +1,11 @@
 # @mshafiqyajid/react-chart
 
+## 0.1.1
+
+### Patch Changes
+
+- 1df254b: Initial release (republish after npm rate limit during first attempt).
+
 ## 0.1.0
 
 ### Minor Changes
