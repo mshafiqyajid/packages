@@ -112,11 +112,11 @@ describe("useFileUpload", () => {
     });
 
     expect(onFiles).toHaveBeenCalledOnce();
-    const callArg = onFiles.mock.calls[0][0];
+    const callArg = onFiles.mock.calls[0]![0];
     expect(callArg.accepted).toHaveLength(1);
-    expect(callArg.accepted[0].name).toBe("photo.jpg");
+    expect(callArg.accepted[0]!.name).toBe("photo.jpg");
     expect(callArg.rejected).toHaveLength(1);
-    expect(callArg.rejected[0].file.name).toBe("doc.txt");
+    expect(callArg.rejected[0]!.file.name).toBe("doc.txt");
     expect(callArg.rejected[0].reasons).toContain("File type not accepted");
   });
 
@@ -141,9 +141,9 @@ describe("useFileUpload", () => {
       } as unknown as React.DragEvent<HTMLElement>);
     });
 
-    const callArg = onFiles.mock.calls[0][0];
+    const callArg = onFiles.mock.calls[0]![0];
     expect(callArg.accepted).toHaveLength(1);
-    expect(callArg.accepted[0].name).toBe("small.txt");
+    expect(callArg.accepted[0]!.name).toBe("small.txt");
     expect(callArg.rejected).toHaveLength(1);
     expect(callArg.rejected[0].reasons[0]).toMatch(/exceeds maximum size/);
   });

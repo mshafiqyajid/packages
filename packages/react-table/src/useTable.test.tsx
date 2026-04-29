@@ -31,7 +31,7 @@ describe("useTable", () => {
       useTable({ data, columns, pageSize: 5 }),
     );
     expect(result.current.rows).toHaveLength(5);
-    expect(result.current.rows[0].name).toBe("Alice");
+    expect(result.current.rows[0]!.name).toBe("Alice");
     expect(result.current.page).toBe(1);
     expect(result.current.pageCount).toBe(3);
   });
@@ -43,7 +43,7 @@ describe("useTable", () => {
     act(() => result.current.setPage(2));
     expect(result.current.page).toBe(2);
     expect(result.current.rows).toHaveLength(5);
-    expect(result.current.rows[0].name).toBe("Frank");
+    expect(result.current.rows[0]!.name).toBe("Frank");
   });
 
   it("sorts ascending then descending on toggleSort", () => {
@@ -53,12 +53,12 @@ describe("useTable", () => {
     act(() => result.current.toggleSort("name"));
     expect(result.current.sortKey).toBe("name");
     expect(result.current.sortDir).toBe("asc");
-    const firstAsc = result.current.rows[0].name;
+    const firstAsc = result.current.rows[0]!.name;
     expect(firstAsc).toBe("Alice");
 
     act(() => result.current.toggleSort("name"));
     expect(result.current.sortDir).toBe("desc");
-    const firstDesc = result.current.rows[0].name;
+    const firstDesc = result.current.rows[0]!.name;
     expect(firstDesc).toBe("Leo");
   });
 
@@ -146,7 +146,7 @@ describe("useTable", () => {
       }),
     );
     const ages = result.current.rows.map((r) => r.age);
-    expect(ages[0]).toBeLessThan(ages[ages.length - 1]);
+    expect(ages[0]!).toBeLessThan(ages[ages.length - 1]!);
   });
 
   it("clamps page to pageCount if data shrinks after filtering", () => {
