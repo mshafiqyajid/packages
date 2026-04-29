@@ -6,6 +6,27 @@
  * ========================================================================== */
 
 .rotp-root {
+  /* Form-control standard scale (slot is square: width = height) */
+  --rotp-slot-size-sm: 2rem;    /* 32px */
+  --rotp-slot-size-md: 2.5rem;  /* 40px */
+  --rotp-slot-size-lg: 3rem;    /* 48px */
+  --rotp-slot-size: var(--rotp-slot-size-md);
+
+  --rotp-radius-sm: 6px;
+  --rotp-radius-md: 8px;
+  --rotp-radius-lg: 10px;
+  --rotp-radius: var(--rotp-radius-md);
+
+  --rotp-slot-font-size-sm: 0.9375rem; /* 15px */
+  --rotp-slot-font-size-md: 1.0625rem; /* 17px */
+  --rotp-slot-font-size-lg: 1.25rem;   /* 20px */
+  --rotp-slot-font-size: var(--rotp-slot-font-size-md);
+
+  --rotp-gap-sm: 0.4rem;
+  --rotp-gap-md: 0.5rem;
+  --rotp-gap-lg: 0.6rem;
+  --rotp-gap: var(--rotp-gap-md);
+
   --rotp-fg: #18181b;
   --rotp-fg-muted: #71717a;
   --rotp-bg: #ffffff;
@@ -16,11 +37,8 @@
   --rotp-border-filled: #18181b;
   --rotp-ring: rgba(99, 102, 241, 0.35);
   --rotp-error-fg: #dc2626;
-  --rotp-radius: 8px;
-
-  --rotp-slot-size: 2.75rem;
-  --rotp-slot-font-size: 1.125rem;
-  --rotp-gap: 0.5rem;
+  --rotp-error-border: #dc2626;
+  --rotp-error-ring: rgba(220, 38, 38, 0.35);
 
   --rotp-duration: 200ms;
   --rotp-duration-fast: 120ms;
@@ -172,17 +190,34 @@
  * Sizes
  * ========================================================================== */
 .rotp-group[data-size="sm"] {
-  --rotp-slot-size: 2.25rem;
-  --rotp-slot-font-size: 1rem;
-  --rotp-gap: 0.4rem;
-  --rotp-radius: 6px;
+  --rotp-slot-size: var(--rotp-slot-size-sm);
+  --rotp-slot-font-size: var(--rotp-slot-font-size-sm);
+  --rotp-gap: var(--rotp-gap-sm);
+  --rotp-radius: var(--rotp-radius-sm);
+}
+
+.rotp-group[data-size="md"] {
+  --rotp-slot-size: var(--rotp-slot-size-md);
+  --rotp-slot-font-size: var(--rotp-slot-font-size-md);
+  --rotp-gap: var(--rotp-gap-md);
+  --rotp-radius: var(--rotp-radius-md);
 }
 
 .rotp-group[data-size="lg"] {
-  --rotp-slot-size: 3.25rem;
-  --rotp-slot-font-size: 1.4rem;
-  --rotp-gap: 0.6rem;
-  --rotp-radius: 10px;
+  --rotp-slot-size: var(--rotp-slot-size-lg);
+  --rotp-slot-font-size: var(--rotp-slot-font-size-lg);
+  --rotp-gap: var(--rotp-gap-lg);
+  --rotp-radius: var(--rotp-radius-lg);
+}
+
+/* Invalid state — driven by aria-invalid / data-invalid */
+.rotp-group[data-invalid="true"] .rotp-slot {
+  border-color: var(--rotp-error-border);
+}
+
+.rotp-group[data-invalid="true"] .rotp-slot:focus-visible {
+  border-color: var(--rotp-error-border);
+  box-shadow: 0 0 0 3px var(--rotp-error-ring);
 }
 
 /* ============================================================================
@@ -229,6 +264,8 @@
   --rotp-border-filled: #fafafa;
   --rotp-ring: rgba(129, 140, 248, 0.4);
   --rotp-error-fg: #f87171;
+  --rotp-error-border: #f87171;
+  --rotp-error-ring: rgba(248, 113, 113, 0.4);
 }
 
 [data-theme="dark"] .rotp-group[data-tone="neutral"][data-tone],

@@ -6,24 +6,31 @@
  * ========================================================================== */
 
 :root {
-  --rni-font-size-sm: 0.8125rem;
-  --rni-font-size-md: 0.9375rem;
-  --rni-font-size-lg: 1.0625rem;
+  /* Form-control standard scale */
+  --rni-font-size-sm: 0.8125rem; /* 13px */
+  --rni-font-size-md: 0.875rem;  /* 14px */
+  --rni-font-size-lg: 1rem;      /* 16px */
 
-  --rni-height-sm: 2rem;
-  --rni-height-md: 2.5rem;
-  --rni-height-lg: 3rem;
+  --rni-height-sm: 2rem;   /* 32px */
+  --rni-height-md: 2.5rem; /* 40px */
+  --rni-height-lg: 3rem;   /* 48px */
 
-  --rni-radius: 8px;
+  --rni-radius-sm: 6px;
+  --rni-radius-md: 8px;
+  --rni-radius-lg: 10px;
+  --rni-radius: var(--rni-radius-md);
+
   --rni-gap: 0;
   --rni-duration: 150ms;
-  --rni-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --rni-ease: cubic-bezier(0.4, 0, 0.2, 1);
 
   /* neutral */
   --rni-bg: #ffffff;
+  --rni-bg-readonly: #f4f4f5;
   --rni-fg: #18181b;
   --rni-placeholder: #a1a1aa;
   --rni-border: #d4d4d8;
+  --rni-border-hover: #a1a1aa;
   --rni-border-focus: #6366f1;
   --rni-btn-bg: #f4f4f5;
   --rni-btn-bg-hover: #e4e4e7;
@@ -69,8 +76,14 @@
   border-radius: var(--rni-radius);
   background: var(--rni-bg);
   overflow: hidden;
-  transition: border-color var(--rni-duration) var(--rni-ease),
-    box-shadow var(--rni-duration) var(--rni-ease);
+  transition:
+    border-color var(--rni-duration) var(--rni-ease),
+    box-shadow var(--rni-duration) var(--rni-ease),
+    background-color var(--rni-duration) var(--rni-ease);
+}
+
+.rni-root:not(.rni-root--disabled):not(.rni-root--readonly) .rni-control:hover {
+  border-color: var(--rni-border-hover);
 }
 
 .rni-control:focus-within {
@@ -161,8 +174,12 @@
 }
 
 /* ============================================================================
- * Sizes
+ * Sizes — height, font, and radius scale together per form-control standard
  * ========================================================================== */
+.rni-root--sm .rni-control { --rni-radius: var(--rni-radius-sm); }
+.rni-root--md .rni-control { --rni-radius: var(--rni-radius-md); }
+.rni-root--lg .rni-control { --rni-radius: var(--rni-radius-lg); }
+
 .rni-root--sm .rni-input,
 .rni-root--sm .rni-btn {
   height: var(--rni-height-sm);
@@ -214,11 +231,11 @@
 /* ============================================================================
  * Error state
  * ========================================================================== */
-.rni-root[data-error="true"] .rni-control {
+.rni-root[data-invalid="true"] .rni-control {
   border-color: var(--rni-error-border);
 }
 
-.rni-root[data-error="true"] .rni-control:focus-within {
+.rni-root[data-invalid="true"] .rni-control:focus-within {
   border-color: var(--rni-error-border);
   box-shadow: var(--rni-error-shadow);
 }
@@ -232,7 +249,7 @@
 }
 
 .rni-root--readonly .rni-control {
-  background: #f4f4f5;
+  background: var(--rni-bg-readonly);
 }
 
 /* ============================================================================
@@ -256,9 +273,11 @@
  * ========================================================================== */
 [data-theme="dark"] {
   --rni-bg: #18181b;
+  --rni-bg-readonly: #27272a;
   --rni-fg: #fafafa;
   --rni-placeholder: #52525b;
   --rni-border: #3f3f46;
+  --rni-border-hover: #52525b;
   --rni-border-focus: #818cf8;
   --rni-btn-bg: #27272a;
   --rni-btn-bg-hover: #3f3f46;
@@ -283,9 +302,6 @@
   --rni-shadow-focus: 0 0 0 3px rgba(74, 222, 128, 0.22);
 }
 
-[data-theme="dark"] .rni-root--readonly .rni-control {
-  background: #27272a;
-}
 
 /* ============================================================================
  * Reduced motion

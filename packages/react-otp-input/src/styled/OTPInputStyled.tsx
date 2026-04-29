@@ -24,6 +24,11 @@ export interface OTPInputStyledProps
   hint?: ReactNode;
   /** Error text — flips tone to danger and sets aria-invalid. */
   error?: ReactNode;
+  /** Mark as invalid without showing inline error text. */
+  invalid?: boolean;
+  /** Mark every slot as required for form submission. */
+  required?: boolean;
+  style?: React.CSSProperties;
 }
 
 const DEFAULT_SEPARATOR = (
@@ -45,12 +50,16 @@ export const OTPInputStyled = forwardRef<HTMLDivElement, OTPInputStyledProps>(
       label,
       hint,
       error,
+      invalid: invalidProp,
+      required,
       className,
+      style,
       ...rest
     },
     ref,
   ) {
-    const effectiveTone: OTPTone = error ? "danger" : tone;
+    const isInvalid = Boolean(error) || invalidProp === true;
+    const effectiveTone: OTPTone = isInvalid ? "danger" : tone;
     const wrapperClassName = ["rotp-root", className].filter(Boolean).join(" ");
     const labelId = useId();
     const hintId = useId();
@@ -58,7 +67,7 @@ export const OTPInputStyled = forwardRef<HTMLDivElement, OTPInputStyledProps>(
     const describedBy = error ? errorId : hint ? hintId : undefined;
 
     return (
-      <div className={wrapperClassName}>
+      <div className={wrapperClassName} style={style}>
         {label ? (
           <span className="rotp-label" id={labelId}>
             {label}
@@ -71,7 +80,9 @@ export const OTPInputStyled = forwardRef<HTMLDivElement, OTPInputStyledProps>(
           data-variant={variant}
           data-size={size}
           data-tone={effectiveTone}
-          aria-invalid={error ? true : undefined}
+          data-invalid={isInvalid ? "true" : undefined}
+          aria-invalid={isInvalid ? true : undefined}
+          aria-required={required ? true : undefined}
           aria-labelledby={label ? labelId : undefined}
           aria-describedby={describedBy}
           renderSlot={(slot) => {

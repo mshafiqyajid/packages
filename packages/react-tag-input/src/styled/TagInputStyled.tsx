@@ -23,9 +23,16 @@ export interface TagInputStyledProps extends UseTagInputOptions {
   label?: string;
   hint?: string;
   error?: string;
+  invalid?: boolean;
+  required?: boolean;
+  readOnly?: boolean;
   tagVariant?: TagVariant;
   tagTone?: TagInputTone;
   className?: string;
+  style?: React.CSSProperties;
+  id?: string;
+  name?: string;
+  autoFocus?: boolean;
   renderTag?: (tag: string, index: number, onRemove: () => void) => ReactNode;
   sortable?: boolean;
 }
@@ -52,15 +59,23 @@ export const TagInputStyled = forwardRef<HTMLDivElement, TagInputStyledProps>(
       label,
       hint,
       error: errorProp,
+      invalid: invalidProp,
+      required,
+      readOnly = false,
       tagVariant = "solid",
       tagTone,
       className,
+      style,
+      id: idProp,
+      name,
+      autoFocus,
       renderTag,
       sortable = false,
     },
     ref,
   ) {
-    const id = useId();
+    const autoId = useId();
+    const id = idProp ?? autoId;
     const inputId = `${id}-input`;
     const labelId = `${id}-label`;
     const listboxId = `${id}-listbox`;
@@ -146,14 +161,18 @@ export const TagInputStyled = forwardRef<HTMLDivElement, TagInputStyledProps>(
 
     const resolvedTagTone = tagTone ?? tone;
     const displayError = errorProp ?? validationError;
+    const isInvalid = Boolean(displayError) || invalidProp === true;
 
     return (
       <div
         ref={ref}
         className={["rti-root", className].filter(Boolean).join(" ")}
+        style={style}
         data-size={size}
         data-tone={tone}
         data-disabled={disabled ? "true" : undefined}
+        data-readonly={readOnly ? "true" : undefined}
+        data-invalid={isInvalid ? "true" : undefined}
       >
         {label && (
           <label id={labelId} htmlFor={inputId} className="rti-label">
@@ -166,8 +185,10 @@ export const TagInputStyled = forwardRef<HTMLDivElement, TagInputStyledProps>(
           className="rti-wrapper"
           data-size={size}
           data-tone={tone}
-          data-error={displayError ? "true" : undefined}
+          data-invalid={isInvalid ? "true" : undefined}
+          data-error={isInvalid ? "true" : undefined}
           data-disabled={disabled ? "true" : undefined}
+          data-readonly={readOnly ? "true" : undefined}
           onClick={handleWrapperClick}
           role="none"
         >
@@ -246,10 +267,15 @@ export const TagInputStyled = forwardRef<HTMLDivElement, TagInputStyledProps>(
             {...inputProps}
             ref={inputRef}
             id={inputId}
+            name={name}
             className="rti-input"
             placeholder={tags.length === 0 ? placeholder : undefined}
+            readOnly={readOnly}
+            autoFocus={autoFocus}
             aria-labelledby={label ? labelId : undefined}
             aria-controls={showDropdown ? listboxId : undefined}
+            aria-invalid={isInvalid ? "true" : undefined}
+            aria-required={required ? "true" : undefined}
             aria-describedby={
               [hintId, displayError ? `${id}-error` : undefined]
                 .filter(Boolean)

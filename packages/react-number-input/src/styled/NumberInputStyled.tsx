@@ -15,8 +15,13 @@ export interface NumberInputStyledProps extends UseNumberInputOptions {
   label?: string;
   hint?: string;
   error?: string;
+  invalid?: boolean;
+  required?: boolean;
   className?: string;
+  style?: React.CSSProperties;
   id?: string;
+  name?: string;
+  autoFocus?: boolean;
   showStepper?: boolean;
   prefix?: string;
   suffix?: string;
@@ -71,8 +76,13 @@ export const NumberInputStyled = forwardRef<
     label,
     hint,
     error,
+    invalid: invalidProp,
+    required,
     className,
+    style,
     id: idProp,
+    name,
+    autoFocus,
     value,
     defaultValue,
     onChange,
@@ -145,9 +155,9 @@ export const NumberInputStyled = forwardRef<
     ? displayValue
     : inputProps.value;
 
-  const hasTone = tone !== "neutral";
   const hasError = Boolean(error);
-  const activeTone = hasError ? "danger" : tone;
+  const isInvalid = hasError || invalidProp === true;
+  const activeTone = isInvalid ? "danger" : tone;
 
   return (
     <div
@@ -160,11 +170,12 @@ export const NumberInputStyled = forwardRef<
       ]
         .filter(Boolean)
         .join(" ")}
+      style={style}
       data-tone={activeTone}
       data-size={size}
       data-disabled={disabled ? "true" : undefined}
       data-readonly={readOnly ? "true" : undefined}
-      data-error={hasError ? "true" : undefined}
+      data-invalid={isInvalid ? "true" : undefined}
     >
       {label && (
         <label htmlFor={inputId} className="rni-label">
@@ -198,8 +209,11 @@ export const NumberInputStyled = forwardRef<
               (ref as React.MutableRefObject<HTMLInputElement | null>).current = el;
           }}
           id={inputId}
+          name={name}
           type="text"
           inputMode="decimal"
+          required={required}
+          autoFocus={autoFocus}
           className="rni-input"
           placeholder={placeholder}
           {...inputProps}
@@ -212,7 +226,8 @@ export const NumberInputStyled = forwardRef<
               .filter(Boolean)
               .join(" ") || undefined
           }
-          aria-invalid={hasError ? "true" : undefined}
+          aria-invalid={isInvalid ? "true" : undefined}
+          aria-required={required ? "true" : undefined}
         />
 
         {suffix && (

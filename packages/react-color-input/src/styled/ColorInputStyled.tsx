@@ -29,6 +29,9 @@ export interface ColorInputStyledProps {
   defaultValue?: string;
   onChange?: (value: string) => void;
   disabled?: boolean;
+  readOnly?: boolean;
+  required?: boolean;
+  invalid?: boolean;
   size?: ColorInputSize;
   tone?: ColorInputTone;
   label?: string;
@@ -37,6 +40,11 @@ export interface ColorInputStyledProps {
   format?: ColorInputFormat;
   showCopyButton?: boolean;
   className?: string;
+  style?: CSSProperties;
+  id?: string;
+  name?: string;
+  autoFocus?: boolean;
+  placeholder?: string;
   presets?: string[];
   showAlpha?: boolean;
   eyeDropper?: boolean;
@@ -196,6 +204,9 @@ export const ColorInputStyled = forwardRef<HTMLDivElement, ColorInputStyledProps
       defaultValue = "#000000",
       onChange,
       disabled = false,
+      readOnly = false,
+      required,
+      invalid: invalidProp,
       size = "md",
       tone: toneProp = "neutral",
       label,
@@ -204,6 +215,11 @@ export const ColorInputStyled = forwardRef<HTMLDivElement, ColorInputStyledProps
       format = "hex",
       showCopyButton = false,
       className,
+      style,
+      id: idProp,
+      name,
+      autoFocus,
+      placeholder,
       presets,
       showAlpha = false,
       eyeDropper = false,
@@ -212,12 +228,14 @@ export const ColorInputStyled = forwardRef<HTMLDivElement, ColorInputStyledProps
     },
     ref,
   ) {
-    const id = useId();
-    const inputId = `${id}input`;
-    const hintId = hint ? `${id}hint` : undefined;
-    const errorId = error ? `${id}error` : undefined;
+    const autoId = useId();
+    const baseId = idProp ?? autoId;
+    const inputId = `${baseId}-input`;
+    const hintId = hint ? `${baseId}-hint` : undefined;
+    const errorId = error ? `${baseId}-error` : undefined;
 
-    const tone = error ? "danger" : toneProp;
+    const isInvalid = Boolean(error) || invalidProp === true;
+    const tone = isInvalid ? "danger" : toneProp;
 
     const { inputProps, swatchProps, isOpen, close, currentHex, setHex, isValid } =
       useColorInput({ value, defaultValue, onChange, disabled });
@@ -389,6 +407,7 @@ export const ColorInputStyled = forwardRef<HTMLDivElement, ColorInputStyledProps
       `rci-root--${size}`,
       `rci-root--${tone}`,
       disabled ? "rci-root--disabled" : "",
+      readOnly ? "rci-root--readonly" : "",
       error ? "rci-root--error" : "",
       className ?? "",
     ]
@@ -396,7 +415,16 @@ export const ColorInputStyled = forwardRef<HTMLDivElement, ColorInputStyledProps
       .join(" ");
 
     return (
-      <div ref={ref} className={classes}>
+      <div
+        ref={ref}
+        className={classes}
+        style={style}
+        data-size={size}
+        data-tone={tone}
+        data-disabled={disabled ? "true" : undefined}
+        data-readonly={readOnly ? "true" : undefined}
+        data-invalid={isInvalid ? "true" : undefined}
+      >
         {label && (
           <label htmlFor={inputId} className="rci-label">
             {label}
@@ -418,8 +446,13 @@ export const ColorInputStyled = forwardRef<HTMLDivElement, ColorInputStyledProps
           <input
             {...inputProps}
             id={inputId}
+            name={name}
             className="rci-input"
             value={displayValue}
+            placeholder={placeholder}
+            required={required}
+            readOnly={readOnly}
+            autoFocus={autoFocus}
             onChange={
               format === "hex"
                 ? inputProps.onChange
@@ -427,7 +460,8 @@ export const ColorInputStyled = forwardRef<HTMLDivElement, ColorInputStyledProps
                   ? handleHslInputChange
                   : handleHexInputChange
             }
-            aria-invalid={!isValid || !!error}
+            aria-invalid={isInvalid || !isValid ? "true" : undefined}
+            aria-required={required ? "true" : undefined}
             aria-describedby={
               [hintId, errorId].filter(Boolean).join(" ") || undefined
             }

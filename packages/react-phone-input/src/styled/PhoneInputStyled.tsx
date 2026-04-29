@@ -19,8 +19,16 @@ export interface PhoneInputStyledProps extends UsePhoneInputOptions {
   label?: string;
   hint?: string;
   error?: string;
+  invalid?: boolean;
+  required?: boolean;
+  readOnly?: boolean;
   showFlag?: boolean;
   className?: string;
+  style?: React.CSSProperties;
+  id?: string;
+  name?: string;
+  autoFocus?: boolean;
+  placeholder?: string;
 }
 
 export const PhoneInputStyled = forwardRef<
@@ -38,12 +46,21 @@ export const PhoneInputStyled = forwardRef<
     label,
     hint,
     error,
+    invalid: invalidProp,
+    required,
+    readOnly = false,
     showFlag = true,
     className,
+    style,
+    id: idProp,
+    name,
+    autoFocus,
+    placeholder,
   },
   ref,
 ) {
-  const inputId = useId();
+  const autoId = useId();
+  const inputId = idProp ?? autoId;
   const hintId = useId();
   const errorId = useId();
 
@@ -95,7 +112,8 @@ export const PhoneInputStyled = forwardRef<
     }
   };
 
-  const activeTone = error ? "danger" : tone;
+  const isInvalid = Boolean(error) || invalidProp === true;
+  const activeTone = isInvalid ? "danger" : tone;
 
   const describedBy = [error ? errorId : null, hint ? hintId : null]
     .filter(Boolean)
@@ -104,9 +122,12 @@ export const PhoneInputStyled = forwardRef<
   return (
     <div
       className={["rphi-root", className].filter(Boolean).join(" ")}
+      style={style}
       data-size={size}
       data-tone={activeTone}
       data-disabled={disabled ? "true" : undefined}
+      data-readonly={readOnly ? "true" : undefined}
+      data-invalid={isInvalid ? "true" : undefined}
       data-valid={isValid ? "true" : undefined}
     >
       {label && (
@@ -173,10 +194,16 @@ export const PhoneInputStyled = forwardRef<
         <input
           {...inputProps}
           id={inputId}
+          name={name}
           ref={ref}
           className="rphi-input"
+          placeholder={placeholder}
+          required={required}
+          readOnly={readOnly}
+          autoFocus={autoFocus}
           aria-describedby={describedBy}
-          aria-invalid={!!error}
+          aria-invalid={isInvalid ? "true" : undefined}
+          aria-required={required ? "true" : undefined}
         />
       </div>
 
