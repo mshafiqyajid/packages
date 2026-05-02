@@ -1,6 +1,6 @@
 {
   "name": "@mshafiqyajid/react-tag-input",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Headless tag/chip input hook and styled component for React. Autocomplete, keyboard navigation, validation, fully typed.",
   "keywords": [
     "react",
