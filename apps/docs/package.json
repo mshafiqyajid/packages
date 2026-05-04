@@ -1,6 +1,6 @@
 {
   "name": "@mshafiqyajid/docs",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "private": true,
   "type": "module",
   "scripts": {
@@ -36,7 +36,7 @@
     "@mshafiqyajid/react-color-input": "^1.0.0",
     "@mshafiqyajid/react-tag-input": "^1.0.0",
     "@mshafiqyajid/react-rich-text": "^0.1.0",
-    "@mshafiqyajid/react-table": "^0.1.3",
+    "@mshafiqyajid/react-table": "^0.2.0",
     "@mshafiqyajid/react-chart": "^0.2.0",
     "@mshafiqyajid/react-kanban": "^0.2.0",
     "react": "^18.3.0",
