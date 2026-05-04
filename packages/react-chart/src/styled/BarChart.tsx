@@ -1,12 +1,27 @@
-import React, { forwardRef, useMemo, useState } from "react";
+import React, { forwardRef, useMemo, useRef, useState } from "react";
 import {
   scaleLinear,
   resolveColor,
   isSeriesData,
+  resolveDomain,
+  getPalette,
 } from "../chartUtils";
-import type { DataPoint, SeriesDataPoint } from "../chartUtils";
+import type {
+  DataPoint,
+  SeriesDataPoint,
+  ChartDomain,
+  ColorScheme,
+} from "../chartUtils";
+import {
+  useResponsiveSize,
+  isDataEmpty,
+  type CommonChartProps,
+  type TooltipPayload,
+} from "./chartShared";
 
-export interface BarChartProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "onClick"> {
+export interface BarChartProps
+  extends Omit<React.HTMLAttributes<HTMLDivElement>, "onClick">,
+    CommonChartProps {
   data: DataPoint[] | SeriesDataPoint[];
   width?: number;
   height?: number;
@@ -17,13 +32,18 @@ export interface BarChartProps extends Omit<React.HTMLAttributes<HTMLDivElement>
   showValues?: boolean;
   animated?: boolean;
   colors?: string[];
+  colorScheme?: ColorScheme;
   onClick?: (point: DataPoint, index: number) => void;
   xLabel?: string;
   yLabel?: string;
   tooltip?: boolean;
+  domain?: ChartDomain;
+  yTicks?: number | number[];
+  xTicks?: number | string[];
 }
 
 const BASE_PADDING = 48;
+const DEFAULT_GRID_LINES = 5;
 
 function roundedRect(
   x: number,
@@ -67,8 +87,8 @@ export const BarChart = forwardRef<HTMLDivElement, BarChartProps>(
   function BarChart(
     {
       data,
-      width = 600,
-      height = 300,
+      width: widthProp = 600,
+      height: heightProp = 300,
       direction = "vertical",
       stacked = false,
       gap = 4,
@@ -76,10 +96,25 @@ export const BarChart = forwardRef<HTMLDivElement, BarChartProps>(
       showValues = false,
       animated = false,
       colors,
+      colorScheme = "default",
       onClick,
       xLabel,
       yLabel,
       tooltip = true,
+      domain,
+      yTicks,
+      xTicks,
+      formatValue,
+      formatLabel,
+      renderTooltip,
+      responsive = false,
+      aspectRatio,
+      minWidth = 200,
+      minHeight = 100,
+      loading = false,
+      emptyText,
+      errorText,
+      error = false,
       className,
       style,
       ...rest
@@ -87,49 +122,77 @@ export const BarChart = forwardRef<HTMLDivElement, BarChartProps>(
     ref,
   ) {
     const isSeries = isSeriesData(data);
+    const palette = useMemo(() => getPalette(colorScheme), [colorScheme]);
+    const localRef = useRef<HTMLDivElement | null>(null);
+    const setRefs = (el: HTMLDivElement | null) => {
+      localRef.current = el;
+      if (typeof ref === "function") ref(el);
+      else if (ref) (ref as React.MutableRefObject<HTMLDivElement | null>).current = el;
+    };
 
-    const [tooltipState, setTooltipState] = useState<{
-      x: number;
-      y: number;
-      label: string;
-      value: number | string;
-    } | null>(null);
+    const { width, height } = useResponsiveSize(
+      localRef,
+      responsive,
+      widthProp,
+      heightProp,
+      aspectRatio,
+      minWidth,
+      minHeight,
+    );
+
+    const [tooltipState, setTooltipState] = useState<TooltipPayload & { x: number; y: number } | null>(null);
 
     const xLabelPad = xLabel ? 16 : 0;
     const yLabelPad = yLabel ? 16 : 0;
-
     const PADDING = BASE_PADDING + Math.max(xLabelPad, yLabelPad);
 
-    const bars = useMemo(() => {
+    const empty = isDataEmpty(data as unknown[]);
+
+    const { bars, gridValues } = useMemo(() => {
       const plotW = width - PADDING * 2;
       const plotH = height - PADDING * 2;
 
       if (!isSeries) {
         const fd = data as DataPoint[];
         const values = fd.map((d) => d.value);
-        const maxVal = values.length > 0 ? Math.max(...values) : 1;
-        const minVal = 0;
-        const slotW = plotW / fd.length;
+        const dMax = values.length > 0 ? Math.max(...values) : 1;
+        const dMin = 0;
+        const resolved = resolveDomain(dMin, dMax, domain);
+        const slotW = plotW / Math.max(1, fd.length);
 
-        return fd.map((d, i) => {
+        const bs = fd.map((d, i) => {
           const color =
             colors && colors.length > 0
-              ? (colors[i % colors.length] ?? resolveColor(d.color, i))
-              : resolveColor(d.color, i);
+              ? (colors[i % colors.length] ?? resolveColor(d.color, i, palette))
+              : resolveColor(d.color, i, palette);
           if (direction === "vertical") {
             const barW = slotW - gap * 2;
-            const barH = scaleLinear(d.value, minVal, maxVal, 0, plotH);
+            const barH = scaleLinear(d.value, resolved.min, resolved.max, 0, plotH);
             const x = PADDING + i * slotW + gap;
             const y = PADDING + plotH - barH;
-            return { x, y, w: barW, h: barH, color, label: d.label, value: d.value, dataPoint: d };
-          } else {
-            const barH = (plotH / fd.length) - gap * 2;
-            const barW = scaleLinear(d.value, minVal, maxVal, 0, plotW);
-            const x = PADDING;
-            const y = PADDING + i * (plotH / fd.length) + gap;
-            return { x, y, w: barW, h: barH, color, label: d.label, value: d.value, dataPoint: d };
+            return { x, y, w: barW, h: barH, color, label: d.label, value: d.value, dataPoint: d, seriesName: undefined as string | undefined };
           }
+          const barH = (plotH / Math.max(1, fd.length)) - gap * 2;
+          const barW = scaleLinear(d.value, resolved.min, resolved.max, 0, plotW);
+          const x = PADDING;
+          const y = PADDING + i * (plotH / Math.max(1, fd.length)) + gap;
+          return { x, y, w: barW, h: barH, color, label: d.label, value: d.value, dataPoint: d, seriesName: undefined as string | undefined };
         });
+
+        const ticks = Array.isArray(yTicks)
+          ? yTicks
+          : resolved.ticks ??
+            Array.from({ length: (typeof yTicks === "number" ? yTicks : DEFAULT_GRID_LINES) + 1 }, (_, i) =>
+              scaleLinear(
+                i / (typeof yTicks === "number" ? yTicks : DEFAULT_GRID_LINES),
+                0,
+                1,
+                resolved.min,
+                resolved.max,
+              ),
+            );
+
+        return { bars: bs, gridValues: ticks };
       }
 
       const sd = data as SeriesDataPoint[];
@@ -139,75 +202,105 @@ export const BarChart = forwardRef<HTMLDivElement, BarChartProps>(
       }));
 
       if (stacked) {
-        const maxStackedVal = Math.max(
+        const dMax = Math.max(
           ...sd.map((d) => d.series.reduce((s, e) => s + (e.values[0] ?? 0), 0)),
         );
+        const resolved = resolveDomain(0, dMax, domain);
 
-        return sd.flatMap((d, di) => {
+        const bs = sd.flatMap((d, di) => {
           const slotW = plotW / sd.length;
           let accumH = 0;
-
           return d.series.map((s, si) => {
             const val = s.values[0] ?? 0;
             const color =
               colors && colors.length > 0
-                ? (colors[si % colors.length] ?? resolveColor(s.color, si))
-                : resolveColor(s.color, si);
+                ? (colors[si % colors.length] ?? resolveColor(s.color, si, palette))
+                : resolveColor(s.color, si, palette);
             if (direction === "vertical") {
               const barW = slotW - gap * 2;
-              const barH = scaleLinear(val, 0, maxStackedVal, 0, plotH);
+              const barH = scaleLinear(val, 0, resolved.max, 0, plotH);
               const x = PADDING + di * slotW + gap;
               const y = PADDING + plotH - accumH - barH;
               accumH += barH;
-              return { x, y, w: barW, h: barH, color, label: d.label, value: val, dataPoint: { label: d.label, value: val } };
-            } else {
-              const barH2 = plotH / sd.length - gap * 2;
-              const barW = scaleLinear(val, 0, maxStackedVal, 0, plotW);
-              const x = PADDING + accumH;
-              const y = PADDING + di * (plotH / sd.length) + gap;
-              accumH += barW;
-              return { x, y, w: barW, h: barH2, color, label: d.label, value: val, dataPoint: { label: d.label, value: val } };
+              return { x, y, w: barW, h: barH, color, label: d.label, value: val, dataPoint: { label: d.label, value: val }, seriesName: s.name };
             }
+            const barH2 = plotH / sd.length - gap * 2;
+            const barW = scaleLinear(val, 0, resolved.max, 0, plotW);
+            const x = PADDING + accumH;
+            const y = PADDING + di * (plotH / sd.length) + gap;
+            accumH += barW;
+            return { x, y, w: barW, h: barH2, color, label: d.label, value: val, dataPoint: { label: d.label, value: val }, seriesName: s.name };
           });
         });
+
+        const ticks = Array.isArray(yTicks)
+          ? yTicks
+          : resolved.ticks ??
+            Array.from({ length: (typeof yTicks === "number" ? yTicks : DEFAULT_GRID_LINES) + 1 }, (_, i) =>
+              scaleLinear(
+                i / (typeof yTicks === "number" ? yTicks : DEFAULT_GRID_LINES),
+                0,
+                1,
+                resolved.min,
+                resolved.max,
+              ),
+            );
+
+        return { bars: bs, gridValues: ticks };
       }
 
-      const maxGroupVal = Math.max(
+      const dMax = Math.max(
         ...sd.flatMap((d) => d.series.map((s) => s.values[0] ?? 0)),
       );
+      const resolved = resolveDomain(0, dMax, domain);
       const groupSlotW = plotW / sd.length;
-      const barSlotW = groupSlotW / seriesNames.length;
+      const barSlotW = groupSlotW / Math.max(1, seriesNames.length);
 
-      return sd.flatMap((d, di) =>
+      const bs = sd.flatMap((d, di) =>
         seriesNames.map((name, si) => {
           const entry = d.series.find((s) => s.name === name);
           const val = entry ? (entry.values[0] ?? 0) : 0;
           const color =
             colors && colors.length > 0
-              ? (colors[si % colors.length] ?? resolveColor(entry?.color, si))
-              : resolveColor(entry?.color, si);
+              ? (colors[si % colors.length] ?? resolveColor(entry?.color, si, palette))
+              : resolveColor(entry?.color, si, palette);
           if (direction === "vertical") {
             const barW = barSlotW - gap;
-            const barH = scaleLinear(val, 0, maxGroupVal, 0, plotH);
+            const barH = scaleLinear(val, 0, resolved.max, 0, plotH);
             const x = PADDING + di * groupSlotW + si * barSlotW + gap / 2;
             const y = PADDING + plotH - barH;
-            return { x, y, w: barW, h: barH, color, label: d.label, value: val, dataPoint: { label: d.label, value: val } };
-          } else {
-            const barH2 = (plotH / sd.length) / seriesNames.length - gap;
-            const barW = scaleLinear(val, 0, maxGroupVal, 0, plotW);
-            const x = PADDING;
-            const y =
-              PADDING + di * (plotH / sd.length) + si * ((plotH / sd.length) / seriesNames.length) + gap / 2;
-            return { x, y, w: barW, h: barH2, color, label: d.label, value: val, dataPoint: { label: d.label, value: val } };
+            return { x, y, w: barW, h: barH, color, label: d.label, value: val, dataPoint: { label: d.label, value: val }, seriesName: name };
           }
+          const barH2 = (plotH / sd.length) / seriesNames.length - gap;
+          const barW = scaleLinear(val, 0, resolved.max, 0, plotW);
+          const x = PADDING;
+          const y =
+            PADDING + di * (plotH / sd.length) + si * ((plotH / sd.length) / seriesNames.length) + gap / 2;
+          return { x, y, w: barW, h: barH2, color, label: d.label, value: val, dataPoint: { label: d.label, value: val }, seriesName: name };
         }),
       );
-    }, [data, width, height, direction, stacked, gap, isSeries, colors, PADDING]);
+
+      const ticks = Array.isArray(yTicks)
+        ? yTicks
+        : resolved.ticks ??
+          Array.from({ length: (typeof yTicks === "number" ? yTicks : DEFAULT_GRID_LINES) + 1 }, (_, i) =>
+            scaleLinear(
+              i / (typeof yTicks === "number" ? yTicks : DEFAULT_GRID_LINES),
+              0,
+              1,
+              resolved.min,
+              resolved.max,
+            ),
+          );
+
+      return { bars: bs, gridValues: ticks };
+    }, [data, width, height, direction, stacked, gap, isSeries, colors, palette, PADDING, domain, yTicks]);
 
     const labels = useMemo(() => {
+      if (Array.isArray(xTicks)) return xTicks;
       if (isSeries) return (data as SeriesDataPoint[]).map((d) => d.label);
       return (data as DataPoint[]).map((d) => d.label);
-    }, [data, isSeries]);
+    }, [data, isSeries, xTicks]);
 
     const plotW = width - PADDING * 2;
     const plotH = height - PADDING * 2;
@@ -220,13 +313,32 @@ export const BarChart = forwardRef<HTMLDivElement, BarChartProps>(
       .filter(Boolean)
       .join(" ");
 
+    if (loading || error || empty) {
+      return (
+        <div ref={setRefs} className={rootClass} style={style} {...rest}>
+          {loading ? (
+            <div className="rchart-skeleton" aria-busy="true" aria-label="Loading chart" />
+          ) : error ? (
+            <div className="rchart-error" role="alert">
+              {errorText ?? "Failed to load chart"}
+            </div>
+          ) : (
+            <div className="rchart-empty" aria-label="No chart data">
+              {emptyText ?? "No data"}
+            </div>
+          )}
+        </div>
+      );
+    }
+
     return (
-      <div ref={ref} className={rootClass} style={style} {...rest}>
+      <div ref={setRefs} className={rootClass} style={style} {...rest}>
         <svg
           className="rchart-svg"
           viewBox={`0 0 ${width} ${height}`}
           aria-label="Bar chart"
           role="img"
+          {...(responsive ? { preserveAspectRatio: "xMidYMid meet" } : {})}
         >
           <line
             className="rchart-grid-line"
@@ -242,6 +354,23 @@ export const BarChart = forwardRef<HTMLDivElement, BarChartProps>(
             x2={PADDING}
             y2={PADDING + plotH}
           />
+
+          {gridValues.length > 0 &&
+            gridValues.map((val, i) => {
+              const t = (val - gridValues[0]!) / (gridValues[gridValues.length - 1]! - gridValues[0]! || 1);
+              const y = PADDING + (1 - t) * plotH;
+              return (
+                <text
+                  key={`yt-${i}`}
+                  className="rchart-axis-label"
+                  x={PADDING - 8}
+                  y={y + 4}
+                  textAnchor="end"
+                >
+                  {Number.isInteger(val) ? val : val.toFixed(1)}
+                </text>
+              );
+            })}
 
           {bars.map((bar, i) => {
             const d = roundedRect(bar.x, bar.y, bar.w, bar.h, radius, direction);
@@ -278,6 +407,10 @@ export const BarChart = forwardRef<HTMLDivElement, BarChartProps>(
                           y: elRect.top - rootRect.top,
                           label: bar.label,
                           value: bar.value,
+                          series: bar.seriesName,
+                          color: bar.color,
+                          point: bar.dataPoint,
+                          index: i,
                         });
                       }
                     : undefined
@@ -290,6 +423,9 @@ export const BarChart = forwardRef<HTMLDivElement, BarChartProps>(
           {showValues &&
             bars.map((bar, i) => {
               if (bar.w <= 0 || bar.h <= 0) return null;
+              const valueDisplay = formatValue
+                ? formatValue(bar.value, bar.dataPoint, i)
+                : bar.value;
               if (direction === "vertical") {
                 return (
                   <text
@@ -299,7 +435,7 @@ export const BarChart = forwardRef<HTMLDivElement, BarChartProps>(
                     y={bar.y - 4}
                     textAnchor="middle"
                   >
-                    {bar.value}
+                    {valueDisplay}
                   </text>
                 );
               }
@@ -311,14 +447,14 @@ export const BarChart = forwardRef<HTMLDivElement, BarChartProps>(
                   y={bar.y + bar.h / 2 + 4}
                   textAnchor="start"
                 >
-                  {bar.value}
+                  {valueDisplay}
                 </text>
               );
             })}
 
           {labels.map((label, i) => {
             if (direction === "vertical") {
-              const slotW = plotW / labels.length;
+              const slotW = plotW / Math.max(1, labels.length);
               const x = PADDING + i * slotW + slotW / 2;
               return (
                 <text
@@ -328,11 +464,11 @@ export const BarChart = forwardRef<HTMLDivElement, BarChartProps>(
                   y={PADDING + plotH + 18}
                   textAnchor="middle"
                 >
-                  {label}
+                  {formatLabel ? formatLabel(label, i) : label}
                 </text>
               );
             }
-            const slotH = plotH / labels.length;
+            const slotH = plotH / Math.max(1, labels.length);
             const y = PADDING + i * slotH + slotH / 2 + 4;
             return (
               <text
@@ -342,7 +478,7 @@ export const BarChart = forwardRef<HTMLDivElement, BarChartProps>(
                 y={y}
                 textAnchor="end"
               >
-                {label}
+                {formatLabel ? formatLabel(label, i) : label}
               </text>
             );
           })}
@@ -381,8 +517,29 @@ export const BarChart = forwardRef<HTMLDivElement, BarChartProps>(
               pointerEvents: "none",
             }}
           >
-            <span className="rchart-tooltip-label">{tooltipState.label}</span>
-            <span className="rchart-tooltip-value">{tooltipState.value}</span>
+            {renderTooltip ? (
+              renderTooltip({
+                label: tooltipState.label,
+                value: tooltipState.value,
+                series: tooltipState.series,
+                color: tooltipState.color,
+                point: tooltipState.point,
+                index: tooltipState.index,
+              })
+            ) : (
+              <>
+                <span className="rchart-tooltip-label">
+                  {formatLabel
+                    ? formatLabel(tooltipState.label, tooltipState.index)
+                    : tooltipState.label}
+                </span>
+                <span className="rchart-tooltip-value">
+                  {formatValue
+                    ? formatValue(tooltipState.value, tooltipState.point, tooltipState.index)
+                    : tooltipState.value}
+                </span>
+              </>
+            )}
           </div>
         )}
       </div>

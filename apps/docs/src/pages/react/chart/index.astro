@@ -6,7 +6,7 @@ import CodeBlock from "~/components/CodeBlock.astro";
 import ChartDemo from "~/components/demos/ChartDemo";
 ---
 <DocLayout title="react-chart" description="Pure SVG bar, line, and pie charts with animations, legends, and zero dependencies." pkg="chart">
-  <PackagePageShell name="react-chart" version="0.1.0" description="Pure SVG chart components — BarChart, LineChart, PieChart. Animations, legends, labels, multi-series. Zero external dependencies." size="~10 KB">
+  <PackagePageShell name="react-chart" version="0.2.0" description="Pure SVG chart components — BarChart, LineChart, PieChart. Series support in useChart, format slots, renderTooltip slot, niceDomain + axis ticks, responsive resize, sparkline variant, named palettes, loading/empty/error states, pie selection. Zero external dependencies." size="~12 KB">
     <div class="pkg-section"><H2>Playground</H2><ChartDemo client:load /></div>
     <div class="pkg-section"><H2>Install</H2><CodeBlock lang="bash" code="npm install @mshafiqyajid/react-chart" /></div>
     <div class="pkg-section"><H2>Quick start</H2>
@@ -23,57 +23,91 @@ const data = [
 <LineChart data={data} height={240} showDots showGrid animated />
 <PieChart data={pieData} showLegend animated />`} />
     </div>
+    <div class="pkg-section"><H2>Shared props (all charts)</H2>
+      <table class="props-table"><thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+        <tr><td>colorScheme</td><td>"default" | "warm" | "cool" | "muted" | "vivid" | "mono"</td><td>"default"</td><td>Named palette used when colors prop is not provided</td></tr>
+        <tr><td>formatValue</td><td>(value, point, index) =&gt; ReactNode</td><td>—</td><td>Formats value in tooltip / value labels</td></tr>
+        <tr><td>formatLabel</td><td>(label, index) =&gt; ReactNode</td><td>—</td><td>Formats axis / slice labels</td></tr>
+        <tr><td>renderTooltip</td><td>(payload) =&gt; ReactNode</td><td>—</td><td>Custom tooltip body. Payload: {`{ label, value, series?, color, point, index }`}</td></tr>
+        <tr><td>responsive</td><td>boolean</td><td>false</td><td>Resize to fill container via ResizeObserver</td></tr>
+        <tr><td>aspectRatio</td><td>number</td><td>—</td><td>width/height ratio when responsive</td></tr>
+        <tr><td>minWidth / minHeight</td><td>number</td><td>200 / 100</td><td>Lower bounds for responsive sizing</td></tr>
+        <tr><td>loading</td><td>boolean</td><td>false</td><td>Renders shimmer skeleton instead of the chart</td></tr>
+        <tr><td>error</td><td>boolean</td><td>false</td><td>Renders errorText alert instead of the chart</td></tr>
+        <tr><td>emptyText / errorText</td><td>ReactNode</td><td>"No data" / "Failed to load chart"</td><td>State copy</td></tr>
+      </tbody></table>
+    </div>
     <div class="pkg-section"><H2>BarChart props</H2>
       <table class="props-table"><thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
         <tr><td>data</td><td>DataPoint[] | SeriesDataPoint[]</td><td>—</td><td>Chart data</td></tr>
-        <tr><td>width</td><td>number</td><td>600</td><td>SVG width</td></tr>
-        <tr><td>height</td><td>number</td><td>300</td><td>SVG height</td></tr>
+        <tr><td>width / height</td><td>number</td><td>600 / 300</td><td>SVG dimensions (overridden when responsive)</td></tr>
         <tr><td>direction</td><td>"vertical" | "horizontal"</td><td>"vertical"</td><td>Bar orientation</td></tr>
         <tr><td>stacked</td><td>boolean</td><td>false</td><td>Stacked bars (multi-series)</td></tr>
-        <tr><td>gap</td><td>number</td><td>4</td><td>Gap between bars in pixels</td></tr>
-        <tr><td>radius</td><td>number</td><td>3</td><td>Bar corner radius</td></tr>
-        <tr><td>showValues</td><td>boolean</td><td>false</td><td>Show value labels on bars</td></tr>
+        <tr><td>gap / radius</td><td>number</td><td>4 / 3</td><td>Bar gap and corner radius</td></tr>
+        <tr><td>showValues</td><td>boolean</td><td>false</td><td>Show value labels on bars (uses formatValue)</td></tr>
         <tr><td>animated</td><td>boolean</td><td>false</td><td>Animate on mount</td></tr>
-        <tr><td>colors</td><td>string[]</td><td>—</td><td>Custom bar colors (overrides tone)</td></tr>
+        <tr><td>colors</td><td>string[]</td><td>—</td><td>Custom bar colors (overrides colorScheme)</td></tr>
+        <tr><td>domain</td><td>[min, max] | "nice"</td><td>—</td><td>Y-axis domain — "nice" snaps to round numbers</td></tr>
+        <tr><td>yTicks</td><td>number | number[]</td><td>5</td><td>Tick count or explicit values</td></tr>
+        <tr><td>xTicks</td><td>string[]</td><td>—</td><td>Override category labels</td></tr>
         <tr><td>onClick</td><td>(point, index) =&gt; void</td><td>—</td><td>Bar click handler</td></tr>
-        <tr><td>xLabel</td><td>string</td><td>—</td><td>X-axis label</td></tr>
-        <tr><td>yLabel</td><td>string</td><td>—</td><td>Y-axis label</td></tr>
+        <tr><td>xLabel / yLabel</td><td>string</td><td>—</td><td>Axis labels</td></tr>
         <tr><td>tooltip</td><td>boolean</td><td>true</td><td>Show hover tooltip</td></tr>
       </tbody></table>
     </div>
     <div class="pkg-section"><H2>LineChart props</H2>
       <table class="props-table"><thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
         <tr><td>data</td><td>DataPoint[] | SeriesDataPoint[]</td><td>—</td><td>Chart data</td></tr>
-        <tr><td>width</td><td>number</td><td>600</td><td>SVG width</td></tr>
-        <tr><td>height</td><td>number</td><td>300</td><td>SVG height</td></tr>
-        <tr><td>showGrid</td><td>boolean</td><td>false</td><td>Show grid lines</td></tr>
-        <tr><td>showDots</td><td>boolean</td><td>true</td><td>Show data point dots</td></tr>
-        <tr><td>showLabels</td><td>boolean</td><td>false</td><td>Show X-axis labels</td></tr>
-        <tr><td>showLegend</td><td>boolean</td><td>false</td><td>Show series legend</td></tr>
+        <tr><td>width / height</td><td>number</td><td>600 / 300</td><td>SVG dimensions (overridden when responsive)</td></tr>
+        <tr><td>variant</td><td>"default" | "sparkline"</td><td>"default"</td><td>"sparkline" drops padding, dots, labels, legend, tooltip</td></tr>
+        <tr><td>showGrid / showDots / showLabels / showLegend</td><td>boolean</td><td>false / true / false / false</td><td>Visibility toggles (auto-off in sparkline)</td></tr>
         <tr><td>smooth</td><td>boolean</td><td>false</td><td>Curved line interpolation</td></tr>
-        <tr><td>tone</td><td>"neutral" | "primary"</td><td>"neutral"</td><td>Line color tone (flat data)</td></tr>
+        <tr><td>tone</td><td>"neutral" | "primary"</td><td>"neutral"</td><td>Line color tone for flat data</td></tr>
         <tr><td>animated</td><td>boolean</td><td>false</td><td>Animate on mount</td></tr>
-        <tr><td>colors</td><td>string[]</td><td>—</td><td>Custom line colors (overrides tone)</td></tr>
+        <tr><td>colors</td><td>string[]</td><td>—</td><td>Per-series colors (overrides colorScheme)</td></tr>
         <tr><td>area</td><td>boolean</td><td>false</td><td>Fill area under the line</td></tr>
+        <tr><td>domain</td><td>[min, max] | "nice"</td><td>—</td><td>Y-axis domain</td></tr>
+        <tr><td>yTicks / xTicks</td><td>number | number[] / string[]</td><td>5 / —</td><td>Tick count, explicit y values, or override x labels</td></tr>
         <tr><td>onClick</td><td>(point, index) =&gt; void</td><td>—</td><td>Data point click handler</td></tr>
-        <tr><td>xLabel</td><td>string</td><td>—</td><td>X-axis label</td></tr>
-        <tr><td>yLabel</td><td>string</td><td>—</td><td>Y-axis label</td></tr>
+        <tr><td>xLabel / yLabel</td><td>string</td><td>—</td><td>Axis labels</td></tr>
         <tr><td>tooltip</td><td>boolean</td><td>true</td><td>Show hover tooltip</td></tr>
       </tbody></table>
     </div>
     <div class="pkg-section"><H2>PieChart props</H2>
       <table class="props-table"><thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
         <tr><td>data</td><td>DataPoint[]</td><td>—</td><td>Slice data (with optional color)</td></tr>
-        <tr><td>size</td><td>number</td><td>300</td><td>SVG size in px</td></tr>
-        <tr><td>donut</td><td>boolean</td><td>false</td><td>Render as donut chart</td></tr>
-        <tr><td>donutWidth</td><td>number</td><td>60</td><td>Donut ring thickness</td></tr>
-        <tr><td>showLabels</td><td>boolean</td><td>false</td><td>Show slice labels inside arcs</td></tr>
-        <tr><td>showLegend</td><td>boolean</td><td>false</td><td>Show color legend</td></tr>
+        <tr><td>size</td><td>number</td><td>300</td><td>SVG size in px (overridden when responsive)</td></tr>
+        <tr><td>donut / donutWidth</td><td>boolean / number</td><td>false / 60</td><td>Donut + ring thickness</td></tr>
+        <tr><td>showLabels / showLegend</td><td>boolean</td><td>false</td><td>Show slice labels and color legend</td></tr>
         <tr><td>animated</td><td>boolean</td><td>false</td><td>Animate on mount</td></tr>
+        <tr><td>colors</td><td>string[]</td><td>—</td><td>Per-slice colors (overrides colorScheme)</td></tr>
+        <tr><td>hoverOffset</td><td>number</td><td>0</td><td>Pixels to translate slice outward on hover</td></tr>
+        <tr><td>selectedIndex</td><td>number | null</td><td>—</td><td>Controlled selected slice</td></tr>
+        <tr><td>onSelectedChange</td><td>(index | null) =&gt; void</td><td>—</td><td>Click toggles selection. Provide to enable selection UI</td></tr>
+        <tr><td>selectedOffset</td><td>number</td><td>8</td><td>Pixels for selected slice translate</td></tr>
         <tr><td>onClick</td><td>(slice, index) =&gt; void</td><td>—</td><td>Slice click handler</td></tr>
         <tr><td>tooltip</td><td>boolean</td><td>true</td><td>Show hover tooltip</td></tr>
         <tr><td>innerLabel</td><td>ReactNode</td><td>—</td><td>Label rendered in donut center</td></tr>
       </tbody></table>
+    </div>
+    <div class="pkg-section"><H2>useChart hook</H2>
+      <CodeBlock lang="tsx" code={`import { useChart, niceDomain, getPalette } from "@mshafiqyajid/react-chart";
+
+const { points, paths, series, scales, viewBox } = useChart({
+  data,                  // DataPoint[] or SeriesDataPoint[]
+  type: "line",          // "line" | "bar" | "pie"
+  width: 600,
+  height: 300,
+  padding: 40,           // optional, default 40
+  smooth: true,          // line only
+  stacked: false,        // bar only
+  donut: true,           // pie — true | { innerRadius: 50 }
+  domain: "nice",        // optional — [min, max] | "nice"
+});
+
+// series is set when data is multi-series. Each entry is { name, color?, path, points, values }.
+// niceDomain(min, max, tickCount?) returns [niceMin, niceMax, ticks[]] for axis math.
+// getPalette(scheme) returns the named color array.`} />
     </div>
   </PackagePageShell>
 </DocLayout>

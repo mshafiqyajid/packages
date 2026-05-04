@@ -12,7 +12,7 @@ npm install @mshafiqyajid/react-chart
 
 ## Usage
 
-### Styled components (quickest path)
+### Styled components
 
 ```tsx
 import { LineChart, BarChart, PieChart } from "@mshafiqyajid/react-chart/styled";
@@ -24,81 +24,56 @@ const data = [
   { label: "Mar", value: 52 },
 ];
 
-// Line chart
-<LineChart data={data} width={600} height={300} showGrid showDots showLabels />
-
-// Bar chart
-<BarChart data={data} width={600} height={300} showValues direction="vertical" />
-
-// Pie chart
-<PieChart data={data} size={300} donut showLabels showLegend />
+<LineChart data={data} responsive aspectRatio={2} domain="nice" colorScheme="cool" />
+<BarChart  data={data} showValues formatValue={(v) => `$${v}`} />
+<PieChart  data={data} donut showLegend hoverOffset={8} />
 ```
 
 ### Headless hook
 
 ```tsx
-import { useChart } from "@mshafiqyajid/react-chart";
+import { useChart, niceDomain, getPalette } from "@mshafiqyajid/react-chart";
 
-const { points, paths, viewBox, scales } = useChart({
-  data: [{ label: "A", value: 10 }, { label: "B", value: 20 }],
+const { points, paths, series, viewBox, scales } = useChart({
+  data,
   type: "line",
   width: 400,
   height: 200,
+  smooth: true,
+  domain: "nice",
 });
 ```
 
-## Props
+`series` is populated for multi-series data. `niceDomain(min, max)` returns `[niceMin, niceMax, ticks]`. `getPalette(scheme)` returns one of: `default`, `warm`, `cool`, `muted`, `vivid`, `mono`.
 
-### LineChart
-
-| Prop | Type | Default | Description |
-|---|---|---|---|
-| `data` | `DataPoint[]` \| `SeriesDataPoint[]` | required | Chart data |
-| `width` | `number` | `600` | SVG width |
-| `height` | `number` | `300` | SVG height |
-| `showGrid` | `boolean` | `false` | Show background grid lines |
-| `showDots` | `boolean` | `true` | Show data point dots |
-| `showLabels` | `boolean` | `false` | Show axis labels |
-| `showLegend` | `boolean` | `false` | Show series legend |
-| `smooth` | `boolean` | `false` | Bezier curve smoothing |
-| `tone` | `"neutral"` \| `"primary"` | `"neutral"` | Color tone |
-| `animated` | `boolean` | `false` | Animate on mount |
-
-### BarChart
+## Shared props (all charts)
 
 | Prop | Type | Default | Description |
 |---|---|---|---|
-| `data` | `DataPoint[]` \| `SeriesDataPoint[]` | required | Chart data |
-| `width` | `number` | `600` | SVG width |
-| `height` | `number` | `300` | SVG height |
-| `direction` | `"vertical"` \| `"horizontal"` | `"vertical"` | Bar orientation |
-| `stacked` | `boolean` | `false` | Stack grouped bars |
-| `gap` | `number` | `4` | Gap between bars (px) |
-| `radius` | `number` | `3` | Bar corner radius |
-| `showValues` | `boolean` | `false` | Show value labels on bars |
-| `animated` | `boolean` | `false` | Animate fill on mount |
+| `colorScheme` | `"default" \| "warm" \| "cool" \| "muted" \| "vivid" \| "mono"` | `"default"` | Named palette |
+| `formatValue` | `(value, point, index) => ReactNode` | — | Tooltip / value-label formatter |
+| `formatLabel` | `(label, index) => ReactNode` | — | Axis / slice-label formatter |
+| `renderTooltip` | `(payload) => ReactNode` | — | Custom tooltip body |
+| `responsive` | `boolean` | `false` | Resize via `ResizeObserver` |
+| `aspectRatio` | `number` | `width/height` | Used when responsive |
+| `loading` / `error` | `boolean` | `false` | Render skeleton / error state |
+| `emptyText` / `errorText` | `ReactNode` | — | State copy |
 
-### PieChart
+## LineChart
 
-| Prop | Type | Default | Description |
-|---|---|---|---|
-| `data` | `DataPoint[]` | required | Chart data |
-| `size` | `number` | `300` | SVG width and height |
-| `donut` | `boolean` | `false` | Donut variant |
-| `donutWidth` | `number` | `60` | Donut ring width |
-| `showLabels` | `boolean` | `false` | Show slice labels |
-| `showLegend` | `boolean` | `false` | Show legend |
-| `animated` | `boolean` | `false` | Animate on mount |
+Adds `domain` (`[min, max] \| "nice"`), `yTicks`, `xTicks`, and `variant: "default" | "sparkline"` (sparkline drops padding, dots, labels, legend, tooltip).
+
+## BarChart
+
+Adds `domain`, `yTicks`, `xTicks`, plus existing `direction`, `stacked`, `gap`, `radius`, `showValues` (now respects `formatValue`).
+
+## PieChart
+
+Adds `hoverOffset`, `selectedIndex`, `onSelectedChange`, `selectedOffset`. Click a slice to toggle selection when `onSelectedChange` is provided.
 
 ## Dark mode
 
-Add `data-theme="dark"` to any ancestor element:
-
-```html
-<div data-theme="dark">
-  <LineChart ... />
-</div>
-```
+Add `data-theme="dark"` to any ancestor element.
 
 ## License
 

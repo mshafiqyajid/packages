@@ -11,6 +11,10 @@ import {
   midAngle,
   polarToCartesian,
   resolveColor,
+  niceDomain,
+  resolveDomain,
+  getPalette,
+  PALETTES,
   DEFAULT_PALETTE,
 } from "./chartUtils";
 
@@ -238,5 +242,87 @@ describe("resolveColor", () => {
   it("wraps around palette when index exceeds length", () => {
     const idx = DEFAULT_PALETTE.length;
     expect(resolveColor(undefined, idx)).toBe(DEFAULT_PALETTE[0]);
+  });
+
+  it("uses provided palette when supplied", () => {
+    const custom = ["#aaa", "#bbb"];
+    expect(resolveColor(undefined, 0, custom)).toBe("#aaa");
+    expect(resolveColor(undefined, 1, custom)).toBe("#bbb");
+  });
+});
+
+describe("niceDomain", () => {
+  it("rounds [0, 9] to a tidy domain", () => {
+    const [min, max, ticks] = niceDomain(0, 9);
+    expect(min).toBe(0);
+    expect(max).toBeGreaterThanOrEqual(9);
+    expect(ticks.length).toBeGreaterThan(2);
+  });
+
+  it("expands flat domains around the value", () => {
+    const [min, max] = niceDomain(5, 5);
+    expect(min).toBeLessThan(5);
+    expect(max).toBeGreaterThan(5);
+  });
+
+  it("handles zero domain by returning [0,1]", () => {
+    const [min, max] = niceDomain(0, 0);
+    expect(min).toBe(0);
+    expect(max).toBe(1);
+  });
+
+  it("returns evenly stepped ticks", () => {
+    const [, , ticks] = niceDomain(0, 100, 5);
+    const steps = ticks.slice(1).map((t, i) => t - ticks[i]!);
+    const first = steps[0];
+    expect(steps.every((s) => Math.abs(s - first!) < 1e-9)).toBe(true);
+  });
+});
+
+describe("resolveDomain", () => {
+  it("returns the data extent when no domain prop given", () => {
+    const r = resolveDomain(2, 8, undefined);
+    expect(r.min).toBe(2);
+    expect(r.max).toBe(8);
+    expect(r.ticks).toBeUndefined();
+  });
+
+  it("returns nice min/max + ticks when domain='nice'", () => {
+    const r = resolveDomain(1, 9, "nice");
+    expect(r.ticks).toBeDefined();
+    expect(r.min).toBeLessThanOrEqual(1);
+    expect(r.max).toBeGreaterThanOrEqual(9);
+  });
+
+  it("respects explicit numeric tuple bounds", () => {
+    const r = resolveDomain(2, 8, [0, 10]);
+    expect(r.min).toBe(0);
+    expect(r.max).toBe(10);
+  });
+
+  it("uses 'auto' to defer to data extent", () => {
+    const r = resolveDomain(2, 8, ["auto", 100]);
+    expect(r.min).toBe(2);
+    expect(r.max).toBe(100);
+  });
+});
+
+describe("getPalette", () => {
+  it("default returns DEFAULT_PALETTE", () => {
+    expect(getPalette("default")).toEqual(DEFAULT_PALETTE);
+  });
+
+  it("returns named palettes for each scheme", () => {
+    expect(getPalette("warm").length).toBeGreaterThan(0);
+    expect(getPalette("cool").length).toBeGreaterThan(0);
+    expect(getPalette("muted").length).toBeGreaterThan(0);
+    expect(getPalette("vivid").length).toBeGreaterThan(0);
+    expect(getPalette("mono").length).toBeGreaterThan(0);
+  });
+
+  it("PALETTES exports six schemes", () => {
+    expect(Object.keys(PALETTES)).toEqual(
+      expect.arrayContaining(["default", "warm", "cool", "muted", "vivid", "mono"]),
+    );
   });
 });
