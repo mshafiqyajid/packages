@@ -1,5 +1,12 @@
 # @mshafiqyajid/docs
 
+## 0.0.4
+
+### Patch Changes
+
+- Updated dependencies [9d90533]
+  - @mshafiqyajid/react-table@0.2.0
+
 ## 0.0.3
 
 ### Patch Changes
