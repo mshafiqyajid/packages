@@ -31,6 +31,12 @@
   --rtbl-input-border: #d4d4d8;
   --rtbl-input-fg: #18181b;
   --rtbl-input-focus: #6366f1;
+  --rtbl-mark-bg: rgba(250, 204, 21, 0.45);
+  --rtbl-mark-fg: inherit;
+  --rtbl-footer-bg: #f4f4f5;
+  --rtbl-footer-fg: #18181b;
+  --rtbl-density-active-bg: #e4e4e7;
+  --rtbl-density-active-fg: #18181b;
 }
 
 /* ============================================================================
@@ -409,6 +415,107 @@
 .rtbl-col-filter:focus { border-color: var(--rtbl-accent, #6366f1); }
 
 /* ============================================================================
+ * Match highlight
+ * ========================================================================== */
+.rtbl-mark {
+  background: var(--rtbl-mark-bg);
+  color: var(--rtbl-mark-fg);
+  padding: 0 1px;
+  border-radius: 2px;
+}
+
+/* ============================================================================
+ * Footer / aggregates
+ * ========================================================================== */
+.rtbl-tfoot {
+  background: var(--rtbl-footer-bg);
+  color: var(--rtbl-footer-fg);
+  font-weight: 600;
+}
+
+.rtbl-table[data-sticky-footer="true"] .rtbl-tfoot {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+}
+
+.rtbl-td--footer {
+  border-top: 1px solid var(--rtbl-border);
+}
+
+.rtbl-td--state {
+  text-align: center;
+  padding: 1.2rem;
+}
+
+.rtbl-tr--error .rtbl-td--state {
+  color: #ef4444;
+  font-weight: 500;
+}
+
+/* ============================================================================
+ * Density toggle
+ * ========================================================================== */
+.rtbl-density {
+  display: inline-flex;
+  border: 1px solid var(--rtbl-input-border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.rtbl-density-btn {
+  border: none;
+  background: transparent;
+  color: inherit;
+  padding: 0.3rem 0.55rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  transition: background 120ms ease, color 120ms ease;
+}
+
+.rtbl-density-btn[data-active="true"] {
+  background: var(--rtbl-density-active-bg);
+  color: var(--rtbl-density-active-fg);
+}
+
+.rtbl-density-btn:not([data-active="true"]):hover {
+  background: var(--rtbl-stripe-bg);
+}
+
+/* ============================================================================
+ * Page size selector
+ * ========================================================================== */
+.rtbl-page-size {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-right: auto;
+  font-size: 0.85em;
+}
+
+.rtbl-page-size-label {
+  opacity: 0.7;
+}
+
+.rtbl-page-size-select {
+  padding: 0.2rem 0.4rem;
+  border: 1px solid var(--rtbl-input-border);
+  border-radius: 4px;
+  background: var(--rtbl-input-bg);
+  color: var(--rtbl-input-fg);
+  font-size: inherit;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.rtbl-page-size-select:focus {
+  outline: none;
+  border-color: var(--rtbl-input-focus);
+}
+
+/* ============================================================================
  * Reduced motion
  * ========================================================================== */
 @media (prefers-reduced-motion: reduce) {
@@ -422,4 +529,15 @@
   .rtbl-filter {
     transition: none;
   }
+}
+
+/* ============================================================================
+ * Dark mode for new tokens
+ * ========================================================================== */
+[data-theme="dark"] .rtbl-root {
+  --rtbl-mark-bg: rgba(250, 204, 21, 0.32);
+  --rtbl-footer-bg: #18181b;
+  --rtbl-footer-fg: #fafafa;
+  --rtbl-density-active-bg: #3f3f46;
+  --rtbl-density-active-fg: #fafafa;
 }

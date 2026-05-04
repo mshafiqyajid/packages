@@ -6,7 +6,7 @@ import CodeBlock from "~/components/CodeBlock.astro";
 import TableDemo from "~/components/demos/TableDemo";
 ---
 <DocLayout title="react-table" description="Data table with sorting, filtering, pagination, row selection, and sticky header." pkg="table">
-  <PackagePageShell name="react-table" version="0.1.0" description="Headless table hook and styled component. Sort, filter, paginate, select rows. Generic TypeScript, sticky header, loading skeleton, empty state." size="~9 KB">
+  <PackagePageShell name="react-table" version="0.2.0" description="Headless table hook and styled component. Sort, filter, paginate, select rows. Now: column accessor + custom sort/filter, footer + aggregates, server-side modes, page-size selector, density toggle, getRow/CellProps escape hatches, render slots, match highlighting, storageKey persistence." size="~11 KB">
     <div class="pkg-section"><H2>Playground</H2><TableDemo client:load /></div>
     <div class="pkg-section"><H2>Install</H2><CodeBlock lang="bash" code="npm install @mshafiqyajid/react-table" /></div>
     <div class="pkg-section"><H2>Quick start</H2>
@@ -21,41 +21,53 @@ const columns: ColumnDef<User>[] = [
 ];
 <TableStyled data={users} columns={columns} sortable filterable paginate pageSize={10} hoverable />`} />
     </div>
-    <div class="pkg-section"><H2>API</H2>
+    <div class="pkg-section"><H2>TableStyled props</H2>
       <table class="props-table"><thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
-        <tr><td>data</td><td>T[]</td><td>—</td><td>Array of row objects</td></tr>
-        <tr><td>columns</td><td>ColumnDef&lt;T&gt;[]</td><td>—</td><td>Column definitions</td></tr>
-        <tr><td>sortable</td><td>boolean</td><td>false</td><td>Enable column sorting</td></tr>
-        <tr><td>filterable</td><td>boolean</td><td>false</td><td>Enable per-column filter inputs</td></tr>
-        <tr><td>selectable</td><td>boolean</td><td>false</td><td>Enable row checkboxes</td></tr>
-        <tr><td>paginate</td><td>boolean</td><td>false</td><td>Enable pagination</td></tr>
-        <tr><td>pageSize</td><td>number</td><td>10</td><td>Rows per page</td></tr>
-        <tr><td>size</td><td>"sm" | "md" | "lg"</td><td>"md"</td><td>Row density</td></tr>
-        <tr><td>tone</td><td>"neutral" | "primary"</td><td>"neutral"</td><td>Accent color</td></tr>
-        <tr><td>striped</td><td>boolean</td><td>false</td><td>Alternating row background</td></tr>
-        <tr><td>bordered</td><td>boolean</td><td>false</td><td>Cell borders</td></tr>
-        <tr><td>hoverable</td><td>boolean</td><td>true</td><td>Row hover highlight</td></tr>
-        <tr><td>stickyHeader</td><td>boolean</td><td>false</td><td>Freeze header on scroll</td></tr>
-        <tr><td>loading</td><td>boolean</td><td>false</td><td>Show skeleton rows</td></tr>
-        <tr><td>emptyText</td><td>ReactNode</td><td>"No data"</td><td>Empty state content</td></tr>
-        <tr><td>caption</td><td>string</td><td>—</td><td>Accessible table caption</td></tr>
-        <tr><td>onRowClick</td><td>(row) =&gt; void</td><td>—</td><td>Row click handler</td></tr>
-        <tr><td>rowKey</td><td>(row) =&gt; string</td><td>—</td><td>Custom key extractor</td></tr>
-        <tr><td>toolbar</td><td>ReactNode</td><td>—</td><td>Slot rendered above the table</td></tr>
-        <tr><td>page</td><td>number</td><td>—</td><td>Controlled current page</td></tr>
-        <tr><td>onPageChange</td><td>(page) =&gt; void</td><td>—</td><td>Controlled page change callback</td></tr>
+        <tr><td>data / columns</td><td>T[] / ColumnDef&lt;T&gt;[]</td><td>—</td><td>Required</td></tr>
+        <tr><td>pageSize</td><td>number</td><td>10</td><td>Rows per page (controlled when onPageSizeChange is provided)</td></tr>
+        <tr><td>pageSizeOptions</td><td>number[]</td><td>—</td><td>Show a row-size selector with these options</td></tr>
+        <tr><td>showPageSize</td><td>boolean</td><td>true when options provided</td><td>Force show/hide the selector</td></tr>
+        <tr><td>onPageSizeChange</td><td>(size) =&gt; void</td><td>—</td><td>Make pageSize controlled</td></tr>
+        <tr><td>showFooter / stickyFooter</td><td>boolean</td><td>false</td><td>Render &lt;tfoot&gt; from ColumnDef.footer + aggregate</td></tr>
+        <tr><td>showDensityToggle</td><td>boolean</td><td>false</td><td>SM/MD/LG button group in toolbar</td></tr>
+        <tr><td>onSizeChange</td><td>(size) =&gt; void</td><td>—</td><td>Make size controlled (use with density toggle)</td></tr>
+        <tr><td>highlightMatches</td><td>boolean</td><td>false</td><td>Wrap matching substrings in &lt;mark&gt;. Skipped for cells with custom render.</td></tr>
+        <tr><td>renderEmpty / renderLoading / renderError</td><td>() =&gt; ReactNode</td><td>—</td><td>Replace the default state row</td></tr>
+        <tr><td>error / errorText / onRetry</td><td>boolean / ReactNode / fn</td><td>—</td><td>Error state and retry hook (passed into renderError)</td></tr>
+        <tr><td>getRowProps</td><td>(row, i) =&gt; partial &lt;tr&gt; props</td><td>—</td><td>Per-row className / data-* / onClick override</td></tr>
+        <tr><td>getCellProps</td><td>(row, col) =&gt; partial &lt;td&gt; props</td><td>—</td><td>Per-cell escape hatch</td></tr>
+        <tr><td>manualSorting / manualFiltering / manualPagination</td><td>boolean</td><td>false</td><td>Skip in-memory ops; consumer handles them</td></tr>
+        <tr><td>totalCount</td><td>number</td><td>—</td><td>Drives pageCount under manualPagination</td></tr>
+        <tr><td>storageKey / storage</td><td>string / Storage</td><td>—</td><td>Persist sort/filter/page across reloads</td></tr>
+        <tr><td>size / tone</td><td>"sm" | "md" | "lg" / "neutral" | "primary"</td><td>"md" / "neutral"</td><td>Row density and accent</td></tr>
+        <tr><td>striped / bordered / hoverable / stickyHeader</td><td>boolean</td><td>—</td><td>Style toggles</td></tr>
+        <tr><td>loading / emptyText / caption</td><td>boolean / ReactNode / string</td><td>—</td><td>Existing behavior</td></tr>
+        <tr><td>selectable / onSelect / onRowClick / rowKey / toolbar / page / onPageChange</td><td>—</td><td>—</td><td>Existing behavior</td></tr>
       </tbody></table>
     </div>
-    <div class="pkg-section"><H2>ColumnDef fields</H2>
+    <div class="pkg-section"><H2>ColumnDef&lt;T&gt; fields</H2>
       <table class="props-table"><thead><tr><th>Field</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
-        <tr><td>key</td><td>string</td><td>—</td><td>Data key to read from row object</td></tr>
-        <tr><td>header</td><td>string</td><td>—</td><td>Column header label</td></tr>
-        <tr><td>sortable</td><td>boolean</td><td>false</td><td>Enable sorting on this column</td></tr>
-        <tr><td>filterable</td><td>boolean</td><td>false</td><td>Per-column filter input</td></tr>
-        <tr><td>align</td><td>"left" | "center" | "right"</td><td>—</td><td>Column text alignment</td></tr>
-        <tr><td>sticky</td><td>"left" | "right"</td><td>—</td><td>Sticky column position</td></tr>
-        <tr><td>render</td><td>(value, row) =&gt; ReactNode</td><td>—</td><td>Custom cell renderer</td></tr>
+        <tr><td>key / header</td><td>string</td><td>—</td><td>Required</td></tr>
+        <tr><td>accessor</td><td>(row) =&gt; unknown</td><td>—</td><td>For nested or computed values; falls back to row[key]</td></tr>
+        <tr><td>sortable / filterable</td><td>boolean</td><td>false</td><td>Per-column flags</td></tr>
+        <tr><td>sortFn</td><td>(a, b, dir) =&gt; number</td><td>—</td><td>Custom comparator</td></tr>
+        <tr><td>filterFn</td><td>(row, query) =&gt; boolean</td><td>—</td><td>Custom predicate</td></tr>
+        <tr><td>aggregate</td><td>"sum" | "avg" | "min" | "max" | "count" | (rows) =&gt; unknown</td><td>—</td><td>Computes against the filtered rows; surfaced in result.aggregates</td></tr>
+        <tr><td>footer</td><td>ReactNode | (rows, aggregate) =&gt; ReactNode</td><td>—</td><td>Footer cell content (requires showFooter)</td></tr>
+        <tr><td>align / sticky / width / render</td><td>—</td><td>—</td><td>Existing behavior</td></tr>
       </tbody></table>
+    </div>
+    <div class="pkg-section"><H2>Hook example: server-side mode</H2>
+      <CodeBlock lang="tsx" code={`const { rows } = useTable({
+  data,                  // current page from your API
+  columns,
+  manualSorting: true,
+  manualFiltering: true,
+  manualPagination: true,
+  totalCount: 4218,      // total available rows; drives pageCount
+  storageKey: "users-table",
+  onSort: (key, dir) => fetch(\`/api/users?sort=\${key}.\${dir}\`),
+});`} />
     </div>
   </PackagePageShell>
 </DocLayout>

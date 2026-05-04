@@ -159,4 +159,147 @@ describe("useTable", () => {
     expect(result.current.page).toBe(1);
     expect(result.current.pageCount).toBe(1);
   });
+
+  it("uses accessor for nested or computed values", () => {
+    type Nested = Record<string, unknown> & { user: { name: string } };
+    const nested: Nested[] = [
+      { user: { name: "Charlie" } },
+      { user: { name: "Alice" } },
+      { user: { name: "Bob" } },
+    ];
+    const cols = [
+      {
+        key: "userName" as const,
+        header: "Name",
+        sortable: true,
+        accessor: (row: Nested) => row.user.name,
+      },
+    ];
+    const { result } = renderHook(() => useTable({ data: nested, columns: cols }));
+    act(() => result.current.toggleSort("userName"));
+    expect(result.current.rows.map((r) => r.user.name)).toEqual([
+      "Alice",
+      "Bob",
+      "Charlie",
+    ]);
+  });
+
+  it("uses custom sortFn when provided", () => {
+    const cols = [
+      {
+        key: "name" as const,
+        header: "Name",
+        sortable: true,
+        sortFn: (a: Row, b: Row, dir: "asc" | "desc") => {
+          const cmp = a.name.length - b.name.length;
+          return dir === "asc" ? cmp : -cmp;
+        },
+      },
+    ];
+    const { result } = renderHook(() =>
+      useTable({ data, columns: cols, pageSize: 12 }),
+    );
+    act(() => result.current.toggleSort("name"));
+    const lengths = result.current.rows.map((r) => r.name.length);
+    expect(lengths).toEqual([...lengths].sort((a, b) => a - b));
+  });
+
+  it("uses custom filterFn when provided", () => {
+    const cols = [
+      {
+        key: "age" as const,
+        header: "Age",
+        filterable: true,
+        filterFn: (row: Row, q: string) => row.age > Number(q || 0),
+      },
+    ];
+    const { result } = renderHook(() =>
+      useTable({ data, columns: cols, pageSize: 12 }),
+    );
+    act(() => result.current.setColumnFilter("age", "30"));
+    expect(result.current.rows.every((r) => r.age > 30)).toBe(true);
+  });
+
+  it("manualSorting skips internal sort", () => {
+    const { result } = renderHook(() =>
+      useTable({ data, columns, pageSize: 12, manualSorting: true }),
+    );
+    act(() => result.current.toggleSort("name"));
+    expect(result.current.rows[0]!.name).toBe("Alice");
+  });
+
+  it("manualPagination uses totalCount for pageCount and skips slicing", () => {
+    const { result } = renderHook(() =>
+      useTable({
+        data: data.slice(0, 5),
+        columns,
+        pageSize: 5,
+        manualPagination: true,
+        totalCount: 50,
+      }),
+    );
+    expect(result.current.pageCount).toBe(10);
+    expect(result.current.rows).toHaveLength(5);
+  });
+
+  it("computes aggregates per column from filtered rows", () => {
+    const cols = [
+      { key: "name" as const, header: "Name" },
+      { key: "age" as const, header: "Age", aggregate: "sum" as const },
+    ];
+    const { result } = renderHook(() =>
+      useTable({ data, columns: cols, pageSize: 5 }),
+    );
+    const expectedSum = data.reduce((s, r) => s + r.age, 0);
+    expect(result.current.aggregates.age).toBe(expectedSum);
+  });
+
+  it("aggregates respect filtering", () => {
+    const cols = [
+      { key: "name" as const, header: "Name" },
+      { key: "age" as const, header: "Age", aggregate: "avg" as const },
+    ];
+    const { result } = renderHook(() =>
+      useTable({ data, columns: cols, pageSize: 12 }),
+    );
+    act(() => result.current.setFilterValue("Alice"));
+    expect(result.current.aggregates.age).toBe(30);
+  });
+
+  it("storageKey persists sort/filter/page across remount", () => {
+    const memory = new Map<string, string>();
+    const fakeStorage: Storage = {
+      getItem: (k) => memory.get(k) ?? null,
+      setItem: (k, v) => void memory.set(k, v),
+      removeItem: (k) => void memory.delete(k),
+      clear: () => memory.clear(),
+      key: () => null,
+      length: 0,
+    };
+
+    const { result, unmount } = renderHook(() =>
+      useTable({
+        data,
+        columns,
+        pageSize: 5,
+        storageKey: "test-table",
+        storage: fakeStorage,
+      }),
+    );
+    act(() => result.current.toggleSort("age"));
+    act(() => result.current.setFilterValue("a"));
+    unmount();
+
+    const { result: r2 } = renderHook(() =>
+      useTable({
+        data,
+        columns,
+        pageSize: 5,
+        storageKey: "test-table",
+        storage: fakeStorage,
+      }),
+    );
+    expect(r2.current.sortKey).toBe("age");
+    expect(r2.current.filterValue).toBe("a");
+  });
 });
