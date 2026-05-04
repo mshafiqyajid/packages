@@ -1,5 +1,12 @@
 # @mshafiqyajid/docs
 
+## 0.0.3
+
+### Patch Changes
+
+- Updated dependencies [1c11e99]
+  - @mshafiqyajid/react-chart@0.2.0
+
 ## 0.0.2
 
 ### Patch Changes
