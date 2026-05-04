@@ -6,4 +6,5 @@ export type {
   UseKanbanResult,
   DragProps,
   DropProps,
+  DropRejectReason,
 } from "./useKanban";

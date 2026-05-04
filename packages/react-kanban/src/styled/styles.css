@@ -21,6 +21,8 @@
   --rkb-header-fg: #3f3f46;
   --rkb-drop-highlight: rgba(99, 102, 241, 0.12);
   --rkb-drop-border: #6366f1;
+  --rkb-drop-indicator: #6366f1;
+  --rkb-drop-reject: #ef4444;
   --rkb-empty-fg: #a1a1aa;
   --rkb-add-fg: #6366f1;
   --rkb-gap: 12px;
@@ -31,6 +33,21 @@
   --rkb-badge-size: 0.72rem;
   --rkb-duration: 140ms;
   --rkb-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --rkb-priority-low: #22c55e;
+  --rkb-priority-medium: #eab308;
+  --rkb-priority-high: #f97316;
+  --rkb-priority-urgent: #ef4444;
+  --rkb-label-bg: #d4d4d8;
+  --rkb-label-fg: #52525b;
+  --rkb-wip-warn: #f59e0b;
+  --rkb-wip-over: #ef4444;
+  --rkb-card-action-bg: rgba(0, 0, 0, 0.04);
+  --rkb-card-action-fg: #71717a;
+  --rkb-card-action-hover-bg: rgba(0, 0, 0, 0.08);
+  --rkb-card-action-hover-fg: #18181b;
+  --rkb-input-bg: #ffffff;
+  --rkb-input-fg: #18181b;
+  --rkb-input-border: #d4d4d8;
 }
 
 /* ============================================================================
@@ -70,7 +87,8 @@
   padding: var(--rkb-column-padding);
   min-height: 120px;
   transition: background var(--rkb-duration) var(--rkb-ease),
-    box-shadow var(--rkb-duration) var(--rkb-ease);
+    box-shadow var(--rkb-duration) var(--rkb-ease),
+    border-color var(--rkb-duration) var(--rkb-ease);
   border: 2px solid transparent;
   box-sizing: border-box;
 }
@@ -78,6 +96,28 @@
 .rkb-column[data-drag-over="true"] {
   background: var(--rkb-drop-highlight);
   border-color: var(--rkb-drop-border);
+}
+
+.rkb-column[data-drop-rejected="true"] {
+  border-color: var(--rkb-drop-reject);
+  animation: rkb-shake 320ms var(--rkb-ease);
+}
+
+@keyframes rkb-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-3px); }
+  40% { transform: translateX(3px); }
+  60% { transform: translateX(-2px); }
+  80% { transform: translateX(2px); }
+}
+
+/* WIP states — visual cue on the column */
+.rkb-column[data-wip-state="warn"] {
+  box-shadow: inset 0 0 0 1px var(--rkb-wip-warn);
+}
+
+.rkb-column[data-wip-state="over"] {
+  box-shadow: inset 0 0 0 1px var(--rkb-wip-over);
 }
 
 /* ============================================================================
@@ -101,6 +141,33 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  flex: 1;
+  min-width: 0;
+}
+
+.rkb-column-title[onDoubleClick],
+.rkb-column[data-drag-over="false"] .rkb-column-title {
+  cursor: default;
+}
+
+.rkb-column-rename-input {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--rkb-title-size);
+  font-weight: 600;
+  color: var(--rkb-header-fg);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: var(--rkb-input-bg);
+  border: 1px solid var(--rkb-input-border);
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-family: inherit;
+  outline: none;
+}
+
+.rkb-column-rename-input:focus {
+  border-color: var(--rkb-add-fg);
 }
 
 .rkb-column-badge {
@@ -119,6 +186,45 @@
   line-height: 1;
 }
 
+.rkb-column-badge[data-wip-state="warn"] {
+  background: var(--rkb-wip-warn);
+  color: #ffffff;
+}
+
+.rkb-column-badge[data-wip-state="over"] {
+  background: var(--rkb-wip-over);
+  color: #ffffff;
+}
+
+.rkb-column-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.rkb-column-remove-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0 4px;
+  color: var(--rkb-handle-color);
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  line-height: 1;
+  height: 20px;
+  font-family: inherit;
+  transition: color 140ms, background 140ms;
+}
+
+.rkb-column-remove-btn:hover {
+  color: var(--rkb-drop-reject);
+  background: rgba(239, 68, 68, 0.08);
+}
+
 /* ============================================================================
  * Cards list
  * ========================================================================== */
@@ -128,6 +234,23 @@
   flex-direction: column;
   gap: 8px;
   flex: 1;
+}
+
+.rkb-card-slot {
+  display: contents;
+}
+
+/* ============================================================================
+ * Drop indicator
+ * ========================================================================== */
+
+.rkb-drop-indicator {
+  height: 2px;
+  margin: -3px 4px;
+  border-radius: 2px;
+  background: var(--rkb-drop-indicator);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.18);
+  pointer-events: none;
 }
 
 /* ============================================================================
@@ -147,6 +270,7 @@
   box-shadow: var(--rkb-card-shadow);
   cursor: grab;
   user-select: none;
+  position: relative;
   transition: opacity var(--rkb-duration) var(--rkb-ease),
     box-shadow var(--rkb-duration) var(--rkb-ease),
     transform var(--rkb-duration) var(--rkb-ease);
@@ -163,6 +287,12 @@
   transform: scale(0.98);
 }
 
+/* Priority left-edge accent */
+.rkb-card[data-priority="low"]    { box-shadow: inset 3px 0 0 var(--rkb-priority-low),    var(--rkb-card-shadow); }
+.rkb-card[data-priority="medium"] { box-shadow: inset 3px 0 0 var(--rkb-priority-medium), var(--rkb-card-shadow); }
+.rkb-card[data-priority="high"]   { box-shadow: inset 3px 0 0 var(--rkb-priority-high),   var(--rkb-card-shadow); }
+.rkb-card[data-priority="urgent"] { box-shadow: inset 3px 0 0 var(--rkb-priority-urgent), var(--rkb-card-shadow); }
+
 /* ============================================================================
  * Drag handle
  * ========================================================================== */
@@ -178,6 +308,55 @@
 .rkb-card-content {
   flex: 1;
   word-break: break-word;
+  min-width: 0;
+}
+
+/* ============================================================================
+ * Card actions (hover-revealed)
+ * ========================================================================== */
+
+.rkb-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  opacity: 0;
+  transition: opacity var(--rkb-duration) var(--rkb-ease);
+  flex-shrink: 0;
+}
+
+.rkb-card:hover .rkb-card-actions,
+.rkb-card:focus-within .rkb-card-actions {
+  opacity: 1;
+}
+
+.rkb-card-action,
+.rkb-card-remove {
+  background: var(--rkb-card-action-bg);
+  border: none;
+  color: var(--rkb-card-action-fg);
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 0.78em;
+  line-height: 1;
+  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  transition: background var(--rkb-duration) var(--rkb-ease),
+    color var(--rkb-duration) var(--rkb-ease);
+}
+
+.rkb-card-action:hover,
+.rkb-card-remove:hover {
+  background: var(--rkb-card-action-hover-bg);
+  color: var(--rkb-card-action-hover-fg);
+}
+
+.rkb-card-remove:hover {
+  color: var(--rkb-drop-reject);
 }
 
 /* ============================================================================
@@ -199,29 +378,60 @@
 }
 
 /* ============================================================================
- * Add card placeholder
+ * Add card — button + input form
  * ========================================================================== */
 
 .rkb-add-card {
   display: flex;
   align-items: center;
   gap: 6px;
+  width: 100%;
   padding: 8px 10px;
   border-radius: var(--rkb-card-radius);
+  background: transparent;
+  border: none;
   color: var(--rkb-add-fg);
   font-size: 0.8125rem;
   font-weight: 500;
+  font-family: inherit;
   cursor: pointer;
+  text-align: left;
   transition: background var(--rkb-duration) var(--rkb-ease);
 }
 
-.rkb-add-card:hover {
+.rkb-add-card:hover:not(:disabled) {
   background: rgba(99, 102, 241, 0.08);
+}
+
+.rkb-add-card:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 
 .rkb-add-card-icon {
   font-size: 1rem;
   line-height: 1;
+}
+
+.rkb-add-card-form {
+  display: flex;
+}
+
+.rkb-add-card-input {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: var(--rkb-card-radius);
+  border: 1px solid var(--rkb-input-border);
+  background: var(--rkb-input-bg);
+  color: var(--rkb-input-fg);
+  font-size: var(--rkb-font-size);
+  font-family: inherit;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.rkb-add-card-input:focus {
+  border-color: var(--rkb-add-fg);
 }
 
 /* ============================================================================
@@ -272,10 +482,20 @@
   --rkb-header-fg: #a1a1aa;
   --rkb-drop-highlight: rgba(129, 140, 248, 0.15);
   --rkb-drop-border: #818cf8;
+  --rkb-drop-indicator: #818cf8;
   --rkb-empty-fg: #52525b;
   --rkb-add-fg: #818cf8;
   --rkb-card-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
   --rkb-card-shadow-drag: 0 8px 24px rgba(0, 0, 0, 0.5), 0 2px 6px rgba(0, 0, 0, 0.3);
+  --rkb-label-bg: #3f3f46;
+  --rkb-label-fg: #d4d4d8;
+  --rkb-card-action-bg: rgba(255, 255, 255, 0.06);
+  --rkb-card-action-fg: #a1a1aa;
+  --rkb-card-action-hover-bg: rgba(255, 255, 255, 0.12);
+  --rkb-card-action-hover-fg: #fafafa;
+  --rkb-input-bg: #18181b;
+  --rkb-input-fg: #fafafa;
+  --rkb-input-border: #3f3f46;
 }
 
 [data-theme="dark"] .rkb-board[data-tone="primary"][data-tone] {
@@ -303,8 +523,8 @@
   font-size: 0.68em;
   padding: 1px 6px;
   border-radius: 999px;
-  background: var(--rkb-badge-bg);
-  color: var(--rkb-badge-fg);
+  background: var(--rkb-label-bg);
+  color: var(--rkb-label-fg);
   margin-top: 4px;
   font-weight: 500;
 }
@@ -318,13 +538,13 @@
   margin-top: 3px;
 }
 
-.rkb-card-priority[data-priority="low"]    { background: #22c55e; }
-.rkb-card-priority[data-priority="medium"] { background: #eab308; }
-.rkb-card-priority[data-priority="high"]   { background: #f97316; }
-.rkb-card-priority[data-priority="urgent"] { background: #ef4444; }
+.rkb-card-priority[data-priority="low"]    { background: var(--rkb-priority-low); }
+.rkb-card-priority[data-priority="medium"] { background: var(--rkb-priority-medium); }
+.rkb-card-priority[data-priority="high"]   { background: var(--rkb-priority-high); }
+.rkb-card-priority[data-priority="urgent"] { background: var(--rkb-priority-urgent); }
 
 /* ============================================================================
- * Add column button
+ * Add column — button + input form
  * ========================================================================== */
 
 .rkb-add-column {
@@ -345,9 +565,42 @@
   align-self: flex-start;
 }
 
-.rkb-add-column:hover {
+.rkb-add-column:hover:not(:disabled) {
   border-color: var(--rkb-add-fg);
   color: var(--rkb-add-fg);
+}
+
+.rkb-add-column:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.rkb-add-column-form {
+  display: flex;
+  align-items: flex-start;
+  padding: 12px;
+  border: 2px dashed var(--rkb-add-fg);
+  border-radius: var(--rkb-column-radius);
+  align-self: flex-start;
+  min-width: 200px;
+  box-sizing: border-box;
+}
+
+.rkb-add-column-input {
+  width: 100%;
+  padding: 6px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--rkb-input-border);
+  background: var(--rkb-input-bg);
+  color: var(--rkb-input-fg);
+  font-size: var(--rkb-font-size);
+  font-family: inherit;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.rkb-add-column-input:focus {
+  border-color: var(--rkb-add-fg);
 }
 
 /* ============================================================================
@@ -357,7 +610,8 @@
 .rkb-column[data-at-max="true"] { opacity: 0.7; }
 
 .rkb-column[data-collapsed="true"] .rkb-cards,
-.rkb-column[data-collapsed="true"] .rkb-add-card { display: none; }
+.rkb-column[data-collapsed="true"] .rkb-add-card,
+.rkb-column[data-collapsed="true"] .rkb-add-card-form { display: none; }
 
 /* ============================================================================
  * Column collapse button
@@ -385,5 +639,8 @@
   .rkb-card,
   .rkb-column {
     transition: none;
+  }
+  .rkb-column[data-drop-rejected="true"] {
+    animation: none;
   }
 }

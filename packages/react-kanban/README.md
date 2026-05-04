@@ -70,15 +70,40 @@ function App() {
 
 ## Props
 
-### `useKanban(options)`
+### `useKanban<TData>(options)`
 
 | Option | Type | Default | Description |
 |---|---|---|---|
-| `columns` | `KanbanColumn[]` | — | Column data |
-| `onChange` | `(columns: KanbanColumn[]) => void` | — | Called after a card is dropped |
-| `disabled` | `boolean` | `false` | Disables all drag interactions |
+| `columns` | `KanbanColumn<TData>[]` | — | Column data |
+| `onChange` | `(columns) => void` | — | Fired after add / remove / move / reorder |
+| `disabled` | `boolean` | `false` | Disable all drag interactions |
+| `reorderable` | `boolean` | `false` | Allow drag-to-reorder within the same column |
+| `canDrop` | `(card, from, to, toIndex?) => boolean` | — | Validate before drop |
+| `onDropRejected` | `(card, from, to, reason) => void` | — | `reason: "canDrop" \| "limit"` |
+| `onCardAdd` / `onCardRemove` | `(card, columnId) => void` | — | Add/remove callbacks |
+| `onCardMove` | `(card, from, to, toIndex?) => void` | — | Cross-column move |
+| `onCardReorder` | `(card, columnId, fromIndex, toIndex) => void` | — | Intra-column reorder |
+| `maxCardsPerColumn` | `number` | — | Global per-column cap. Overridden by `column.wipLimit`. |
 
-Returns `{ columns, getDragProps, getDropProps, dragging, dragOver }`.
+Returns `{ columns, setColumns, getDragProps, getDropProps, dragging, dragOver, dragOverIndex, rejectedColumn, addCard, removeCard }`.
+
+### `KanbanColumn<TData>`
+
+| Field | Type | Description |
+|---|---|---|
+| `id` / `title` / `cards` | — | Required |
+| `wipLimit` | `number` | Hard cap; rejects drops that would exceed it |
+| `wipWarnThreshold` | `number` | Soft warn — sets `data-wip-state="warn"` on the column |
+
+### `KanbanCard<TData>`
+
+| Field | Type | Description |
+|---|---|---|
+| `id` / `content` | — | Required |
+| `description` | `string` | Secondary line |
+| `label` | `string` | Pill label |
+| `priority` | `"low" \| "medium" \| "high" \| "urgent"` | Adds `data-priority` for left-edge accent + dot |
+| `data` | `TData` | Arbitrary typed payload accessible in `renderCard` |
 
 ### `KanbanStyled`
 
@@ -90,9 +115,16 @@ All `useKanban` options plus:
 | `tone` | `"neutral" \| "primary"` | `"neutral"` |
 | `columnMinWidth` | `string` | `"240px"` |
 | `maxColumns` | `number` | — |
-| `renderCard` | `(card, col) => ReactNode` | — |
-| `renderColumnHeader` | `(col) => ReactNode` | — |
-| `addCardPlaceholder` | `string` | — |
+| `renderCard` / `renderColumnHeader` | `(...) => ReactNode` | — |
+| `addCardPlaceholder` | `string` | — (when set, shows "+ Add card" button → inline input) |
+| `addColumnPlaceholder` | `string` | — (when set, shows "+ Add column" button → inline title input) |
+| `showDropIndicator` | `boolean` | `true` |
+| `showCardRemoveButton` | `boolean` | `false` |
+| `cardActions` | `{ id, label, icon?, onAction, show? }[]` | — |
+| `renameColumnInline` | `boolean` | `false` |
+| `onColumnRename` / `onColumnRemove` | callback | — |
+| `showWipBadge` | `boolean` | `false` |
+| `collapsible` / `cardDraggable` | — | — |
 
 ## License
 
