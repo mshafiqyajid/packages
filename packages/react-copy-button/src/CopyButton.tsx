@@ -26,7 +26,10 @@ export interface CopyButtonProps
     UseCopyToClipboardOptions {
   text: CopySource;
   children?: ReactNode | ((props: CopyButtonRenderProps) => ReactNode);
+  /** Label rendered while in the copied state. */
   copiedLabel?: ReactNode;
+  /** Label rendered when copy fails. */
+  errorLabel?: ReactNode;
 }
 
 export const CopyButton = forwardRef<HTMLButtonElement, CopyButtonProps>(
@@ -35,6 +38,7 @@ export const CopyButton = forwardRef<HTMLButtonElement, CopyButtonProps>(
       text,
       children,
       copiedLabel,
+      errorLabel,
       resetAfter,
       onCopy,
       onError,
@@ -58,7 +62,11 @@ export const CopyButton = forwardRef<HTMLButtonElement, CopyButtonProps>(
     }
 
     const label =
-      copied && copiedLabel !== undefined ? copiedLabel : children ?? "Copy";
+      error && errorLabel !== undefined
+        ? errorLabel
+        : copied && copiedLabel !== undefined
+          ? copiedLabel
+          : children ?? "Copy";
 
     return (
       <button
@@ -66,6 +74,7 @@ export const CopyButton = forwardRef<HTMLButtonElement, CopyButtonProps>(
         type={type}
         onClick={handleClick}
         data-copied={copied ? "true" : undefined}
+        data-error={error ? "true" : undefined}
         aria-live="polite"
         {...rest}
       >

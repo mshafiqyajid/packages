@@ -24,6 +24,10 @@ export interface BadgeStyledProps {
   count?: number;
   /** Cap shown count at this value, showing `{maxCount}+` when exceeded */
   maxCount?: number;
+  /** Hide the entire badge when count is 0 (and no children/icon are set). Default false. */
+  hideOnZero?: boolean;
+  /** Render zero counts as a single character to keep the dot shape predictable. */
+  showZero?: boolean;
   dismissible?: boolean;
   onDismiss?: () => void;
   icon?: ReactNode;
@@ -43,6 +47,8 @@ export const BadgeStyled = forwardRef<HTMLSpanElement, BadgeStyledProps>(
       pulse = false,
       count,
       maxCount,
+      hideOnZero = false,
+      showZero = false,
       dismissible = false,
       onDismiss,
       icon,
@@ -52,6 +58,12 @@ export const BadgeStyled = forwardRef<HTMLSpanElement, BadgeStyledProps>(
     ref,
   ) {
     const [isDismissed, setIsDismissed] = useState(false);
+
+    const hasContent = !!children || !!icon || dot;
+    const isZero = count === 0;
+    const shouldHide =
+      hideOnZero && isZero && !showZero && !hasContent;
+    if (shouldHide) return null;
 
     const handleDismiss = useCallback(() => {
       setIsDismissed(true);

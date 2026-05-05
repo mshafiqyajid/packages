@@ -29,6 +29,14 @@ export interface PhoneInputStyledProps extends UsePhoneInputOptions {
   name?: string;
   autoFocus?: boolean;
   placeholder?: string;
+  /** Country ISO2 codes rendered at the top of the dropdown, separated by a divider. */
+  preferredCountries?: string[];
+  /** Show a search input at the top of the country dropdown. Default true. */
+  searchable?: boolean;
+  /** Search placeholder. Default "Search countries…". */
+  searchPlaceholder?: string;
+  /** Lock the selector to the current country — no dropdown. */
+  disableCountrySelector?: boolean;
 }
 
 export const PhoneInputStyled = forwardRef<
@@ -56,6 +64,10 @@ export const PhoneInputStyled = forwardRef<
     name,
     autoFocus,
     placeholder,
+    preferredCountries,
+    searchable = true,
+    searchPlaceholder = "Search countries…",
+    disableCountrySelector = false,
   },
   ref,
 ) {
@@ -75,12 +87,48 @@ export const PhoneInputStyled = forwardRef<
   );
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [search, setSearch] = useState("");
   const dropdownRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
 
   const selectedCountry = COUNTRIES.find((c) => c.iso2 === country);
 
-  const closeDropdown = useCallback(() => setDropdownOpen(false), []);
+  const closeDropdown = useCallback(() => {
+    setDropdownOpen(false);
+    setSearch("");
+  }, []);
+
+  // Focus the search input when the dropdown opens
+  useEffect(() => {
+    if (dropdownOpen && searchable) {
+      requestAnimationFrame(() => searchRef.current?.focus());
+    }
+  }, [dropdownOpen, searchable]);
+
+  const preferredSet = preferredCountries
+    ? preferredCountries.map((c) => c.toUpperCase())
+    : [];
+
+  const filteredCountries = (() => {
+    const q = search.trim().toLowerCase();
+    const list = q
+      ? COUNTRIES.filter(
+          (c) =>
+            c.name.toLowerCase().includes(q) ||
+            c.iso2.toLowerCase().includes(q) ||
+            c.dialCode.includes(q),
+        )
+      : COUNTRIES;
+    return list;
+  })();
+
+  const preferredList = preferredSet.length
+    ? filteredCountries.filter((c) => preferredSet.includes(c.iso2))
+    : [];
+  const restList = preferredSet.length
+    ? filteredCountries.filter((c) => !preferredSet.includes(c.iso2))
+    : filteredCountries;
 
   useEffect(() => {
     if (!dropdownOpen) return;
@@ -145,9 +193,12 @@ export const PhoneInputStyled = forwardRef<
             aria-label={`Country: ${selectedCountry?.name ?? country}`}
             aria-expanded={dropdownOpen}
             aria-haspopup="listbox"
-            disabled={disabled}
-            onClick={() => setDropdownOpen((prev) => !prev)}
-            onKeyDown={handleTriggerKeyDown}
+            disabled={disabled || disableCountrySelector}
+            data-locked={disableCountrySelector ? "true" : undefined}
+            onClick={() =>
+              !disableCountrySelector && setDropdownOpen((prev) => !prev)
+            }
+            onKeyDown={(e) => !disableCountrySelector && handleTriggerKeyDown(e)}
           >
             {showFlag && selectedCountry && (
               <span className="rphi-flag" aria-hidden="true">
@@ -158,35 +209,78 @@ export const PhoneInputStyled = forwardRef<
             <span className="rphi-chevron" aria-hidden="true" />
           </button>
 
-          {dropdownOpen && (
+          {dropdownOpen && !disableCountrySelector && (
             <div
               ref={dropdownRef}
               className="rphi-dropdown"
               role="listbox"
               aria-label="Select country"
             >
-              {COUNTRIES.map((c) => (
-                <button
-                  key={c.iso2}
-                  type="button"
-                  role="option"
-                  className="rphi-option"
-                  aria-selected={c.iso2 === country}
-                  data-selected={c.iso2 === country ? "true" : undefined}
-                  onClick={() => {
-                    setCountry(c.iso2);
-                    closeDropdown();
-                  }}
-                >
-                  {showFlag && (
-                    <span className="rphi-flag" aria-hidden="true">
-                      {c.flag}
-                    </span>
-                  )}
-                  <span className="rphi-option-name">{c.name}</span>
-                  <span className="rphi-option-dial">+{c.dialCode}</span>
-                </button>
-              ))}
+              {searchable && (
+                <input
+                  ref={searchRef}
+                  type="text"
+                  className="rphi-search"
+                  placeholder={searchPlaceholder}
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  aria-label="Search countries"
+                />
+              )}
+              {preferredList.length > 0 && (
+                <>
+                  {preferredList.map((c) => (
+                    <button
+                      key={`pref-${c.iso2}`}
+                      type="button"
+                      role="option"
+                      className="rphi-option"
+                      aria-selected={c.iso2 === country}
+                      data-selected={c.iso2 === country ? "true" : undefined}
+                      data-preferred="true"
+                      onClick={() => {
+                        setCountry(c.iso2);
+                        closeDropdown();
+                      }}
+                    >
+                      {showFlag && (
+                        <span className="rphi-flag" aria-hidden="true">
+                          {c.flag}
+                        </span>
+                      )}
+                      <span className="rphi-option-name">{c.name}</span>
+                      <span className="rphi-option-dial">+{c.dialCode}</span>
+                    </button>
+                  ))}
+                  <div className="rphi-divider" role="separator" aria-hidden="true" />
+                </>
+              )}
+              {restList.length === 0 && preferredList.length === 0 ? (
+                <div className="rphi-empty">No countries match</div>
+              ) : (
+                restList.map((c) => (
+                  <button
+                    key={c.iso2}
+                    type="button"
+                    role="option"
+                    className="rphi-option"
+                    aria-selected={c.iso2 === country}
+                    data-selected={c.iso2 === country ? "true" : undefined}
+                    onClick={() => {
+                      setCountry(c.iso2);
+                      closeDropdown();
+                    }}
+                  >
+                    {showFlag && (
+                      <span className="rphi-flag" aria-hidden="true">
+                        {c.flag}
+                      </span>
+                    )}
+                    <span className="rphi-option-name">{c.name}</span>
+                    <span className="rphi-option-dial">+{c.dialCode}</span>
+                  </button>
+                ))
+              )}
             </div>
           )}
         </div>

@@ -211,7 +211,6 @@ export const NumberInputStyled = forwardRef<
           id={inputId}
           name={name}
           type="text"
-          inputMode="decimal"
           required={required}
           autoFocus={autoFocus}
           className="rni-input"

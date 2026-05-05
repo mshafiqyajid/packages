@@ -5,7 +5,6 @@ import {
   useEffect,
   useState,
   useCallback,
-  type KeyboardEvent,
   type MouseEvent,
   type ReactNode,
 } from "react";
@@ -267,7 +266,6 @@ export const TagInputStyled = forwardRef<HTMLDivElement, TagInputStyledProps>(
             {...inputProps}
             ref={inputRef}
             id={inputId}
-            name={name}
             className="rti-input"
             placeholder={tags.length === 0 ? placeholder : undefined}
             readOnly={readOnly}
@@ -283,6 +281,18 @@ export const TagInputStyled = forwardRef<HTMLDivElement, TagInputStyledProps>(
             }
           />
         </div>
+
+        {/* Hidden inputs for native form submission — one per tag, all sharing `name`. */}
+        {name &&
+          tags.map((tag, i) => (
+            <input
+              key={`${name}-${i}`}
+              type="hidden"
+              name={name}
+              value={tag}
+              readOnly
+            />
+          ))}
 
         {hint && !displayError && (
           <span id={hintId} className="rti-hint">

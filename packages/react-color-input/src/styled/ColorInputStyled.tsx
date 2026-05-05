@@ -46,6 +46,12 @@ export interface ColorInputStyledProps {
   autoFocus?: boolean;
   placeholder?: string;
   presets?: string[];
+  /** Recent colors strip rendered above presets. Controlled. */
+  recentColors?: string[];
+  /** Fires after a color commit when recentColors should update. */
+  onRecentColorsChange?: (colors: string[]) => void;
+  /** Max length of the recent colors strip. Default 12. */
+  recentColorsLimit?: number;
   showAlpha?: boolean;
   eyeDropper?: boolean;
   onOpen?: () => void;
@@ -221,6 +227,9 @@ export const ColorInputStyled = forwardRef<HTMLDivElement, ColorInputStyledProps
       autoFocus,
       placeholder,
       presets,
+      recentColors,
+      onRecentColorsChange,
+      recentColorsLimit = 12,
       showAlpha = false,
       eyeDropper = false,
       onOpen,
@@ -247,6 +256,20 @@ export const ColorInputStyled = forwardRef<HTMLDivElement, ColorInputStyledProps
     const [alpha, setAlpha] = useState(1);
     const [copied, setCopied] = useState(false);
     const [mounted, setMounted] = useState(false);
+
+    const isRecentControlled = recentColors !== undefined;
+    const [internalRecent, setInternalRecent] = useState<string[]>([]);
+    const recentList = isRecentControlled ? recentColors! : internalRecent;
+    const pushRecent = useCallback(
+      (hex: string) => {
+        if (!isValidHex(hex)) return;
+        const next = [hex, ...recentList.filter((c) => c.toLowerCase() !== hex.toLowerCase())].slice(0, recentColorsLimit);
+        if (next.length === recentList.length && next[0] === recentList[0]) return;
+        if (!isRecentControlled) setInternalRecent(next);
+        onRecentColorsChange?.(next);
+      },
+      [isRecentControlled, recentList, recentColorsLimit, onRecentColorsChange],
+    );
     const supportsEyeDropper = typeof window !== "undefined" && "EyeDropper" in window;
     const [popoverPos, setPopoverPos] = useState<{ top: number; left: number }>({
       top: -9999,
@@ -270,13 +293,18 @@ export const ColorInputStyled = forwardRef<HTMLDivElement, ColorInputStyledProps
     const onCloseRef = useRef(onClose);
     onCloseRef.current = onClose;
 
+    const wasOpenRef = useRef(isOpen);
     useEffect(() => {
       if (isOpen) {
         onOpenRef.current?.();
       } else {
+        if (wasOpenRef.current && isValidHex(currentHex)) {
+          pushRecent(currentHex);
+        }
         onCloseRef.current?.();
       }
-    }, [isOpen]);
+      wasOpenRef.current = isOpen;
+    }, [isOpen, currentHex, pushRecent]);
 
     const updatePopoverPos = useCallback(() => {
       if (!wrapperRef.current || !popoverRef.current) return;
@@ -575,6 +603,21 @@ export const ColorInputStyled = forwardRef<HTMLDivElement, ColorInputStyledProps
                   aria-label="Hex color value"
                 />
               </div>
+              {recentList.length > 0 && (
+                <div className="rci-presets rci-recents" aria-label="Recent colors">
+                  {recentList.map((color) => (
+                    <button
+                      key={`recent-${color}`}
+                      type="button"
+                      className="rci-preset"
+                      aria-label={color}
+                      data-active={currentHex === color ? "true" : undefined}
+                      style={{ "--rci-swatch-color": color } as CSSProperties}
+                      onClick={() => setHex(color)}
+                    />
+                  ))}
+                </div>
+              )}
               {(presets === undefined || presets.length > 0) && (
                 <div className="rci-presets">
                   {(presets ?? PRESETS).map((preset) => (

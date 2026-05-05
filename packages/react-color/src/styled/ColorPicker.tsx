@@ -2,6 +2,7 @@ import { type HTMLAttributes, forwardRef } from "react";
 import {
   type AnyColor,
   type HsvaColor,
+  toHsva,
   hsvaToHex,
   hsvaToHsla,
   hsvaToRgba,
@@ -17,14 +18,17 @@ interface PickerBodyProps extends HTMLAttributes<HTMLDivElement> {
   picker: ReturnType<typeof useColorPicker>;
   showAlpha: boolean;
   showHexInput: boolean;
+  presets?: string[];
+  disabled?: boolean;
 }
 
 const PickerBody = forwardRef<HTMLDivElement, PickerBodyProps>(
-  function PickerBody({ picker, showAlpha, showHexInput, className, ...rest }, ref) {
+  function PickerBody({ picker, showAlpha, showHexInput, presets, disabled, className, ...rest }, ref) {
     return (
       <div
         ref={ref}
         className={["rcp-picker", className].filter(Boolean).join(" ")}
+        data-disabled={disabled ? "true" : undefined}
         {...rest}
       >
         <SaturationField picker={picker} className="rcp-saturation" />
@@ -61,6 +65,30 @@ const PickerBody = forwardRef<HTMLDivElement, PickerBodyProps>(
             </div>
           </div>
         )}
+        {presets && presets.length > 0 && (
+          <div className="rcp-presets" role="listbox" aria-label="Color presets">
+            {presets.map((preset) => {
+              const active = hsvaToHex(picker.hsva).toLowerCase() === preset.toLowerCase();
+              return (
+                <button
+                  key={preset}
+                  type="button"
+                  role="option"
+                  aria-selected={active}
+                  data-active={active ? "true" : undefined}
+                  className="rcp-preset"
+                  aria-label={preset}
+                  disabled={disabled}
+                  style={{ background: preset }}
+                  onClick={() => {
+                    if (disabled) return;
+                    picker.setHsva(toHsva(preset));
+                  }}
+                />
+              );
+            })}
+          </div>
+        )}
       </div>
     );
   },
@@ -74,6 +102,10 @@ type OmitNative = "defaultValue" | "onChange";
 type BaseExtras = {
   showAlpha?: boolean;
   showHexInput?: boolean;
+  /** Optional swatch row rendered below the picker. Click to apply. */
+  presets?: string[];
+  /** Disable interaction. */
+  disabled?: boolean;
 };
 
 function usePickerFor<TColor extends AnyColor>(

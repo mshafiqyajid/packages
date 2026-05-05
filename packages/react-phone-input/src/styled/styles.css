@@ -370,3 +370,39 @@
     animation: none;
   }
 }
+
+/* ============================================================================
+ * 0.2.0 additions: search input, preferred countries divider
+ * ========================================================================== */
+.rphi-search {
+  width: 100%;
+  padding: 0.45rem 0.6rem;
+  border: 1px solid var(--rphi-border, #e4e4e7);
+  border-radius: 6px;
+  font: inherit;
+  font-size: 0.85rem;
+  outline: none;
+  background: var(--rphi-input-bg, #ffffff);
+  color: var(--rphi-input-fg, #18181b);
+  margin-bottom: 4px;
+  box-sizing: border-box;
+}
+.rphi-search:focus {
+  border-color: var(--rphi-border-focus, #6366f1);
+}
+.rphi-divider {
+  height: 1px;
+  background: var(--rphi-border, #e4e4e7);
+  margin: 4px 0;
+}
+.rphi-empty {
+  padding: 0.65rem 0.6rem;
+  font-size: 0.8rem;
+  color: var(--rphi-fg-muted, #6b7280);
+  text-align: center;
+}
+.rphi-selector[data-locked="true"] .rphi-chevron {
+  display: none;
+}
+
+[data-theme="dark"] .rphi-search { background: var(--rphi-input-bg, #18181b); color: var(--rphi-input-fg, #fafafa); }

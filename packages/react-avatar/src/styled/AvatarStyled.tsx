@@ -15,7 +15,23 @@ export interface AvatarStyledProps extends Omit<React.HTMLAttributes<HTMLSpanEle
   border?: boolean;
   /** Custom background color e.g. "#6366f1" */
   color?: string;
+  /** Auto-derive a stable background color from `name` (only when no `color` is set and the image is absent or errored). */
+  autoColor?: boolean;
+  /** Show a shimmering skeleton instead of the fallback while the image loads. */
+  showLoading?: boolean;
   onClick?: () => void;
+}
+
+const AUTO_PALETTE = [
+  "#ef4444", "#f97316", "#eab308", "#22c55e",
+  "#06b6d4", "#3b82f6", "#6366f1", "#a855f7",
+  "#ec4899", "#14b8a6",
+];
+
+function hashString(s: string): number {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
+  return Math.abs(h);
 }
 
 export const AvatarStyled = forwardRef<HTMLSpanElement, AvatarStyledProps>(
@@ -29,6 +45,8 @@ export const AvatarStyled = forwardRef<HTMLSpanElement, AvatarStyledProps>(
       fallback,
       border = false,
       color,
+      autoColor = false,
+      showLoading = false,
       onClick,
       className,
       style,
@@ -43,6 +61,16 @@ export const AvatarStyled = forwardRef<HTMLSpanElement, AvatarStyledProps>(
       initials,
     } = useAvatar({ src, name });
 
+    const showSkeleton = showLoading && src && loadStatus === "loading";
+    const showFallback = !showSkeleton && (loadStatus === "error" || !src);
+
+    const derivedColor =
+      !color && autoColor && name
+        ? AUTO_PALETTE[hashString(name) % AUTO_PALETTE.length]
+        : undefined;
+
+    const resolvedBg = color ?? derivedColor;
+
     return (
       <span
         ref={ref}
@@ -51,14 +79,17 @@ export const AvatarStyled = forwardRef<HTMLSpanElement, AvatarStyledProps>(
         data-shape={shape}
         data-border={border ? "true" : undefined}
         data-clickable={onClick ? "true" : undefined}
+        data-loading={showSkeleton ? "true" : undefined}
         onClick={onClick}
-        style={{ ...(color ? { "--rav-bg": color, "--rav-fg": "#ffffff" } as React.CSSProperties : {}), ...style }}
+        style={{ ...(resolvedBg ? { "--rav-bg": resolvedBg, "--rav-fg": "#ffffff" } as React.CSSProperties : {}), ...style }}
         {...rest}
       >
         {/* .rav-clip clips image/fallback to the correct shape */}
         <span className="rav-clip">
-          {/* Always render fallback; it shows when image is absent or errored */}
-          {(loadStatus === "error" || !src) && (
+          {showSkeleton && (
+            <span className="rav-skeleton" aria-hidden="true" />
+          )}
+          {showFallback && (
             <span className="rav-fallback" {...fallbackProps}>
               {fallback ?? (initials ? initials : (
                 <svg className="rav-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -67,7 +98,7 @@ export const AvatarStyled = forwardRef<HTMLSpanElement, AvatarStyledProps>(
               ))}
             </span>
           )}
-          {/* Image renders on top of fallback; fades in once loaded */}
+          {/* Image renders on top; fades in once loaded */}
           {src && (
             <img {...imgProps} className="rav-img" data-status={loadStatus} />
           )}

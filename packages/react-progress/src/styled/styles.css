@@ -262,3 +262,33 @@
     transition: none;
   }
 }
+
+/* ============================================================================
+ * 0.2.0 additions: segmented variant
+ * ========================================================================== */
+.rprog-bar-track[data-segmented],
+.rprog-bar-root[data-segmented="true"] .rprog-bar-track {
+  display: flex;
+  gap: 4px;
+  background: transparent;
+}
+.rprog-bar-segment {
+  flex: 1;
+  height: 100%;
+  background: var(--rprog-track, #e4e4e7);
+  border-radius: 2px;
+  transition: background 160ms ease;
+}
+.rprog-bar-segment[data-filled="true"] {
+  background: var(--rprog-fill, #6366f1);
+}
+.rprog-bar-segment[data-filled="true"][data-animated="true"] {
+  animation: rprog-segment-pop 220ms ease;
+}
+@keyframes rprog-segment-pop {
+  0% { transform: scaleY(0.6); opacity: 0.6; }
+  100% { transform: scaleY(1); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rprog-bar-segment { transition: none; animation: none; }
+}

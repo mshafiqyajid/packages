@@ -212,3 +212,30 @@
 @media (prefers-reduced-motion: reduce) {
   .rav-img { transition: none; }
 }
+
+/* ============================================================================
+ * 0.2.0 additions: loading skeleton overlay
+ * ========================================================================== */
+.rav-skeleton {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    var(--rav-skeleton-bg, #e4e4e7) 0%,
+    var(--rav-skeleton-shine, #f4f4f5) 50%,
+    var(--rav-skeleton-bg, #e4e4e7) 100%
+  );
+  background-size: 200% 100%;
+  animation: rav-skeleton-shine 1.4s linear infinite;
+}
+@keyframes rav-skeleton-shine {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+[data-theme="dark"] {
+  --rav-skeleton-bg: #27272a;
+  --rav-skeleton-shine: #3f3f46;
+}
+@media (prefers-reduced-motion: reduce) {
+  .rav-skeleton { animation: none; }
+}
