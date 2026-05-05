@@ -1,6 +1,6 @@
 {
   "name": "@mshafiqyajid/react-file-upload",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Headless file upload hook and styled drag-and-drop component for React. Accessible, fully typed, zero dependencies.",
   "keywords": [
     "react",

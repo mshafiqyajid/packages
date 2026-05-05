@@ -1,5 +1,18 @@
 # @mshafiqyajid/docs
 
+## 0.0.6
+
+### Patch Changes
+
+- Updated dependencies [f8ca726]
+- Updated dependencies [f8ca726]
+- Updated dependencies [f8ca726]
+- Updated dependencies [f8ca726]
+  - @mshafiqyajid/react-file-upload@0.2.0
+  - @mshafiqyajid/react-rating@0.2.0
+  - @mshafiqyajid/react-switch@0.2.0
+  - @mshafiqyajid/react-toast@0.2.0
+
 ## 0.0.5
 
 ### Patch Changes
