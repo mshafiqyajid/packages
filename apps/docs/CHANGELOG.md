@@ -1,5 +1,18 @@
 # @mshafiqyajid/docs
 
+## 0.0.5
+
+### Patch Changes
+
+- Updated dependencies [9710a32]
+- Updated dependencies [9710a32]
+- Updated dependencies [9710a32]
+- Updated dependencies [9710a32]
+  - @mshafiqyajid/react-dropdown-menu@0.2.0
+  - @mshafiqyajid/react-popover@0.2.0
+  - @mshafiqyajid/react-select@0.2.0
+  - @mshafiqyajid/react-tooltip@0.2.0
+
 ## 0.0.4
 
 ### Patch Changes
