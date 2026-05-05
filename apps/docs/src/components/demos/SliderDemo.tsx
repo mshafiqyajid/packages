@@ -8,17 +8,18 @@ function SliderWrapper({ size, tone, range, showValue, marks, disabled }: {
 }) {
   const [value, setValue] = useState<number | [number, number]>(range ? [20, 70] : 40);
   return (
-    <SliderStyled
-      value={value}
-      onChange={setValue}
-      size={size as "sm"|"md"|"lg"}
-      tone={tone as "neutral"|"primary"|"success"|"danger"}
-      range={range}
-      showValue={showValue}
-      marks={marks}
-      disabled={disabled}
-      style={{ width: "100%", maxWidth: 360 } as React.CSSProperties}
-    />
+    <div style={{ width: "100%", maxWidth: 360 }}>
+      <SliderStyled
+        value={value}
+        onChange={setValue}
+        size={size as "sm"|"md"|"lg"}
+        tone={tone as "neutral"|"primary"|"success"|"danger"}
+        range={range}
+        showValue={showValue}
+        marks={marks}
+        disabled={disabled}
+      />
+    </div>
   );
 }
 

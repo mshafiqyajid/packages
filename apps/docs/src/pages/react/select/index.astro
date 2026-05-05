@@ -59,6 +59,36 @@ const [value, setValue] = useState("");
     </div>
 
     <div class="pkg-section">
+      <H2>Headless</H2>
+      <CodeBlock lang="tsx" code={`import { useSelect } from "@mshafiqyajid/react-select";
+
+const items = [
+  { value: "react", label: "React" },
+  { value: "vue",   label: "Vue" },
+];
+const [value, setValue] = useState("react");
+
+const { triggerProps, listboxProps, getItemProps, isOpen } = useSelect({
+  items,
+  value,
+  onChange: (v) => setValue(v as string),
+});
+
+return (
+  <>
+    <button {...triggerProps}>{value || "Select…"}</button>
+    {isOpen && (
+      <ul {...listboxProps} className="listbox">
+        {items.map((item) => (
+          <li key={item.value} {...getItemProps(item)}>{item.label}</li>
+        ))}
+      </ul>
+    )}
+  </>
+);`} />
+    </div>
+
+    <div class="pkg-section">
       <H2>API</H2>
       <table class="props-table">
         <thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>

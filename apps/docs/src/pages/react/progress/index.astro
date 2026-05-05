@@ -17,6 +17,19 @@ import "@mshafiqyajid/react-progress/styles.css";
 <ProgressBar tone="success" animated /> {/* indeterminate */}
 <ProgressCircle value={60} tone="primary" showValue />`} />
     </div>
+    <div class="pkg-section"><H2>Headless</H2>
+      <CodeBlock lang="tsx" code={`import { useProgress } from "@mshafiqyajid/react-progress";
+
+const { progressProps, percent, isComplete, isIndeterminate } = useProgress({
+  value: 65,
+});
+
+return (
+  <div {...progressProps} className="my-bar">
+    <div className="my-bar__fill" style={{ width: \`\${percent}%\` }} />
+  </div>
+);`} />
+    </div>
     <div class="pkg-section"><H2>ProgressBar API</H2>
       <table class="props-table"><thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
         <tr><td>value</td><td>number</td><td>—</td><td>Progress value 0–100. Omit for indeterminate</td></tr>
@@ -26,6 +39,8 @@ import "@mshafiqyajid/react-progress/styles.css";
         <tr><td>showValue</td><td>boolean</td><td>false</td><td>Show percentage text</td></tr>
         <tr><td>animated</td><td>boolean</td><td>false</td><td>Animated stripe (indeterminate)</td></tr>
         <tr><td>rounded</td><td>boolean</td><td>true</td><td>Rounded ends</td></tr>
+        <tr><td>segments</td><td>number</td><td>—</td><td>When set, renders the bar as N discrete segments (data-filled lands on filled cells).</td></tr>
+        <tr><td>formatValue</td><td>(percent, value) =&gt; ReactNode</td><td>—</td><td>Custom value renderer used when <code>showValue</code> is true.</td></tr>
       </tbody></table>
     </div>
     <div class="pkg-section"><H2>ProgressCircle API</H2>

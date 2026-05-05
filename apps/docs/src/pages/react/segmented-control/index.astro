@@ -76,6 +76,27 @@ const [view, setView] = useState("week");
     </div>
 
     <div class="pkg-section">
+      <H2>Headless</H2>
+      <CodeBlock lang="tsx" code={`import { useSegmentedControl } from "@mshafiqyajid/react-segmented-control";
+
+const { options, rootProps, indicatorStyle } = useSegmentedControl({
+  options: ["day", "week", "month"],
+  defaultValue: "week",
+});
+
+return (
+  <div {...rootProps} className="seg">
+    <span className="seg__indicator" style={indicatorStyle} />
+    {options.map((opt) => (
+      <button key={String(opt.value)} {...opt.buttonProps}>
+        {opt.label}
+      </button>
+    ))}
+  </div>
+);`} />
+    </div>
+
+    <div class="pkg-section">
       <H2>API</H2>
       <h3>SegmentedControlStyled</h3>
       <table class="props-table">

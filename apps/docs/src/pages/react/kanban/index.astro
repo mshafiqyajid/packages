@@ -22,6 +22,33 @@ const [columns, setColumns] = useState<KanbanColumn[]>([
 
 <KanbanStyled columns={columns} onChange={setColumns} tone="primary" />`} />
     </div>
+    <div class="pkg-section"><H2>Headless</H2>
+      <CodeBlock lang="tsx" code={`import { useKanban } from "@mshafiqyajid/react-kanban";
+
+const initial = [
+  { id: "todo", title: "To Do", cards: [{ id: "1", content: "Ship docs" }] },
+  { id: "done", title: "Done", cards: [] },
+];
+
+const { columns, getDragProps, getDropProps } = useKanban({
+  columns: initial,
+});
+
+return (
+  <div className="board">
+    {columns.map((col) => (
+      <div key={col.id} {...getDropProps(col.id)} className="col">
+        <h3>{col.title}</h3>
+        {col.cards.map((card) => (
+          <div key={card.id} {...getDragProps(card.id, col.id)}>
+            {card.content}
+          </div>
+        ))}
+      </div>
+    ))}
+  </div>
+);`} />
+    </div>
     <div class="pkg-section"><H2>API</H2>
       <table class="props-table"><thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
         <tr><td>columns</td><td>KanbanColumn[]</td><td>—</td><td>Board columns with cards</td></tr>

@@ -25,6 +25,27 @@ import "@mshafiqyajid/react-popover/styles.css";
   <button>Show shortcuts</button>
 </PopoverStyled>`} />
     </div>
+    <div class="pkg-section"><H2>Headless</H2>
+      <CodeBlock lang="tsx" code={`import { usePopover } from "@mshafiqyajid/react-popover";
+
+const { triggerProps, popoverProps, isOpen, close } = usePopover({
+  trigger: "click",
+  closeOnEsc: true,
+});
+
+return (
+  <>
+    <button {...triggerProps}>Open</button>
+    {isOpen && (
+      <div {...popoverProps} className="my-popover">
+        <p>Content</p>
+        <button onClick={close}>Close</button>
+      </div>
+    )}
+  </>
+);`} />
+      <p>The hook delegates positioning to the consumer — pair with your own floating-UI library or absolute layout. <code>PopoverStyled</code> uses Floating UI internally.</p>
+    </div>
     <div class="pkg-section"><H2>API</H2>
       <table class="props-table"><thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
         <tr><td>content</td><td>ReactNode</td><td>—</td><td>Popover body content</td></tr>

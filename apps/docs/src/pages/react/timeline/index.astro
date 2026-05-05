@@ -21,6 +21,23 @@ import "@mshafiqyajid/react-timeline/styles.css";
   ]}
 />`} />
     </div>
+    <div class="pkg-section"><H2>Headless</H2>
+      <CodeBlock lang="tsx" code={`import { useTimeline } from "@mshafiqyajid/react-timeline";
+
+const ids = ["1", "2", "3"];
+const { items, getItemProps, orientation } = useTimeline({
+  items: ids,
+  orientation: "vertical",
+});
+
+return (
+  <ol className="my-timeline" data-orientation={orientation}>
+    {items.map((id) => (
+      <li key={id} {...getItemProps(id)}>Step {id}</li>
+    ))}
+  </ol>
+);`} />
+    </div>
     <div class="pkg-section"><H2>API</H2>
       <table class="props-table"><thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
         <tr><td>items</td><td>TimelineItem[]</td><td>—</td><td>{`{ id, title, description?, date?, icon?, status? }`}</td></tr>

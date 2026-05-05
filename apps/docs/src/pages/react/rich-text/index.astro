@@ -21,6 +21,30 @@ const [html, setHtml] = useState("");
   tone="primary"
 />`} />
     </div>
+    <div class="pkg-section"><H2>Headless</H2>
+      <CodeBlock lang="tsx" code={`import { useRichText } from "@mshafiqyajid/react-rich-text";
+
+const {
+  editorProps,
+  execCommand,
+  isBold,
+  isItalic,
+  html,
+} = useRichText({
+  defaultValue: "<p>Edit me…</p>",
+});
+
+return (
+  <div className="rt">
+    <div className="rt__toolbar">
+      <button data-active={isBold} onClick={() => execCommand("bold")}>B</button>
+      <button data-active={isItalic} onClick={() => execCommand("italic")}>I</button>
+    </div>
+    <div {...editorProps} className="rt__editor" />
+    <p>HTML: {html.length} chars</p>
+  </div>
+);`} />
+    </div>
     <div class="pkg-section"><H2>API</H2>
       <table class="props-table"><thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
         <tr><td>value</td><td>string</td><td>—</td><td>Controlled HTML string</td></tr>
@@ -38,7 +62,9 @@ const [html, setHtml] = useState("");
         <tr><td>onBlur</td><td>() =&gt; void</td><td>—</td><td>Blur callback</td></tr>
         <tr><td>wordCount</td><td>boolean</td><td>false</td><td>Show word/character count</td></tr>
         <tr><td>spellCheck</td><td>boolean</td><td>true</td><td>Enable spell check</td></tr>
-        <tr><td>allowedTags</td><td>string[]</td><td>—</td><td>Allowed HTML tag whitelist</td></tr>
+        <tr><td>allowedTags</td><td>string[]</td><td>(safe set)</td><td>Tag whitelist used by both the on-change pass and paste sanitization. Defaults cover standard formatting tags (<code>p, br, strong, em, u, s, h1-h6, ol, ul, li, a, blockquote, code, pre</code>).</td></tr>
+        <tr><td>sanitizePaste</td><td>boolean</td><td>true</td><td>Strip <code>style</code>, <code>class</code>, <code>on*</code> attributes and disallowed tags from pasted HTML. Blocks <code>javascript:</code> and <code>data:</code> URLs. Plain text paste preserves newlines as <code>&lt;br&gt;</code>.</td></tr>
+        <tr><td>transformPaste</td><td>(html) =&gt; string</td><td>—</td><td>Run after <code>sanitizePaste</code>. Use for custom paste transforms (e.g. converting smart quotes).</td></tr>
       </tbody></table>
     </div>
   </PackagePageShell>

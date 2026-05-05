@@ -22,6 +22,22 @@ const [color, setColor] = useState("#6366f1");
   label="Brand color"
 />`} />
     </div>
+    <div class="pkg-section"><H2>Headless</H2>
+      <CodeBlock lang="tsx" code={`import { useColorInput } from "@mshafiqyajid/react-color-input";
+
+const { inputProps, swatchProps, isOpen, currentHex } = useColorInput({
+  defaultValue: "#6366f1",
+  format: "hex",
+});
+
+return (
+  <div className="ci">
+    <button {...swatchProps} style={{ background: currentHex }} />
+    <input {...inputProps} />
+    {isOpen && <MyCustomPicker />}
+  </div>
+);`} />
+    </div>
     <div class="pkg-section"><H2>API</H2>
       <table class="props-table"><thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
         <tr><td>value</td><td>string</td><td>—</td><td>Controlled color value</td></tr>
@@ -40,6 +56,9 @@ const [color, setColor] = useState("#6366f1");
         <tr><td>eyeDropper</td><td>boolean</td><td>false</td><td>EyeDropper API button (Chrome only)</td></tr>
         <tr><td>onOpen</td><td>() =&gt; void</td><td>—</td><td>Picker open callback</td></tr>
         <tr><td>onClose</td><td>() =&gt; void</td><td>—</td><td>Picker close callback</td></tr>
+        <tr><td>recentColors</td><td>string[]</td><td>—</td><td>Recently used colors row (rendered above presets when provided).</td></tr>
+        <tr><td>onRecentColorsChange</td><td>(colors) =&gt; void</td><td>—</td><td>Fires when a color is committed; receives the deduped, capped list. Wire it up to persist recents.</td></tr>
+        <tr><td>recentColorsLimit</td><td>number</td><td>12</td><td>Max recents tracked before older entries are dropped.</td></tr>
       </tbody></table>
     </div>
   </PackagePageShell>

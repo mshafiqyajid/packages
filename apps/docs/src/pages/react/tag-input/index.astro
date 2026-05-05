@@ -23,6 +23,26 @@ const [tags, setTags] = useState<string[]>([]);
   tone="primary"
 />`} />
     </div>
+    <div class="pkg-section"><H2>Headless</H2>
+      <CodeBlock lang="tsx" code={`import { useTagInput } from "@mshafiqyajid/react-tag-input";
+
+const { tags, inputProps, removeTag } = useTagInput({
+  defaultValue: ["react", "ts"],
+  maxTags: 5,
+});
+
+return (
+  <div className="tags">
+    {tags.map((tag, i) => (
+      <span key={i} className="tag">
+        {tag}
+        <button onClick={() => removeTag(i)}>×</button>
+      </span>
+    ))}
+    <input {...inputProps} placeholder="Add tag..." />
+  </div>
+);`} />
+    </div>
     <div class="pkg-section"><H2>API</H2>
       <table class="props-table"><thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
         <tr><td>value</td><td>string[]</td><td>—</td><td>Controlled tags array</td></tr>
@@ -33,7 +53,7 @@ const [tags, setTags] = useState<string[]>([]);
         <tr><td>allowDuplicates</td><td>boolean</td><td>false</td><td>Allow duplicate tags</td></tr>
         <tr><td>delimiter</td><td>string | string[]</td><td>["Enter", ","]</td><td>Keys that confirm a tag</td></tr>
         <tr><td>validate</td><td>(tag) =&gt; boolean</td><td>—</td><td>Custom validation function</td></tr>
-        <tr><td>tagVariant</td><td>"solid" | "outline" | "soft"</td><td>"solid"</td><td>Tag chip style</td></tr>
+        <tr><td>tagVariant</td><td>"solid" | "subtle" | "outline"</td><td>"solid"</td><td>Tag chip style</td></tr>
         <tr><td>label</td><td>string</td><td>—</td><td>Visible label</td></tr>
         <tr><td>hint</td><td>string</td><td>—</td><td>Helper text below input</td></tr>
         <tr><td>error</td><td>string</td><td>—</td><td>Error message (overrides hint)</td></tr>
@@ -46,6 +66,9 @@ const [tags, setTags] = useState<string[]>([]);
         <tr><td>onTagRemove</td><td>(tag, index) =&gt; void</td><td>—</td><td>Tag removed callback</td></tr>
         <tr><td>renderTag</td><td>(tag, i, onRemove) =&gt; ReactNode</td><td>—</td><td>Custom chip renderer</td></tr>
         <tr><td>sortable</td><td>boolean</td><td>false</td><td>Drag-to-reorder tags</td></tr>
+        <tr><td>pasteDelimiters</td><td>(string | RegExp)[] | null</td><td>{`[",", ";", /\\s*\\n\\s*/, /\\s*\\t\\s*/]`}</td><td>Split pasted text into multiple tags. Pass <code>null</code> to disable.</td></tr>
+        <tr><td>transform</td><td>(tag) =&gt; string</td><td>—</td><td>Normalize each tag before insertion (e.g. lowercase, trim).</td></tr>
+        <tr><td>backspaceEditsLastTag</td><td>boolean</td><td>false</td><td>When the input is empty, Backspace pops the last tag back into the input for editing instead of deleting it.</td></tr>
       </tbody></table>
     </div>
   </PackagePageShell>

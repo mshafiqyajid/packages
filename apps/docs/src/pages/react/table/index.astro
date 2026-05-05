@@ -21,6 +21,34 @@ const columns: ColumnDef<User>[] = [
 ];
 <TableStyled data={users} columns={columns} sortable filterable paginate pageSize={10} hoverable />`} />
     </div>
+    <div class="pkg-section"><H2>Headless</H2>
+      <CodeBlock lang="tsx" code={`import { useTable } from "@mshafiqyajid/react-table";
+
+const { rows, sortKey, sortDir, toggleSort, page, pageCount, setPage } = useTable({
+  data: users,
+  columns,
+  pageSize: 10,
+});
+
+return (
+  <table>
+    <thead>
+      <tr>
+        {columns.map((col) => (
+          <th key={col.key} onClick={() => toggleSort(col.key)}>
+            {col.header} {sortKey === col.key ? (sortDir === "asc" ? "▲" : "▼") : ""}
+          </th>
+        ))}
+      </tr>
+    </thead>
+    <tbody>
+      {rows.map((row) => (
+        <tr key={row.id}><td>{row.name}</td><td>{row.email}</td></tr>
+      ))}
+    </tbody>
+  </table>
+);`} />
+    </div>
     <div class="pkg-section"><H2>TableStyled props</H2>
       <table class="props-table"><thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
         <tr><td>data / columns</td><td>T[] / ColumnDef&lt;T&gt;[]</td><td>—</td><td>Required</td></tr>

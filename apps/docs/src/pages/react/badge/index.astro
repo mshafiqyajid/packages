@@ -18,6 +18,21 @@ import "@mshafiqyajid/react-badge/styles.css";
 <BadgeStyled tone="primary" dot>New</BadgeStyled>
 <BadgeStyled tone="warning" dismissible onDismiss={() => {}}>Pending</BadgeStyled>`} />
     </div>
+    <div class="pkg-section"><H2>Headless</H2>
+      <CodeBlock lang="tsx" code={`import { useBadge } from "@mshafiqyajid/react-badge";
+
+const { badgeProps, dismissProps, isDismissed } = useBadge({
+  onDismiss: () => console.log("dismissed"),
+});
+
+if (isDismissed) return null;
+return (
+  <span {...badgeProps} className="my-badge">
+    New
+    <button {...dismissProps}>×</button>
+  </span>
+);`} />
+    </div>
     <div class="pkg-section"><H2>API</H2>
       <table class="props-table"><thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
         <tr><td>variant</td><td>"solid" | "subtle" | "outline"</td><td>"subtle"</td><td>Visual style</td></tr>
@@ -32,6 +47,8 @@ import "@mshafiqyajid/react-badge/styles.css";
         <tr><td>dismissible</td><td>boolean</td><td>false</td><td>Show dismiss button</td></tr>
         <tr><td>onDismiss</td><td>() =&gt; void</td><td>—</td><td>Called when dismissed</td></tr>
         <tr><td>icon</td><td>ReactNode</td><td>—</td><td>Leading icon</td></tr>
+        <tr><td>hideOnZero</td><td>boolean</td><td>false</td><td>Render nothing when <code>count</code> is <code>0</code> and there is no other content. Useful for unread badges.</td></tr>
+        <tr><td>showZero</td><td>boolean</td><td>false</td><td>Force-render <code>count={`{0}`}</code>. Overrides <code>hideOnZero</code>.</td></tr>
       </tbody></table>
     </div>
   </PackagePageShell>

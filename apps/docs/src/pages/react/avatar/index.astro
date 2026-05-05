@@ -23,6 +23,18 @@ import "@mshafiqyajid/react-avatar/styles.css";
   <AvatarStyled name="Dave" />
 </AvatarGroup>`} />
     </div>
+    <div class="pkg-section"><H2>Headless</H2>
+      <CodeBlock lang="tsx" code={`import { useAvatar } from "@mshafiqyajid/react-avatar";
+
+const { imgProps, fallbackProps, status, initials } = useAvatar({
+  src: "/photo.jpg",
+  name: "Shafiq Yajid",
+});
+
+return status === "loaded"
+  ? <img {...imgProps} className="my-avatar" />
+  : <span {...fallbackProps} className="my-avatar-fallback">{initials}</span>;`} />
+    </div>
     <div class="pkg-section"><H2>API</H2>
       <table class="props-table"><thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
         <tr><td>src</td><td>string</td><td>—</td><td>Image URL</td></tr>
@@ -34,6 +46,8 @@ import "@mshafiqyajid/react-avatar/styles.css";
         <tr><td>fallback</td><td>ReactNode</td><td>—</td><td>Custom fallback content</td></tr>
         <tr><td>color</td><td>string</td><td>—</td><td>Custom background color e.g. <code>"#6366f1"</code></td></tr>
         <tr><td>onClick</td><td>() =&gt; void</td><td>—</td><td>Makes avatar clickable with hover effect</td></tr>
+        <tr><td>autoColor</td><td>boolean</td><td>false</td><td>Pick a deterministic background from a 10-color palette by hashing <code>name</code>. Overridden by <code>color</code>.</td></tr>
+        <tr><td>showLoading</td><td>boolean</td><td>false</td><td>Render a skeleton overlay while the image is loading. Pairs with <code>src</code>.</td></tr>
       </tbody></table>
     </div>
   </PackagePageShell>

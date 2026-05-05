@@ -207,8 +207,12 @@ export function ProgressPreview() {
 }
 
 export function SliderPreview() {
-  const [v, setV] = useState(60);
-  return <SliderStyled value={v} onChange={setV} tone="primary" size="sm" style={{ width: 180 } as React.CSSProperties} />;
+  const [v, setV] = useState<number | [number, number]>(60);
+  return (
+    <div style={{ width: 180 }}>
+      <SliderStyled value={v} onChange={setV} tone="primary" size="sm" />
+    </div>
+  );
 }
 
 export function PopoverPreview() {

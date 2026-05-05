@@ -20,14 +20,15 @@ export default function TabsDemo() {
       ]}
       staticProps={{ tabs: "{tabs}", defaultValue: '"overview"' }}
       render={(v) => (
-        <TabsStyled
-          tabs={tabs}
-          variant={v.variant as "line" | "solid" | "pill"}
-          size={v.size as "sm" | "md" | "lg"}
-          tone={v.tone as "neutral" | "primary"}
-          defaultValue="overview"
-          style={{ width: "100%", maxWidth: 480 } as React.CSSProperties}
-        />
+        <div style={{ width: "100%", maxWidth: 480 }}>
+          <TabsStyled
+            tabs={tabs}
+            variant={v.variant as "line" | "solid" | "pill"}
+            size={v.size as "sm" | "md" | "lg"}
+            tone={v.tone as "neutral" | "primary"}
+            defaultValue="overview"
+          />
+        </div>
       )}
     />
   );

@@ -28,6 +28,24 @@ const [price, setPrice] = useState<number | undefined>(0);
 <NumberInputStyled value={weight} onChange={setWeight} suffix="kg" />
 <NumberInputStyled value={amount} onChange={setAmount} prefix="RM" />`} />
     </div>
+    <div class="pkg-section"><H2>Headless</H2>
+      <CodeBlock lang="tsx" code={`import { useNumberInput } from "@mshafiqyajid/react-number-input";
+
+const { inputProps, incrementProps, decrementProps } = useNumberInput({
+  defaultValue: 0,
+  min: 0,
+  max: 100,
+  step: 1,
+});
+
+return (
+  <div className="num">
+    <button {...decrementProps}>−</button>
+    <input {...inputProps} />
+    <button {...incrementProps}>+</button>
+  </div>
+);`} />
+    </div>
     <div class="pkg-section"><H2>API</H2>
       <table class="props-table"><thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
         <tr><td>value</td><td>number | undefined</td><td>—</td><td>Controlled value</td></tr>
@@ -35,7 +53,9 @@ const [price, setPrice] = useState<number | undefined>(0);
         <tr><td>onChange</td><td>(v) =&gt; void</td><td>—</td><td>Called on change</td></tr>
         <tr><td>min</td><td>number</td><td>—</td><td>Minimum value</td></tr>
         <tr><td>max</td><td>number</td><td>—</td><td>Maximum value</td></tr>
-        <tr><td>step</td><td>number</td><td>1</td><td>Increment step</td></tr>
+        <tr><td>step</td><td>number</td><td>1</td><td>Increment step (Arrow keys)</td></tr>
+        <tr><td>bigStep</td><td>number</td><td>step × 10</td><td>Increment step for Shift+Arrow / PageUp / PageDown</td></tr>
+        <tr><td>wheelEnabled</td><td>boolean</td><td>false</td><td>Allow mouse wheel to step value when input is focused</td></tr>
         <tr><td>format</td><td>"decimal" | "currency" | "percent"</td><td>"decimal"</td><td>Display format</td></tr>
         <tr><td>currency</td><td>string</td><td>"USD"</td><td>ISO currency code (format="currency")</td></tr>
         <tr><td>locale</td><td>string</td><td>"en-US"</td><td>Intl locale for formatting</td></tr>
@@ -52,6 +72,7 @@ const [price, setPrice] = useState<number | undefined>(0);
         <tr><td>suffix</td><td>string</td><td>—</td><td>Text after value (e.g. "kg")</td></tr>
         <tr><td>clampOnBlur</td><td>boolean</td><td>true</td><td>Snap to min/max on blur</td></tr>
       </tbody></table>
+      <p class="pkg-note">Holding the increment/decrement buttons repeats the step (200ms initial delay, then ~50ms cadence). Home / End jump to min / max when those bounds are set.</p>
     </div>
   </PackagePageShell>
 </DocLayout>

@@ -67,6 +67,31 @@ const hex = hsvaToHex({ h: 239, s: 84, v: 67, a: 1 });
     </div>
 
     <div class="pkg-section">
+      <H2>Headless</H2>
+      <CodeBlock lang="tsx" code={`import { useColorPicker } from "@mshafiqyajid/react-color";
+import { hsvaToHex } from "@mshafiqyajid/react-color";
+
+const {
+  hsva,
+  saturationFieldProps,
+  sbPosition,
+  hueSliderProps,
+  alphaSliderProps,
+} = useColorPicker({ defaultValue: "#6366f1" });
+
+return (
+  <div className="my-picker">
+    <div {...saturationFieldProps} className="sat">
+      <span style={{ left: \`\${sbPosition.left}%\`, top: \`\${sbPosition.top}%\` }} />
+    </div>
+    <div {...hueSliderProps} className="hue" />
+    <div {...alphaSliderProps} className="alpha" />
+    <p>{hsvaToHex(hsva)}</p>
+  </div>
+);`} />
+    </div>
+
+    <div class="pkg-section">
       <H2>API</H2>
       <h3>Picker components</h3>
       <table class="props-table">
@@ -87,6 +112,8 @@ const hex = hsvaToHex({ h: 239, s: 84, v: 67, a: 1 });
           <tr><td>onChange</td><td>(color) =&gt; void</td><td>—</td><td>Fires on every pointer move.</td></tr>
           <tr><td>showAlpha</td><td>boolean</td><td>false</td><td>Add alpha slider.</td></tr>
           <tr><td>showHexInput</td><td>boolean</td><td>true</td><td>Show hex text input.</td></tr>
+          <tr><td>presets</td><td>string[]</td><td>—</td><td>Optional swatch row rendered below the picker. Click a swatch to apply.</td></tr>
+          <tr><td>disabled</td><td>boolean</td><td>false</td><td>Block all pointer interaction (saturation field, sliders, hex input, presets).</td></tr>
         </tbody>
       </table>
     </div>

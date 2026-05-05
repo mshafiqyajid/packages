@@ -77,6 +77,19 @@ const { copy, copied } = useCopyToClipboard({ resetAfter: 2000 });
     </div>
 
     <div class="pkg-section">
+      <H2>Headless</H2>
+      <CodeBlock lang="tsx" code={`import { useCopyToClipboard } from "@mshafiqyajid/react-copy-button";
+
+const { copy, copied, error } = useCopyToClipboard({ resetAfter: 2000 });
+
+return (
+  <button onClick={() => void copy("hello")}>
+    {error ? "Failed" : copied ? "Copied" : "Copy"}
+  </button>
+);`} />
+    </div>
+
+    <div class="pkg-section">
       <H2>API</H2>
       <h3>CopyButtonStyled</h3>
       <table class="props-table">
@@ -85,6 +98,7 @@ const { copy, copied } = useCopyToClipboard({ resetAfter: 2000 });
           <tr><td>text</td><td>string | () =&gt; string | Promise&lt;string&gt;</td><td>—</td><td>Required. Text to copy.</td></tr>
           <tr><td>label</td><td>ReactNode</td><td>"Copy"</td><td>Default-state label.</td></tr>
           <tr><td>copiedLabel</td><td>ReactNode</td><td>"Copied"</td><td>Label after copy.</td></tr>
+          <tr><td>errorLabel</td><td>ReactNode</td><td>—</td><td>Label rendered when copy fails. Sets <code>data-error="true"</code> on the button.</td></tr>
           <tr><td>variant</td><td>solid | outline | ghost | subtle</td><td>solid</td><td>Visual variant.</td></tr>
           <tr><td>size</td><td>sm | md | lg | icon</td><td>md</td><td>Size.</td></tr>
           <tr><td>tone</td><td>neutral | primary | success | danger</td><td>neutral</td><td>Color theme.</td></tr>

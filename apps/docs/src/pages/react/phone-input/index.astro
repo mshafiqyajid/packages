@@ -22,6 +22,20 @@ const [phone, setPhone] = useState("");
   tone="primary"
 />`} />
     </div>
+    <div class="pkg-section"><H2>Headless</H2>
+      <CodeBlock lang="tsx" code={`import { usePhoneInput } from "@mshafiqyajid/react-phone-input";
+
+const { inputProps, country, setCountry, dialCode, isValid } = usePhoneInput({
+  defaultCountry: "US",
+});
+
+return (
+  <div className="phone">
+    <button onClick={() => setCountry("GB")}>{country} (+{dialCode})</button>
+    <input {...inputProps} aria-invalid={!isValid} />
+  </div>
+);`} />
+    </div>
     <div class="pkg-section"><H2>API</H2>
       <table class="props-table"><thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
         <tr><td>value</td><td>string</td><td>—</td><td>Controlled phone number value</td></tr>
@@ -39,6 +53,10 @@ const [phone, setPhone] = useState("");
         <tr><td>onCountryChange</td><td>(country) =&gt; void</td><td>—</td><td>Country change callback</td></tr>
         <tr><td>outputFormat</td><td>"national" | "international" | "e164"</td><td>"national"</td><td>Output format for onChange value</td></tr>
         <tr><td>readOnly</td><td>boolean</td><td>false</td><td>Read-only input</td></tr>
+        <tr><td>preferredCountries</td><td>string[]</td><td>—</td><td>ISO-2 codes to pin to the top of the dropdown (rendered above a divider).</td></tr>
+        <tr><td>searchable</td><td>boolean</td><td>true</td><td>Show a search field at the top of the country dropdown.</td></tr>
+        <tr><td>searchPlaceholder</td><td>string</td><td>"Search..."</td><td>Placeholder for the country search input.</td></tr>
+        <tr><td>disableCountrySelector</td><td>boolean</td><td>false</td><td>Lock the country to <code>defaultCountry</code> — hides the dropdown trigger.</td></tr>
       </tbody></table>
     </div>
   </PackagePageShell>

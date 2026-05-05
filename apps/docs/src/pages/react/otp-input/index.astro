@@ -78,6 +78,25 @@ const [status, setStatus] = useState<"idle" | "verifying" | "error">("idle");
     </div>
 
     <div class="pkg-section">
+      <H2>Headless</H2>
+      <CodeBlock lang="tsx" code={`import { useOTP } from "@mshafiqyajid/react-otp-input";
+
+const { slots, value, isComplete } = useOTP({
+  length: 6,
+  pattern: "numeric",
+  onComplete: (code) => verify(code),
+});
+
+return (
+  <div className="otp">
+    {slots.map((slot) => (
+      <input key={slot.index} {...slot.inputProps} className="otp__slot" />
+    ))}
+  </div>
+);`} />
+    </div>
+
+    <div class="pkg-section">
       <H2>API</H2>
       <h3>OTPInputStyled</h3>
       <table class="props-table">

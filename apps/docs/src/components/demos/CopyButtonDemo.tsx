@@ -13,6 +13,7 @@ export default function CopyButtonDemo() {
         { name: "tone",    control: { type: "segmented", options: ["neutral","primary","success","danger"] as const }, defaultValue: "primary", omitWhen: "neutral" },
         { name: "label",   control: { type: "text", placeholder: "Copy" }, defaultValue: "Copy", omitWhen: "Copy" },
         { name: "copiedLabel", control: { type: "text", placeholder: "Copied" }, defaultValue: "Copied", omitWhen: "Copied" },
+        { name: "errorLabel",  control: { type: "text", placeholder: "Failed" }, defaultValue: "", omitWhen: "" },
         { name: "fullWidth", control: { type: "toggle" }, defaultValue: false, omitWhen: false },
       ]}
       staticProps={{ text: '"Hello world"' }}
@@ -24,6 +25,7 @@ export default function CopyButtonDemo() {
           tone={v.tone as "neutral"|"primary"|"success"|"danger"}
           label={v.size === "icon" ? "" : (v.label as string)}
           copiedLabel={v.size === "icon" ? "" : (v.copiedLabel as string)}
+          errorLabel={v.size === "icon" ? undefined : ((v.errorLabel as string) || undefined)}
           fullWidth={v.fullWidth as boolean}
           aria-label={v.size === "icon" ? "Copy" : undefined}
         />

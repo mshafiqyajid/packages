@@ -90,6 +90,28 @@ const [hovered, setHovered] = useState<number | null>(null);
     </div>
 
     <div class="pkg-section">
+      <H2>Headless</H2>
+      <CodeBlock lang="tsx" code={`import { useRating } from "@mshafiqyajid/react-rating";
+
+const { items, rootProps, value, displayValue } = useRating({
+  count: 5,
+  defaultValue: 3,
+  allowHalf: true,
+});
+
+return (
+  <div {...rootProps} className="rate">
+    {items.map((item) => (
+      <span key={item.index} {...item.itemProps} data-fill={item.fill}>
+        {item.fill === 1 ? "★" : "☆"}
+      </span>
+    ))}
+    <span>{displayValue} / 5</span>
+  </div>
+);`} />
+    </div>
+
+    <div class="pkg-section">
       <H2>API</H2>
       <h3>RatingStyled</h3>
       <table class="props-table">

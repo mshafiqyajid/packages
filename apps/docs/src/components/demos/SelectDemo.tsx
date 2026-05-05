@@ -16,19 +16,20 @@ function SelectWrapper({ multiple, searchable, size, tone, clearable, disabled }
 }) {
   const [value, setValue] = useState<string | string[]>(multiple ? [] : "");
   return (
-    <SelectStyled
-      items={items}
-      value={value}
-      onChange={setValue}
-      placeholder="Select a framework…"
-      multiple={multiple}
-      searchable={searchable}
-      size={size as "sm" | "md" | "lg"}
-      tone={tone as "neutral" | "primary" | "success" | "danger"}
-      clearable={clearable}
-      disabled={disabled}
-      style={{ width: 240 } as React.CSSProperties}
-    />
+    <div style={{ width: 240 }}>
+      <SelectStyled
+        items={items}
+        value={value}
+        onChange={setValue}
+        placeholder="Select a framework…"
+        multiple={multiple}
+        searchable={searchable}
+        size={size as "sm" | "md" | "lg"}
+        tone={tone as "neutral" | "primary" | "success" | "danger"}
+        clearable={clearable}
+        disabled={disabled}
+      />
+    </div>
   );
 }
 

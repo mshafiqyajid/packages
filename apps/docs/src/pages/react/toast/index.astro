@@ -110,6 +110,29 @@ dismissAll();`} />
     </div>
 
     <div class="pkg-section">
+      <H2>Headless</H2>
+      <p>Skip <code>ToastProvider</code> and render toasts however you like — <code>useToasts()</code> subscribes to the live queue.</p>
+      <CodeBlock lang="tsx" code={`import { useToasts, toast } from "@mshafiqyajid/react-toast";
+
+function CustomToaster() {
+  const toasts = useToasts();
+  return (
+    <div className="my-toaster">
+      {toasts.map((t) => (
+        <div key={t.id} data-type={t.type}>
+          {t.title && <strong>{t.title}</strong>}
+          <p>{t.message}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// Fire from anywhere — works outside React, too
+toast.success("Saved!");`} />
+    </div>
+
+    <div class="pkg-section">
       <H2>API — ToastProvider</H2>
       <table class="props-table">
         <thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>

@@ -11,7 +11,9 @@ export default function AvatarDemo() {
         { name: "size",   control: { type: "segmented", options: ["xs","sm","md","lg","xl"] as const },                        defaultValue: "md",      omitWhen: "md" },
         { name: "shape",  control: { type: "segmented", options: ["circle","square"] as const },                               defaultValue: "circle",  omitWhen: "circle" },
         { name: "status", control: { type: "segmented", options: ["none","online","offline","busy","away"] as const },         defaultValue: "none",    omitWhen: "none" },
-        { name: "border", control: { type: "toggle" },                                                                        defaultValue: false,     omitWhen: false },
+        { name: "border",     control: { type: "toggle" },                                                                        defaultValue: false,     omitWhen: false },
+        { name: "autoColor",  control: { type: "toggle" },                                                                        defaultValue: false,     omitWhen: false },
+        { name: "showLoading", control: { type: "toggle" },                                                                       defaultValue: false,     omitWhen: false },
       ]}
       staticProps={{ name: '"Shafiq Yajid"' }}
       render={(v) => (
@@ -21,6 +23,8 @@ export default function AvatarDemo() {
           shape={v.shape as "circle"|"square"}
           status={v.status === "none" ? undefined : v.status as "online"|"offline"|"busy"|"away"}
           border={v.border as boolean}
+          autoColor={v.autoColor as boolean}
+          showLoading={v.showLoading as boolean}
         />
       )}
     />

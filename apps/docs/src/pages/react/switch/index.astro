@@ -29,6 +29,22 @@ const [on, setOn] = useState(false);
   }}
 />`} />
     </div>
+    <div class="pkg-section"><H2>Headless</H2>
+      <CodeBlock lang="tsx" code={`import { useSwitch } from "@mshafiqyajid/react-switch";
+
+const { switchProps, isChecked, isPending, toggle } = useSwitch({
+  defaultChecked: false,
+  onChange: async (next) => {
+    await fetch("/api/prefs", { method: "POST", body: String(next) });
+  },
+});
+
+return (
+  <button {...switchProps} className={isChecked ? "on" : "off"} disabled={isPending}>
+    <span className="thumb" />
+  </button>
+);`} />
+    </div>
     <div class="pkg-section"><H2>API</H2>
       <table class="props-table"><thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
         <tr><td>checked</td><td>boolean</td><td>—</td><td>Controlled checked state</td></tr>

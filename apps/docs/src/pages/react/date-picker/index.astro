@@ -20,6 +20,38 @@ const [date, setDate] = useState<Date | null>(null);
 const [range, setRange] = useState<[Date, Date] | null>(null);
 <DatePickerStyled value={range} onChange={setRange} mode="range" />`} />
     </div>
+    <div class="pkg-section"><H2>Headless</H2>
+      <CodeBlock lang="tsx" code={`import { useDatePicker } from "@mshafiqyajid/react-date-picker";
+
+const {
+  days,
+  month,
+  year,
+  getDayProps,
+  prevMonth,
+  nextMonth,
+} = useDatePicker({
+  mode: "single",
+  defaultValue: new Date(),
+});
+
+return (
+  <div className="cal">
+    <header>
+      <button onClick={prevMonth}>‹</button>
+      <span>{month + 1} / {year}</span>
+      <button onClick={nextMonth}>›</button>
+    </header>
+    <div className="grid">
+      {days.map((day) => (
+        <button key={day.toISOString()} {...getDayProps(day)}>
+          {day.getDate()}
+        </button>
+      ))}
+    </div>
+  </div>
+);`} />
+    </div>
     <div class="pkg-section"><H2>API</H2>
       <table class="props-table"><thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
         <tr><td>value / defaultValue</td><td>Date | [Date, Date] | null</td><td>—</td><td>Controlled or uncontrolled value</td></tr>

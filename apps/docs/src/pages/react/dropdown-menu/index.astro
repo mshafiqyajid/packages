@@ -23,6 +23,27 @@ import "@mshafiqyajid/react-dropdown-menu/styles.css";
   ]}
 />`} />
     </div>
+    <div class="pkg-section"><H2>Headless</H2>
+      <CodeBlock lang="tsx" code={`import { useDropdownMenu } from "@mshafiqyajid/react-dropdown-menu";
+
+const items = ["Edit", "Duplicate", "Delete"];
+const { triggerProps, menuProps, getItemProps, isOpen } = useDropdownMenu({
+  itemCount: items.length,
+});
+
+return (
+  <>
+    <button {...triggerProps}>Actions</button>
+    {isOpen && (
+      <ul {...menuProps} className="menu">
+        {items.map((label, i) => (
+          <li key={label} {...getItemProps(i)}>{label}</li>
+        ))}
+      </ul>
+    )}
+  </>
+);`} />
+    </div>
     <div class="pkg-section"><H2>API</H2>
       <table class="props-table"><thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
         <tr><td>trigger</td><td>ReactElement</td><td>—</td><td>The trigger element</td></tr>

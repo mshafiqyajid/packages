@@ -44,6 +44,36 @@ import "@mshafiqyajid/react-file-upload/styles.css";
 />`} />
       <p>Headless consumers also get <code>uploads</code>, <code>retryUpload(id)</code>, <code>abortUpload(id)</code>, and <code>abortAll()</code>.</p>
     </div>
+    <div class="pkg-section"><H2>Headless</H2>
+      <CodeBlock lang="tsx" code={`import { useFileUpload } from "@mshafiqyajid/react-file-upload";
+
+const {
+  getRootProps,
+  getInputProps,
+  isDragOver,
+  files,
+  removeFile,
+  open,
+} = useFileUpload({
+  multiple: true,
+  accept: "image/*",
+});
+
+return (
+  <div {...getRootProps()} data-drag-over={isDragOver} className="dz">
+    <input {...getInputProps()} />
+    <button onClick={open}>Browse</button>
+    <ul>
+      {files.map((file, i) => (
+        <li key={i}>
+          {file.name}
+          <button onClick={() => removeFile(i)}>×</button>
+        </li>
+      ))}
+    </ul>
+  </div>
+);`} />
+    </div>
     <div class="pkg-section"><H2>API</H2>
       <table class="props-table"><thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
         <tr><td>variant</td><td>"dropzone" | "button"</td><td>"dropzone"</td><td>Upload widget style</td></tr>

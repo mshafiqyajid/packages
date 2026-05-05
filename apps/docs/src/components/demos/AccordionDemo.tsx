@@ -21,14 +21,15 @@ export default function AccordionDemo() {
       ]}
       staticProps={{ items: "{items}" }}
       render={(v) => (
-        <AccordionStyled
-          items={items}
-          type={v.type as "single" | "multiple"}
-          size={v.size as "sm" | "md" | "lg"}
-          tone={v.tone as "neutral" | "primary"}
-          animated={v.animated as boolean}
-          style={{ width: "100%", maxWidth: 480 } as React.CSSProperties}
-        />
+        <div style={{ width: "100%", maxWidth: 480 }}>
+          <AccordionStyled
+            items={items}
+            type={v.type as "single" | "multiple"}
+            size={v.size as "sm" | "md" | "lg"}
+            tone={v.tone as "neutral" | "primary"}
+            animated={v.animated as boolean}
+          />
+        </div>
       )}
     />
   );

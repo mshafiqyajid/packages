@@ -20,6 +20,27 @@ const [v, setV] = useState(40);
 const [range, setRange] = useState<[number, number]>([20, 80]);
 <SliderStyled value={range} onChange={setRange} range />`} />
     </div>
+    <div class="pkg-section"><H2>Headless</H2>
+      <CodeBlock lang="tsx" code={`import { useSlider } from "@mshafiqyajid/react-slider";
+
+const { value, trackProps, thumbProps, rangeProps } = useSlider({
+  defaultValue: 50,
+  min: 0,
+  max: 100,
+});
+
+return (
+  <div className="slider">
+    <div {...trackProps} className="track">
+      <div {...rangeProps} className="range" />
+      {thumbProps.map((thumb, i) => (
+        <button key={i} {...thumb} className="thumb" />
+      ))}
+    </div>
+    <span>{Array.isArray(value) ? value.join("–") : value}</span>
+  </div>
+);`} />
+    </div>
     <div class="pkg-section"><H2>API</H2>
       <table class="props-table"><thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
         <tr><td>value</td><td>number | [number, number]</td><td>—</td><td>Controlled value</td></tr>

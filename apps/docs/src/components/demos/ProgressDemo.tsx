@@ -14,6 +14,7 @@ export default function ProgressDemo() {
         { name: "showValue", control: { type: "toggle" },                                                                            defaultValue: false,     omitWhen: false },
         { name: "animated",  control: { type: "toggle" },                                                                            defaultValue: false,     omitWhen: false },
         { name: "rounded",   control: { type: "toggle" },                                                                            defaultValue: true,      omitWhen: true },
+        { name: "segments",  control: { type: "slider", min: 0, max: 10, step: 1 },                                                  defaultValue: 0,         omitWhen: 0 },
       ]}
       render={(v) => (
         <ProgressBar
@@ -23,6 +24,7 @@ export default function ProgressDemo() {
           showValue={v.showValue as boolean}
           animated={v.animated as boolean}
           rounded={v.rounded as boolean}
+          segments={(v.segments as number) > 0 ? (v.segments as number) : undefined}
           label="Progress"
           style={{ width: "100%", maxWidth: 400 } as React.CSSProperties}
         />
