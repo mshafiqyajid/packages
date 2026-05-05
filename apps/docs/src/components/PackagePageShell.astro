@@ -1,14 +1,16 @@
 ---
-import { lastUpdatedFor, formatLastUpdated } from "~/lib/lastUpdated";
+import { lastUpdatedFor, formatLastUpdated, versionFor } from "~/lib/lastUpdated";
 
 export interface Props {
   name: string;
-  version: string;
+  /** Hardcoded version override. Falls back to the package's package.json. */
+  version?: string;
   description: string;
   size: string;
   framework?: string;
 }
-const { name, version, description, size, framework = "react" } = Astro.props;
+const { name, version: versionProp, description, size, framework = "react" } = Astro.props;
+const version = versionProp ?? versionFor(name) ?? "—";
 const npmUrl = `https://www.npmjs.com/package/@mshafiqyajid/${name}`;
 const githubUrl = `https://github.com/mshafiqyajid/packages/tree/main/packages/${name}`;
 

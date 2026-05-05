@@ -1,9 +1,11 @@
 import { execSync } from "node:child_process";
+import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 const ROOT = resolve(import.meta.dirname ?? __dirname ?? ".", "../../../..");
 
 const cache = new Map<string, string | null>();
+const versionCache = new Map<string, string | null>();
 
 /**
  * Returns the ISO 8601 datetime of the latest commit that touched `relPath`,
@@ -36,4 +38,23 @@ export function formatLastUpdated(iso: string | null, locale = "en-US"): string 
     month: "short",
     day: "numeric",
   }).format(d);
+}
+
+/**
+ * Reads the current version from a package's package.json at build time,
+ * relative to the monorepo root. Returns null if the package isn't found
+ * (e.g. typo on the docs page).
+ */
+export function versionFor(packageName: string): string | null {
+  if (versionCache.has(packageName)) return versionCache.get(packageName) ?? null;
+  try {
+    const path = resolve(ROOT, "packages", packageName, "package.json");
+    const json = JSON.parse(readFileSync(path, "utf8")) as { version?: string };
+    const value = typeof json.version === "string" ? json.version : null;
+    versionCache.set(packageName, value);
+    return value;
+  } catch {
+    versionCache.set(packageName, null);
+    return null;
+  }
 }
