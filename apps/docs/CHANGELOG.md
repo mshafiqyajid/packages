@@ -1,5 +1,18 @@
 # @mshafiqyajid/docs
 
+## 0.0.9
+
+### Patch Changes
+
+- Updated dependencies [1a6615d]
+- Updated dependencies [1a6615d]
+- Updated dependencies [1a6615d]
+- Updated dependencies [1a6615d]
+  - @mshafiqyajid/react-accordion@0.2.0
+  - @mshafiqyajid/react-modal@0.2.0
+  - @mshafiqyajid/react-tabs@0.2.0
+  - @mshafiqyajid/react-timeline@0.2.0
+
 ## 0.0.8
 
 ### Patch Changes
