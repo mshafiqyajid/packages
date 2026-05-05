@@ -1,6 +1,6 @@
 {
   "name": "@mshafiqyajid/react-date-picker",
-  "version": "0.1.3",
+  "version": "0.2.0",
   "description": "Headless date picker hook and styled component for React. Single and range selection, keyboard navigation, accessible, SSR-safe, zero runtime dependencies.",
   "keywords": [
     "react",
