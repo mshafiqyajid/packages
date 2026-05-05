@@ -5,6 +5,8 @@ export type {
   DatePickerMode,
   RangeValue,
   DayProps,
+  MonthYear,
+  DateModifiers,
 } from "./useDatePicker";
 export {
   formatDate,

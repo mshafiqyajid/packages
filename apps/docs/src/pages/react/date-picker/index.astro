@@ -6,7 +6,7 @@ import CodeBlock from "~/components/CodeBlock.astro";
 import DatePickerDemo from "~/components/demos/DatePickerDemo";
 ---
 <DocLayout title="react-date-picker" description="Accessible date picker with single and range selection, keyboard navigation, and portal positioning." pkg="date-picker">
-  <PackagePageShell name="react-date-picker" version="0.1.0" description="Headless date picker hook and styled component. Single and range mode, keyboard navigation, min/max date, portal calendar, ARIA-compliant." size="~10 KB">
+  <PackagePageShell name="react-date-picker" version="0.2.0" description="Headless date picker hook and styled component. Single and range mode, multi-month view, captionLayout dropdowns, renderDay slot, modifiers, inline calendar, full floating-UI placement (flip + shift), live-region month announcements, keyboard navigation that skips disabled cells. Zero dependencies." size="~13 KB">
     <div class="pkg-section"><H2>Playground</H2><DatePickerDemo client:load /></div>
     <div class="pkg-section"><H2>Install</H2><CodeBlock lang="bash" code="npm install @mshafiqyajid/react-date-picker" /></div>
     <div class="pkg-section"><H2>Quick start</H2>
@@ -22,23 +22,40 @@ const [range, setRange] = useState<[Date, Date] | null>(null);
     </div>
     <div class="pkg-section"><H2>API</H2>
       <table class="props-table"><thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
-        <tr><td>value</td><td>Date | [Date, Date] | null</td><td>—</td><td>Controlled value</td></tr>
-        <tr><td>defaultValue</td><td>Date | [Date, Date] | null</td><td>null</td><td>Uncontrolled initial value</td></tr>
+        <tr><td>value / defaultValue</td><td>Date | [Date, Date] | null</td><td>—</td><td>Controlled or uncontrolled value</td></tr>
         <tr><td>onChange</td><td>(v) =&gt; void</td><td>—</td><td>Called on selection</td></tr>
         <tr><td>mode</td><td>"single" | "range"</td><td>"single"</td><td>Single date or date range</td></tr>
-        <tr><td>minDate</td><td>Date</td><td>—</td><td>Earliest selectable date</td></tr>
-        <tr><td>maxDate</td><td>Date</td><td>—</td><td>Latest selectable date</td></tr>
-        <tr><td>placeholder</td><td>string</td><td>"Select date"</td><td>Input placeholder</td></tr>
-        <tr><td>format</td><td>string</td><td>"MMM D, YYYY"</td><td>Display format</td></tr>
-        <tr><td>size</td><td>"sm" | "md" | "lg"</td><td>"md"</td><td>Input size</td></tr>
-        <tr><td>tone</td><td>"neutral" | "primary"</td><td>"neutral"</td><td>Color tone</td></tr>
-        <tr><td>disabled</td><td>boolean</td><td>false</td><td>Disable interaction</td></tr>
-        <tr><td>clearable</td><td>boolean</td><td>false</td><td>Show × button to clear selection</td></tr>
-        <tr><td>weekStartsOn</td><td>0–6</td><td>0</td><td>Day the week starts on (0=Sun)</td></tr>
-        <tr><td>locale</td><td>string</td><td>"en-US"</td><td>Locale for month/day names</td></tr>
-        <tr><td>onMonthChange</td><td>(month, year) =&gt; void</td><td>—</td><td>Navigation callback</td></tr>
-        <tr><td>onYearChange</td><td>(year) =&gt; void</td><td>—</td><td>Year change callback</td></tr>
+        <tr><td>minDate / maxDate</td><td>Date</td><td>—</td><td>Date bounds</td></tr>
         <tr><td>disabledDates</td><td>Date[] | (date) =&gt; boolean</td><td>—</td><td>Dates to disable</td></tr>
+        <tr><td>placeholder / format</td><td>string</td><td>"Select date" / "MMM D, YYYY"</td><td>Trigger text</td></tr>
+        <tr><td>size / tone</td><td>"sm" | "md" | "lg" / "neutral" | "primary"</td><td>"md" / "neutral"</td><td>Visual</td></tr>
+        <tr><td>disabled / clearable</td><td>boolean</td><td>false</td><td>Existing behavior</td></tr>
+        <tr><td>weekStartsOn / locale</td><td>0–6 / string</td><td>0 / "en-US"</td><td>Localization</td></tr>
+      </tbody></table>
+    </div>
+    <div class="pkg-section"><H2>0.2.0 additions</H2>
+      <table class="props-table"><thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+        <tr><td>numberOfMonths</td><td>1 | 2 | 3</td><td>1</td><td>Render N month grids side-by-side in the popover</td></tr>
+        <tr><td>pagedBy</td><td>1 | "all"</td><td>1</td><td>Chevron step. "all" advances by numberOfMonths.</td></tr>
+        <tr><td>renderDay</td><td>(ctx) =&gt; ReactNode</td><td>—</td><td>Replace day cell content. ctx: {`{ date, isToday, isSelected, isInRange, isDisabled, isOutsideMonth, modifiers }`}</td></tr>
+        <tr><td>captionLayout</td><td>"label" | "dropdown" | "dropdown-months" | "dropdown-years"</td><td>"label"</td><td>Header style — chevron-only label or native dropdowns</td></tr>
+        <tr><td>fromYear / toYear</td><td>number</td><td>now-100 / now+10</td><td>Year dropdown bounds</td></tr>
+        <tr><td>inline</td><td>boolean</td><td>false</td><td>Render the calendar always-visible without a trigger</td></tr>
+        <tr><td>open / defaultOpen / onOpenChange</td><td>boolean / fn</td><td>—</td><td>Controlled-open API for the popover</td></tr>
+        <tr><td>month / defaultMonth</td><td>{`{ month, year }`}</td><td>—</td><td>Controlled / initial visible month</td></tr>
+        <tr><td>onMonthChange / onYearChange</td><td>(...) =&gt; void</td><td>—</td><td>Navigation callbacks</td></tr>
+        <tr><td>modifiers</td><td>{`Record<string, Date[] | (date) => boolean>`}</td><td>—</td><td>Tag dates; emits data-mod-&lt;name&gt;="true" + data-modifiers="..." per cell</td></tr>
+        <tr><td>showOutsideDays</td><td>boolean</td><td>true</td><td>Render leading/trailing outside-month cells</td></tr>
+        <tr><td>fixedWeeks</td><td>boolean</td><td>true</td><td>Pad to 6 rows even for short months</td></tr>
+        <tr><td>skipDisabledOnArrowKey</td><td>boolean</td><td>true</td><td>Arrow keys skip disabled cells</td></tr>
+        <tr><td>closeOnSelect</td><td>boolean</td><td>single: true, range: false</td><td>Auto-close after selection</td></tr>
+        <tr><td>clearOnReselect</td><td>boolean</td><td>false</td><td>Clicking the selected day again clears it</td></tr>
+        <tr><td>monthChangeAnnouncement</td><td>(month, year) =&gt; string</td><td>"${`{month}`} ${`{year}`}"</td><td>Live-region announcement copy</td></tr>
+        <tr><td>onDayMouseEnter / onDayMouseLeave / onDayFocus</td><td>(date, e?) =&gt; void</td><td>—</td><td>Day-level hooks for tooltips, etc.</td></tr>
+        <tr><td>placement</td><td>bottom-start | bottom-end | top-start | top-end</td><td>"bottom-start"</td><td>Popover placement</td></tr>
+        <tr><td>offset / collisionPadding</td><td>number</td><td>6 / 8</td><td>Floating-UI distances</td></tr>
+        <tr><td>flip / shift</td><td>boolean</td><td>true</td><td>Auto-flip + shift back into view</td></tr>
+        <tr><td>strategy</td><td>"absolute" | "fixed"</td><td>"absolute"</td><td>CSS positioning strategy</td></tr>
       </tbody></table>
     </div>
   </PackagePageShell>

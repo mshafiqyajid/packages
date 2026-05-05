@@ -201,4 +201,93 @@ describe("useDatePicker — range mode", () => {
     );
     expect(result.current.isInRange(new Date(2025, 3, 15))).toBe(false);
   });
+
+  it("defaultMonth seeds the visible view", () => {
+    const { result } = renderHook(() =>
+      useDatePicker({ defaultMonth: { month: 6, year: 2030 } }),
+    );
+    expect(result.current.month).toBe(6);
+    expect(result.current.year).toBe(2030);
+  });
+
+  it("controlled month ignores internal nextMonth state", () => {
+    const onMonthChange = vi.fn();
+    const { result, rerender } = renderHook(
+      ({ m }: { m: { month: number; year: number } }) =>
+        useDatePicker({ month: m, onMonthChange }),
+      { initialProps: { m: { month: 0, year: 2025 } } },
+    );
+    expect(result.current.month).toBe(0);
+    act(() => result.current.nextMonth());
+    // controlled — internal state cannot change; consumer must update prop
+    expect(result.current.month).toBe(0);
+    expect(onMonthChange).toHaveBeenCalledWith(1, 2025);
+
+    rerender({ m: { month: 5, year: 2025 } });
+    expect(result.current.month).toBe(5);
+  });
+
+  it("getDaysFor returns 42 cells for the offset month by default", () => {
+    const { result } = renderHook(() =>
+      useDatePicker({ defaultMonth: { month: 0, year: 2025 } }),
+    );
+    const next = result.current.getDaysFor(1);
+    expect(next).toHaveLength(42);
+    // First in-month day belongs to Feb 2025
+    const inMonth = next.find((d) => d.getMonth() === 1 && d.getDate() === 1);
+    expect(inMonth?.getFullYear()).toBe(2025);
+  });
+
+  it("getMonthYearAt returns the offset month/year", () => {
+    const { result } = renderHook(() =>
+      useDatePicker({ defaultMonth: { month: 11, year: 2025 } }),
+    );
+    expect(result.current.getMonthYearAt(1)).toEqual({ month: 0, year: 2026 });
+    expect(result.current.getMonthYearAt(-1)).toEqual({ month: 10, year: 2025 });
+  });
+
+  it("modifiers tag matched dates via data-modifiers", () => {
+    const monday = new Date(2025, 0, 6); // Mon
+    const { result } = renderHook(() =>
+      useDatePicker({
+        defaultMonth: { month: 0, year: 2025 },
+        modifiers: {
+          weekend: (d) => d.getDay() === 0 || d.getDay() === 6,
+          mondays: [monday],
+        },
+      }),
+    );
+    const props = result.current.getDayProps(monday);
+    expect(props["data-modifiers"]).toContain("mondays");
+
+    const sunday = new Date(2025, 0, 5);
+    const sundayProps = result.current.getDayProps(sunday);
+    expect(sundayProps["data-modifiers"]).toContain("weekend");
+
+    const wednesday = new Date(2025, 0, 8);
+    const wedProps = result.current.getDayProps(wednesday);
+    expect(wedProps["data-modifiers"]).toBe("");
+  });
+
+  it("fixedWeeks=false trims trailing all-outside rows", () => {
+    // February 2026 starts Sunday Feb 1, ends Saturday Feb 28 → exactly 4 rows.
+    const { result } = renderHook(() =>
+      useDatePicker({ defaultMonth: { month: 1, year: 2026 } }),
+    );
+    expect(result.current.days).toHaveLength(42);
+
+    const { result: trimmed } = renderHook(() =>
+      useDatePicker({ defaultMonth: { month: 1, year: 2026 }, fixedWeeks: false }),
+    );
+    expect(trimmed.current.days.length).toBeLessThan(42);
+    // 28 days exactly: 4 rows × 7 = 28.
+    expect(trimmed.current.days).toHaveLength(28);
+  });
+
+  it("getWeekNumber returns ISO 8601 week numbers", () => {
+    const { result } = renderHook(() => useDatePicker());
+    expect(result.current.getWeekNumber(new Date(2026, 0, 1))).toBe(1);
+    // Dec 28 2025 (Sunday) is week 52 in ISO 8601.
+    expect(result.current.getWeekNumber(new Date(2025, 11, 28))).toBe(52);
+  });
 });
