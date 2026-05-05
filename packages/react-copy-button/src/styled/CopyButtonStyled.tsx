@@ -29,6 +29,8 @@ export interface CopyButtonStyledProps
   label?: ReactNode;
   /** Label shown briefly after a successful copy. Default: "Copied". */
   copiedLabel?: ReactNode;
+  /** Label shown briefly when the copy fails. When set, the button receives `data-error="true"`. */
+  errorLabel?: ReactNode;
   /** Visual variant. Default: "solid". */
   variant?: CopyButtonVariant;
   /** Size. Default: "md". Use "icon" for square icon-only. */
@@ -179,6 +181,7 @@ export const CopyButtonStyled = forwardRef<
     text,
     label = "Copy",
     copiedLabel = "Copied",
+    errorLabel,
     variant = "solid",
     size = "md",
     tone = "neutral",
@@ -250,9 +253,12 @@ export const CopyButtonStyled = forwardRef<
   }, [copy, text, loading]);
 
   const isLoading = loading === true || (loading === "auto" && autoLoading);
+  const hasError = error !== null && errorLabel !== undefined;
   const showLabel = size !== "icon" && label !== "" && label !== null && label !== undefined;
   const showCopiedLabel =
     size !== "icon" && copiedLabel !== "" && copiedLabel !== null && copiedLabel !== undefined;
+  const showErrorLabel =
+    size !== "icon" && hasError && errorLabel !== "" && errorLabel !== null;
 
   const mergedClassName = ["rcb-button", className].filter(Boolean).join(" ");
 
@@ -269,16 +275,19 @@ export const CopyButtonStyled = forwardRef<
       data-full-width={fullWidth ? "true" : undefined}
       data-loading={isLoading ? "true" : undefined}
       data-copied={copied ? "true" : undefined}
+      data-error={hasError ? "true" : undefined}
       aria-describedby={announceOnCopy ? liveRegionId : undefined}
       {...rest}
     >
       <IconBlock icon={icon} loading={isLoading} />
-      {(showLabel || showCopiedLabel) && (
+      {(showLabel || showCopiedLabel || showErrorLabel) && (
         <span className="rcb-button__label">
-          {showLabel ? (
+          {showErrorLabel ? (
+            <span className="rcb-button__label-error">{errorLabel}</span>
+          ) : showLabel ? (
             <span className="rcb-button__label-copy">{label}</span>
           ) : null}
-          {showCopiedLabel ? (
+          {!showErrorLabel && showCopiedLabel ? (
             <span className="rcb-button__label-copied">{copiedLabel}</span>
           ) : null}
         </span>
@@ -311,7 +320,5 @@ export const CopyButtonStyled = forwardRef<
     );
   }
 
-  // Suppress unused warning while still typing it out for future use
-  void error;
   return button;
 });
