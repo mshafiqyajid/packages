@@ -1,6 +1,6 @@
 {
   "name": "@mshafiqyajid/react-phone-input",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Headless phone input hook and styled component for React. Country selector, auto-formatting, validation, flag emoji, fully typed.",
   "keywords": [
     "react",

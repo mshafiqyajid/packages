@@ -1,6 +1,6 @@
 {
   "name": "@mshafiqyajid/react-progress",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Headless progress hook and styled progress bar and circle components for React. Accessible, animated, fully typed.",
   "keywords": [
     "react",
