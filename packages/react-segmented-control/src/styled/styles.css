@@ -48,6 +48,21 @@
   color: var(--rsc-fg-muted);
 }
 
+.rsc-error {
+  font-size: 0.78rem;
+  color: var(--rsc-error-fg, #dc2626);
+  font-weight: 500;
+}
+
+.rsc-root[data-invalid="true"] .rsc-track {
+  border-color: var(--rsc-border-invalid, #ef4444);
+}
+
+[data-theme="dark"] .rsc-root {
+  --rsc-error-fg: #f87171;
+  --rsc-border-invalid: #f87171;
+}
+
 /* ============================================================================
  * Track
  * ========================================================================== */

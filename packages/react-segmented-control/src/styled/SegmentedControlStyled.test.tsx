@@ -51,4 +51,38 @@ describe("<SegmentedControlStyled />", () => {
     );
     expect(screen.getByText("Pick one")).toBeInTheDocument();
   });
+
+  test("error sets data-invalid + aria-invalid + role=alert text", () => {
+    const { container } = render(
+      <SegmentedControlStyled options={["a", "b"]} error="Required" />,
+    );
+    expect(container.querySelector("[data-invalid='true']")).not.toBeNull();
+    expect(screen.getByRole("alert")).toHaveTextContent("Required");
+  });
+
+  test("invalid prop sets data-invalid without inline error", () => {
+    const { container } = render(
+      <SegmentedControlStyled options={["a", "b"]} invalid />,
+    );
+    expect(container.querySelector("[data-invalid='true']")).not.toBeNull();
+    expect(screen.queryByRole("alert")).toBeNull();
+  });
+
+  test("name renders hidden input carrying String(value)", () => {
+    const { container } = render(
+      <SegmentedControlStyled options={["a", "b"]} name="choice" defaultValue="b" />,
+    );
+    const hidden = container.querySelector(
+      "input[type='hidden'][name='choice']",
+    ) as HTMLInputElement;
+    expect(hidden).not.toBeNull();
+    expect(hidden.value).toBe("b");
+  });
+
+  test("required surfaces aria-required", () => {
+    const { container } = render(
+      <SegmentedControlStyled options={["a", "b"]} required name="x" />,
+    );
+    expect(container.querySelector("[aria-required='true']")).not.toBeNull();
+  });
 });

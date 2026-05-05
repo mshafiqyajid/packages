@@ -45,6 +45,16 @@
   color: var(--rrt-fg-muted);
 }
 
+.rrt-error {
+  font-size: 0.78rem;
+  color: var(--rrt-error-fg, #dc2626);
+  font-weight: 500;
+}
+
+[data-theme="dark"] .rrt-wrap {
+  --rrt-error-fg: #f87171;
+}
+
 .rrt-value {
   font-size: 0.85rem;
   font-weight: 500;

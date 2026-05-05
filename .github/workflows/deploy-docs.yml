@@ -13,6 +13,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Need full history so per-package "last updated" timestamps
+          # (read via `git log -1 -- packages/<name>`) work in the docs build.
+          fetch-depth: 0
 
       - uses: actions/setup-node@v4
         with:

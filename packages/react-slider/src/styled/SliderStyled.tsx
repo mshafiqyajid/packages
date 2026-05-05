@@ -1,4 +1,11 @@
-import { forwardRef, useRef, useCallback, type CSSProperties } from "react";
+import {
+  forwardRef,
+  useRef,
+  useCallback,
+  useId,
+  type CSSProperties,
+  type ReactNode,
+} from "react";
 import { useSlider, type SliderValue } from "../useSlider";
 
 export type SliderSize = "sm" | "md" | "lg";
@@ -18,6 +25,20 @@ export interface SliderStyledProps {
   showValue?: boolean;
   marks?: boolean;
   className?: string;
+  /** Label rendered above the slider. */
+  label?: ReactNode;
+  /** Helper text below. */
+  hint?: ReactNode;
+  /** Error text — flips tone to danger and sets aria-invalid + data-invalid. */
+  error?: ReactNode;
+  /** Force the invalid state without inline error text. */
+  invalid?: boolean;
+  /** Mark as required. */
+  required?: boolean;
+  /** Form name. Renders hidden input(s) with the current value(s) for native submission. Range mode emits `${name}` and `${name}-end`. */
+  name?: string;
+  /** Override the wrapper id. */
+  id?: string;
 }
 
 function buildMarks(min: number, max: number, step: number): number[] {
@@ -39,14 +60,31 @@ export const SliderStyled = forwardRef<HTMLDivElement, SliderStyledProps>(
       step = 1,
       disabled = false,
       size = "md",
-      tone = "neutral",
+      tone: toneProp = "neutral",
       range = false,
       showValue = false,
       marks = false,
       className,
+      label,
+      hint,
+      error,
+      invalid: invalidProp,
+      required,
+      name,
+      id: idProp,
     },
     ref,
   ) {
+    const autoId = useId();
+    const baseId = idProp ?? autoId;
+    const labelId = `${baseId}-label`;
+    const hintId = hint ? `${baseId}-hint` : undefined;
+    const errorId = error ? `${baseId}-error` : undefined;
+    const describedBy = [hintId, errorId].filter(Boolean).join(" ") || undefined;
+
+    const isInvalid = Boolean(error) || invalidProp === true;
+    const tone: SliderTone = isInvalid ? "danger" : toneProp;
+
     const resolvedDefault: SliderValue =
       defaultValue !== undefined
         ? defaultValue
@@ -54,7 +92,7 @@ export const SliderStyled = forwardRef<HTMLDivElement, SliderStyledProps>(
           ? [min, max]
           : min;
 
-    const { trackProps, thumbProps, rangeProps } = useSlider({
+    const { trackProps, thumbProps, rangeProps, value: liveValue } = useSlider({
       value,
       defaultValue: resolvedDefault,
       onChange,
@@ -77,9 +115,14 @@ export const SliderStyled = forwardRef<HTMLDivElement, SliderStyledProps>(
     const getPercent = (v: number) =>
       max === min ? 0 : ((v - min) / (max - min)) * 100;
 
+    const isRangeValue = Array.isArray(liveValue);
+    const hiddenStart = isRangeValue ? liveValue[0] : (liveValue as number);
+    const hiddenEnd = isRangeValue ? liveValue[1] : undefined;
+
     return (
       <div
         ref={ref}
+        id={baseId}
         className={[
           "rslider-root",
           className,
@@ -90,13 +133,23 @@ export const SliderStyled = forwardRef<HTMLDivElement, SliderStyledProps>(
         data-tone={tone}
         data-disabled={disabled || undefined}
         data-range={range || undefined}
+        data-invalid={isInvalid ? "true" : undefined}
       >
+        {label ? (
+          <span className="rslider-label" id={labelId}>
+            {label}
+          </span>
+        ) : null}
         <div
           ref={(el) => {
             setTrackRef(el);
           }}
           {...trackProps}
           className="rslider-track"
+          aria-labelledby={label ? labelId : undefined}
+          aria-describedby={describedBy}
+          aria-invalid={isInvalid ? true : undefined}
+          aria-required={required ? true : undefined}
           style={trackProps.style as CSSProperties}
         >
           <div className="rslider-track-rail" />
@@ -135,6 +188,35 @@ export const SliderStyled = forwardRef<HTMLDivElement, SliderStyledProps>(
             </div>
           ))}
         </div>
+        {name ? (
+          <>
+            <input
+              type="hidden"
+              name={name}
+              value={String(hiddenStart)}
+              required={required}
+              readOnly
+            />
+            {isRangeValue && hiddenEnd !== undefined ? (
+              <input
+                type="hidden"
+                name={`${name}-end`}
+                value={String(hiddenEnd)}
+                required={required}
+                readOnly
+              />
+            ) : null}
+          </>
+        ) : null}
+        {error ? (
+          <span className="rslider-error" id={errorId} role="alert">
+            {error}
+          </span>
+        ) : hint ? (
+          <span className="rslider-hint" id={hintId}>
+            {hint}
+          </span>
+        ) : null}
       </div>
     );
   },

@@ -91,4 +91,28 @@ describe("<OTPInputStyled />", () => {
     expect(slots[0]).toHaveAttribute("data-filled", "true");
     expect(slots[1]).not.toHaveAttribute("data-filled");
   });
+
+  test("name renders hidden input that mirrors the OTP value", async () => {
+    const user = userEvent.setup();
+    const { container } = render(<OTPInputStyled length={4} name="code" />);
+    const hidden = container.querySelector(
+      "input[type='hidden'][name='code']",
+    ) as HTMLInputElement;
+    expect(hidden).not.toBeNull();
+    expect(hidden.value).toBe("");
+    const inputs = screen.getAllByRole("textbox") as HTMLInputElement[];
+    inputs[0]!.focus();
+    await user.keyboard("12");
+    expect(hidden.value).toBe("12");
+  });
+
+  test("name + controlled value posts current value", () => {
+    const { container } = render(
+      <OTPInputStyled length={4} name="code" value="9876" onChange={() => {}} />,
+    );
+    const hidden = container.querySelector(
+      "input[type='hidden'][name='code']",
+    ) as HTMLInputElement;
+    expect(hidden.value).toBe("9876");
+  });
 });

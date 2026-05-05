@@ -1,4 +1,4 @@
-import { type ReactNode, forwardRef, useId } from "react";
+import { type ReactNode, forwardRef, useId, useState } from "react";
 import { OTPInput, type OTPInputProps } from "../OTPInput";
 
 export type OTPVariant = "solid" | "outline" | "underline";
@@ -28,6 +28,10 @@ export interface OTPInputStyledProps
   invalid?: boolean;
   /** Mark every slot as required for form submission. */
   required?: boolean;
+  /** Form name. When set, a hidden input carries the joined OTP value. */
+  name?: string;
+  /** Override the wrapper id (used for label association). */
+  id?: string;
   style?: React.CSSProperties;
 }
 
@@ -52,22 +56,34 @@ export const OTPInputStyled = forwardRef<HTMLDivElement, OTPInputStyledProps>(
       error,
       invalid: invalidProp,
       required,
+      name,
+      id: idProp,
       className,
       style,
+      onChange,
       ...rest
     },
     ref,
   ) {
+    const autoId = useId();
+    const baseId = idProp ?? autoId;
     const isInvalid = Boolean(error) || invalidProp === true;
     const effectiveTone: OTPTone = isInvalid ? "danger" : tone;
     const wrapperClassName = ["rotp-root", className].filter(Boolean).join(" ");
-    const labelId = useId();
-    const hintId = useId();
-    const errorId = useId();
+    const labelId = `${baseId}-label`;
+    const hintId = `${baseId}-hint`;
+    const errorId = `${baseId}-error`;
     const describedBy = error ? errorId : hint ? hintId : undefined;
 
+    // Mirror the live value so the hidden input stays in sync (works in both
+    // controlled and uncontrolled modes).
+    const initialValue = rest.value ?? rest.defaultValue ?? "";
+    const [liveValue, setLiveValue] = useState<string>(initialValue);
+
+    const currentValue = rest.value !== undefined ? rest.value : liveValue;
+
     return (
-      <div className={wrapperClassName} style={style}>
+      <div className={wrapperClassName} style={style} id={baseId} data-invalid={isInvalid ? "true" : undefined}>
         {label ? (
           <span className="rotp-label" id={labelId}>
             {label}
@@ -76,6 +92,10 @@ export const OTPInputStyled = forwardRef<HTMLDivElement, OTPInputStyledProps>(
         <OTPInput
           ref={ref}
           {...rest}
+          onChange={(next) => {
+            setLiveValue(next);
+            onChange?.(next);
+          }}
           className="rotp-group"
           data-variant={variant}
           data-size={size}
@@ -105,6 +125,15 @@ export const OTPInputStyled = forwardRef<HTMLDivElement, OTPInputStyledProps>(
             );
           }}
         />
+        {name ? (
+          <input
+            type="hidden"
+            name={name}
+            value={currentValue}
+            required={required}
+            readOnly
+          />
+        ) : null}
         {error ? (
           <p className="rotp-error" id={errorId} role="alert">
             {error}

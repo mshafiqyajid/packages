@@ -43,4 +43,36 @@ describe("<RatingStyled />", () => {
     );
     expect(screen.getByText("3 / 5")).toBeInTheDocument();
   });
+
+  test("error sets data-invalid + role=alert", () => {
+    const { container } = render(
+      <RatingStyled defaultValue={2} error="Required" />,
+    );
+    expect(container.querySelector("[data-invalid='true']")).not.toBeNull();
+    expect(screen.getByRole("alert")).toHaveTextContent("Required");
+  });
+
+  test("invalid prop sets data-invalid without inline error", () => {
+    const { container } = render(<RatingStyled defaultValue={2} invalid />);
+    expect(container.querySelector("[data-invalid='true']")).not.toBeNull();
+    expect(screen.queryByRole("alert")).toBeNull();
+  });
+
+  test("name renders hidden input with the current value", () => {
+    const { container } = render(
+      <RatingStyled name="stars" defaultValue={4} />,
+    );
+    const hidden = container.querySelector(
+      "input[type='hidden'][name='stars']",
+    ) as HTMLInputElement;
+    expect(hidden).not.toBeNull();
+    expect(hidden.value).toBe("4");
+  });
+
+  test("required surfaces aria-required", () => {
+    const { container } = render(
+      <RatingStyled defaultValue={1} name="r" required />,
+    );
+    expect(container.querySelector("[aria-required='true']")).not.toBeNull();
+  });
 });

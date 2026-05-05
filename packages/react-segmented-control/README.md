@@ -233,3 +233,29 @@ Modern evergreen browsers. Uses `ResizeObserver` (universally supported) for ind
 ## License
 
 MIT © Shafiq Yajid
+
+## Form integration
+
+```tsx
+<form>
+  <SegmentedControlStyled
+    name="plan"
+    label="Plan"
+    options={["free", "pro", "team"]}
+    defaultValue="pro"
+    required
+    error={errors.plan}
+  />
+</form>
+```
+
+| Prop | Type | Description |
+|---|---|---|
+| `name` | `string` | Renders a hidden input carrying `String(value)` for native form submission |
+| `id` | `string` | Wrapper id used for label association |
+| `required` | `boolean` | Surfaces `aria-required` and required on the hidden input |
+| `error` | `ReactNode` | Inline error text. Flips tone to danger and lands `data-invalid="true"` |
+| `invalid` | `boolean` | Force the invalid state without inline error text |
+| `label` / `hint` | `ReactNode` | Already supported |
+
+The wrapper lands `data-invalid="true"` whenever `error` or `invalid` is truthy.

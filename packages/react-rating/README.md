@@ -242,3 +242,25 @@ Uses `clip-path` for half-fill (universally supported in evergreen browsers). SS
 ## License
 
 MIT © Shafiq Yajid
+
+## Form integration
+
+```tsx
+<form>
+  <RatingStyled
+    name="stars"
+    label="Rating"
+    hint="Click to rate"
+    defaultValue={0}
+    required
+    error={errors.stars}
+  />
+</form>
+```
+
+| Prop | Type | Description |
+|---|---|---|
+| `name` | `string` | Renders a hidden input with the numeric value |
+| `id` | `string` | Wrapper id used for label association |
+| `required` | `boolean` | aria-required on the radiogroup + required on the hidden input |
+| `error` / `invalid` | `ReactNode` / `boolean` | Flips tone to danger and sets `data-invalid` |

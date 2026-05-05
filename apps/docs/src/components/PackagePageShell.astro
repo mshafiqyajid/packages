@@ -1,4 +1,6 @@
 ---
+import { lastUpdatedFor, formatLastUpdated } from "~/lib/lastUpdated";
+
 export interface Props {
   name: string;
   version: string;
@@ -9,6 +11,9 @@ export interface Props {
 const { name, version, description, size, framework = "react" } = Astro.props;
 const npmUrl = `https://www.npmjs.com/package/@mshafiqyajid/${name}`;
 const githubUrl = `https://github.com/mshafiqyajid/packages/tree/main/packages/${name}`;
+
+const lastUpdatedIso = lastUpdatedFor(`packages/${name}`);
+const lastUpdated = formatLastUpdated(lastUpdatedIso);
 ---
 
 <div class="pkg-header">
@@ -22,6 +27,15 @@ const githubUrl = `https://github.com/mshafiqyajid/packages/tree/main/packages/$
     <a href={githubUrl} target="_blank" rel="noreferrer" class="pkg-header__badge pkg-header__badge--link">
       GitHub ↗
     </a>
+    {lastUpdated && lastUpdatedIso && (
+      <time
+        class="pkg-header__badge pkg-header__badge--updated"
+        datetime={lastUpdatedIso}
+        title={`Last updated ${lastUpdatedIso}`}
+      >
+        Updated {lastUpdated}
+      </time>
+    )}
   </div>
   <h1 class="pkg-header__name">
     <span class="pkg-header__scope">@mshafiqyajid/</span>{name}
@@ -69,6 +83,10 @@ const githubUrl = `https://github.com/mshafiqyajid/packages/tree/main/packages/$
     color: var(--accent);
     border-color: var(--accent);
     text-decoration: none;
+  }
+  .pkg-header__badge--updated {
+    color: var(--fg-subtle);
+    font-style: normal;
   }
   .pkg-header__name {
     font-size: clamp(1.5rem, 3vw, 2rem);

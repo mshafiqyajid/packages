@@ -240,3 +240,24 @@ Modern evergreen browsers. SSR-safe — does nothing at import time.
 ## License
 
 MIT © Shafiq Yajid
+
+## Form integration
+
+```tsx
+<form>
+  <OTPInputStyled
+    length={6}
+    name="code"
+    label="Verification code"
+    error={errors.code}
+    required
+  />
+</form>
+```
+
+| Prop | Type | Description |
+|---|---|---|
+| `name` | `string` | Renders a hidden input with the joined OTP value (works controlled or uncontrolled — the styled component mirrors the live value) |
+| `id` | `string` | Wrapper id used for label association |
+
+The other contract props (`label`, `hint`, `error`, `invalid`, `required`) were already supported. With `name`, the input is now a drop-in for native HTML forms.
