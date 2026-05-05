@@ -1,5 +1,18 @@
 # @mshafiqyajid/docs
 
+## 0.0.8
+
+### Patch Changes
+
+- Updated dependencies [b382828]
+- Updated dependencies [b382828]
+- Updated dependencies [b382828]
+- Updated dependencies [b382828]
+  - @mshafiqyajid/react-otp-input@1.1.0
+  - @mshafiqyajid/react-rating@0.3.0
+  - @mshafiqyajid/react-segmented-control@0.2.0
+  - @mshafiqyajid/react-slider@0.2.0
+
 ## 0.0.7
 
 ### Patch Changes
