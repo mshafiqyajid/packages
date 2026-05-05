@@ -37,10 +37,27 @@ function App() {
     <>
       <ProgressBar value={75} tone="primary" size="md" showValue label="Uploading…" />
       <ProgressCircle value={75} tone="success" size="lg" showValue />
+
+      {/* Segmented bar — N discrete cells */}
+      <ProgressBar value={60} segments={5} tone="primary" />
+
+      {/* Custom value renderer */}
+      <ProgressBar
+        value={42}
+        showValue
+        formatValue={(percent, value) => `${value}/100 (${percent}%)`}
+      />
     </>
   );
 }
 ```
+
+## ProgressBar props (additions)
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `segments` | `number` | — | When set, renders the bar as N discrete segments (`data-filled` lands on filled cells) |
+| `formatValue` | `(percent, value) => ReactNode` | — | Custom renderer when `showValue` is on |
 
 ## License
 

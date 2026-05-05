@@ -51,6 +51,24 @@ function App() {
 }
 ```
 
+## Keyboard + interaction
+
+| Input | Action |
+|-------|--------|
+| `↑` / `↓` | Step by `step` (default 1) |
+| `Shift + ↑/↓` | Step by `bigStep` (default `step × 10`) |
+| `PageUp` / `PageDown` | Step by `bigStep` |
+| `Home` / `End` | Jump to `min` / `max` (when set) |
+| Mouse wheel (when `wheelEnabled`) | Step on focused input |
+| Hold the +/− button | Repeats step (200 ms initial delay, ~50 ms cadence) |
+
+## Props (additions)
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `bigStep` | `number` | `step × 10` | Step size for Shift+Arrow / PageUp / PageDown |
+| `wheelEnabled` | `boolean` | `false` | Allow mouse wheel to step value when input is focused |
+
 ## License
 
 MIT

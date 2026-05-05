@@ -55,9 +55,16 @@ function App() {
 | `tone` | `"neutral" \| "primary" \| "success" \| "warning" \| "danger" \| "info"` | `"neutral"` |
 | `dot` | `boolean` | `false` |
 | `count` | `number` | — |
+| `maxCount` | `number` | — |
+| `pulse` | `boolean` | `false` |
+| `uppercase` | `boolean` | `false` |
 | `dismissible` | `boolean` | `false` |
 | `onDismiss` | `() => void` | — |
 | `icon` | `ReactNode` | — |
+| `hideOnZero` | `boolean` | `false` |
+| `showZero` | `boolean` | `false` |
+
+`hideOnZero` renders nothing when `count === 0` and there is no other content (handy for unread counters). `showZero` overrides it.
 
 ## License
 

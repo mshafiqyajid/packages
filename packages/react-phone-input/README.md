@@ -52,6 +52,26 @@ function App() {
 }
 ```
 
+## Country dropdown
+
+```tsx
+<PhoneInputStyled
+  defaultCountry="MY"
+  preferredCountries={["MY", "SG", "ID"]}  // pinned to the top
+  searchable                                // search input on top
+  searchPlaceholder="Search countries..."
+/>
+```
+
+## Props (additions)
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `preferredCountries` | `string[]` | — | ISO-2 codes pinned to the top of the dropdown (rendered above a divider) |
+| `searchable` | `boolean` | `true` | Show a search field at the top of the country dropdown |
+| `searchPlaceholder` | `string` | `"Search..."` | Placeholder for the country search input |
+| `disableCountrySelector` | `boolean` | `false` | Lock to `defaultCountry` — hides the dropdown trigger |
+
 ## License
 
 MIT

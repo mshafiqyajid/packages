@@ -45,10 +45,27 @@ function App() {
       tone="primary"
       size="md"
       showValue
+      marks={[0, 25, 50, 75, 100]}
     />
   );
 }
 ```
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `value` | `number \| [number, number]` | — | Controlled value (single or range) |
+| `defaultValue` | `number \| [number, number]` | `0` | Uncontrolled initial |
+| `onChange` | `(value, reason?) => void` | — | Fires on change |
+| `min` / `max` / `step` | `number` | `0 / 100 / 1` | Range bounds and step |
+| `range` | `boolean` | `false` | Two-thumb range mode |
+| `marks` | `number[] \| Mark[]` | — | Tick marks. Pass `[{ value, label }]` for labels. |
+| `transform` | `"linear" \| (v) => v` | `"linear"` | Custom value transform (e.g. logarithmic) |
+| `size` | `"sm" \| "md" \| "lg"` | `"md"` | Track and thumb size |
+| `tone` | `"neutral" \| "primary" \| "success" \| "danger"` | `"primary"` | Color |
+| `showValue` | `boolean` | `false` | Show the current value(s) |
+| `disabled` | `boolean` | `false` | Disable interaction |
 
 ## License
 

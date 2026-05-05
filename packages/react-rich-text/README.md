@@ -65,6 +65,9 @@ function MyEditor() {
 | `onChange` | `(html: string) => void` | — | Called on every content change |
 | `disabled` | `boolean` | `false` | Disables editing |
 | `readOnly` | `boolean` | `false` | Makes content read-only |
+| `sanitizePaste` | `boolean` | `true` | Strip `style`, `class`, `on*` attrs and disallowed tags from pasted HTML. Blocks `javascript:` and `data:` URLs. Plain-text paste preserves newlines as `<br>`. |
+| `allowedTags` | `string[]` | (safe set) | Tag whitelist used by both the on-change pass and paste sanitization. Defaults cover standard formatting tags. |
+| `transformPaste` | `(html) => string` | — | Run after `sanitizePaste`. Use for custom paste transforms. |
 
 Returns: `editorProps`, `execCommand(command, value?)`, `queryCommandState(command)`, `isBold`, `isItalic`, `isUnderline`, `isStrikethrough`, `html`.
 

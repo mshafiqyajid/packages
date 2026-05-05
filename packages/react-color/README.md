@@ -71,6 +71,8 @@ All pickers accept `value` (controlled) or `defaultValue` (uncontrolled), `onCha
 | `onChange`     | `(color) => void`       | —         | Fires on every pointer move.               |
 | `showAlpha`    | `boolean`               | `false`   | Show the alpha slider.                     |
 | `showHexInput` | `boolean`               | `true`    | Show the hex text input.                   |
+| `presets`      | `string[]`              | —         | Optional swatch row below the picker. Click a swatch to apply. |
+| `disabled`     | `boolean`               | `false`   | Block all pointer interaction.             |
 
 ## Headless API
 

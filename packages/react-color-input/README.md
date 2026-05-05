@@ -67,8 +67,14 @@ function MyColorInput() {
 | `label` | `string` | — | Label above the input |
 | `hint` | `string` | — | Helper text below |
 | `error` | `string` | — | Error message (sets danger tone) |
-| `format` | `"hex" \| "rgb"` | `"hex"` | Display format in text input |
+| `format` | `"hex" \| "rgb" \| "hsl"` | `"hex"` | Display format in text input |
 | `showCopyButton` | `boolean` | `false` | Show copy-to-clipboard button |
+| `showAlpha` | `boolean` | `false` | Alpha channel slider in popover |
+| `presets` | `string[]` | (12 built-in) | Custom preset swatches |
+| `recentColors` | `string[]` | — | Recently-used colors row above presets |
+| `onRecentColorsChange` | `(colors) => void` | — | Fires with the deduped+capped list when a color is committed |
+| `recentColorsLimit` | `number` | `12` | Max recents tracked before older entries drop |
+| `eyeDropper` | `boolean` | `false` | EyeDropper API button (Chrome only) |
 
 ## Dark mode
 

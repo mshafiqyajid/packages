@@ -90,6 +90,29 @@ Pass an `uploader` to upload accepted files automatically. Each file becomes an 
 
 Headless consumers also get `uploads`, `retryUpload(id)`, `abortUpload(id)`, and `abortAll()`.
 
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `variant` | `"dropzone" \| "button"` | `"dropzone"` | Upload widget style |
+| `multiple` | `boolean` | `false` | Allow multiple files |
+| `accept` | `string` | — | Accepted file types (MIME or extension) |
+| `maxSize` | `number` | — | Max file size in bytes |
+| `maxFiles` | `number` | — | Max number of files |
+| `disabled` | `boolean` | `false` | Disable interaction |
+| `size` | `"sm" \| "md" \| "lg"` | `"md"` | Size variant |
+| `tone` | `"neutral" \| "primary"` | `"neutral"` | Color tone |
+| `showPreview` | `boolean` | `true` | Show file preview thumbnails |
+| `browseText` | `string` | `"Browse"` | Text on the browse button |
+| `uploader` | `(file, ctx) => Promise<TResult>` | — | Async uploader; enables progress + retry/abort |
+| `concurrency` | `number` | `3` | Max parallel uploads |
+| `autoUpload` | `boolean` | `true` | Start uploading on file accept |
+| `onFiles` | `({ accepted, rejected }) => void` | — | Fired on file selection |
+| `onUpload` | `(item) => void` | — | Fired on upload state changes |
+| `onRemove` | `(file) => void` | — | Fired when a file is removed |
+| `onRetry` | `(item) => void` | — | Fired when an upload is retried |
+| `renderPreview` | `(file) => ReactNode` | — | Custom preview renderer |
+
 ## Links
 
 - [Documentation](https://docs.shafiqyajid.com/react/file-upload/)

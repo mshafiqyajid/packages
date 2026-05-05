@@ -56,7 +56,21 @@ Return a `Promise` from `onChange` to drive the pending state automatically. The
 />
 ```
 
-The hook also exposes `isPending` for headless consumers.
+The hook also exposes `isPending` for headless consumers. The rendered switch lands `aria-busy="true"` + `data-pending="true"` while the promise is in flight.
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `checked` | `boolean` | — | Controlled checked state |
+| `defaultChecked` | `boolean` | `false` | Uncontrolled initial state |
+| `onChange` | `(v: boolean) => void \| Promise<void>` | — | Called on toggle. Return a Promise to drive a pending state automatically; reverts on rejection. |
+| `size` | `"sm" \| "md" \| "lg"` | `"md"` | Size |
+| `tone` | `"neutral" \| "primary" \| "success" \| "danger"` | `"primary"` | Color when on |
+| `label` | `ReactNode` | — | Label text |
+| `labelPosition` | `"left" \| "right"` | `"right"` | Label side |
+| `loading` | `boolean` | `false` | Force spinner in thumb. Auto-set when onChange returns a Promise. |
+| `disabled` | `boolean` | `false` | Disable the switch |
 
 ## License
 

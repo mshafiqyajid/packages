@@ -67,6 +67,28 @@ function App() {
 }
 ```
 
+## Auto-color from name
+
+```tsx
+<AvatarStyled name="Shafiq Yajid" autoColor />
+{/* Deterministic background pulled from a 10-color palette by hashing the name. */}
+{/* Overridden by an explicit `color` prop. */}
+```
+
+## Loading skeleton
+
+```tsx
+<AvatarStyled src="/photo.jpg" name="Shafiq" showLoading />
+{/* Renders a skeleton overlay while the image is loading. */}
+```
+
+## Props (additions)
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `autoColor` | `boolean` | `false` | Pick a deterministic background from a 10-color palette by hashing `name`. Overridden by `color`. |
+| `showLoading` | `boolean` | `false` | Render a skeleton overlay while the image is loading. Pairs with `src`. |
+
 ## License
 
 MIT

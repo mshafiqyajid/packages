@@ -157,6 +157,7 @@ Without `data-rcb-theme`, the component follows `prefers-color-scheme`.
 | `text`           | `string \| () => string \| Promise<string>`     | —           | Required. The text to copy.                                                |
 | `label`          | `ReactNode`                                     | `"Copy"`    | Default-state label. Pass `""` for icon-only.                              |
 | `copiedLabel`    | `ReactNode`                                     | `"Copied"`  | Label after a successful copy.                                             |
+| `errorLabel`     | `ReactNode`                                     | —           | Label rendered when copy fails. Sets `data-error="true"` on the button.    |
 | `variant`        | `"solid" \| "outline" \| "ghost" \| "subtle"`   | `"solid"`   | Visual variant.                                                            |
 | `size`           | `"sm" \| "md" \| "lg" \| "icon"`                | `"md"`      | Size. `"icon"` makes a square icon-only button (provide `aria-label`).     |
 | `tone`           | `"neutral" \| "primary" \| "success" \| "danger"` | `"neutral"` | Color theme.                                                               |
