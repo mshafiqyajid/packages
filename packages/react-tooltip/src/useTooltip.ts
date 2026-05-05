@@ -7,7 +7,13 @@ import {
   type RefObject,
 } from "react";
 
-export type TooltipPlacement = "top" | "bottom" | "left" | "right";
+export type TooltipSide = "top" | "bottom" | "left" | "right";
+export type TooltipAlign = "start" | "center" | "end";
+export type TooltipPlacement =
+  | TooltipSide
+  | `${TooltipSide}-start`
+  | `${TooltipSide}-end`;
+export type TooltipStrategy = "absolute" | "fixed";
 
 export interface UseTooltipOptions {
   placement?: TooltipPlacement;

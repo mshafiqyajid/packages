@@ -12,7 +12,13 @@ import {
   type CSSProperties,
 } from "react";
 import { createPortal } from "react-dom";
-import type { PopoverPlacement, PopoverTrigger } from "../usePopover";
+import type {
+  PopoverPlacement,
+  PopoverSide,
+  PopoverAlign,
+  PopoverTrigger,
+  PopoverStrategy,
+} from "../usePopover";
 
 export type PopoverSize = "sm" | "md" | "lg";
 
@@ -34,39 +40,104 @@ export interface PopoverStyledProps {
   showArrow?: boolean;
   /** Gap in px between trigger and popover. Default: 8 */
   offset?: number;
+  /** Viewport edge padding for flip / shift. Default: 8 */
+  collisionPadding?: number;
+  /** Auto-flip to the opposite side when there isn't room. Default: true */
+  flip?: boolean;
+  /** Push back into view along the cross-axis when crowded. Default: true */
+  shift?: boolean;
+  /** "absolute" (page-relative) or "fixed" (viewport-relative). Default: "absolute" */
+  strategy?: PopoverStrategy;
   className?: string;
 }
 
-function computeCoords(
-  trigger: DOMRect,
-  popover: DOMRect,
-  placement: PopoverPlacement,
-  offset: number,
-): { top: number; left: number } {
-  const sx = window.scrollX;
-  const sy = window.scrollY;
-  switch (placement) {
-    case "top":
-      return {
-        top: trigger.top + sy - popover.height - offset,
-        left: trigger.left + sx + (trigger.width - popover.width) / 2,
-      };
-    case "bottom":
-      return {
-        top: trigger.bottom + sy + offset,
-        left: trigger.left + sx + (trigger.width - popover.width) / 2,
-      };
-    case "left":
-      return {
-        top: trigger.top + sy + (trigger.height - popover.height) / 2,
-        left: trigger.left + sx - popover.width - offset,
-      };
-    case "right":
-      return {
-        top: trigger.top + sy + (trigger.height - popover.height) / 2,
-        left: trigger.right + sx + offset,
-      };
+function parsePlacement(p: PopoverPlacement): { side: PopoverSide; align: PopoverAlign } {
+  const dash = p.indexOf("-");
+  if (dash === -1) return { side: p as PopoverSide, align: "center" };
+  return {
+    side: p.slice(0, dash) as PopoverSide,
+    align: p.slice(dash + 1) as PopoverAlign,
+  };
+}
+
+function buildPlacement(side: PopoverSide, align: PopoverAlign): PopoverPlacement {
+  return (align === "center" ? side : `${side}-${align}`) as PopoverPlacement;
+}
+
+interface ComputeOptions {
+  trigger: DOMRect;
+  floating: DOMRect;
+  placement: PopoverPlacement;
+  offset: number;
+  collisionPadding: number;
+  flip: boolean;
+  shift: boolean;
+  strategy: PopoverStrategy;
+}
+
+function computePosition({
+  trigger,
+  floating,
+  placement,
+  offset,
+  collisionPadding,
+  flip,
+  shift,
+  strategy,
+}: ComputeOptions): { top: number; left: number; placement: PopoverPlacement } {
+  const { side, align } = parsePlacement(placement);
+  const sx = strategy === "absolute" ? window.scrollX : 0;
+  const sy = strategy === "absolute" ? window.scrollY : 0;
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+
+  let chosen: PopoverSide = side;
+  if (flip) {
+    if (side === "top" && trigger.top < floating.height + offset + collisionPadding) {
+      if (vh - trigger.bottom >= floating.height + offset + collisionPadding) chosen = "bottom";
+    } else if (
+      side === "bottom" &&
+      vh - trigger.bottom < floating.height + offset + collisionPadding
+    ) {
+      if (trigger.top >= floating.height + offset + collisionPadding) chosen = "top";
+    } else if (side === "left" && trigger.left < floating.width + offset + collisionPadding) {
+      if (vw - trigger.right >= floating.width + offset + collisionPadding) chosen = "right";
+    } else if (
+      side === "right" &&
+      vw - trigger.right < floating.width + offset + collisionPadding
+    ) {
+      if (trigger.left >= floating.width + offset + collisionPadding) chosen = "left";
+    }
   }
+
+  let top = 0;
+  let left = 0;
+
+  if (chosen === "top" || chosen === "bottom") {
+    top = chosen === "top" ? trigger.top - floating.height - offset : trigger.bottom + offset;
+    if (align === "start") left = trigger.left;
+    else if (align === "end") left = trigger.right - floating.width;
+    else left = trigger.left + (trigger.width - floating.width) / 2;
+  } else {
+    left = chosen === "left" ? trigger.left - floating.width - offset : trigger.right + offset;
+    if (align === "start") top = trigger.top;
+    else if (align === "end") top = trigger.bottom - floating.height;
+    else top = trigger.top + (trigger.height - floating.height) / 2;
+  }
+
+  if (shift) {
+    if (chosen === "top" || chosen === "bottom") {
+      const min = collisionPadding;
+      const max = vw - floating.width - collisionPadding;
+      if (max >= min) left = Math.max(min, Math.min(left, max));
+    } else {
+      const min = collisionPadding;
+      const max = vh - floating.height - collisionPadding;
+      if (max >= min) top = Math.max(min, Math.min(top, max));
+    }
+  }
+
+  return { top: top + sy, left: left + sx, placement: buildPlacement(chosen, align) };
 }
 
 export const PopoverStyled = forwardRef<HTMLDivElement, PopoverStyledProps>(
@@ -82,6 +153,10 @@ export const PopoverStyled = forwardRef<HTMLDivElement, PopoverStyledProps>(
       size = "md",
       showArrow = true,
       offset = 8,
+      collisionPadding = 8,
+      flip = true,
+      shift = true,
+      strategy = "absolute",
     },
     ref,
   ) {
@@ -116,14 +191,7 @@ export const PopoverStyled = forwardRef<HTMLDivElement, PopoverStyledProps>(
     const open = useCallback(() => {
       if (exitTimerRef.current) { clearTimeout(exitTimerRef.current); exitTimerRef.current = null; }
       if (!triggerRef.current) return;
-      const rect = triggerRef.current.getBoundingClientRect();
-      const MARGIN = 80;
-      let pl = placement;
-      if (placement === "top" && rect.top < MARGIN) pl = "bottom";
-      else if (placement === "bottom" && rect.bottom > window.innerHeight - MARGIN) pl = "top";
-      else if (placement === "left" && rect.left < MARGIN) pl = "right";
-      else if (placement === "right" && rect.right > window.innerWidth - MARGIN) pl = "left";
-      setResolvedPlacement(pl);
+      setResolvedPlacement(placement);
       setRendered(true);
       requestAnimationFrame(() => requestAnimationFrame(() => setIsOpen(true)));
     }, [placement]);
@@ -138,24 +206,26 @@ export const PopoverStyled = forwardRef<HTMLDivElement, PopoverStyledProps>(
       else open();
     }, [isOpen, open, close]);
 
-    const updateCoords = useCallback(
-      (pl: PopoverPlacement) => {
-        if (!triggerRef.current || !popoverRef.current) return;
-        const pos = computeCoords(
-          triggerRef.current.getBoundingClientRect(),
-          popoverRef.current.getBoundingClientRect(),
-          pl,
-          offset,
-        );
-        setCoords(pos);
-      },
-      [offset],
-    );
+    const updateCoords = useCallback(() => {
+      if (!triggerRef.current || !popoverRef.current) return;
+      const pos = computePosition({
+        trigger: triggerRef.current.getBoundingClientRect(),
+        floating: popoverRef.current.getBoundingClientRect(),
+        placement,
+        offset,
+        collisionPadding,
+        flip,
+        shift,
+        strategy,
+      });
+      setCoords({ top: pos.top, left: pos.left });
+      setResolvedPlacement(pos.placement);
+    }, [offset, collisionPadding, flip, shift, strategy, placement]);
 
     // Recompute coords after open (popover has real size now)
     useEffect(() => {
-      if (isOpen) updateCoords(resolvedPlacement);
-    }, [isOpen, resolvedPlacement, updateCoords]);
+      if (isOpen) updateCoords();
+    }, [isOpen, updateCoords]);
 
     // Escape key
     useEffect(() => {
@@ -185,14 +255,14 @@ export const PopoverStyled = forwardRef<HTMLDivElement, PopoverStyledProps>(
     // Reposition on scroll/resize
     useEffect(() => {
       if (!isOpen) return;
-      const onReposition = () => updateCoords(resolvedPlacement);
+      const onReposition = () => updateCoords();
       window.addEventListener("scroll", onReposition, { passive: true });
       window.addEventListener("resize", onReposition, { passive: true });
       return () => {
         window.removeEventListener("scroll", onReposition);
         window.removeEventListener("resize", onReposition);
       };
-    }, [isOpen, resolvedPlacement, updateCoords]);
+    }, [isOpen, updateCoords]);
 
     useEffect(() => () => { clearHoverTimer(); if (exitTimerRef.current) clearTimeout(exitTimerRef.current); }, [clearHoverTimer]);
 
@@ -260,7 +330,7 @@ export const PopoverStyled = forwardRef<HTMLDivElement, PopoverStyledProps>(
       : children;
 
     const popoverStyle: CSSProperties = {
-      position: "absolute",
+      position: strategy,
       top: coords.top,
       left: coords.left,
       zIndex: 9999,

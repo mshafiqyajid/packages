@@ -13,8 +13,14 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 
-export type DropdownMenuPlacement = "bottom-start" | "bottom-end" | "top-start" | "top-end";
+export type DropdownMenuSide = "top" | "bottom" | "left" | "right";
+export type DropdownMenuAlign = "start" | "center" | "end";
+export type DropdownMenuPlacement =
+  | DropdownMenuSide
+  | `${DropdownMenuSide}-start`
+  | `${DropdownMenuSide}-end`;
 export type DropdownMenuSize = "sm" | "md" | "lg";
+export type DropdownMenuStrategy = "absolute" | "fixed";
 
 export interface DropdownMenuItem {
   label?: string;
@@ -31,48 +37,136 @@ export interface DropdownMenuStyledProps {
   placement?: DropdownMenuPlacement;
   size?: DropdownMenuSize;
   className?: string;
+  /** Gap in px between trigger and menu. Default: 4 */
+  offset?: number;
+  /** Viewport edge padding for flip / shift. Default: 8 */
+  collisionPadding?: number;
+  /** Auto-flip to the opposite side when there isn't room. Default: true */
+  flip?: boolean;
+  /** Push back into view along the cross-axis. Default: true */
+  shift?: boolean;
+  /** "absolute" or "fixed" positioning. Default: "absolute" */
+  strategy?: DropdownMenuStrategy;
 }
 
-const GAP = 4;
+function parsePlacement(p: DropdownMenuPlacement): {
+  side: DropdownMenuSide;
+  align: DropdownMenuAlign;
+} {
+  const dash = p.indexOf("-");
+  if (dash === -1) {
+    const side = p as DropdownMenuSide;
+    return {
+      side,
+      align: side === "top" || side === "bottom" ? "start" : "center",
+    };
+  }
+  return {
+    side: p.slice(0, dash) as DropdownMenuSide,
+    align: p.slice(dash + 1) as DropdownMenuAlign,
+  };
+}
 
-function computeCoords(
-  triggerRect: DOMRect,
-  menuRect: DOMRect,
-  placement: DropdownMenuPlacement,
-): { top: number; left: number } {
-  const sx = window.scrollX;
-  const sy = window.scrollY;
-  const MARGIN = 8;
+function buildPlacement(
+  side: DropdownMenuSide,
+  align: DropdownMenuAlign,
+): DropdownMenuPlacement {
+  return (align === "center" ? side : `${side}-${align}`) as DropdownMenuPlacement;
+}
+
+interface ComputeOpts {
+  trigger: DOMRect;
+  floating: DOMRect;
+  placement: DropdownMenuPlacement;
+  offset: number;
+  collisionPadding: number;
+  flip: boolean;
+  shift: boolean;
+  strategy: DropdownMenuStrategy;
+}
+
+function computePosition({
+  trigger,
+  floating,
+  placement,
+  offset,
+  collisionPadding,
+  flip,
+  shift,
+  strategy,
+}: ComputeOpts): { top: number; left: number; placement: DropdownMenuPlacement } {
+  const { side, align } = parsePlacement(placement);
+  const sx = strategy === "absolute" ? window.scrollX : 0;
+  const sy = strategy === "absolute" ? window.scrollY : 0;
   const vw = window.innerWidth;
   const vh = window.innerHeight;
 
-  let v: "top" | "bottom" = placement.startsWith("bottom") ? "bottom" : "top";
-  let h: "start" | "end" = placement.endsWith("start") ? "start" : "end";
+  let chosen: DropdownMenuSide = side;
+  if (flip) {
+    if (side === "top" && trigger.top < floating.height + offset + collisionPadding) {
+      if (vh - trigger.bottom >= floating.height + offset + collisionPadding) chosen = "bottom";
+    } else if (
+      side === "bottom" &&
+      vh - trigger.bottom < floating.height + offset + collisionPadding
+    ) {
+      if (trigger.top >= floating.height + offset + collisionPadding) chosen = "top";
+    } else if (side === "left" && trigger.left < floating.width + offset + collisionPadding) {
+      if (vw - trigger.right >= floating.width + offset + collisionPadding) chosen = "right";
+    } else if (
+      side === "right" &&
+      vw - trigger.right < floating.width + offset + collisionPadding
+    ) {
+      if (trigger.left >= floating.width + offset + collisionPadding) chosen = "left";
+    }
+  }
 
-  // Flip vertical
-  if (v === "bottom" && triggerRect.bottom + menuRect.height + GAP > vh - MARGIN) v = "top";
-  else if (v === "top" && triggerRect.top - menuRect.height - GAP < MARGIN) v = "bottom";
+  let top = 0;
+  let left = 0;
+  if (chosen === "top" || chosen === "bottom") {
+    top = chosen === "top" ? trigger.top - floating.height - offset : trigger.bottom + offset;
+    if (align === "start") left = trigger.left;
+    else if (align === "end") left = trigger.right - floating.width;
+    else left = trigger.left + (trigger.width - floating.width) / 2;
+  } else {
+    left = chosen === "left" ? trigger.left - floating.width - offset : trigger.right + offset;
+    if (align === "start") top = trigger.top;
+    else if (align === "end") top = trigger.bottom - floating.height;
+    else top = trigger.top + (trigger.height - floating.height) / 2;
+  }
 
-  // Flip horizontal
-  if (h === "start" && triggerRect.left + menuRect.width > vw - MARGIN) h = "end";
-  else if (h === "end" && triggerRect.right - menuRect.width < MARGIN) h = "start";
+  if (shift) {
+    if (chosen === "top" || chosen === "bottom") {
+      const min = collisionPadding;
+      const max = vw - floating.width - collisionPadding;
+      if (max >= min) left = Math.max(min, Math.min(left, max));
+    } else {
+      const min = collisionPadding;
+      const max = vh - floating.height - collisionPadding;
+      if (max >= min) top = Math.max(min, Math.min(top, max));
+    }
+  }
 
-  const top = v === "bottom"
-    ? triggerRect.bottom + sy + GAP
-    : triggerRect.top + sy - menuRect.height - GAP;
-
-  const left = h === "start"
-    ? triggerRect.left + sx
-    : triggerRect.right + sx - menuRect.width;
-
-  return { top, left };
+  return { top: top + sy, left: left + sx, placement: buildPlacement(chosen, align) };
 }
 
 export const DropdownMenuStyled = forwardRef<HTMLElement, DropdownMenuStyledProps>(
   function DropdownMenuStyled(
-    { trigger, items, placement = "bottom-start", size = "md", className },
+    {
+      trigger,
+      items,
+      placement = "bottom-start",
+      size = "md",
+      className,
+      offset = 4,
+      collisionPadding = 8,
+      flip = true,
+      shift = true,
+      strategy = "absolute",
+    },
     ref,
   ) {
+    const [resolvedPlacement, setResolvedPlacement] =
+      useState<DropdownMenuPlacement>(placement);
     const menuId = useId();
     const [isOpen, setIsOpen] = useState(false);
     const [rendered, setRendered] = useState(false);
@@ -105,13 +199,19 @@ export const DropdownMenuStyled = forwardRef<HTMLElement, DropdownMenuStyledProp
 
     const updateCoords = useCallback(() => {
       if (!triggerRef.current || !menuRef.current) return;
-      const pos = computeCoords(
-        triggerRef.current.getBoundingClientRect(),
-        menuRef.current.getBoundingClientRect(),
+      const pos = computePosition({
+        trigger: triggerRef.current.getBoundingClientRect(),
+        floating: menuRef.current.getBoundingClientRect(),
         placement,
-      );
-      setCoords(pos);
-    }, [placement]);
+        offset,
+        collisionPadding,
+        flip,
+        shift,
+        strategy,
+      });
+      setCoords({ top: pos.top, left: pos.left });
+      setResolvedPlacement(pos.placement);
+    }, [placement, offset, collisionPadding, flip, shift, strategy]);
 
     useEffect(() => {
       if (rendered) requestAnimationFrame(() => updateCoords());
@@ -184,7 +284,7 @@ export const DropdownMenuStyled = forwardRef<HTMLElement, DropdownMenuStyledProp
         })
       : trigger;
 
-    const menuStyle: CSSProperties = { position: "absolute", top: coords.top, left: coords.left, zIndex: 9999 };
+    const menuStyle: CSSProperties = { position: strategy, top: coords.top, left: coords.left, zIndex: 9999 };
 
     let visibleIndex = -1;
 
@@ -197,7 +297,7 @@ export const DropdownMenuStyled = forwardRef<HTMLElement, DropdownMenuStyledProp
             id={menuId}
             role="menu"
             className="rdrop-menu"
-            data-placement={placement}
+            data-placement={resolvedPlacement}
             data-size={size}
             data-open={isOpen ? "true" : undefined}
             tabIndex={-1}

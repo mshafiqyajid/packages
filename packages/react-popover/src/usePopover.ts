@@ -7,8 +7,14 @@ import {
   type RefObject,
 } from "react";
 
-export type PopoverPlacement = "top" | "bottom" | "left" | "right";
+export type PopoverSide = "top" | "bottom" | "left" | "right";
+export type PopoverAlign = "start" | "center" | "end";
+export type PopoverPlacement =
+  | PopoverSide
+  | `${PopoverSide}-start`
+  | `${PopoverSide}-end`;
 export type PopoverTrigger = "click" | "hover";
+export type PopoverStrategy = "absolute" | "fixed";
 
 export interface UsePopoverOptions {
   placement?: PopoverPlacement;
@@ -49,7 +55,6 @@ export interface UsePopoverResult {
 }
 
 export function usePopover({
-  placement = "bottom",
   trigger = "click",
   closeOnOutsideClick = true,
   closeOnEsc = true,

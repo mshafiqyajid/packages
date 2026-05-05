@@ -12,59 +12,124 @@ import {
   type CSSProperties,
 } from "react";
 import { createPortal } from "react-dom";
-import type { TooltipPlacement } from "../useTooltip";
+import type {
+  TooltipPlacement,
+  TooltipSide,
+  TooltipAlign,
+  TooltipStrategy,
+} from "../useTooltip";
 
 export type TooltipSize = "sm" | "md" | "lg";
 export type TooltipTone = "neutral" | "primary" | "success" | "danger";
 
 export interface TooltipStyledProps {
-  /** The element that triggers the tooltip */
   children: ReactElement;
-  /** Tooltip text or content */
   content: ReactNode;
   placement?: TooltipPlacement;
   size?: TooltipSize;
   tone?: TooltipTone;
-  /** Delay in ms before showing. Default: 0 */
   delay?: number;
-  /** Disable the tooltip entirely */
   disabled?: boolean;
-  /** Allow content to wrap across multiple lines (e.g. for rich HTML content) */
   multiline?: boolean;
+  /** Gap in px between trigger and tooltip. Default: 8 */
+  offset?: number;
+  /** Viewport edge padding for flip / shift. Default: 8 */
+  collisionPadding?: number;
+  /** Auto-flip to opposite side when there isn't room. Default: true */
+  flip?: boolean;
+  /** Push back into view along the cross-axis when crowded. Default: true */
+  shift?: boolean;
+  /** "absolute" or "fixed" positioning. Default: "absolute" */
+  strategy?: TooltipStrategy;
   className?: string;
 }
 
-const GAP = 8;
+function parsePlacement(p: TooltipPlacement): { side: TooltipSide; align: TooltipAlign } {
+  const dash = p.indexOf("-");
+  if (dash === -1) return { side: p as TooltipSide, align: "center" };
+  return {
+    side: p.slice(0, dash) as TooltipSide,
+    align: p.slice(dash + 1) as TooltipAlign,
+  };
+}
 
-function computeCoords(
-  trigger: DOMRect,
-  tooltip: DOMRect,
-  placement: TooltipPlacement,
-): { top: number; left: number } {
-  const sx = window.scrollX;
-  const sy = window.scrollY;
-  switch (placement) {
-    case "top":
-      return {
-        top:  trigger.top  + sy - tooltip.height - GAP,
-        left: trigger.left + sx + (trigger.width - tooltip.width) / 2,
-      };
-    case "bottom":
-      return {
-        top:  trigger.bottom + sy + GAP,
-        left: trigger.left   + sx + (trigger.width - tooltip.width) / 2,
-      };
-    case "left":
-      return {
-        top:  trigger.top  + sy + (trigger.height - tooltip.height) / 2,
-        left: trigger.left + sx - tooltip.width - GAP,
-      };
-    case "right":
-      return {
-        top:  trigger.top   + sy + (trigger.height - tooltip.height) / 2,
-        left: trigger.right + sx + GAP,
-      };
+function buildPlacement(side: TooltipSide, align: TooltipAlign): TooltipPlacement {
+  return (align === "center" ? side : `${side}-${align}`) as TooltipPlacement;
+}
+
+interface ComputeOpts {
+  trigger: DOMRect;
+  floating: DOMRect;
+  placement: TooltipPlacement;
+  offset: number;
+  collisionPadding: number;
+  flip: boolean;
+  shift: boolean;
+  strategy: TooltipStrategy;
+}
+
+function computePosition({
+  trigger,
+  floating,
+  placement,
+  offset,
+  collisionPadding,
+  flip,
+  shift,
+  strategy,
+}: ComputeOpts): { top: number; left: number; placement: TooltipPlacement } {
+  const { side, align } = parsePlacement(placement);
+  const sx = strategy === "absolute" ? window.scrollX : 0;
+  const sy = strategy === "absolute" ? window.scrollY : 0;
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+
+  let chosen: TooltipSide = side;
+  if (flip) {
+    if (side === "top" && trigger.top < floating.height + offset + collisionPadding) {
+      if (vh - trigger.bottom >= floating.height + offset + collisionPadding) chosen = "bottom";
+    } else if (
+      side === "bottom" &&
+      vh - trigger.bottom < floating.height + offset + collisionPadding
+    ) {
+      if (trigger.top >= floating.height + offset + collisionPadding) chosen = "top";
+    } else if (side === "left" && trigger.left < floating.width + offset + collisionPadding) {
+      if (vw - trigger.right >= floating.width + offset + collisionPadding) chosen = "right";
+    } else if (
+      side === "right" &&
+      vw - trigger.right < floating.width + offset + collisionPadding
+    ) {
+      if (trigger.left >= floating.width + offset + collisionPadding) chosen = "left";
+    }
   }
+
+  let top = 0;
+  let left = 0;
+  if (chosen === "top" || chosen === "bottom") {
+    top = chosen === "top" ? trigger.top - floating.height - offset : trigger.bottom + offset;
+    if (align === "start") left = trigger.left;
+    else if (align === "end") left = trigger.right - floating.width;
+    else left = trigger.left + (trigger.width - floating.width) / 2;
+  } else {
+    left = chosen === "left" ? trigger.left - floating.width - offset : trigger.right + offset;
+    if (align === "start") top = trigger.top;
+    else if (align === "end") top = trigger.bottom - floating.height;
+    else top = trigger.top + (trigger.height - floating.height) / 2;
+  }
+
+  if (shift) {
+    if (chosen === "top" || chosen === "bottom") {
+      const min = collisionPadding;
+      const max = vw - floating.width - collisionPadding;
+      if (max >= min) left = Math.max(min, Math.min(left, max));
+    } else {
+      const min = collisionPadding;
+      const max = vh - floating.height - collisionPadding;
+      if (max >= min) top = Math.max(min, Math.min(top, max));
+    }
+  }
+
+  return { top: top + sy, left: left + sx, placement: buildPlacement(chosen, align) };
 }
 
 export const TooltipStyled = forwardRef<HTMLDivElement, TooltipStyledProps>(
@@ -78,6 +143,11 @@ export const TooltipStyled = forwardRef<HTMLDivElement, TooltipStyledProps>(
       delay = 0,
       disabled = false,
       multiline = false,
+      offset = 8,
+      collisionPadding = 8,
+      flip = true,
+      shift = true,
+      strategy = "absolute",
     },
     ref,
   ) {
@@ -91,51 +161,56 @@ export const TooltipStyled = forwardRef<HTMLDivElement, TooltipStyledProps>(
     const tooltipRef = useRef<HTMLDivElement>(null);
     const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    // SSR-safe portal mount
-    useEffect(() => { setMounted(true); }, []);
+    useEffect(() => {
+      setMounted(true);
+    }, []);
 
     const clearTimer = useCallback(() => {
-      if (timer.current !== null) { clearTimeout(timer.current); timer.current = null; }
+      if (timer.current !== null) {
+        clearTimeout(timer.current);
+        timer.current = null;
+      }
     }, []);
 
-    const updateCoords = useCallback((pl: TooltipPlacement) => {
+    const updateCoords = useCallback(() => {
       if (!triggerRef.current || !tooltipRef.current) return;
-      const pos = computeCoords(
-        triggerRef.current.getBoundingClientRect(),
-        tooltipRef.current.getBoundingClientRect(),
-        pl,
-      );
-      setCoords(pos);
-    }, []);
+      const pos = computePosition({
+        trigger: triggerRef.current.getBoundingClientRect(),
+        floating: tooltipRef.current.getBoundingClientRect(),
+        placement,
+        offset,
+        collisionPadding,
+        flip,
+        shift,
+        strategy,
+      });
+      setCoords({ top: pos.top, left: pos.left });
+      setResolvedPlacement(pos.placement);
+    }, [placement, offset, collisionPadding, flip, shift, strategy]);
 
     const show = useCallback(() => {
       if (disabled) return;
       clearTimer();
       timer.current = setTimeout(() => {
-        if (!triggerRef.current) return;
-        const rect = triggerRef.current.getBoundingClientRect();
-        const MARGIN = 80;
-        let pl = placement;
-        if (placement === "top"    && rect.top    < MARGIN)                     pl = "bottom";
-        else if (placement === "bottom" && rect.bottom > window.innerHeight - MARGIN) pl = "top";
-        else if (placement === "left"   && rect.left   < MARGIN)                pl = "right";
-        else if (placement === "right"  && rect.right  > window.innerWidth - MARGIN)  pl = "left";
-        setResolvedPlacement(pl);
         setIsVisible(true);
       }, delay);
-    }, [disabled, delay, placement, clearTimer]);
+    }, [disabled, delay, clearTimer]);
 
-    const hide = useCallback(() => { clearTimer(); setIsVisible(false); }, [clearTimer]);
+    const hide = useCallback(() => {
+      clearTimer();
+      setIsVisible(false);
+    }, [clearTimer]);
 
-    // Recompute coords after visible (tooltip has real size now)
     useEffect(() => {
-      if (isVisible) updateCoords(resolvedPlacement);
-    }, [isVisible, resolvedPlacement, updateCoords]);
+      if (isVisible) updateCoords();
+    }, [isVisible, updateCoords]);
 
     useEffect(() => {
       if (!isVisible) return;
-      const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") hide(); };
-      const onScroll = () => updateCoords(resolvedPlacement);
+      const onKey = (e: KeyboardEvent) => {
+        if (e.key === "Escape") hide();
+      };
+      const onScroll = () => updateCoords();
       document.addEventListener("keydown", onKey);
       window.addEventListener("scroll", onScroll, { passive: true });
       window.addEventListener("resize", onScroll, { passive: true });
@@ -144,7 +219,7 @@ export const TooltipStyled = forwardRef<HTMLDivElement, TooltipStyledProps>(
         window.removeEventListener("scroll", onScroll);
         window.removeEventListener("resize", onScroll);
       };
-    }, [isVisible, hide, resolvedPlacement, updateCoords]);
+    }, [isVisible, hide, updateCoords]);
 
     useEffect(() => () => clearTimer(), [clearTimer]);
 
@@ -179,7 +254,7 @@ export const TooltipStyled = forwardRef<HTMLDivElement, TooltipStyledProps>(
       : children;
 
     const tooltipStyle: CSSProperties = {
-      position: "absolute",
+      position: strategy,
       top: coords.top,
       left: coords.left,
       zIndex: 9999,
@@ -188,28 +263,29 @@ export const TooltipStyled = forwardRef<HTMLDivElement, TooltipStyledProps>(
     return (
       <>
         {trigger}
-        {mounted && createPortal(
-          <div
-            ref={(el) => {
-              (tooltipRef as React.MutableRefObject<HTMLDivElement | null>).current = el;
-              if (typeof ref === "function") ref(el);
-              else if (ref) (ref as React.MutableRefObject<HTMLDivElement | null>).current = el;
-            }}
-            id={id}
-            role="tooltip"
-            className="rtt-tooltip"
-            data-placement={resolvedPlacement}
-            data-size={size}
-            data-tone={tone}
-            data-visible={isVisible ? "true" : undefined}
-            data-multiline={multiline ? "true" : undefined}
-            aria-hidden={!isVisible}
-            style={tooltipStyle}
-          >
-            <span className="rtt-content">{content}</span>
-          </div>,
-          document.body,
-        )}
+        {mounted &&
+          createPortal(
+            <div
+              ref={(el) => {
+                (tooltipRef as React.MutableRefObject<HTMLDivElement | null>).current = el;
+                if (typeof ref === "function") ref(el);
+                else if (ref) (ref as React.MutableRefObject<HTMLDivElement | null>).current = el;
+              }}
+              id={id}
+              role="tooltip"
+              className="rtt-tooltip"
+              data-placement={resolvedPlacement}
+              data-size={size}
+              data-tone={tone}
+              data-visible={isVisible ? "true" : undefined}
+              data-multiline={multiline ? "true" : undefined}
+              aria-hidden={!isVisible}
+              style={tooltipStyle}
+            >
+              <span className="rtt-content">{content}</span>
+            </div>,
+            document.body,
+          )}
       </>
     );
   },

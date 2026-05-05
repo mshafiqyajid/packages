@@ -15,6 +15,8 @@ import type { SelectItem } from "../useSelect";
 
 export type SelectSize = "sm" | "md" | "lg";
 export type SelectTone = "neutral" | "primary" | "success" | "danger";
+export type SelectPlacement = "auto" | "top" | "bottom";
+export type SelectStrategy = "absolute" | "fixed";
 
 export interface SelectStyledProps {
   items: SelectItem[];
@@ -28,28 +30,64 @@ export interface SelectStyledProps {
   disabled?: boolean;
   clearable?: boolean;
   className?: string;
+  /** "auto" picks bottom unless there isn't room. Default: "auto" */
+  placement?: SelectPlacement;
+  /** Gap in px between trigger and listbox. Default: 4 */
+  offset?: number;
+  /** Viewport edge padding when computing flip. Default: 8 */
+  collisionPadding?: number;
+  /** Auto-flip when there isn't room. Default: true */
+  flip?: boolean;
+  /** "absolute" or "fixed". Default: "absolute" */
+  strategy?: SelectStrategy;
 }
 
-const GAP = 4;
+interface DropdownStyleOpts {
+  trigger: DOMRect;
+  dropdownHeight: number;
+  placement: SelectPlacement;
+  offset: number;
+  collisionPadding: number;
+  flip: boolean;
+  strategy: SelectStrategy;
+}
 
-function computeDropdownStyle(
-  trigger: DOMRect,
-  dropdownHeight: number,
-): CSSProperties {
-  const sx = window.scrollX;
-  const sy = window.scrollY;
-  const spaceBelow = window.innerHeight - trigger.bottom;
-  const spaceAbove = trigger.top;
-  const placedAbove = spaceBelow < dropdownHeight + GAP && spaceAbove > spaceBelow;
+function computeDropdownStyle({
+  trigger,
+  dropdownHeight,
+  placement,
+  offset,
+  collisionPadding,
+  flip,
+  strategy,
+}: DropdownStyleOpts): CSSProperties & { dataPlacement: "top" | "bottom" } {
+  const sx = strategy === "absolute" ? window.scrollX : 0;
+  const sy = strategy === "absolute" ? window.scrollY : 0;
+  const spaceBelow = window.innerHeight - trigger.bottom - collisionPadding;
+  const spaceAbove = trigger.top - collisionPadding;
+
+  let placedAbove: boolean;
+  if (placement === "top") placedAbove = true;
+  else if (placement === "bottom") placedAbove = false;
+  else placedAbove = spaceBelow < dropdownHeight + offset && spaceAbove > spaceBelow;
+
+  if (placement !== "auto" && flip) {
+    if (placedAbove && spaceAbove < dropdownHeight + offset && spaceBelow > spaceAbove) {
+      placedAbove = false;
+    } else if (!placedAbove && spaceBelow < dropdownHeight + offset && spaceAbove > spaceBelow) {
+      placedAbove = true;
+    }
+  }
 
   return {
-    position: "absolute",
+    position: strategy,
     left: trigger.left + sx,
     width: trigger.width,
     zIndex: 9999,
     top: placedAbove
-      ? trigger.top + sy - dropdownHeight - GAP
-      : trigger.bottom + sy + GAP,
+      ? trigger.top + sy - dropdownHeight - offset
+      : trigger.bottom + sy + offset,
+    dataPlacement: placedAbove ? "top" : "bottom",
   };
 }
 
@@ -67,9 +105,15 @@ export const SelectStyled = forwardRef<HTMLDivElement, SelectStyledProps>(
       disabled = false,
       clearable = false,
       className,
+      placement = "auto",
+      offset = 4,
+      collisionPadding = 8,
+      flip = true,
+      strategy = "absolute",
     },
     ref,
   ) {
+    const [resolvedPlacement, setResolvedPlacement] = useState<"top" | "bottom">("bottom");
     const [mounted, setMounted] = useState(false);
     const [dropdownStyle, setDropdownStyle] = useState<CSSProperties>({
       position: "absolute",
@@ -93,8 +137,18 @@ export const SelectStyled = forwardRef<HTMLDivElement, SelectStyledProps>(
       if (!wrapperRef.current || !dropdownRef.current) return;
       const triggerRect = wrapperRef.current.getBoundingClientRect();
       const dropdownRect = dropdownRef.current.getBoundingClientRect();
-      setDropdownStyle(computeDropdownStyle(triggerRect, dropdownRect.height || 240));
-    }, []);
+      const { dataPlacement, ...style } = computeDropdownStyle({
+        trigger: triggerRect,
+        dropdownHeight: dropdownRect.height || 240,
+        placement,
+        offset,
+        collisionPadding,
+        flip,
+        strategy,
+      });
+      setDropdownStyle(style);
+      setResolvedPlacement(dataPlacement);
+    }, [placement, offset, collisionPadding, flip, strategy]);
 
     useEffect(() => {
       if (!select.isOpen) return;
@@ -252,6 +306,7 @@ export const SelectStyled = forwardRef<HTMLDivElement, SelectStyledProps>(
               data-open={select.isOpen ? "true" : undefined}
               data-size={size}
               data-tone={tone}
+              data-placement={resolvedPlacement}
               style={dropdownStyle}
             >
               {searchable && (
