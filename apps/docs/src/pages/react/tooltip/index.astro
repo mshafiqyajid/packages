@@ -13,9 +13,9 @@ import TooltipDemo from "~/components/demos/TooltipDemo";
 >
   <PackagePageShell
     name="react-tooltip"
-    version="0.1.0"
-    description="Headless tooltip hook and styled component for React. Accessible, keyboard-friendly, smart flip positioning when near viewport edges, animated, SSR-safe, fully typed."
-    size="~6 KB"
+    version="0.2.0"
+    description="Headless tooltip hook and styled component for React. Accessible, keyboard-friendly, full placement set with -start/-end alignment, flip + shift + offset + collisionPadding, SSR-safe, fully typed."
+    size="~7 KB"
   >
     <div class="pkg-section">
       <H2>Playground</H2>
@@ -43,11 +43,12 @@ export function App() {
 
     <div class="pkg-section">
       <H2>Placements</H2>
-      <p>The tooltip defaults to <code>top</code> but automatically flips to the opposite side if it would overflow the viewport.</p>
-      <CodeBlock lang="tsx" code={`<TooltipStyled content="Top" placement="top">...</TooltipStyled>
-<TooltipStyled content="Bottom" placement="bottom">...</TooltipStyled>
-<TooltipStyled content="Left" placement="left">...</TooltipStyled>
-<TooltipStyled content="Right" placement="right">...</TooltipStyled>`} />
+      <p>Each side accepts an optional <code>-start</code> or <code>-end</code> alignment. The tooltip automatically flips to the opposite side near viewport edges (toggle with <code>flip</code>) and shifts back into view along the cross-axis (toggle with <code>shift</code>).</p>
+      <CodeBlock lang="tsx" code={`<TooltipStyled content="Top start"  placement="top-start">...</TooltipStyled>
+<TooltipStyled content="Bottom end" placement="bottom-end">...</TooltipStyled>
+<TooltipStyled content="Right" placement="right" offset={12} collisionPadding={16}>
+  ...
+</TooltipStyled>`} />
     </div>
 
     <div class="pkg-section">
@@ -127,12 +128,17 @@ function MyTooltip({ content, children }) {
         </thead>
         <tbody>
           <tr><td>content</td><td>ReactNode</td><td>—</td><td>Tooltip text or JSX content</td></tr>
-          <tr><td>placement</td><td>"top" | "bottom" | "left" | "right"</td><td>"top"</td><td>Preferred placement (auto-flips near viewport edges)</td></tr>
+          <tr><td>placement</td><td>top | bottom | left | right (each with optional -start / -end)</td><td>"top"</td><td>Preferred side and alignment</td></tr>
           <tr><td>size</td><td>"sm" | "md" | "lg"</td><td>"md"</td><td>Size of the tooltip bubble</td></tr>
           <tr><td>tone</td><td>"neutral" | "primary" | "success" | "danger"</td><td>"neutral"</td><td>Color tone</td></tr>
           <tr><td>delay</td><td>number</td><td>0</td><td>Show delay in ms</td></tr>
-          <tr><td>multiline</td><td>boolean</td><td>false</td><td>Allow content to wrap (useful for rich HTML content)</td></tr>
+          <tr><td>multiline</td><td>boolean</td><td>false</td><td>Allow content to wrap</td></tr>
           <tr><td>disabled</td><td>boolean</td><td>false</td><td>Disable the tooltip entirely</td></tr>
+          <tr><td>offset</td><td>number</td><td>8</td><td>Gap between trigger and tooltip</td></tr>
+          <tr><td>collisionPadding</td><td>number</td><td>8</td><td>Viewport edge margin for flip / shift</td></tr>
+          <tr><td>flip</td><td>boolean</td><td>true</td><td>Auto-flip to opposite side near edges</td></tr>
+          <tr><td>shift</td><td>boolean</td><td>true</td><td>Push back into view along the cross-axis</td></tr>
+          <tr><td>strategy</td><td>"absolute" | "fixed"</td><td>"absolute"</td><td>Positioning strategy</td></tr>
         </tbody>
       </table>
     </div>

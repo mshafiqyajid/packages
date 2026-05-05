@@ -107,6 +107,13 @@ Returns `{ triggerProps, listboxProps, getItemProps, isOpen, searchValue, setSea
 | `tone` | `"neutral" \| "primary" \| "success" \| "danger"` | `"neutral"` | Color tone |
 | `disabled` | `boolean` | `false` | Disable the control |
 | `clearable` | `boolean` | `false` | Show clear button |
+| `placement` | `"auto" \| "top" \| "bottom"` | `"auto"` | Listbox side. `"auto"` picks bottom unless there isn't room |
+| `offset` | `number` | `4` | Gap between trigger and listbox |
+| `collisionPadding` | `number` | `8` | Viewport edge margin used by flip |
+| `flip` | `boolean` | `true` | Auto-flip when there's no room |
+| `strategy` | `"absolute" \| "fixed"` | `"absolute"` | Positioning strategy |
+
+`data-placement="top" | "bottom"` lands on the dropdown so consumers can flip arrow direction or radius. Listbox width still tracks the trigger — left/right placements aren't applicable.
 
 ## Keyboard navigation
 

@@ -55,12 +55,19 @@ function MyTooltip({ content, children }) {
 | Prop | Type | Default | Description |
 |---|---|---|---|
 | `content` | `ReactNode` | — | Tooltip text or content |
-| `placement` | `"top" \| "bottom" \| "left" \| "right"` | `"top"` | Preferred placement (auto-flips near edges) |
+| `placement` | `top \| bottom \| left \| right` plus each with `-start` / `-end` | `"top"` | Preferred side and alignment |
 | `size` | `"sm" \| "md" \| "lg"` | `"md"` | Size of the tooltip |
 | `tone` | `"neutral" \| "primary" \| "success" \| "danger"` | `"neutral"` | Color tone |
 | `delay` | `number` | `0` | Show delay in ms |
 | `multiline` | `boolean` | `false` | Allow content to wrap (for rich HTML content) |
 | `disabled` | `boolean` | `false` | Disable the tooltip |
+| `offset` | `number` | `8` | Gap in px between trigger and tooltip |
+| `collisionPadding` | `number` | `8` | Viewport edge margin for flip / shift |
+| `flip` | `boolean` | `true` | Auto-flip to opposite side near edges |
+| `shift` | `boolean` | `true` | Push back into view along the cross-axis |
+| `strategy` | `"absolute" \| "fixed"` | `"absolute"` | Positioning strategy |
+
+`data-placement` on the tooltip reflects the resolved (post-flip) placement.
 
 ## License
 

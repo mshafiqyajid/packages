@@ -7,7 +7,7 @@ import SelectDemo from "~/components/demos/SelectDemo";
 ---
 
 <DocLayout title="react-select" description="Custom select dropdown with search, multi-select, chips, and keyboard navigation." pkg="select">
-  <PackagePageShell name="react-select" version="0.1.0" description="Headless select hook and styled dropdown for React. Single and multi-select, searchable, clearable, chips for multi-value, portal positioning, full keyboard navigation." size="~12 KB">
+  <PackagePageShell name="react-select" version="0.2.0" description="Headless select hook and styled dropdown for React. Single and multi-select, searchable, clearable, chips for multi-value, controllable placement (auto/top/bottom) with flip and offset, portal positioning, full keyboard navigation." size="~12 KB">
 
     <div class="pkg-section">
       <H2>Playground</H2>
@@ -73,8 +73,14 @@ const [value, setValue] = useState("");
           <tr><td>size</td><td>"sm" | "md" | "lg"</td><td>"md"</td><td>Size variant</td></tr>
           <tr><td>tone</td><td>"neutral" | "primary" | "success" | "danger"</td><td>"neutral"</td><td>Color tone</td></tr>
           <tr><td>disabled</td><td>boolean</td><td>false</td><td>Disable the select</td></tr>
+          <tr><td>placement</td><td>"auto" | "top" | "bottom"</td><td>"auto"</td><td>Listbox side. "auto" picks bottom unless there isn't room.</td></tr>
+          <tr><td>offset</td><td>number</td><td>4</td><td>Gap between trigger and listbox</td></tr>
+          <tr><td>collisionPadding</td><td>number</td><td>8</td><td>Viewport edge margin used by flip</td></tr>
+          <tr><td>flip</td><td>boolean</td><td>true</td><td>Auto-flip when there isn't room on the chosen side</td></tr>
+          <tr><td>strategy</td><td>"absolute" | "fixed"</td><td>"absolute"</td><td>Positioning strategy</td></tr>
         </tbody>
       </table>
+      <p style="margin-top:0.6rem;font-size:0.85rem;opacity:0.7">data-placement="top" | "bottom" lands on the dropdown so you can flip arrow direction or radius. Listbox width still tracks the trigger.</p>
     </div>
   </PackagePageShell>
 </DocLayout>

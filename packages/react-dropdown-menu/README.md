@@ -47,8 +47,12 @@ import "@mshafiqyajid/react-dropdown-menu/styles.css";
 function App() {
   return (
     <DropdownMenuStyled
-      trigger="Options"
+      trigger={<button>Options</button>}
       placement="bottom-start"
+      offset={4}
+      collisionPadding={12}
+      flip
+      shift
       size="md"
       items={[
         { label: "Edit", onClick: () => console.log("edit") },
@@ -60,6 +64,19 @@ function App() {
   );
 }
 ```
+
+## Positioning
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `placement` | `top \| bottom \| left \| right` plus each with `-start` / `-end` | `"bottom-start"` | Preferred side and alignment |
+| `offset` | `number` | `4` | Gap between trigger and menu |
+| `collisionPadding` | `number` | `8` | Viewport edge margin for flip / shift |
+| `flip` | `boolean` | `true` | Auto-flip to opposite side near edges |
+| `shift` | `boolean` | `true` | Push back into view along the cross-axis |
+| `strategy` | `"absolute" \| "fixed"` | `"absolute"` | Positioning strategy |
+
+`data-placement` on the menu reflects the resolved (post-flip) placement.
 
 ## License
 

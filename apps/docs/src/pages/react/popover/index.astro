@@ -6,7 +6,7 @@ import CodeBlock from "~/components/CodeBlock.astro";
 import PopoverDemo from "~/components/demos/PopoverDemo";
 ---
 <DocLayout title="react-popover" description="Click or hover triggered popover with rich content, title, arrow, and smart flip." pkg="popover">
-  <PackagePageShell name="react-popover" version="0.1.0" description="Headless popover hook and styled component. Click or hover triggered, rich ReactNode content, optional title header, arrow, smart viewport flip, portal positioning." size="~7 KB">
+  <PackagePageShell name="react-popover" version="0.2.0" description="Headless popover hook and styled component. Click or hover triggered, rich ReactNode content, optional title header, arrow, full placement set with -start/-end alignment, flip + shift + offset + collisionPadding, portal positioning." size="~8 KB">
     <div class="pkg-section"><H2>Playground</H2><PopoverDemo client:load /></div>
     <div class="pkg-section"><H2>Install</H2><CodeBlock lang="bash" code="npm install @mshafiqyajid/react-popover" /></div>
     <div class="pkg-section"><H2>Quick start</H2>
@@ -29,14 +29,21 @@ import "@mshafiqyajid/react-popover/styles.css";
       <table class="props-table"><thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
         <tr><td>content</td><td>ReactNode</td><td>—</td><td>Popover body content</td></tr>
         <tr><td>title</td><td>string</td><td>—</td><td>Optional header title</td></tr>
-        <tr><td>placement</td><td>"top" | "bottom" | "left" | "right"</td><td>"bottom"</td><td>Preferred placement (auto-flips)</td></tr>
+        <tr><td>placement</td><td>top | bottom | left | right (each with optional -start / -end)</td><td>"bottom"</td><td>Preferred side and alignment</td></tr>
         <tr><td>trigger</td><td>"click" | "hover"</td><td>"click"</td><td>How to open</td></tr>
         <tr><td>size</td><td>"sm" | "md" | "lg"</td><td>"md"</td><td>Width</td></tr>
         <tr><td>showArrow</td><td>boolean</td><td>true</td><td>Show arrow pointing to trigger</td></tr>
+        <tr><td>offset</td><td>number</td><td>8</td><td>Gap between trigger and popover</td></tr>
+        <tr><td>collisionPadding</td><td>number</td><td>8</td><td>Viewport edge margin for flip / shift</td></tr>
+        <tr><td>flip</td><td>boolean</td><td>true</td><td>Auto-flip to opposite side near edges</td></tr>
+        <tr><td>shift</td><td>boolean</td><td>true</td><td>Push back into view along the cross-axis</td></tr>
+        <tr><td>strategy</td><td>"absolute" | "fixed"</td><td>"absolute"</td><td>Positioning strategy</td></tr>
         <tr><td>closeOnOutsideClick</td><td>boolean</td><td>true</td><td>Close on outside click</td></tr>
         <tr><td>closeOnEsc</td><td>boolean</td><td>true</td><td>Close on Escape</td></tr>
-        <tr><td>offset</td><td>number</td><td>8</td><td>Gap between trigger and popover in px</td></tr>
       </tbody></table>
+    </div>
+    <div class="pkg-section"><H2>data-placement</H2>
+      <p>The popover's <code>data-placement</code> attribute reflects the resolved (post-flip) placement. Use it to style side-specific arrow direction, radius, etc.</p>
     </div>
   </PackagePageShell>
 </DocLayout>
