@@ -1,5 +1,27 @@
 # @mshafiqyajid/docs
 
+## 0.0.11
+
+### Patch Changes
+
+- Updated dependencies [fc93c26]
+- Updated dependencies [d03819e]
+  - @mshafiqyajid/react-number-input@1.1.1
+  - @mshafiqyajid/react-tag-input@1.1.1
+  - @mshafiqyajid/react-phone-input@1.1.1
+  - @mshafiqyajid/react-color@0.2.1
+  - @mshafiqyajid/react-color-input@1.1.1
+  - @mshafiqyajid/react-progress@0.2.1
+  - @mshafiqyajid/react-avatar@0.2.1
+  - @mshafiqyajid/react-badge@0.2.1
+  - @mshafiqyajid/react-copy-button@0.2.1
+  - @mshafiqyajid/react-rich-text@0.2.1
+  - @mshafiqyajid/react-file-upload@0.2.1
+  - @mshafiqyajid/react-switch@0.2.1
+  - @mshafiqyajid/react-slider@0.2.1
+  - @mshafiqyajid/react-toast@0.2.1
+  - @mshafiqyajid/react-timeline@1.0.0
+
 ## 0.0.10
 
 ### Patch Changes
