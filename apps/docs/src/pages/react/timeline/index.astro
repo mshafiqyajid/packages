@@ -5,48 +5,195 @@ import H2 from "~/components/H2.astro";
 import CodeBlock from "~/components/CodeBlock.astro";
 import TimelineDemo from "~/components/demos/TimelineDemo";
 ---
-<DocLayout title="react-timeline" description="Vertical timeline with status indicators, connectors, and alignment options." pkg="timeline">
-  <PackagePageShell name="react-timeline" version="0.1.0" description="Headless timeline hook and styled component. Status-driven dot colours, line/dashed/none connectors, left/right/center alignment, sizes and tones." size="~6 KB">
+<DocLayout title="react-timeline" description="Headless timeline + styled component with grouping, expandable items, pending state, time-proportional layout, animated reveal, and full keyboard navigation." pkg="timeline">
+  <PackagePageShell name="react-timeline" description="A serious, batteries-included timeline. Grouping with sticky headers, expandable items, pending tail, time-proportional layout, opposite content, animated reveal, infinite-scroll sentinel, and full keyboard navigation. Headless hook + styled component." size="~9 KB">
     <div class="pkg-section"><H2>Playground</H2><TimelineDemo client:load /></div>
+
     <div class="pkg-section"><H2>Install</H2><CodeBlock lang="bash" code="npm install @mshafiqyajid/react-timeline" /></div>
+
     <div class="pkg-section"><H2>Quick start</H2>
       <CodeBlock lang="tsx" code={`import { TimelineStyled } from "@mshafiqyajid/react-timeline/styled";
+import type { TimelineItem } from "@mshafiqyajid/react-timeline";
 import "@mshafiqyajid/react-timeline/styles.css";
 
-<TimelineStyled
-  items={[
-    { id: "1", title: "Order placed",  date: "Jan 1", status: "completed" },
-    { id: "2", title: "Shipped",       date: "Jan 3", status: "active" },
-    { id: "3", title: "Delivered",     date: "Jan 5", status: "default" },
-  ]}
+const items: TimelineItem[] = [
+  { id: "1", title: "Order placed", date: "Jan 1", status: "completed" },
+  { id: "2", title: "Processing",   date: "Jan 2", status: "active",
+    details: "Picking from warehouse #4." },
+  { id: "3", title: "Shipped",      date: "Jan 3", status: "default" },
+];
+
+<TimelineStyled items={items} tone="primary" />`} />
+    </div>
+
+    <div class="pkg-section"><H2>Pending tail</H2>
+      <p>Render a spinner + dashed connector for the last item to indicate "more events coming" — the AntD pattern.</p>
+      <CodeBlock lang="tsx" code={`<TimelineStyled
+  items={[...completed, { id: "next", title: "Awaiting confirmation" }]}
+  pendingId="next"
 />`} />
     </div>
+
+    <div class="pkg-section"><H2>Grouping with sticky headers</H2>
+      <CodeBlock lang="tsx" code={`<TimelineStyled
+  items={items} // each item has groupId: "today" | "earlier"
+  groupBy="groupId"
+  groupLabels={{ today: "Today", earlier: "Earlier this week" }}
+/>`} />
+    </div>
+
+    <div class="pkg-section"><H2>Expandable items</H2>
+      <p>When an item has <code>details</code>, the row becomes toggleable. Click anywhere on the item, hit Enter/Space when focused, or click the chevron.</p>
+      <CodeBlock lang="tsx" code={`<TimelineStyled
+  items={[
+    { id: "1", title: "Deployed v0.4.2",
+      details: <DeployLogs id="1" /> },
+  ]}
+  expansionMode="single"  // or "multiple"
+  defaultExpanded={["1"]}
+/>`} />
+    </div>
+
+    <div class="pkg-section"><H2>Time-proportional layout</H2>
+      <p>Pass each item a <code>timestamp</code> and set <code>spacing="time"</code> — items get vertical-margin proportional to the gap between events. Great for activity feeds.</p>
+      <CodeBlock lang="tsx" code={`const items = events.map((e) => ({
+  id: e.id,
+  title: e.label,
+  timestamp: e.at, // Date | number
+}));
+
+<TimelineStyled items={items} spacing="time" />`} />
+    </div>
+
+    <div class="pkg-section"><H2>Programmatic control</H2>
+      <CodeBlock lang="tsx" code={`import { useRef } from "react";
+import { TimelineStyled, type TimelineHandle }
+  from "@mshafiqyajid/react-timeline/styled";
+
+const ref = useRef<TimelineHandle>(null);
+
+<>
+  <button onClick={() => ref.current?.scrollToId("step-3")}>
+    Jump to step 3
+  </button>
+  <TimelineStyled ref={ref} items={items} />
+</>`} />
+    </div>
+
+    <div class="pkg-section"><H2>Infinite scroll</H2>
+      <CodeBlock lang="tsx" code={`<TimelineStyled
+  items={items}
+  onLoadMore={() => fetchOlder()}
+/>`} />
+      <p>An IntersectionObserver watches a sentinel after the last item; <code>onLoadMore</code> fires when it crosses the viewport bottom (200&nbsp;px ahead).</p>
+    </div>
+
+    <div class="pkg-section"><H2>Filter / search</H2>
+      <CodeBlock lang="tsx" code={`const [query, setQuery] = useState("");
+
+<input value={query} onChange={(e) => setQuery(e.target.value)} />
+<TimelineStyled items={items} filter={query} />`} />
+      <p>String filter matches against title, description, and date. Pass a predicate <code>(item) =&gt; boolean</code> for full control.</p>
+    </div>
+
     <div class="pkg-section"><H2>Headless</H2>
       <CodeBlock lang="tsx" code={`import { useTimeline } from "@mshafiqyajid/react-timeline";
 
-const ids = ["1", "2", "3"];
-const { items, getItemProps, orientation } = useTimeline({
-  items: ids,
-  orientation: "vertical",
+const tl = useTimeline({
+  items,
+  groupBy: "groupId",
+  expansionMode: "single",
 });
 
 return (
-  <ol className="my-timeline" data-orientation={orientation}>
-    {items.map((id) => (
-      <li key={id} {...getItemProps(id)}>Step {id}</li>
+  <ol {...tl.getRootProps()}>
+    {tl.groups.map((g) => (
+      <section key={g.id}>
+        <h3>{g.label}</h3>
+        {g.items.map((it) => (
+          <li key={it.id} {...tl.getItemProps(it.id)}>
+            <span {...tl.getDotProps(it.id)} />
+            <p>{it.title}</p>
+            {it.details && (
+              <>
+                <button {...tl.getToggleProps(it.id)}>Details</button>
+                {tl.isExpanded(it.id) && <div>{it.details}</div>}
+              </>
+            )}
+          </li>
+        ))}
+      </section>
     ))}
   </ol>
 );`} />
     </div>
+
     <div class="pkg-section"><H2>API</H2>
       <table class="props-table"><thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
-        <tr><td>items</td><td>TimelineItem[]</td><td>—</td><td>{`{ id, title, description?, date?, icon?, status? }`}</td></tr>
+        <tr><td>items</td><td>TimelineItem[]</td><td>—</td><td>Items to render. See TimelineItem below.</td></tr>
         <tr><td>orientation</td><td>"vertical" | "horizontal"</td><td>"vertical"</td><td>Layout direction</td></tr>
         <tr><td>size</td><td>"sm" | "md" | "lg"</td><td>"md"</td><td>Dot and text size</td></tr>
-        <tr><td>tone</td><td>"neutral" | "primary"</td><td>"neutral"</td><td>Active item colour</td></tr>
+        <tr><td>tone</td><td>"neutral" | "primary" | "success" | "danger"</td><td>"neutral"</td><td>Active item colour</td></tr>
         <tr><td>connector</td><td>"line" | "dashed" | "none"</td><td>"line"</td><td>Connector style</td></tr>
-        <tr><td>align</td><td>"left" | "right" | "center"</td><td>"left"</td><td>Content alignment (vertical only)</td></tr>
+        <tr><td>align</td><td>"left" | "right" | "center" | "alternate"</td><td>"left"</td><td>Content alignment (vertical only)</td></tr>
+        <tr><td>density</td><td>"compact" | "comfortable" | "spacious"</td><td>"comfortable"</td><td>Spacing between items</td></tr>
+        <tr><td>dotVariant</td><td>"outline" | "solid" | "ring"</td><td>"outline"</td><td>Dot visual style</td></tr>
+        <tr><td>activeId</td><td>string</td><td>—</td><td>Marks the matching item with <code>aria-current="step"</code></td></tr>
+        <tr><td>pendingId</td><td>string</td><td>—</td><td>Renders the matching item as the pending tail (spinner + dashed connector)</td></tr>
+        <tr><td>reverse</td><td>boolean</td><td>false</td><td>Newest first</td></tr>
+        <tr><td>filter</td><td>{`string | (item) => boolean`}</td><td>—</td><td>Hide non-matching items. String matches title/description/date.</td></tr>
+        <tr><td>groupBy</td><td>{`"groupId" | (item) => string`}</td><td>—</td><td>Cluster items under a sticky header</td></tr>
+        <tr><td>groupLabels</td><td>{`Record<string, ReactNode>`}</td><td>—</td><td>Map group id → label</td></tr>
+        <tr><td>spacing</td><td>"uniform" | "time"</td><td>"uniform"</td><td>Equal gaps or proportional to <code>item.timestamp</code></td></tr>
+        <tr><td>defaultExpanded</td><td>string[]</td><td>[]</td><td>Pre-expanded ids (uncontrolled)</td></tr>
+        <tr><td>expanded</td><td>string[]</td><td>—</td><td>Controlled expanded ids</td></tr>
+        <tr><td>onExpandedChange</td><td>{`(ids) => void`}</td><td>—</td><td>Pair with <code>expanded</code> for controlled mode</td></tr>
+        <tr><td>expansionMode</td><td>"single" | "multiple"</td><td>"multiple"</td><td>One open at a time vs. many</td></tr>
+        <tr><td>animate</td><td>boolean</td><td>false</td><td>Stagger fade-in on mount (respects reduced motion)</td></tr>
+        <tr><td>onItemClick</td><td>{`(item) => void`}</td><td>—</td><td>Click handler — fires alongside expand toggle</td></tr>
+        <tr><td>onLoadMore</td><td>{`() => void`}</td><td>—</td><td>Fired when end-of-list sentinel enters viewport</td></tr>
+        <tr><td>renderItem</td><td>{`(ctx) => ReactNode`}</td><td>—</td><td>Replace item body content</td></tr>
       </tbody></table>
+    </div>
+
+    <div class="pkg-section"><H2>TimelineItem</H2>
+      <table class="props-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
+        <tr><td>id</td><td>string</td><td>Required, unique</td></tr>
+        <tr><td>title</td><td>ReactNode</td><td>Required</td></tr>
+        <tr><td>description</td><td>ReactNode?</td><td>Sub-text under the title</td></tr>
+        <tr><td>date</td><td>ReactNode?</td><td>Date label above the title</td></tr>
+        <tr><td>opposite</td><td>ReactNode?</td><td>Right-side content (vertical layout only)</td></tr>
+        <tr><td>details</td><td>ReactNode?</td><td>Expandable body — when present, item becomes toggleable</td></tr>
+        <tr><td>icon</td><td>ReactNode?</td><td>Custom icon inside the dot</td></tr>
+        <tr><td>status</td><td>"default" | "active" | "completed" | "error" | "warning"?</td><td>Status color + default icon</td></tr>
+        <tr><td>groupId</td><td>string?</td><td>Used with <code>groupBy="groupId"</code></td></tr>
+        <tr><td>timestamp</td><td>Date | number?</td><td>Used with <code>spacing="time"</code></td></tr>
+        <tr><td>disabled</td><td>boolean?</td><td>Greyed out, click ignored</td></tr>
+        <tr><td>dot</td><td>ReactNode?</td><td>Replace the entire dot</td></tr>
+        <tr><td>data</td><td>T?</td><td>Free-form payload, surfaced in <code>renderItem</code></td></tr>
+      </tbody></table>
+    </div>
+
+    <div class="pkg-section"><H2>Imperative handle</H2>
+      <CodeBlock lang="ts" code={`interface TimelineHandle {
+  scrollToId: (id: string, opts?: ScrollIntoViewOptions) => void;
+  focusItem: (id: string) => void;
+  expand: (id: string) => void;
+  collapse: (id: string) => void;
+  toggle: (id: string) => void;
+}`} />
+    </div>
+
+    <div class="pkg-section"><H2>Keyboard navigation</H2>
+      <table class="props-table"><thead><tr><th>Key</th><th>Action</th></tr></thead><tbody>
+        <tr><td>↓ / ↑ (or → / ← horizontal)</td><td>Move focus between items</td></tr>
+        <tr><td>Home / End</td><td>Jump to first / last</td></tr>
+        <tr><td>Enter / Space</td><td>Toggle expand on items with <code>details</code></td></tr>
+      </tbody></table>
+    </div>
+
+    <div class="pkg-section"><H2>Migrating from 0.x</H2>
+      <p><strong>Breaking:</strong> the headless <code>useTimeline</code> hook now takes <code>TimelineItem[]</code> (not <code>string[]</code>) and returns prop getters (<code>getRootProps</code>, <code>getItemProps</code>, <code>getDotProps</code>, <code>getToggleProps</code>) plus state and actions instead of a single <code>getItemProps</code>. The styled <code>TimelineStyled</code> retains its 0.2.x props — all new behaviours are additive — so styled-only consumers don't have to change anything.</p>
     </div>
   </PackagePageShell>
 </DocLayout>
