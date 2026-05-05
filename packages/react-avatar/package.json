@@ -1,6 +1,6 @@
 {
   "name": "@mshafiqyajid/react-avatar",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Headless avatar hook and styled component for React. Supports image, initials fallback, status indicators, and avatar groups.",
   "keywords": [
     "react",

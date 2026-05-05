@@ -1,6 +1,6 @@
 {
   "name": "@mshafiqyajid/react-slider",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Headless slider hook and styled component for React. Accessible, keyboard-friendly, single and range mode, fully typed.",
   "keywords": [
     "react",
