@@ -1,6 +1,6 @@
 {
   "name": "@mshafiqyajid/react-otp-input",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Headless OTP / verification-code input hook and styled component for React. Smart paste, full keyboard nav, themable, SSR-safe, fully typed.",
   "keywords": [
     "react",
