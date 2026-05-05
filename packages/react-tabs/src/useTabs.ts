@@ -1,5 +1,4 @@
 import {
-  type AriaAttributes,
   type HTMLAttributes,
   type KeyboardEvent,
   useCallback,
@@ -7,6 +6,10 @@ import {
   useRef,
   useState,
 } from "react";
+
+export type TabsActivation = "automatic" | "manual";
+export type TabsOrientation = "horizontal" | "vertical";
+export type TabsChangeReason = "click" | "keyboard" | "programmatic";
 
 export interface UseTabsTab {
   value: string;
@@ -20,8 +23,12 @@ export interface UseTabsOptions {
   value?: string;
   /** Initial active value when uncontrolled. */
   defaultValue?: string;
-  /** Called when the active tab changes. */
-  onChange?: (value: string) => void;
+  /** Called when the active tab changes. Optional second arg reports the trigger reason. */
+  onChange?: (value: string, reason: TabsChangeReason) => void;
+  /** "automatic" (default) — arrow keys move focus AND activate. "manual" — arrows move focus only; Enter/Space activates. */
+  activation?: TabsActivation;
+  /** Affects keyboard nav. Default "horizontal". */
+  orientation?: TabsOrientation;
 }
 
 export interface TabProps extends HTMLAttributes<HTMLButtonElement> {
@@ -30,6 +37,7 @@ export interface TabProps extends HTMLAttributes<HTMLButtonElement> {
   "aria-selected": boolean;
   "aria-controls": string;
   "aria-disabled"?: boolean;
+  "data-state": "active" | "inactive";
   tabIndex: number;
 }
 
@@ -37,6 +45,7 @@ export interface PanelProps extends HTMLAttributes<HTMLDivElement> {
   id: string;
   role: "tabpanel";
   "aria-labelledby": string;
+  "data-state": "active" | "inactive";
   hidden: boolean;
 }
 
@@ -64,7 +73,14 @@ function useStableId() {
 }
 
 export function useTabs(opts: UseTabsOptions = {}): UseTabsResult {
-  const { tabs = [], value: controlledValue, defaultValue, onChange } = opts;
+  const {
+    tabs = [],
+    value: controlledValue,
+    defaultValue,
+    onChange,
+    activation = "automatic",
+    orientation = "horizontal",
+  } = opts;
 
   const listId = useStableId();
   const isControlled = controlledValue !== undefined;
@@ -76,20 +92,22 @@ export function useTabs(opts: UseTabsOptions = {}): UseTabsResult {
   const activeValue = isControlled ? controlledValue : internalValue;
 
   const tabRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
+  const onChangeRef = useRef(onChange);
+  onChangeRef.current = onChange;
 
   const setActiveValue = useCallback(
-    (next: string) => {
+    (next: string, reason: TabsChangeReason = "programmatic") => {
       const tab = tabs.find((t) => t.value === next);
       if (tab?.disabled) return;
       if (isControlled) {
-        if (next !== controlledValue) onChange?.(next);
+        if (next !== controlledValue) onChangeRef.current?.(next, reason);
       } else {
         if (next === internalValue) return;
         setInternalValue(next);
-        onChange?.(next);
+        onChangeRef.current?.(next, reason);
       }
     },
-    [tabs, isControlled, controlledValue, internalValue, onChange],
+    [tabs, isControlled, controlledValue, internalValue],
   );
 
   const focusTab = useCallback((value: string) => {
@@ -104,40 +122,46 @@ export function useTabs(opts: UseTabsOptions = {}): UseTabsResult {
 
         const currentIndex = enabled.findIndex((t) => t.value === currentValue);
 
+        const isForward =
+          orientation === "vertical"
+            ? event.key === "ArrowDown"
+            : event.key === "ArrowRight";
+        const isBackward =
+          orientation === "vertical"
+            ? event.key === "ArrowUp"
+            : event.key === "ArrowLeft";
+
         let nextValue: string | undefined;
 
-        switch (event.key) {
-          case "ArrowRight":
-          case "ArrowDown": {
-            const nextIndex = (currentIndex + 1) % enabled.length;
-            nextValue = enabled[nextIndex]?.value;
-            break;
-          }
-          case "ArrowLeft":
-          case "ArrowUp": {
-            const prevIndex =
-              (currentIndex - 1 + enabled.length) % enabled.length;
-            nextValue = enabled[prevIndex]?.value;
-            break;
-          }
-          case "Home": {
-            nextValue = enabled[0]?.value;
-            break;
-          }
-          case "End": {
-            nextValue = enabled[enabled.length - 1]?.value;
-            break;
-          }
-          default:
-            return;
+        if (isForward) {
+          const nextIndex = (currentIndex + 1) % enabled.length;
+          nextValue = enabled[nextIndex]?.value;
+        } else if (isBackward) {
+          const prevIndex = (currentIndex - 1 + enabled.length) % enabled.length;
+          nextValue = enabled[prevIndex]?.value;
+        } else if (event.key === "Home") {
+          nextValue = enabled[0]?.value;
+        } else if (event.key === "End") {
+          nextValue = enabled[enabled.length - 1]?.value;
+        } else if (
+          activation === "manual" &&
+          (event.key === "Enter" || event.key === " ")
+        ) {
+          event.preventDefault();
+          setActiveValue(currentValue, "keyboard");
+          return;
+        } else {
+          return;
         }
 
         if (nextValue === undefined || nextValue === currentValue) return;
         event.preventDefault();
-        setActiveValue(nextValue);
         focusTab(nextValue);
+        if (activation === "automatic") {
+          setActiveValue(nextValue, "keyboard");
+        }
       },
-    [tabs, setActiveValue, focusTab],
+    [tabs, orientation, activation, setActiveValue, focusTab],
   );
 
   const getTabProps = useCallback(
@@ -151,6 +175,7 @@ export function useTabs(opts: UseTabsOptions = {}): UseTabsResult {
         "aria-selected": isSelected,
         "aria-controls": panelId(listId, value),
         "aria-disabled": isDisabled || undefined,
+        "data-state": isSelected ? "active" : "inactive",
         tabIndex: isSelected ? 0 : -1,
         disabled: isDisabled,
         ref: (node: HTMLButtonElement | null) => {
@@ -161,7 +186,7 @@ export function useTabs(opts: UseTabsOptions = {}): UseTabsResult {
           }
         },
         onClick: () => {
-          if (!isDisabled) setActiveValue(value);
+          if (!isDisabled) setActiveValue(value, "click");
         },
         onKeyDown: handleKeyDown(value),
       } as TabProps & {
@@ -174,11 +199,13 @@ export function useTabs(opts: UseTabsOptions = {}): UseTabsResult {
 
   const getPanelProps = useCallback(
     (value: string): PanelProps => {
+      const isActive = activeValue === value;
       return {
         id: panelId(listId, value),
         role: "tabpanel",
         "aria-labelledby": tabId(listId, value),
-        hidden: activeValue !== value,
+        "data-state": isActive ? "active" : "inactive",
+        hidden: !isActive,
         tabIndex: 0,
       };
     },

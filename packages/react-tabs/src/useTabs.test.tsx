@@ -39,7 +39,7 @@ describe("useTabs — uncontrolled", () => {
     });
     expect(result.current.activeValue).toBe("b");
     expect(onChange).toHaveBeenCalledOnce();
-    expect(onChange).toHaveBeenCalledWith("b");
+    expect(onChange).toHaveBeenCalledWith("b", expect.any(String));
   });
 
   test("setActiveValue does not fire onChange when value is same", () => {
@@ -86,7 +86,7 @@ describe("useTabs — controlled", () => {
       result.current.setActiveValue("b");
     });
     expect(result.current.activeValue).toBe("a");
-    expect(onChange).toHaveBeenCalledWith("b");
+    expect(onChange).toHaveBeenCalledWith("b", expect.any(String));
   });
 });
 
@@ -186,7 +186,7 @@ describe("useTabs — keyboard navigation", () => {
     const tabA = screen.getByRole("tab", { name: "A" });
     tabA.focus();
     fireEvent.keyDown(tabA, { key: "ArrowRight" });
-    expect(onChange).toHaveBeenCalledWith("b");
+    expect(onChange).toHaveBeenCalledWith("b", expect.any(String));
   });
 
   test("ArrowLeft moves focus to previous tab", () => {
@@ -195,7 +195,7 @@ describe("useTabs — keyboard navigation", () => {
     const tabB = screen.getByRole("tab", { name: "B" });
     tabB.focus();
     fireEvent.keyDown(tabB, { key: "ArrowLeft" });
-    expect(onChange).toHaveBeenCalledWith("a");
+    expect(onChange).toHaveBeenCalledWith("a", expect.any(String));
   });
 
   test("Home moves to first tab", () => {
@@ -204,7 +204,7 @@ describe("useTabs — keyboard navigation", () => {
     const tabC = screen.getByRole("tab", { name: "C" });
     tabC.focus();
     fireEvent.keyDown(tabC, { key: "Home" });
-    expect(onChange).toHaveBeenCalledWith("a");
+    expect(onChange).toHaveBeenCalledWith("a", expect.any(String));
   });
 
   test("End moves to last tab", () => {
@@ -213,7 +213,7 @@ describe("useTabs — keyboard navigation", () => {
     const tabA = screen.getByRole("tab", { name: "A" });
     tabA.focus();
     fireEvent.keyDown(tabA, { key: "End" });
-    expect(onChange).toHaveBeenCalledWith("c");
+    expect(onChange).toHaveBeenCalledWith("c", expect.any(String));
   });
 
   test("ArrowRight wraps around from last tab to first", () => {
@@ -222,7 +222,7 @@ describe("useTabs — keyboard navigation", () => {
     const tabC = screen.getByRole("tab", { name: "C" });
     tabC.focus();
     fireEvent.keyDown(tabC, { key: "ArrowRight" });
-    expect(onChange).toHaveBeenCalledWith("a");
+    expect(onChange).toHaveBeenCalledWith("a", expect.any(String));
   });
 
   test("ArrowLeft wraps around from first tab to last", () => {
@@ -231,7 +231,7 @@ describe("useTabs — keyboard navigation", () => {
     const tabA = screen.getByRole("tab", { name: "A" });
     tabA.focus();
     fireEvent.keyDown(tabA, { key: "ArrowLeft" });
-    expect(onChange).toHaveBeenCalledWith("c");
+    expect(onChange).toHaveBeenCalledWith("c", expect.any(String));
   });
 
   test("disabled tab is skipped during keyboard navigation", () => {
@@ -261,7 +261,7 @@ describe("useTabs — keyboard navigation", () => {
     const tabA = screen.getByRole("tab", { name: "A" });
     tabA.focus();
     fireEvent.keyDown(tabA, { key: "ArrowRight" });
-    expect(onChange).toHaveBeenCalledWith("c");
+    expect(onChange).toHaveBeenCalledWith("c", expect.any(String));
   });
 });
 

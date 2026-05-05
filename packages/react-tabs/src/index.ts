@@ -5,4 +5,7 @@ export type {
   UseTabsTab,
   TabProps,
   PanelProps,
+  TabsActivation,
+  TabsOrientation,
+  TabsChangeReason,
 } from "./useTabs";

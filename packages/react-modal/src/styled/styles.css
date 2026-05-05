@@ -245,3 +245,17 @@
 @media (prefers-reduced-motion: reduce) {
   .rmod-overlay, .rmod-panel { transition-duration: 0ms !important; }
 }
+
+/* ============================================================================
+ * 0.2.0 additions: description below title
+ * ========================================================================== */
+.rmod-description {
+  margin: 0 0 0.6rem;
+  padding: 0 1rem;
+  color: var(--rmod-fg-muted);
+  font-size: 0.875rem;
+  line-height: 1.55;
+}
+.rmod-panel[data-padding="none"] .rmod-description { padding: 0; }
+.rmod-panel[data-padding="sm"] .rmod-description { padding: 0 0.75rem; }
+.rmod-panel[data-padding="lg"] .rmod-description { padding: 0 1.5rem; }

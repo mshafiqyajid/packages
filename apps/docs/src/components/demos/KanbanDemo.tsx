@@ -62,8 +62,8 @@ function KanbanWrapper({
         showCardRemoveButton={showCardRemoveButton}
         renameColumnInline={renameColumnInline}
         showWipBadge
-        addCardPlaceholder="+ Add card"
-        addColumnPlaceholder="+ Add column"
+        addCardPlaceholder="Add card"
+        addColumnPlaceholder="Add column"
         onColumnRemove={(col) =>
           setColumns((prev) => prev.filter((c) => c.id !== col.id))
         }

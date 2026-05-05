@@ -28,8 +28,8 @@ const [columns, setColumns] = useState<KanbanColumn[]>([
         <tr><td>onChange</td><td>(cols) =&gt; void</td><td>—</td><td>Called when columns/cards change</td></tr>
         <tr><td>renderCard</td><td>(card, col) =&gt; ReactNode</td><td>—</td><td>Custom card renderer</td></tr>
         <tr><td>renderColumnHeader</td><td>(col) =&gt; ReactNode</td><td>—</td><td>Custom column header</td></tr>
-        <tr><td>addCardPlaceholder</td><td>string</td><td>—</td><td>Show an "+ Add card" button that opens an inline input. Empty input on Enter is ignored; Escape cancels.</td></tr>
-        <tr><td>addColumnPlaceholder</td><td>string</td><td>—</td><td>Show an "+ Add column" button that opens an inline title input.</td></tr>
+        <tr><td>addCardPlaceholder</td><td>string</td><td>—</td><td>Label text for the "Add card" button. The "+" icon is rendered automatically — pass just the label (e.g. "Add card"). Empty input on Enter is ignored; Escape cancels.</td></tr>
+        <tr><td>addColumnPlaceholder</td><td>string</td><td>—</td><td>Label text for the "Add column" button. The "+" icon is rendered automatically.</td></tr>
         <tr><td>columnMinWidth</td><td>string</td><td>"240px"</td><td>Minimum column width</td></tr>
         <tr><td>maxColumns</td><td>number</td><td>—</td><td>Limit the number of visible columns</td></tr>
         <tr><td>size</td><td>"sm" | "md" | "lg"</td><td>"md"</td><td>Card and text size</td></tr>

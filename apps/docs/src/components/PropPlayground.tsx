@@ -367,8 +367,8 @@ export default function PropPlayground({
           display: flex;
           flex-direction: column;
           gap: 0.85rem;
-          max-height: 360px;
-          overflow-y: auto;
+          /* Show all controls without forcing a scrollbar — the preview will
+             stretch to match. */
         }
         .pp__field {
           display: flex;

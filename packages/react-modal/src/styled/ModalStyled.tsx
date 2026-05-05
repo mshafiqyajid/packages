@@ -6,18 +6,24 @@ import {
   useRef,
   useState,
   type ReactNode,
+  type RefObject,
 } from "react";
 import { createPortal } from "react-dom";
 import { useFocusTrap } from "../useFocusTrap";
 
 export type ModalSize = "sm" | "md" | "lg" | "full";
 export type ModalVariant = "dialog" | "drawer-left" | "drawer-right" | "drawer-bottom";
+export type CloseReason = "esc" | "overlay" | "close-button" | "programmatic";
 
 export interface ModalStyledProps {
-  isOpen: boolean;
+  /** Open state. `open` is the canonical name; `isOpen` continues to work. */
+  open?: boolean;
+  isOpen?: boolean;
   onClose: () => void;
   /** Modal heading — omit to hide the header entirely */
   title?: ReactNode;
+  /** Optional accessible description. Renders below the title and links via aria-describedby. */
+  description?: ReactNode;
   children: ReactNode;
   /** Footer content — omit to hide footer */
   footer?: ReactNode;
@@ -35,14 +41,30 @@ export interface ModalStyledProps {
   /** Max height of scrollable body. Default: auto */
   scrollable?: boolean;
   className?: string;
+  /** Element to focus when the modal opens. Defaults to the first focusable child inside the panel. */
+  initialFocusRef?: RefObject<HTMLElement | null>;
+  /** Element to focus when the modal closes. Defaults to whatever was focused before opening. */
+  finalFocusRef?: RefObject<HTMLElement | null>;
+  /** Fires after the open transition completes. */
+  onAfterOpen?: () => void;
+  /** Fires after the close transition completes (and unmount). */
+  onAfterClose?: () => void;
+  /** Return false to veto a close attempt. Receives the trigger reason. */
+  preventClose?: (reason: CloseReason) => boolean;
+  /** Disable body scroll lock while open. Default: true (locked). */
+  lockBodyScroll?: boolean;
+  /** Override the portal container. Default: document.body. */
+  container?: HTMLElement | null;
 }
 
 export const ModalStyled = forwardRef<HTMLDivElement, ModalStyledProps>(
   function ModalStyled(
     {
+      open,
       isOpen,
       onClose,
       title,
+      description,
       children,
       footer,
       size = "md",
@@ -55,81 +77,132 @@ export const ModalStyled = forwardRef<HTMLDivElement, ModalStyledProps>(
       padding = "md",
       scrollable = true,
       className,
+      initialFocusRef,
+      finalFocusRef,
+      onAfterOpen,
+      onAfterClose,
+      preventClose,
+      lockBodyScroll = true,
+      container,
     },
     ref,
   ) {
     const titleId = useId();
+    const descId = useId();
+    const isActuallyOpen = open ?? isOpen ?? false;
     const [mounted, setMounted] = useState(false);
     const [rendered, setRendered] = useState(false);
     const [visible, setVisible] = useState(false);
     const panelRef = useRef<HTMLDivElement | null>(null);
     const originalOverflowRef = useRef("");
     const exitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const enterTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const { activate, deactivate, handleKeyDown } = useFocusTrap();
 
+    const onAfterOpenRef = useRef(onAfterOpen);
+    onAfterOpenRef.current = onAfterOpen;
+    const onAfterCloseRef = useRef(onAfterClose);
+    onAfterCloseRef.current = onAfterClose;
+
     useEffect(() => { setMounted(true); }, []);
+
+    const requestClose = useCallback(
+      (reason: CloseReason) => {
+        if (preventClose && !preventClose(reason)) return;
+        onClose();
+      },
+      [preventClose, onClose],
+    );
 
     useEffect(() => {
       if (exitTimerRef.current) {
         clearTimeout(exitTimerRef.current);
         exitTimerRef.current = null;
       }
+      if (enterTimerRef.current) {
+        clearTimeout(enterTimerRef.current);
+        enterTimerRef.current = null;
+      }
 
-      if (isOpen) {
+      if (isActuallyOpen) {
         setRendered(true);
-        // Double RAF ensures the element is in the DOM before we add the visible class
         requestAnimationFrame(() => {
           requestAnimationFrame(() => {
             setVisible(true);
           });
         });
-        originalOverflowRef.current = document.body.style.overflow;
-        document.body.style.overflow = "hidden";
+        if (lockBodyScroll) {
+          originalOverflowRef.current = document.body.style.overflow;
+          document.body.style.overflow = "hidden";
+        }
+        // Fire onAfterOpen once the enter transition has had time to settle.
+        enterTimerRef.current = setTimeout(() => {
+          onAfterOpenRef.current?.();
+        }, 320);
       } else {
-        // Remove visible class first (triggers CSS exit transition)
         setVisible(false);
-        // Then unmount after transition finishes
         exitTimerRef.current = setTimeout(() => {
           setRendered(false);
+          onAfterCloseRef.current?.();
         }, 300);
-        document.body.style.overflow = originalOverflowRef.current;
+        if (lockBodyScroll) {
+          document.body.style.overflow = originalOverflowRef.current;
+        }
       }
-    }, [isOpen]);
+    }, [isActuallyOpen, lockBodyScroll]);
 
-    // Cleanup on unmount
     useEffect(() => {
       return () => {
         if (exitTimerRef.current) clearTimeout(exitTimerRef.current);
-        document.body.style.overflow = originalOverflowRef.current;
+        if (enterTimerRef.current) clearTimeout(enterTimerRef.current);
+        if (lockBodyScroll) {
+          document.body.style.overflow = originalOverflowRef.current;
+        }
       };
-    }, []);
+    }, [lockBodyScroll]);
 
+    // Focus management
+    const previouslyFocusedRef = useRef<HTMLElement | null>(null);
     useEffect(() => {
-      if (isOpen && panelRef.current) {
-        activate(panelRef.current);
-      } else if (!isOpen) {
+      if (isActuallyOpen) {
+        previouslyFocusedRef.current = document.activeElement as HTMLElement | null;
+        if (panelRef.current) {
+          activate(panelRef.current);
+          // Honor initialFocusRef after the panel is mounted+visible
+          requestAnimationFrame(() => {
+            if (initialFocusRef?.current) {
+              initialFocusRef.current.focus();
+            }
+          });
+        }
+      } else {
         deactivate();
+        // Honor finalFocusRef on close, otherwise restore previous focus
+        const target = finalFocusRef?.current ?? previouslyFocusedRef.current;
+        if (target && typeof target.focus === "function") {
+          target.focus();
+        }
       }
-    }, [isOpen, activate, deactivate]);
+    }, [isActuallyOpen, activate, deactivate, initialFocusRef, finalFocusRef]);
 
     const onKeyDown = useCallback(
       (e: React.KeyboardEvent) => {
         if (closeOnEsc && e.key === "Escape") {
-          onClose();
+          requestClose("esc");
           return;
         }
         handleKeyDown(e.nativeEvent);
       },
-      [closeOnEsc, onClose, handleKeyDown],
+      [closeOnEsc, requestClose, handleKeyDown],
     );
 
     const handleOverlayClick = useCallback(
       (e: React.MouseEvent<HTMLDivElement>) => {
         if (closeOnOverlayClick && e.target === e.currentTarget) {
-          onClose();
+          requestClose("overlay");
         }
       },
-      [closeOnOverlayClick, onClose],
+      [closeOnOverlayClick, requestClose],
     );
 
     const setPanelRef = useCallback(
@@ -137,14 +210,15 @@ export const ModalStyled = forwardRef<HTMLDivElement, ModalStyledProps>(
         panelRef.current = el;
         if (typeof ref === "function") ref(el);
         else if (ref) (ref as React.MutableRefObject<HTMLDivElement | null>).current = el;
-        if (el && isOpen) activate(el);
+        if (el && isActuallyOpen) activate(el);
       },
-      [ref, isOpen, activate],
+      [ref, isActuallyOpen, activate],
     );
 
     if (!mounted || !rendered) return null;
 
     const hasHeader = title !== undefined || showCloseButton;
+    const portalTarget = container ?? document.body;
 
     return createPortal(
       <div
@@ -154,6 +228,7 @@ export const ModalStyled = forwardRef<HTMLDivElement, ModalStyledProps>(
         ].filter(Boolean).join(" ")}
         data-variant={variant}
         data-blur={blur}
+        data-state={visible ? "open" : "closed"}
         style={overlayColor ? { "--rmod-overlay-bg": overlayColor } as React.CSSProperties : undefined}
         onClick={handleOverlayClick}
         onKeyDown={onKeyDown}
@@ -163,6 +238,7 @@ export const ModalStyled = forwardRef<HTMLDivElement, ModalStyledProps>(
           role="dialog"
           aria-modal="true"
           aria-labelledby={title ? titleId : undefined}
+          aria-describedby={description ? descId : undefined}
           tabIndex={-1}
           className={[
             "rmod-panel",
@@ -173,6 +249,7 @@ export const ModalStyled = forwardRef<HTMLDivElement, ModalStyledProps>(
           data-variant={variant}
           data-padding={padding}
           data-scrollable={scrollable ? "true" : undefined}
+          data-state={visible ? "open" : "closed"}
         >
           {hasHeader && (
             <div className="rmod-header">
@@ -182,7 +259,12 @@ export const ModalStyled = forwardRef<HTMLDivElement, ModalStyledProps>(
                 <span />
               )}
               {showCloseButton && (
-                <button type="button" className="rmod-close" aria-label="Close" onClick={onClose}>
+                <button
+                  type="button"
+                  className="rmod-close"
+                  aria-label="Close"
+                  onClick={() => requestClose("close-button")}
+                >
                   <svg aria-hidden="true" width="16" height="16" viewBox="0 0 16 16" fill="none">
                     <path d="M12 4L4 12M4 4l8 8" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
                   </svg>
@@ -190,11 +272,14 @@ export const ModalStyled = forwardRef<HTMLDivElement, ModalStyledProps>(
               )}
             </div>
           )}
+          {description !== undefined && (
+            <p id={descId} className="rmod-description">{description}</p>
+          )}
           <div className="rmod-body">{children}</div>
           {footer && <div className="rmod-footer">{footer}</div>}
         </div>
       </div>,
-      document.body,
+      portalTarget,
     );
   },
 );

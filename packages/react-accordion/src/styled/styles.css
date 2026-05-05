@@ -218,3 +218,20 @@
     transition-duration: 0ms !important;
   }
 }
+
+/* ============================================================================
+ * 0.2.0 additions: success/danger tones, disabled item, data-state hooks
+ * ========================================================================== */
+.racc-root[data-tone="success"] { --racc-trigger-bg-open: #dcfce7; --racc-trigger-fg: #166534; --racc-focus-ring: rgba(34, 197, 94, 0.5); }
+.racc-root[data-tone="danger"]  { --racc-trigger-bg-open: #fee2e2; --racc-trigger-fg: #991b1b; --racc-focus-ring: rgba(239, 68, 68, 0.5); }
+
+[data-theme="dark"] .racc-root[data-tone="success"] { --racc-trigger-bg-open: #14532d; --racc-trigger-fg: #bbf7d0; }
+[data-theme="dark"] .racc-root[data-tone="danger"]  { --racc-trigger-bg-open: #7f1d1d; --racc-trigger-fg: #fecaca; }
+
+.racc-item[data-disabled="true"] .racc-trigger {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+.racc-item[data-disabled="true"] .racc-trigger:hover {
+  background: var(--racc-trigger-bg);
+}

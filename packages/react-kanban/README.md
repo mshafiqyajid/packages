@@ -116,8 +116,8 @@ All `useKanban` options plus:
 | `columnMinWidth` | `string` | `"240px"` |
 | `maxColumns` | `number` | — |
 | `renderCard` / `renderColumnHeader` | `(...) => ReactNode` | — |
-| `addCardPlaceholder` | `string` | — (when set, shows "+ Add card" button → inline input) |
-| `addColumnPlaceholder` | `string` | — (when set, shows "+ Add column" button → inline title input) |
+| `addCardPlaceholder` | `string` | — Label text only — the "+" icon is rendered automatically. Pass `"Add card"`, not `"+ Add card"`. When set, shows a button → inline input. |
+| `addColumnPlaceholder` | `string` | — Label text only — the "+" icon is rendered automatically. When set, shows a button → inline title input. |
 | `showDropIndicator` | `boolean` | `true` |
 | `showCardRemoveButton` | `boolean` | `false` |
 | `cardActions` | `{ id, label, icon?, onAction, show? }[]` | — |
