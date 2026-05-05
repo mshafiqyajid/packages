@@ -1,6 +1,10 @@
 import { forwardRef, useId, useState, useEffect } from "react";
 import { useFileUpload } from "../useFileUpload";
-import type { FileUploadResult } from "../useFileUpload";
+import type {
+  FileUploadResult,
+  UploadItem,
+  Uploader,
+} from "../useFileUpload";
 
 export type FileUploadVariant = "dropzone" | "button";
 export type FileUploadSize = "sm" | "md" | "lg";
@@ -17,7 +21,19 @@ export interface FileUploadStyledProps {
   showPreview?: boolean;
   uploadText?: string;
   browseText?: string;
-  renderPreview?: (file: File, onRemove: () => void) => React.ReactNode;
+  renderPreview?: (
+    file: File,
+    onRemove: () => void,
+    upload?: UploadItem,
+  ) => React.ReactNode;
+  /** Async uploader. When provided, files are uploaded automatically and rows show progress + retry. */
+  uploader?: Uploader;
+  /** Default true when uploader is provided. */
+  autoUpload?: boolean;
+  /** Concurrent uploads. Default: 3 */
+  concurrency?: number;
+  /** Per-item lifecycle callback. */
+  onUpload?: (item: UploadItem) => void;
   className?: string;
   style?: React.CSSProperties;
 }
@@ -55,35 +71,97 @@ function FileTypeIcon() {
   );
 }
 
-function ImagePreviewItem({ file, onRemove }: { file: File; onRemove: () => void }) {
+function ImagePreviewItem({
+  file,
+  onRemove,
+  upload,
+  onRetry,
+}: {
+  file: File;
+  onRemove: () => void;
+  upload?: UploadItem;
+  onRetry?: () => void;
+}) {
   const [url, setUrl] = useState<string | null>(null);
   useEffect(() => {
     const u = URL.createObjectURL(file);
     setUrl(u);
     return () => URL.revokeObjectURL(u);
   }, [file]);
+  const status = upload?.status;
   return (
-    <li className="rfu-thumb-item">
+    <li className="rfu-thumb-item" data-status={status}>
       <div className="rfu-thumb-wrap">
         {url && <img src={url} alt={file.name} className="rfu-thumb-img" />}
+        {(status === "uploading" || status === "queued") && (
+          <span className="rfu-thumb-progress" style={{ ["--rfu-progress" as string]: String(upload?.progress ?? 0) }} aria-hidden="true">
+            <span className="rfu-thumb-progress-fill" />
+          </span>
+        )}
         <button type="button" className="rfu-thumb-remove" onClick={onRemove} aria-label={`Remove ${file.name}`}>
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
         </button>
       </div>
       <span className="rfu-thumb-name">{file.name}</span>
+      {status === "error" && (
+        <button type="button" className="rfu-retry" onClick={onRetry} aria-label={`Retry ${file.name}`}>
+          Retry
+        </button>
+      )}
     </li>
   );
 }
 
-function FileRowItem({ file, onRemove }: { file: File; onRemove: () => void }) {
+function FileRowItem({
+  file,
+  onRemove,
+  upload,
+  onRetry,
+}: {
+  file: File;
+  onRemove: () => void;
+  upload?: UploadItem;
+  onRetry?: () => void;
+}) {
+  const status = upload?.status;
+  const progressPct = Math.round((upload?.progress ?? 0) * 100);
   return (
-    <li className="rfu-file-row">
+    <li className="rfu-file-row" data-status={status}>
       <span className="rfu-file-row-icon"><FileTypeIcon /></span>
       <span className="rfu-file-row-ext">{getExt(file)}</span>
       <span className="rfu-file-row-info">
         <span className="rfu-file-row-name" title={file.name}>{file.name}</span>
-        <span className="rfu-file-row-size">{formatBytes(file.size)}</span>
+        <span className="rfu-file-row-meta">
+          <span className="rfu-file-row-size">{formatBytes(file.size)}</span>
+          {status === "uploading" && (
+            <span className="rfu-file-row-pct">{progressPct}%</span>
+          )}
+          {status === "success" && (
+            <span className="rfu-file-row-status rfu-file-row-status--success">Uploaded</span>
+          )}
+          {status === "error" && (
+            <span className="rfu-file-row-status rfu-file-row-status--error">
+              {upload?.error?.message ?? "Failed"}
+            </span>
+          )}
+          {status === "aborted" && (
+            <span className="rfu-file-row-status">Aborted</span>
+          )}
+        </span>
+        {(status === "uploading" || status === "queued") && (
+          <span className="rfu-file-row-bar" aria-hidden="true">
+            <span
+              className="rfu-file-row-bar-fill"
+              style={{ width: `${progressPct}%` }}
+            />
+          </span>
+        )}
       </span>
+      {status === "error" && (
+        <button type="button" className="rfu-retry" onClick={onRetry} aria-label={`Retry ${file.name}`}>
+          Retry
+        </button>
+      )}
       <button type="button" className="rfu-file-row-remove" onClick={onRemove} aria-label={`Remove ${file.name}`}>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
       </button>
@@ -106,14 +184,42 @@ export const FileUploadStyled = forwardRef<HTMLDivElement, FileUploadStyledProps
       uploadText,
       browseText,
       renderPreview,
+      uploader,
+      autoUpload,
+      concurrency,
+      onUpload,
       className,
       style,
     },
     ref,
   ) {
     const instanceId = useId();
-    const { getRootProps, getInputProps, inputRef, isDragOver, isDragReject, files, removeFile, open } =
-      useFileUpload({ multiple, accept, maxSize, maxFiles, onFiles, disabled });
+    const {
+      getRootProps,
+      getInputProps,
+      inputRef,
+      isDragOver,
+      isDragReject,
+      files,
+      uploads,
+      removeFile,
+      open,
+      retryUpload,
+    } = useFileUpload({
+      multiple,
+      accept,
+      maxSize,
+      maxFiles,
+      onFiles,
+      disabled,
+      uploader,
+      autoUpload,
+      concurrency,
+      onUpload,
+    });
+
+    const uploadFor = (file: File): UploadItem | undefined =>
+      uploads.find((u) => u.file === file);
 
     const hasFiles = files.length > 0;
     const imageFiles = files.filter(isImageFile);
@@ -132,13 +238,20 @@ export const FileUploadStyled = forwardRef<HTMLDivElement, FileUploadStyledProps
           </button>
           {hasFiles && (
             <ul className="rfu-file-rows">
-              {files.map((file, i) =>
-                renderPreview ? (
-                  <li key={`${file.name}-${i}`}>{renderPreview(file, () => removeFile(i))}</li>
+              {files.map((file, i) => {
+                const up = uploadFor(file);
+                return renderPreview ? (
+                  <li key={`${file.name}-${i}`}>{renderPreview(file, () => removeFile(i), up)}</li>
                 ) : (
-                  <FileRowItem key={`${file.name}-${i}`} file={file} onRemove={() => removeFile(i)} />
-                )
-              )}
+                  <FileRowItem
+                    key={`${file.name}-${i}`}
+                    file={file}
+                    upload={up}
+                    onRemove={() => removeFile(i)}
+                    onRetry={up ? () => retryUpload(up.id) : undefined}
+                  />
+                );
+              })}
             </ul>
           )}
         </div>
@@ -182,37 +295,58 @@ export const FileUploadStyled = forwardRef<HTMLDivElement, FileUploadStyledProps
 
         {hasFiles && showPreview && imageFiles.length > 0 && (
           <ul className="rfu-thumb-grid">
-            {imageFiles.map((file, i) =>
-              renderPreview ? (
-                <li key={`${file.name}-${i}`}>{renderPreview(file, () => removeFile(files.indexOf(file)))}</li>
+            {imageFiles.map((file, i) => {
+              const up = uploadFor(file);
+              return renderPreview ? (
+                <li key={`${file.name}-${i}`}>{renderPreview(file, () => removeFile(files.indexOf(file)), up)}</li>
               ) : (
-                <ImagePreviewItem key={`${file.name}-${i}`} file={file} onRemove={() => removeFile(files.indexOf(file))} />
-              )
-            )}
+                <ImagePreviewItem
+                  key={`${file.name}-${i}`}
+                  file={file}
+                  upload={up}
+                  onRemove={() => removeFile(files.indexOf(file))}
+                  onRetry={up ? () => retryUpload(up.id) : undefined}
+                />
+              );
+            })}
           </ul>
         )}
 
         {hasFiles && otherFiles.length > 0 && (
           <ul className="rfu-file-rows">
-            {otherFiles.map((file, i) =>
-              renderPreview ? (
-                <li key={`${file.name}-${i}`}>{renderPreview(file, () => removeFile(files.indexOf(file)))}</li>
+            {otherFiles.map((file, i) => {
+              const up = uploadFor(file);
+              return renderPreview ? (
+                <li key={`${file.name}-${i}`}>{renderPreview(file, () => removeFile(files.indexOf(file)), up)}</li>
               ) : (
-                <FileRowItem key={`${file.name}-${i}`} file={file} onRemove={() => removeFile(files.indexOf(file))} />
-              )
-            )}
+                <FileRowItem
+                  key={`${file.name}-${i}`}
+                  file={file}
+                  upload={up}
+                  onRemove={() => removeFile(files.indexOf(file))}
+                  onRetry={up ? () => retryUpload(up.id) : undefined}
+                />
+              );
+            })}
           </ul>
         )}
 
         {hasFiles && !showPreview && (
           <ul className="rfu-file-rows">
-            {files.map((file, i) =>
-              renderPreview ? (
-                <li key={`${file.name}-${i}`}>{renderPreview(file, () => removeFile(i))}</li>
+            {files.map((file, i) => {
+              const up = uploadFor(file);
+              return renderPreview ? (
+                <li key={`${file.name}-${i}`}>{renderPreview(file, () => removeFile(i), up)}</li>
               ) : (
-                <FileRowItem key={`${file.name}-${i}`} file={file} onRemove={() => removeFile(i)} />
-              )
-            )}
+                <FileRowItem
+                  key={`${file.name}-${i}`}
+                  file={file}
+                  upload={up}
+                  onRemove={() => removeFile(i)}
+                  onRetry={up ? () => retryUpload(up.id) : undefined}
+                />
+              );
+            })}
           </ul>
         )}
       </div>

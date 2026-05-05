@@ -17,8 +17,8 @@ export interface UseRatingOptions {
   value?: number;
   /** Initial value when uncontrolled. Default: 0. */
   defaultValue?: number;
-  /** Called when the value changes (commit). */
-  onChange?: (value: number) => void;
+  /** Called when the value changes (commit). Return a Promise to auto-drive a pending state — the rating shows data-pending until the promise settles, and reverts to the previous value on rejection. */
+  onChange?: (value: number) => void | Promise<void>;
   /** Called as the user hovers, even before they click. Useful for live preview text. */
   onHover?: (value: number | null) => void;
   /** Allow half-step values. Default: true. */
@@ -69,6 +69,8 @@ export interface UseRatingResult {
   hoverValue: number | null;
   /** The visible value: hoverValue ?? value. */
   displayValue: number;
+  /** True while an async onChange Promise is in flight. */
+  isPending: boolean;
   /** Per-item state to render your own UI. */
   items: RatingItemState[];
   /** Spread onto the wrapper for `role="radiogroup"`. */
@@ -76,6 +78,8 @@ export interface UseRatingResult {
     role: "radiogroup";
     "aria-disabled"?: boolean;
     "aria-readonly"?: boolean;
+    "aria-busy"?: boolean;
+    "data-pending"?: "true";
   };
   /** Programmatically set the value. */
   setValue: (value: number) => void;
@@ -131,19 +135,38 @@ export function useRating(options: UseRatingOptions = {}): UseRatingResult {
 
   const [hoverValue, setHoverValue] = useState<number | null>(null);
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
+  const [isPending, setIsPending] = useState(false);
+  const pendingRef = useRef(false);
 
   const itemRefs = useRef<Array<HTMLElement | null>>([]);
 
-  const isInteractive = !disabled && !readOnly;
+  const isInteractive = !disabled && !readOnly && !isPending;
 
   const commit = useCallback(
     (next: number) => {
-      if (!isInteractive) return;
+      if (disabled || readOnly || pendingRef.current) return;
       const clamped = snap(clampValue(next, count), step);
+      if (clamped === value) return;
+      const previous = value;
       if (!isControlled) setInternalValue(clamped);
-      if (clamped !== value) onChange?.(clamped);
+      const result = onChange?.(clamped);
+      if (result && typeof (result as Promise<void>).then === "function") {
+        pendingRef.current = true;
+        setIsPending(true);
+        (result as Promise<void>).then(
+          () => {
+            pendingRef.current = false;
+            setIsPending(false);
+          },
+          () => {
+            pendingRef.current = false;
+            setIsPending(false);
+            if (!isControlled) setInternalValue(previous);
+          },
+        );
+      }
     },
-    [isInteractive, count, step, isControlled, value, onChange],
+    [disabled, readOnly, count, step, isControlled, value, onChange],
   );
 
   const setValue = useCallback(
@@ -305,14 +328,17 @@ export function useRating(options: UseRatingOptions = {}): UseRatingResult {
       role: "radiogroup",
       "aria-disabled": disabled || undefined,
       "aria-readonly": readOnly || undefined,
+      "aria-busy": isPending || undefined,
+      "data-pending": isPending ? "true" : undefined,
     }),
-    [disabled, readOnly],
+    [disabled, readOnly, isPending],
   );
 
   return {
     value,
     hoverValue,
     displayValue,
+    isPending,
     items,
     rootProps,
     setValue,

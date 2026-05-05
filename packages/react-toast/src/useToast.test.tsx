@@ -163,3 +163,73 @@ describe("toastStore — multiple toasts accumulate", () => {
     expect(messages).toEqual(["First", "Second", "Third"]);
   });
 });
+
+describe("toast.loading + toast.promise", () => {
+  it("toast.loading creates a loading toast with infinite duration", () => {
+    const { result } = renderHook(() => useToast());
+    act(() => {
+      result.current.toast.loading("Saving…");
+    });
+    const t = toastStore.getSnapshot()[0];
+    expect(t?.type).toBe("loading");
+    expect(t?.loading).toBe(true);
+    expect(t?.duration).toBe(Infinity);
+  });
+
+  it("toast.promise transitions to success on resolve", async () => {
+    const { result } = renderHook(() => useToast());
+    let resolve!: (v: { id: string }) => void;
+    const p = new Promise<{ id: string }>((r) => {
+      resolve = r;
+    });
+
+    let id!: string;
+    act(() => {
+      id = result.current.toast.promise(p, {
+        loading: "Saving…",
+        success: (v) => `Saved ${v.id}`,
+        error: "Failed",
+      });
+    });
+    expect(toastStore.getSnapshot()[0]?.type).toBe("loading");
+
+    await act(async () => {
+      resolve({ id: "42" });
+      await p;
+    });
+
+    const after = toastStore.getSnapshot().find((t) => t.id === id);
+    expect(after?.type).toBe("success");
+    expect(after?.message).toBe("Saved 42");
+  });
+
+  it("toast.promise transitions to error on reject", async () => {
+    const { result } = renderHook(() => useToast());
+    let reject!: (err: Error) => void;
+    const p = new Promise<void>((_, r) => {
+      reject = r;
+    });
+
+    let id!: string;
+    act(() => {
+      id = result.current.toast.promise(p, {
+        loading: "Saving…",
+        success: "ok",
+        error: (e) => (e as Error).message,
+      });
+    });
+
+    await act(async () => {
+      reject(new Error("boom"));
+      try {
+        await p;
+      } catch {
+        /* swallowed by toast.promise */
+      }
+    });
+
+    const after = toastStore.getSnapshot().find((t) => t.id === id);
+    expect(after?.type).toBe("error");
+    expect(after?.message).toBe("boom");
+  });
+});

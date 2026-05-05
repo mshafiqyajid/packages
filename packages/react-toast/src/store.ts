@@ -1,4 +1,4 @@
-export type ToastType = "neutral" | "success" | "error" | "warning" | "info";
+export type ToastType = "neutral" | "success" | "error" | "warning" | "info" | "loading";
 
 export interface ToastAction {
   label: string;
@@ -13,6 +13,8 @@ export interface ToastItem {
   duration: number;
   action?: ToastAction;
   createdAt: number;
+  /** True when the toast is showing a pending state (set by toast.promise). */
+  loading?: boolean;
 }
 
 export interface ToastOptions {
@@ -20,6 +22,8 @@ export interface ToastOptions {
   duration?: number;
   title?: string;
   action?: ToastAction;
+  /** Pre-supplied id; useful for updating an existing toast. */
+  id?: string;
 }
 
 type Listener = (toasts: ToastItem[]) => void;
@@ -42,18 +46,40 @@ export const toastStore = {
   },
 
   add(message: string, options: ToastOptions = {}): string {
-    const id = `toast-${++_counter}-${Date.now()}`;
-    _toasts = [..._toasts, {
+    const id = options.id ?? `toast-${++_counter}-${Date.now()}`;
+    const type = options.type ?? "neutral";
+    const item: ToastItem = {
       id,
       message,
       title: options.title,
-      type: options.type ?? "neutral",
-      duration: options.duration ?? 4000,
+      type,
+      duration: options.duration ?? (type === "loading" ? Infinity : 4000),
       action: options.action,
       createdAt: Date.now(),
-    }];
+      loading: type === "loading",
+    };
+    const existing = _toasts.findIndex((t) => t.id === id);
+    if (existing !== -1) {
+      _toasts = _toasts.map((t, i) => (i === existing ? item : t));
+    } else {
+      _toasts = [..._toasts, item];
+    }
     notify();
     return id;
+  },
+
+  update(id: string, partial: Partial<ToastItem>): void {
+    let changed = false;
+    _toasts = _toasts.map((t) => {
+      if (t.id !== id) return t;
+      changed = true;
+      const merged: ToastItem = { ...t, ...partial };
+      if (partial.type !== undefined && partial.loading === undefined) {
+        merged.loading = partial.type === "loading";
+      }
+      return merged;
+    });
+    if (changed) notify();
   },
 
   dismiss(id: string): void {

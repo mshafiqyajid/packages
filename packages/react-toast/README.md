@@ -54,10 +54,27 @@ toast.success("Saved successfully");
 toast.error("Something went wrong");
 toast.warning("Low disk space");
 toast.info("Update available");
+toast.loading("Saving…");
+
+// Promise-driven lifecycle (loading → success | error)
+toast.promise(saveProfile(), {
+  loading: "Saving profile…",
+  success: (user) => `Saved ${user.name}`,
+  error:   (err)  => `Failed: ${(err as Error).message}`,
+});
 
 // Dismiss
 dismiss(id);
 dismissAll();
+```
+
+### `toast` (standalone)
+
+Also exported as a top-level binding so non-React code can fire toasts:
+
+```ts
+import { toast } from "@mshafiqyajid/react-toast";
+toast.error("Caught outside React");
 ```
 
 ### `useToasts()`

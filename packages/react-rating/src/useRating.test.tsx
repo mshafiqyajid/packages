@@ -100,4 +100,51 @@ describe("useRating", () => {
     );
     expect(styles).toEqual(["1", "1", "0.5", "0", "0"]);
   });
+
+  test("async onChange sets isPending while promise is in flight", async () => {
+    let resolve!: () => void;
+    const onChange = vi.fn(
+      () =>
+        new Promise<void>((r) => {
+          resolve = r;
+        }),
+    );
+    const { result } = renderHook(() => useRating({ onChange }));
+    act(() => {
+      result.current.setValue(3);
+    });
+    expect(result.current.isPending).toBe(true);
+    expect(result.current.rootProps["aria-busy"]).toBe(true);
+    expect(result.current.value).toBe(3);
+
+    await act(async () => {
+      resolve();
+      await Promise.resolve();
+    });
+    expect(result.current.isPending).toBe(false);
+  });
+
+  test("async onChange rejection reverts optimistic value", async () => {
+    let reject!: (e: Error) => void;
+    const onChange = vi.fn(
+      () =>
+        new Promise<void>((_, r) => {
+          reject = r;
+        }),
+    );
+    const { result } = renderHook(() =>
+      useRating({ onChange, defaultValue: 2 }),
+    );
+    act(() => {
+      result.current.setValue(4);
+    });
+    expect(result.current.value).toBe(4);
+
+    await act(async () => {
+      reject(new Error("nope"));
+      await Promise.resolve();
+    });
+    expect(result.current.value).toBe(2);
+    expect(result.current.isPending).toBe(false);
+  });
 });

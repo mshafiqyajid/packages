@@ -344,8 +344,102 @@
   --rfu-remove-hover: #52525b;
 }
 
+/* ── Upload progress + retry ───────────────────────────────────── */
+.rfu-file-row[data-status="uploading"] {
+  --rfu-row-border: var(--rfu-browse-color, #6366f1);
+}
+.rfu-file-row[data-status="error"] {
+  --rfu-row-border: #ef4444;
+}
+.rfu-file-row[data-status="success"] {
+  --rfu-row-border: #22c55e;
+}
+
+.rfu-file-row-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+}
+
+.rfu-file-row-pct {
+  color: var(--rfu-browse-color, #6366f1);
+  font-weight: 600;
+  min-width: 3ch;
+  text-align: right;
+}
+
+.rfu-file-row-status--success {
+  color: #16a34a;
+  font-weight: 500;
+}
+
+.rfu-file-row-status--error {
+  color: #dc2626;
+  font-weight: 500;
+}
+
+.rfu-file-row-bar {
+  display: block;
+  width: 100%;
+  height: 3px;
+  background: var(--rfu-chip-bg, #f4f4f5);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.rfu-file-row-bar-fill {
+  display: block;
+  height: 100%;
+  background: var(--rfu-browse-color, #6366f1);
+  transition: width 160ms ease;
+}
+
+.rfu-thumb-wrap { position: relative; }
+
+.rfu-thumb-progress {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 3px;
+  background: rgba(0, 0, 0, 0.18);
+  pointer-events: none;
+}
+
+.rfu-thumb-progress-fill {
+  display: block;
+  height: 100%;
+  width: calc(var(--rfu-progress, 0) * 100%);
+  background: var(--rfu-browse-color, #6366f1);
+  transition: width 160ms ease;
+}
+
+.rfu-thumb-item[data-status="error"] .rfu-thumb-img {
+  filter: grayscale(0.7);
+  opacity: 0.55;
+}
+
+.rfu-retry {
+  background: transparent;
+  border: 1px solid var(--rfu-browse-color, #6366f1);
+  color: var(--rfu-browse-color, #6366f1);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.15rem 0.5rem;
+  font-family: inherit;
+  transition: background 120ms ease, color 120ms ease;
+}
+
+.rfu-retry:hover {
+  background: var(--rfu-browse-color, #6366f1);
+  color: #ffffff;
+}
+
 /* ── Reduced motion ─────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   .rfu-dropzone, .rfu-dz-icon-wrap, .rfu-dz-browse, .rfu-btn-trigger, .rfu-file-row-remove, .rfu-thumb-remove { transition: none; }
   .rfu-dropzone.rfu-dropzone--reject { animation: none; }
+  .rfu-file-row-bar-fill, .rfu-thumb-progress-fill { transition: none; }
 }

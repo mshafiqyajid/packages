@@ -7,7 +7,7 @@ import ToastDemo from "~/components/demos/ToastDemo";
 ---
 
 <DocLayout title="react-toast" description="Toast notifications with queue, positions, type variants, progress bar, and animated entry/exit." pkg="toast">
-  <PackagePageShell name="react-toast" version="0.1.0" description="Toast notification system for React. Singleton store — no context wrapping needed. Six positions, five types, progress bar, animated entry/exit, auto-dismiss, max queue cap." size="~10 KB">
+  <PackagePageShell name="react-toast" version="0.2.0" description="Toast notification system for React. Singleton store — no context wrapping needed. Six positions, five types plus loading + Sonner-style toast.promise, progress bar, animated entry/exit, auto-dismiss, max queue cap." size="~11 KB">
 
     <div class="pkg-section">
       <H2>Playground</H2>
@@ -53,7 +53,27 @@ toast("Neutral message");
 toast.success("Saved successfully!");
 toast.error("Something went wrong.");
 toast.warning("Check your input.");
-toast.info("New update available.");`} />
+toast.info("New update available.");
+toast.loading("Saving…");`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Promise lifecycle (toast.promise)</H2>
+      <p>Cycle a single toast through loading → success or error states.</p>
+      <CodeBlock lang="tsx" code={`toast.promise(saveProfile(), {
+  loading: "Saving profile…",
+  success: (user) => \`Saved \${user.name}\`,
+  error:   (err)  => \`Failed: \${(err as Error).message}\`,
+});`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Standalone toast import</H2>
+      <p>The <code>toast</code> binding is also exported directly for non-React contexts (e.g. service helpers).</p>
+      <CodeBlock lang="tsx" code={`import { toast } from "@mshafiqyajid/react-toast";
+
+toast.error("Caught outside React");
+toast.dismiss(); // dismiss all`} />
     </div>
 
     <div class="pkg-section">
@@ -106,7 +126,7 @@ dismissAll();`} />
       <table class="props-table">
         <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
         <tbody>
-          <tr><td>type</td><td>"neutral" | "success" | "error" | "warning" | "info"</td><td>"neutral"</td><td>Toast type (sets colour and icon)</td></tr>
+          <tr><td>type</td><td>"neutral" | "success" | "error" | "warning" | "info" | "loading"</td><td>"neutral"</td><td>Toast type (sets colour and icon). "loading" defaults to <code>Infinity</code> duration and shows a spinner.</td></tr>
           <tr><td>title</td><td>string</td><td>—</td><td>Bold title shown above the message</td></tr>
           <tr><td>duration</td><td>number</td><td>4000</td><td>Auto-dismiss delay in ms. Use <code>Infinity</code> to persist</td></tr>
           <tr><td>action</td><td>{`{ label: string; onClick: () => void }`}</td><td>—</td><td>Inline action button inside the toast</td></tr>

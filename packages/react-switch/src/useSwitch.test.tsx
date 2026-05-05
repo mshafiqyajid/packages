@@ -113,3 +113,84 @@ describe("useSwitch", () => {
     expect(screen.getByTestId("switch")).toHaveAttribute("tabindex", "-1");
   });
 });
+
+describe("useSwitch — async onChange", () => {
+  function AsyncSwitch({
+    onChange,
+    defaultChecked,
+  }: {
+    onChange: (v: boolean) => Promise<void>;
+    defaultChecked?: boolean;
+  }) {
+    const { switchProps, isChecked, isPending } = useSwitch({
+      defaultChecked,
+      onChange,
+    });
+    return (
+      <button
+        {...switchProps}
+        data-testid="switch"
+        data-pending={isPending ? "true" : undefined}
+      >
+        {isChecked ? "on" : "off"}
+      </button>
+    );
+  }
+
+  it("sets aria-busy + isPending while the promise is in flight", async () => {
+    const user = userEvent.setup();
+    let resolve!: () => void;
+    const onChange = vi.fn(
+      () =>
+        new Promise<void>((r) => {
+          resolve = r;
+        }),
+    );
+    render(<AsyncSwitch onChange={onChange} />);
+    const el = screen.getByTestId("switch");
+    await user.click(el);
+    expect(el).toHaveAttribute("aria-checked", "true");
+    expect(el).toHaveAttribute("aria-busy", "true");
+    expect(el).toHaveAttribute("data-pending", "true");
+
+    await new Promise<void>((done) => {
+      resolve();
+      setTimeout(done, 0);
+    });
+
+    // After resolve: pending cleared
+    expect(el).not.toHaveAttribute("aria-busy");
+  });
+
+  it("reverts the optimistic value when the promise rejects", async () => {
+    const user = userEvent.setup();
+    let reject!: (e: Error) => void;
+    const onChange = vi.fn(
+      () =>
+        new Promise<void>((_, r) => {
+          reject = r;
+        }),
+    );
+    render(<AsyncSwitch onChange={onChange} />);
+    const el = screen.getByTestId("switch");
+    await user.click(el);
+    expect(el).toHaveAttribute("aria-checked", "true");
+
+    await new Promise<void>((done) => {
+      reject(new Error("nope"));
+      setTimeout(done, 0);
+    });
+
+    expect(el).toHaveAttribute("aria-checked", "false");
+  });
+
+  it("ignores clicks while pending", async () => {
+    const user = userEvent.setup();
+    const onChange = vi.fn(() => new Promise<void>(() => {}));
+    render(<AsyncSwitch onChange={onChange} />);
+    const el = screen.getByTestId("switch");
+    await user.click(el);
+    await user.click(el);
+    expect(onChange).toHaveBeenCalledTimes(1);
+  });
+});

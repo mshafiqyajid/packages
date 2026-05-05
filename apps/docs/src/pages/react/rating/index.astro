@@ -13,9 +13,9 @@ import RatingDemo from "~/components/demos/RatingDemo";
 >
   <PackagePageShell
     name="react-rating"
-    version="0.1.0"
-    description="Headless star-rating hook and styled component for React. Half-step support, hover preview, custom icons (hearts, thumbs, anything), full keyboard nav, CSS clip-path half-fill."
-    size="~18 KB"
+    version="0.2.0"
+    description="Headless star-rating hook and styled component for React. Half-step support, hover preview, custom icons (hearts, thumbs, anything), full keyboard nav, CSS clip-path half-fill. Async onChange (Promise-driven pending state with revert on rejection)."
+    size="~19 KB"
   >
     <div class="pkg-section">
       <H2>Playground</H2>
@@ -62,6 +62,19 @@ const [value, setValue] = useState(0);
   defaultValue={3}
 />`} />
 
+      <h3>Async submit (Promise-driven pending state)</h3>
+      <p>Return a <code>Promise</code> from <code>onChange</code> to drive <code>data-pending</code> automatically. Stars are non-interactive while the promise is in flight; on rejection the value reverts.</p>
+      <CodeBlock code={`<RatingStyled
+  count={5}
+  defaultValue={0}
+  onChange={async (next) => {
+    await fetch("/api/reviews", {
+      method: "POST",
+      body: JSON.stringify({ stars: next }),
+    });
+  }}
+/>`} />
+
       <h3>Per-star labels with onHover</h3>
       <CodeBlock code={`const labels = ["Terrible", "Poor", "OK", "Good", "Great"];
 const [hovered, setHovered] = useState<number | null>(null);
@@ -86,7 +99,7 @@ const [hovered, setHovered] = useState<number | null>(null);
           <tr><td>count</td><td>number</td><td>5</td><td>Number of stars.</td></tr>
           <tr><td>value</td><td>number</td><td>—</td><td>Controlled value (0..count).</td></tr>
           <tr><td>defaultValue</td><td>number</td><td>0</td><td>Uncontrolled initial.</td></tr>
-          <tr><td>onChange</td><td>(value: number) =&gt; void</td><td>—</td><td>Fires on commit.</td></tr>
+          <tr><td>onChange</td><td>(value: number) =&gt; void | Promise&lt;void&gt;</td><td>—</td><td>Fires on commit. Return a Promise to auto-drive a pending state; reverts on rejection.</td></tr>
           <tr><td>onHover</td><td>(value: number | null) =&gt; void</td><td>—</td><td>Fires during hover.</td></tr>
           <tr><td>allowHalf</td><td>boolean</td><td>true</td><td>Enable half-step values.</td></tr>
           <tr><td>clearable</td><td>boolean</td><td>true</td><td>Re-clicking active value clears it.</td></tr>

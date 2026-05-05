@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ToastItem } from "../store";
 
 export interface ToastProps {
@@ -86,6 +86,8 @@ function iconFor(type: ToastItem["type"]): JSX.Element {
       return <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M8 1L15 14H1L8 1z"/><path d="M8 6v3M8 11v.5"/></svg>;
     case "info":
       return <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><circle cx="8" cy="8" r="7"/><path d="M8 7v4M8 5v.5"/></svg>;
+    case "loading":
+      return <span className="rtoast-spinner" aria-hidden="true" />;
     default:
       return <svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><circle cx="8" cy="8" r="7"/><path d="M8 8h.01" strokeWidth="3"/></svg>;
   }

@@ -122,6 +122,25 @@ Pass any SVG. The component clones it twice (empty + filled layers) and clips th
 <RatingStyled count={10} defaultValue={7.5} size="sm" />
 ```
 
+### Async submit (Promise-driven pending state)
+
+Return a `Promise` from `onChange` to drive `data-pending` automatically. Stars are non-interactive while the promise is in flight; on rejection the value reverts.
+
+```tsx
+<RatingStyled
+  count={5}
+  defaultValue={0}
+  onChange={async (next) => {
+    await fetch("/api/reviews", {
+      method: "POST",
+      body: JSON.stringify({ stars: next }),
+    });
+  }}
+/>
+```
+
+The hook also exposes `isPending`.
+
 ### Show value badge
 
 ```tsx

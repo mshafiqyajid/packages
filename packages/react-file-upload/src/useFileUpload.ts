@@ -2,10 +2,10 @@ import {
   useCallback,
   useRef,
   useState,
+  useEffect,
   type DragEvent,
   type ChangeEvent,
   type HTMLAttributes,
-  type InputHTMLAttributes,
   type RefObject,
   type CSSProperties,
 } from "react";
@@ -20,13 +20,43 @@ export interface FileUploadResult {
   rejected: RejectedFile[];
 }
 
-export interface UseFileUploadOptions {
+export type UploadStatus = "queued" | "uploading" | "success" | "error" | "aborted";
+
+export interface UploadContext {
+  signal: AbortSignal;
+  onProgress: (fraction: number) => void;
+}
+
+export interface UploadItem<TResult = unknown> {
+  id: string;
+  file: File;
+  status: UploadStatus;
+  /** Fraction 0..1, set via context.onProgress. */
+  progress: number;
+  result?: TResult;
+  error?: Error;
+}
+
+export type Uploader<TResult = unknown> = (
+  file: File,
+  ctx: UploadContext,
+) => Promise<TResult>;
+
+export interface UseFileUploadOptions<TResult = unknown> {
   multiple?: boolean;
   accept?: string;
   maxSize?: number;
   maxFiles?: number;
   onFiles?: (result: FileUploadResult) => void;
   disabled?: boolean;
+  /** When provided, accepted files are uploaded automatically. */
+  uploader?: Uploader<TResult>;
+  /** Default true when an uploader is provided. */
+  autoUpload?: boolean;
+  /** Concurrent uploads. Default: 3 */
+  concurrency?: number;
+  /** Fires whenever an upload item transitions state. */
+  onUpload?: (item: UploadItem<TResult>) => void;
 }
 
 export interface FileInputProps {
@@ -40,16 +70,23 @@ export interface FileInputProps {
   "aria-hidden": true;
 }
 
-export interface UseFileUploadResult {
+export interface UseFileUploadResult<TResult = unknown> {
   getRootProps: () => HTMLAttributes<HTMLElement>;
   getInputProps: () => FileInputProps;
   inputRef: RefObject<HTMLInputElement>;
   isDragOver: boolean;
   isDragReject: boolean;
   files: File[];
+  uploads: UploadItem<TResult>[];
   removeFile: (index: number) => void;
   clearFiles: () => void;
   open: () => void;
+  /** Restart an upload that errored, was aborted, or completed. */
+  retryUpload: (id: string) => void;
+  /** Abort an in-flight upload (status → "aborted"). */
+  abortUpload: (id: string) => void;
+  /** Abort all in-flight uploads. */
+  abortAll: () => void;
 }
 
 function matchesAccept(file: File, accept: string): boolean {
@@ -80,9 +117,14 @@ function validateFile(
   return reasons;
 }
 
-export function useFileUpload(
-  options: UseFileUploadOptions = {},
-): UseFileUploadResult {
+let _idCounter = 0;
+function nextId(): string {
+  return `up-${++_idCounter}-${Date.now()}`;
+}
+
+export function useFileUpload<TResult = unknown>(
+  options: UseFileUploadOptions<TResult> = {},
+): UseFileUploadResult<TResult> {
   const {
     multiple = false,
     accept,
@@ -90,12 +132,104 @@ export function useFileUpload(
     maxFiles,
     onFiles,
     disabled = false,
+    uploader,
+    autoUpload = uploader !== undefined,
+    concurrency = 3,
+    onUpload,
   } = options;
 
   const [files, setFiles] = useState<File[]>([]);
+  const [uploads, setUploads] = useState<UploadItem<TResult>[]>([]);
   const [isDragOver, setIsDragOver] = useState(false);
   const [isDragReject, setIsDragReject] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const controllersRef = useRef<Map<string, AbortController>>(new Map());
+  const inFlightRef = useRef(0);
+  const queueRef = useRef<Array<{ id: string; file: File }>>([]);
+  const uploadsRef = useRef<UploadItem<TResult>[]>([]);
+  const uploaderRef = useRef(uploader);
+  const onUploadRef = useRef(onUpload);
+  const concurrencyRef = useRef(concurrency);
+  uploaderRef.current = uploader;
+  onUploadRef.current = onUpload;
+  concurrencyRef.current = concurrency;
+
+  const writeUploads = useCallback((next: UploadItem<TResult>[]) => {
+    uploadsRef.current = next;
+    setUploads(next);
+  }, []);
+
+  const updateUpload = useCallback(
+    (id: string, partial: Partial<UploadItem<TResult>>) => {
+      const next = uploadsRef.current.map((u) =>
+        u.id === id ? { ...u, ...partial } : u,
+      );
+      writeUploads(next);
+      const item = next.find((u) => u.id === id);
+      if (item) onUploadRef.current?.(item);
+    },
+    [writeUploads],
+  );
+
+  const startNextInQueue = useCallback(() => {
+    const fn = uploaderRef.current;
+    if (!fn) return;
+    while (inFlightRef.current < concurrencyRef.current && queueRef.current.length > 0) {
+      const next = queueRef.current.shift()!;
+      const { id, file } = next;
+
+      const controller = new AbortController();
+      controllersRef.current.set(id, controller);
+      inFlightRef.current += 1;
+
+      updateUpload(id, { status: "uploading", progress: 0 });
+
+      const ctx: UploadContext = {
+        signal: controller.signal,
+        onProgress: (fraction) =>
+          updateUpload(id, { progress: Math.max(0, Math.min(1, fraction)) }),
+      };
+
+      const finishOk = (result: TResult) => {
+        controllersRef.current.delete(id);
+        inFlightRef.current -= 1;
+        if (!controller.signal.aborted) {
+          updateUpload(id, { status: "success", progress: 1, result });
+        }
+        startNextInQueue();
+      };
+      const finishErr = (err: unknown) => {
+        controllersRef.current.delete(id);
+        inFlightRef.current -= 1;
+        if (controller.signal.aborted) {
+          updateUpload(id, { status: "aborted" });
+        } else {
+          updateUpload(id, {
+            status: "error",
+            error: err instanceof Error ? err : new Error(String(err)),
+          });
+        }
+        startNextInQueue();
+      };
+
+      try {
+        const promise = fn(file, ctx);
+        promise.then(finishOk, finishErr);
+      } catch (err) {
+        finishErr(err);
+      }
+    }
+  }, [updateUpload]);
+
+  const enqueueUpload = useCallback(
+    (id: string, file: File) => {
+      if (!uploaderRef.current) return;
+      queueRef.current.push({ id, file });
+      startNextInQueue();
+    },
+    [startNextInQueue],
+  );
 
   const processFiles = useCallback(
     (incoming: File[]) => {
@@ -111,17 +245,40 @@ export function useFileUpload(
         }
       }
 
+      let trimmedAccepted = accepted;
       setFiles((prev) => {
         const combined = multiple ? [...prev, ...accepted] : accepted;
-        if (maxFiles !== undefined) {
-          return combined.slice(0, maxFiles);
+        const final = maxFiles !== undefined ? combined.slice(0, maxFiles) : combined;
+        // Figure out which of the freshly accepted files actually made it in.
+        if (multiple) {
+          const overflow = combined.length - final.length;
+          trimmedAccepted = overflow > 0 ? accepted.slice(0, accepted.length - overflow) : accepted;
+        } else {
+          trimmedAccepted = final;
         }
-        return combined;
+        return final;
       });
+
+      if (uploaderRef.current && autoUpload) {
+        const newUploads: UploadItem<TResult>[] = trimmedAccepted.map((file) => ({
+          id: nextId(),
+          file,
+          status: "queued",
+          progress: 0,
+        }));
+        const next = multiple
+          ? [...uploadsRef.current, ...newUploads]
+          : newUploads;
+        writeUploads(next);
+        for (const u of newUploads) enqueueUpload(u.id, u.file);
+      } else if (!multiple && trimmedAccepted.length > 0) {
+        // Reset uploads when single-file mode replaces the file
+        writeUploads([]);
+      }
 
       onFiles?.({ accepted, rejected });
     },
-    [accept, maxSize, maxFiles, multiple, onFiles],
+    [accept, maxSize, maxFiles, multiple, onFiles, autoUpload, enqueueUpload],
   );
 
   const checkDragReject = useCallback(
@@ -162,18 +319,15 @@ export function useFileUpload(
     [disabled],
   );
 
-  const onDragLeave = useCallback(
-    (e: DragEvent<HTMLElement>) => {
-      e.preventDefault();
-      e.stopPropagation();
-      if ((e.currentTarget as HTMLElement).contains(e.relatedTarget as Node)) {
-        return;
-      }
-      setIsDragOver(false);
-      setIsDragReject(false);
-    },
-    [],
-  );
+  const onDragLeave = useCallback((e: DragEvent<HTMLElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if ((e.currentTarget as HTMLElement).contains(e.relatedTarget as Node)) {
+      return;
+    }
+    setIsDragOver(false);
+    setIsDragReject(false);
+  }, []);
 
   const onDrop = useCallback(
     (e: DragEvent<HTMLElement>) => {
@@ -221,18 +375,74 @@ export function useFileUpload(
     [processFiles],
   );
 
-  const removeFile = useCallback((index: number) => {
-    setFiles((prev) => prev.filter((_, i) => i !== index));
-  }, []);
+  const removeFile = useCallback(
+    (index: number) => {
+      setFiles((prev) => {
+        const removed = prev[index];
+        if (!removed) return prev;
+        // Also abort + remove the matching upload item (first match by file ref).
+        const matchIdx = uploadsRef.current.findIndex((u) => u.file === removed);
+        if (matchIdx !== -1) {
+          const item = uploadsRef.current[matchIdx]!;
+          const ctrl = controllersRef.current.get(item.id);
+          if (ctrl) {
+            ctrl.abort();
+            controllersRef.current.delete(item.id);
+          }
+          writeUploads(uploadsRef.current.filter((_, i) => i !== matchIdx));
+        }
+        return prev.filter((_, i) => i !== index);
+      });
+    },
+    [writeUploads],
+  );
 
   const clearFiles = useCallback(() => {
+    controllersRef.current.forEach((c) => c.abort());
+    controllersRef.current.clear();
+    queueRef.current = [];
+    inFlightRef.current = 0;
     setFiles([]);
+    writeUploads([]);
+  }, [writeUploads]);
+
+  const abortUpload = useCallback((id: string) => {
+    const ctrl = controllersRef.current.get(id);
+    if (ctrl) ctrl.abort();
   }, []);
+
+  const abortAll = useCallback(() => {
+    controllersRef.current.forEach((c) => c.abort());
+  }, []);
+
+  const retryUpload = useCallback(
+    (id: string) => {
+      if (!uploaderRef.current) return;
+      const item = uploadsRef.current.find((u) => u.id === id);
+      if (!item) return;
+      if (item.status === "queued" || item.status === "uploading") return;
+      const next = uploadsRef.current.map((u) =>
+        u.id === id ? { ...u, status: "queued" as const, progress: 0, error: undefined } : u,
+      );
+      writeUploads(next);
+      queueRef.current.push({ id, file: item.file });
+      startNextInQueue();
+    },
+    [startNextInQueue, writeUploads],
+  );
 
   const open = useCallback(() => {
     if (disabled) return;
     inputRef.current?.click();
   }, [disabled]);
+
+  // Abort everything on unmount
+  useEffect(() => {
+    return () => {
+      controllersRef.current.forEach((c) => c.abort());
+      controllersRef.current.clear();
+    };
+  }, []);
 
   const getRootProps = useCallback(
     (): HTMLAttributes<HTMLElement> => ({
@@ -270,8 +480,12 @@ export function useFileUpload(
     isDragOver,
     isDragReject,
     files,
+    uploads,
     removeFile,
     clearFiles,
     open,
+    retryUpload,
+    abortUpload,
+    abortAll,
   };
 }

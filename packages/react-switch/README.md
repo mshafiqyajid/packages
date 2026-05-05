@@ -39,6 +39,25 @@ function App() {
 }
 ```
 
+## Async toggle
+
+Return a `Promise` from `onChange` to drive the pending state automatically. The switch shows a spinner during the promise, blocks further clicks, and reverts the optimistic value on rejection.
+
+```tsx
+<SwitchStyled
+  label="Email notifications"
+  defaultChecked
+  onChange={async (next) => {
+    await fetch("/api/prefs/email", {
+      method: "POST",
+      body: JSON.stringify({ enabled: next }),
+    });
+  }}
+/>
+```
+
+The hook also exposes `isPending` for headless consumers.
+
 ## License
 
 MIT

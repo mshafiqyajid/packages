@@ -6,7 +6,7 @@ import CodeBlock from "~/components/CodeBlock.astro";
 import FileUploadDemo from "~/components/demos/FileUploadDemo";
 ---
 <DocLayout title="react-file-upload" description="File upload with drag-and-drop, revamped preview UI, custom renderers, size limits, and multiple file support." pkg="file-upload">
-  <PackagePageShell name="react-file-upload" version="0.1.0" description="Headless file upload hook and styled component. Revamped dropzone UI with customisable labels, drag-and-drop, image previews, custom preview renderer, validation callbacks, multi-file." size="~7 KB">
+  <PackagePageShell name="react-file-upload" version="0.2.0" description="Headless file upload hook and styled component. Revamped dropzone UI with customisable labels, drag-and-drop, image previews, custom preview renderer, validation callbacks, multi-file. Async uploader with progress, abort, retry — concurrency-aware queue." size="~9 KB">
     <div class="pkg-section"><H2>Playground</H2><FileUploadDemo client:load /></div>
     <div class="pkg-section"><H2>Install</H2><CodeBlock lang="bash" code="npm install @mshafiqyajid/react-file-upload" /></div>
     <div class="pkg-section"><H2>Quick start</H2>
@@ -21,6 +21,29 @@ import "@mshafiqyajid/react-file-upload/styles.css";
   onFiles={(result) => console.log(result.files, result.errors)}
 />`} />
     </div>
+    <div class="pkg-section"><H2>Async uploader</H2>
+      <p>Pass an <code>uploader</code> to upload accepted files automatically. Each file becomes an <code>UploadItem</code> with <code>status</code> (<code>queued</code> | <code>uploading</code> | <code>success</code> | <code>error</code> | <code>aborted</code>) and a <code>progress</code> you control by calling <code>ctx.onProgress(fraction)</code>. The hook runs uploads concurrently up to <code>concurrency</code> (default 3) and respects <code>ctx.signal</code> for abort.</p>
+      <CodeBlock lang="tsx" code={`<FileUploadStyled
+  multiple
+  uploader={async (file, { signal, onProgress }) => {
+    const xhr = new XMLHttpRequest();
+    xhr.upload.onprogress = (e) => e.lengthComputable && onProgress(e.loaded / e.total);
+    signal.addEventListener("abort", () => xhr.abort());
+
+    return await new Promise((resolve, reject) => {
+      xhr.onload = () => resolve(JSON.parse(xhr.responseText));
+      xhr.onerror = () => reject(new Error("upload failed"));
+      xhr.open("POST", "/api/upload");
+      const fd = new FormData();
+      fd.append("file", file);
+      xhr.send(fd);
+    });
+  }}
+  concurrency={3}
+  onUpload={(item) => console.log(item.status, item.progress)}
+/>`} />
+      <p>Headless consumers also get <code>uploads</code>, <code>retryUpload(id)</code>, <code>abortUpload(id)</code>, and <code>abortAll()</code>.</p>
+    </div>
     <div class="pkg-section"><H2>API</H2>
       <table class="props-table"><thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
         <tr><td>variant</td><td>"dropzone" | "button"</td><td>"dropzone"</td><td>Upload widget style</td></tr>
@@ -30,12 +53,15 @@ import "@mshafiqyajid/react-file-upload/styles.css";
         <tr><td>maxFiles</td><td>number</td><td>—</td><td>Max number of files</td></tr>
         <tr><td>showPreview</td><td>boolean</td><td>true</td><td>Show image previews</td></tr>
         <tr><td>size</td><td>"sm" | "md" | "lg"</td><td>"md"</td><td>Component size</td></tr>
-        <tr><td>onFiles</td><td>(result) =&gt; void</td><td>—</td><td>Called when files change. result.files, result.errors</td></tr>
+        <tr><td>onFiles</td><td>(result) =&gt; void</td><td>—</td><td>Called when files change. result.accepted, result.rejected</td></tr>
+        <tr><td>uploader</td><td>(file, ctx) =&gt; Promise&lt;T&gt;</td><td>—</td><td>Async upload function. ctx: {`{ signal, onProgress }`}.</td></tr>
+        <tr><td>autoUpload</td><td>boolean</td><td>true when uploader provided</td><td>Start uploading newly accepted files automatically</td></tr>
+        <tr><td>concurrency</td><td>number</td><td>3</td><td>Max simultaneous uploads</td></tr>
+        <tr><td>onUpload</td><td>(item) =&gt; void</td><td>—</td><td>Called whenever an upload item changes state</td></tr>
         <tr><td>disabled</td><td>boolean</td><td>false</td><td>Disable interaction</td></tr>
         <tr><td>uploadText</td><td>string</td><td>"Drop files here"</td><td>Main dropzone label</td></tr>
         <tr><td>browseText</td><td>string</td><td>"browse"</td><td>Browse link text</td></tr>
-        <tr><td>renderPreview</td><td>(file, onRemove) =&gt; ReactNode</td><td>—</td><td>Custom preview renderer</td></tr>
-        <tr><td>onError</td><td>(errors: string[]) =&gt; void</td><td>—</td><td>Validation error callback</td></tr>
+        <tr><td>renderPreview</td><td>(file, onRemove, upload?) =&gt; ReactNode</td><td>—</td><td>Custom preview renderer; receives the matching UploadItem when an uploader is provided</td></tr>
       </tbody></table>
     </div>
   </PackagePageShell>

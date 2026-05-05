@@ -236,3 +236,119 @@ describe("useFileUpload", () => {
     expect(result.current.isDragOver).toBe(false);
   });
 });
+
+describe("useFileUpload — async uploader", () => {
+  it("creates upload items and reports progress + success", async () => {
+    let resolve!: (value: { url: string }) => void;
+    let captured!: { signal: AbortSignal; onProgress: (n: number) => void };
+    const uploader = vi.fn(
+      (_file: File, ctx: { signal: AbortSignal; onProgress: (n: number) => void }) =>
+        new Promise<{ url: string }>((r) => {
+          captured = ctx;
+          resolve = r;
+        }),
+    );
+
+    const { result } = renderHook(() => useFileUpload({ uploader, multiple: true }));
+    const file = makeFile("a.txt", 10, "text/plain");
+
+    await act(async () => {
+      const input = { target: { files: [file], value: "" } } as unknown as React.ChangeEvent<HTMLInputElement>;
+      result.current.getInputProps().onChange(input);
+    });
+
+    expect(result.current.uploads).toHaveLength(1);
+    expect(["queued", "uploading"]).toContain(result.current.uploads[0]!.status);
+
+    await act(async () => {
+      captured.onProgress(0.5);
+      await Promise.resolve();
+    });
+    expect(result.current.uploads[0]!.progress).toBe(0.5);
+
+    await act(async () => {
+      resolve({ url: "/cdn/a.txt" });
+      await Promise.resolve();
+    });
+    expect(result.current.uploads[0]!.status).toBe("success");
+    expect((result.current.uploads[0]!.result as { url: string }).url).toBe("/cdn/a.txt");
+  });
+
+  it("transitions to error when uploader rejects", async () => {
+    let reject!: (e: Error) => void;
+    const uploader = vi.fn(
+      () =>
+        new Promise<{ url: string }>((_, r) => {
+          reject = r;
+        }),
+    );
+    const { result } = renderHook(() => useFileUpload({ uploader, multiple: true }));
+    const file = makeFile("b.txt", 5, "text/plain");
+    await act(async () => {
+      const input = { target: { files: [file], value: "" } } as unknown as React.ChangeEvent<HTMLInputElement>;
+      result.current.getInputProps().onChange(input);
+    });
+
+    await act(async () => {
+      reject(new Error("nope"));
+      await Promise.resolve();
+    });
+    const item = result.current.uploads[0]!;
+    expect(item.status).toBe("error");
+    expect(item.error?.message).toBe("nope");
+  });
+
+  it("retryUpload requeues an errored upload", async () => {
+    let attempts = 0;
+    const uploader = vi.fn(() => {
+      attempts++;
+      if (attempts === 1) return Promise.reject(new Error("first"));
+      return Promise.resolve({ url: "ok" });
+    });
+    const { result } = renderHook(() => useFileUpload({ uploader, multiple: true }));
+    const file = makeFile("c.txt", 5, "text/plain");
+    await act(async () => {
+      const input = { target: { files: [file], value: "" } } as unknown as React.ChangeEvent<HTMLInputElement>;
+      result.current.getInputProps().onChange(input);
+      await Promise.resolve();
+    });
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(result.current.uploads[0]!.status).toBe("error");
+
+    const id = result.current.uploads[0]!.id;
+    await act(async () => {
+      result.current.retryUpload(id);
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+    expect(result.current.uploads[0]!.status).toBe("success");
+    expect(uploader).toHaveBeenCalledTimes(2);
+  });
+
+  it("abortUpload marks an in-flight item aborted", async () => {
+    let captured!: { signal: AbortSignal };
+    const uploader = vi.fn(
+      (_file: File, ctx: { signal: AbortSignal }) =>
+        new Promise<void>((_, reject) => {
+          captured = ctx;
+          ctx.signal.addEventListener("abort", () => reject(new Error("aborted")));
+        }),
+    );
+    const { result } = renderHook(() => useFileUpload({ uploader, multiple: true }));
+    const file = makeFile("d.txt", 5, "text/plain");
+    await act(async () => {
+      const input = { target: { files: [file], value: "" } } as unknown as React.ChangeEvent<HTMLInputElement>;
+      result.current.getInputProps().onChange(input);
+    });
+    const id = result.current.uploads[0]!.id;
+    expect(captured.signal.aborted).toBe(false);
+
+    await act(async () => {
+      result.current.abortUpload(id);
+      await Promise.resolve();
+    });
+    expect(result.current.uploads[0]!.status).toBe("aborted");
+  });
+});

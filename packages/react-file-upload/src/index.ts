@@ -5,5 +5,8 @@ export type {
   FileUploadResult,
   FileInputProps,
   RejectedFile,
+  UploadItem,
+  UploadStatus,
+  UploadContext,
+  Uploader,
 } from "./useFileUpload";
-
