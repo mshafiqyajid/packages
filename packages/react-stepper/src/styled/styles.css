@@ -1,5 +1,6 @@
 /* react-stepper
  * Dark mode via [data-theme="dark"] ancestor only.
+ * All transitions respect prefers-reduced-motion.
  */
 :root {
   --rstep-fg: #18181b;
@@ -11,6 +12,12 @@
   --rstep-success: #16a34a;
   --rstep-error: #dc2626;
   --rstep-radius: 8px;
+  /* Motion tokens — reused across every interactive surface. */
+  --rstep-duration-fast: 120ms;
+  --rstep-duration: 220ms;
+  --rstep-duration-slow: 320ms;
+  --rstep-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --rstep-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 [data-theme="dark"] {
   --rstep-fg: #fafafa;
@@ -56,7 +63,8 @@
   flex: 0 0 auto;
 }
 
-/* Trigger button (whole row clickable) */
+/* Trigger button — top-aligned so the indicator sits next to the title,
+ * not centered against the (title + description) block. */
 .rstep-trigger {
   appearance: none;
   background: transparent;
@@ -65,17 +73,23 @@
   font: inherit;
   cursor: pointer;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.65rem;
-  padding: 0.25rem 0.5rem;
+  padding: 0 0.5rem;
   border-radius: 6px;
   text-align: left;
   flex: 1;
   min-width: 0;
-  transition: background 120ms ease, color 120ms ease;
+  transition:
+    background var(--rstep-duration-fast) var(--rstep-ease),
+    color var(--rstep-duration-fast) var(--rstep-ease),
+    transform var(--rstep-duration-fast) var(--rstep-ease);
 }
 .rstep-trigger:hover:not(:disabled) {
   background: rgba(99, 102, 241, 0.06);
+}
+.rstep-trigger:active:not(:disabled) {
+  transform: scale(0.99);
 }
 .rstep-trigger:focus-visible {
   outline: 2px solid var(--rstep-active);
@@ -100,7 +114,12 @@
   font-size: 0.78rem;
   font-weight: 600;
   flex-shrink: 0;
-  transition: background 160ms ease, border-color 160ms ease, color 160ms ease, transform 160ms ease;
+  transition:
+    background var(--rstep-duration) var(--rstep-ease),
+    border-color var(--rstep-duration) var(--rstep-ease),
+    color var(--rstep-duration) var(--rstep-ease),
+    transform var(--rstep-duration) var(--rstep-ease-spring),
+    box-shadow var(--rstep-duration) var(--rstep-ease);
 }
 .rstep-root[data-size="sm"] .rstep-indicator { width: 22px; height: 22px; font-size: 0.7rem; }
 .rstep-root[data-size="lg"] .rstep-indicator { width: 36px; height: 36px; font-size: 0.875rem; }
@@ -109,7 +128,8 @@
   background: var(--rstep-active);
   border-color: var(--rstep-active);
   color: white;
-  transform: scale(1.05);
+  transform: scale(1.08);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--rstep-active) 18%, transparent);
 }
 .rstep-item[data-completed] .rstep-indicator {
   background: var(--rstep-success);
@@ -130,6 +150,7 @@
   font-weight: 600;
   color: var(--rstep-fg);
   line-height: 1.3;
+  transition: color var(--rstep-duration-fast) var(--rstep-ease);
 }
 .rstep-item:not([data-active]):not([data-completed]) .rstep-label {
   color: var(--rstep-fg-muted);
@@ -139,9 +160,12 @@
   font-size: 0.78rem;
   color: var(--rstep-fg-subtle);
   line-height: 1.4;
+  transition: color var(--rstep-duration-fast) var(--rstep-ease);
 }
 
-/* Connector */
+/* Connector — vertically aligned with indicator center.
+ * Indicator sits at the top of the item, so the connector's margin-top
+ * = indicator radius. This is size-aware. */
 .rstep-connector {
   flex: 1;
   margin-top: 14px;
@@ -150,10 +174,26 @@
   height: 2px;
   background: var(--rstep-border);
   align-self: flex-start;
-  transition: background 200ms ease;
+  transition: background var(--rstep-duration-slow) var(--rstep-ease);
+  position: relative;
+  overflow: hidden;
 }
-.rstep-item[data-completed] .rstep-connector {
+.rstep-root[data-size="sm"] .rstep-connector { margin-top: 11px; }
+.rstep-root[data-size="lg"] .rstep-connector { margin-top: 18px; }
+
+/* Animated fill: when the step before this connector is completed,
+ * a coloured bar slides in from the left. */
+.rstep-connector::after {
+  content: "";
+  position: absolute;
+  inset: 0;
   background: var(--rstep-success);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform var(--rstep-duration-slow) var(--rstep-ease);
+}
+.rstep-item[data-completed] .rstep-connector::after {
+  transform: scaleX(1);
 }
 
 .rstep-root[data-orientation="vertical"] .rstep-connector {
@@ -166,12 +206,25 @@
 }
 .rstep-root[data-size="sm"][data-orientation="vertical"] .rstep-connector { margin-left: 10px; }
 .rstep-root[data-size="lg"][data-orientation="vertical"] .rstep-connector { margin-left: 17px; }
+.rstep-root[data-orientation="vertical"] .rstep-connector::after {
+  transform: scaleY(0);
+  transform-origin: top center;
+  transition: transform var(--rstep-duration-slow) var(--rstep-ease);
+}
+.rstep-root[data-orientation="vertical"] .rstep-item[data-completed] .rstep-connector::after {
+  transform: scaleY(1);
+}
 
-/* Content panel */
+/* Content panel — fades in on step change so the user sees a clear cue. */
 .rstep-content {
   margin-top: 1.25rem;
   padding: 1rem 0;
   min-height: 80px;
+  animation: rstep-content-in var(--rstep-duration) var(--rstep-ease) both;
+}
+@keyframes rstep-content-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 /* Error message */
@@ -183,6 +236,11 @@
   border: 1px solid rgba(220, 38, 38, 0.2);
   border-radius: 6px;
   font-size: 0.85rem;
+  animation: rstep-error-in var(--rstep-duration) var(--rstep-ease-spring) both;
+}
+@keyframes rstep-error-in {
+  from { opacity: 0; transform: translateY(-4px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 /* Footer */
@@ -202,8 +260,14 @@
   padding: 0.45rem 1rem;
   border-radius: 6px;
   cursor: pointer;
-  transition: background 120ms ease, border-color 120ms ease, color 120ms ease;
+  transition:
+    background var(--rstep-duration-fast) var(--rstep-ease),
+    border-color var(--rstep-duration-fast) var(--rstep-ease),
+    color var(--rstep-duration-fast) var(--rstep-ease),
+    transform var(--rstep-duration-fast) var(--rstep-ease),
+    box-shadow var(--rstep-duration-fast) var(--rstep-ease);
 }
+.rstep-btn:active:not(:disabled) { transform: scale(0.97); }
 .rstep-btn--ghost {
   background: transparent;
   border: 1px solid var(--rstep-border);
@@ -212,6 +276,9 @@
 .rstep-btn--ghost:hover:not(:disabled) {
   background: rgba(0, 0, 0, 0.04);
 }
+[data-theme="dark"] .rstep-btn--ghost:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.06);
+}
 .rstep-btn--primary {
   background: var(--rstep-active);
   border: 1px solid var(--rstep-active);
@@ -219,6 +286,7 @@
 }
 .rstep-btn--primary:hover:not(:disabled) {
   filter: brightness(1.05);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--rstep-active) 30%, transparent);
 }
 .rstep-btn:disabled {
   opacity: 0.5;
@@ -229,5 +297,12 @@
   .rstep-trigger,
   .rstep-indicator,
   .rstep-connector,
+  .rstep-connector::after,
+  .rstep-label,
+  .rstep-description,
   .rstep-btn { transition: none; }
+  .rstep-content,
+  .rstep-error { animation: none; }
+  .rstep-trigger:active:not(:disabled),
+  .rstep-btn:active:not(:disabled) { transform: none; }
 }

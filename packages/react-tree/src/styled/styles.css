@@ -1,5 +1,6 @@
 /* react-tree
  * Dark mode via [data-theme="dark"] ancestor only.
+ * All transitions respect prefers-reduced-motion.
  */
 :root {
   --rtree-fg: #18181b;
@@ -10,6 +11,12 @@
   --rtree-guide: #e5e7eb;
   --rtree-row-pad-y: 0.3rem;
   --rtree-indent: 18px;
+  /* Motion tokens — reused across every interactive surface. */
+  --rtree-duration-fast: 120ms;
+  --rtree-duration: 200ms;
+  --rtree-duration-slow: 280ms;
+  --rtree-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --rtree-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 [data-theme="dark"] {
   --rtree-fg: #fafafa;
@@ -40,6 +47,12 @@
   cursor: pointer;
   border-radius: 4px;
   user-select: none;
+  /* New rows fade in as parents expand. */
+  animation: rtree-row-in var(--rtree-duration) var(--rtree-ease) both;
+}
+@keyframes rtree-row-in {
+  from { opacity: 0; transform: translateY(-2px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 .rtree-item:focus-visible {
   outline: 2px solid var(--rtree-active);
@@ -51,15 +64,26 @@
   align-items: center;
   gap: 0.4rem;
   padding: var(--rtree-row-pad-y) 0.45rem var(--rtree-row-pad-y) calc(var(--rtree-depth, 0) * var(--rtree-indent) + 0.45rem);
-  transition: background 100ms ease;
+  transition:
+    background var(--rtree-duration-fast) var(--rtree-ease),
+    color var(--rtree-duration-fast) var(--rtree-ease),
+    transform var(--rtree-duration-fast) var(--rtree-ease);
   border-radius: 4px;
   position: relative;
+  will-change: background, transform;
 }
-.rtree-item:hover > .rtree-row { background: var(--rtree-hover-bg); }
+.rtree-item:hover > .rtree-row {
+  background: var(--rtree-hover-bg);
+  transform: translateX(1px);
+}
 .rtree-item[data-selected="true"] > .rtree-row {
   background: var(--rtree-selected-bg);
   color: var(--rtree-active);
   font-weight: 500;
+  transform: translateX(2px);
+}
+.rtree-row:active {
+  transform: translateX(2px) scale(0.995);
 }
 
 /* Indent guides */
@@ -72,6 +96,7 @@
   width: 1px;
   background: var(--rtree-guide);
   pointer-events: none;
+  transition: background var(--rtree-duration) var(--rtree-ease);
 }
 
 /* Toggle (chevron) */
@@ -88,9 +113,16 @@
   color: var(--rtree-fg-muted);
   cursor: pointer;
   border-radius: 3px;
-  transition: background 90ms ease, transform 160ms ease;
+  transition:
+    background var(--rtree-duration-fast) var(--rtree-ease),
+    color var(--rtree-duration-fast) var(--rtree-ease),
+    transform var(--rtree-duration-fast) var(--rtree-ease);
 }
-.rtree-toggle:hover { background: var(--rtree-hover-bg); }
+.rtree-toggle:hover {
+  background: var(--rtree-hover-bg);
+  color: var(--rtree-active);
+}
+.rtree-toggle:active { transform: scale(0.9); }
 .rtree-toggle--leaf { cursor: default; opacity: 0; }
 .rtree-toggle--open .rtree-chevron {
   transform: rotate(0deg);
@@ -98,7 +130,9 @@
 .rtree-toggle:not(.rtree-toggle--open):not(.rtree-toggle--leaf) .rtree-chevron {
   transform: rotate(-90deg);
 }
-.rtree-chevron { transition: transform 160ms ease; }
+.rtree-chevron {
+  transition: transform var(--rtree-duration) var(--rtree-ease-spring);
+}
 
 .rtree-spinner {
   animation: rtree-spin 1.1s linear infinite;
@@ -115,6 +149,13 @@
   height: 16px;
   flex-shrink: 0;
   color: var(--rtree-fg-muted);
+  transition:
+    color var(--rtree-duration-fast) var(--rtree-ease),
+    transform var(--rtree-duration) var(--rtree-ease-spring);
+}
+.rtree-item[data-selected="true"] > .rtree-row > .rtree-icon {
+  color: var(--rtree-active);
+  transform: scale(1.05);
 }
 
 .rtree-label {
@@ -123,6 +164,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  transition: color var(--rtree-duration-fast) var(--rtree-ease);
 }
 
 .rtree-item[aria-disabled] {
@@ -134,6 +176,12 @@
 @media (prefers-reduced-motion: reduce) {
   .rtree-row,
   .rtree-toggle,
-  .rtree-chevron { transition: none; }
+  .rtree-chevron,
+  .rtree-icon,
+  .rtree-label { transition: none; }
+  .rtree-item { animation: none; }
   .rtree-spinner { animation: none; }
+  .rtree-item:hover > .rtree-row,
+  .rtree-item[data-selected="true"] > .rtree-row,
+  .rtree-row:active { transform: none; }
 }

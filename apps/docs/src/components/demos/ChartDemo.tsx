@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { BarChart, LineChart, PieChart, AreaChart, ScatterChart, GaugeChart } from "@mshafiqyajid/react-chart/styled";
 import type { ColorScheme } from "@mshafiqyajid/react-chart";
+import { SwitchStyled } from "@mshafiqyajid/react-switch/styled";
 import "@mshafiqyajid/react-chart/styles.css";
+import "@mshafiqyajid/react-switch/styles.css";
 
 const AREA_DATA = [
   { label: "Jan", series: [{ name: "Sales", values: [120] }, { name: "Refunds", values: [12] }] },
@@ -94,16 +96,9 @@ export default function ChartDemo() {
     setVariant("default" in VARIANTS[t] ? "default" : (VARIANTS[t][0] as string));
   };
 
-  const checkboxStyle: React.CSSProperties = {
-    display: "flex",
-    alignItems: "center",
-    gap: "0.375rem",
-    fontSize: "0.875rem",
-  };
-
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem", width: "100%", maxWidth: 560 }}>
-      <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+      <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", alignItems: "center" }}>
         {(["bar", "line", "area", "pie", "scatter", "gauge"] as ChartKind[]).map((t) => (
           <button
             key={t}
@@ -122,31 +117,19 @@ export default function ChartDemo() {
             {t.charAt(0).toUpperCase() + t.slice(1)} Chart
           </button>
         ))}
-        <label style={{ ...checkboxStyle, marginLeft: "auto" }}>
-          <input type="checkbox" checked={animated} onChange={(e) => setAnimated(e.target.checked)} />
-          Animated
-        </label>
-        <label style={checkboxStyle}>
-          <input type="checkbox" checked={tooltip} onChange={(e) => setTooltip(e.target.checked)} />
-          Tooltip
-        </label>
+      </div>
+
+      <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", alignItems: "center" }}>
+        <SwitchStyled checked={animated} onChange={setAnimated} label="Animated" size="sm" tone="primary" />
+        <SwitchStyled checked={tooltip}  onChange={setTooltip}  label="Tooltip"  size="sm" tone="primary" />
         {type !== "pie" && (
-          <label style={checkboxStyle}>
-            <input type="checkbox" checked={showValues} onChange={(e) => setShowValues(e.target.checked)} />
-            Values
-          </label>
+          <SwitchStyled checked={showValues} onChange={setShowValues} label="Values" size="sm" tone="primary" />
         )}
         {type === "line" && (
-          <label style={checkboxStyle}>
-            <input type="checkbox" checked={area} onChange={(e) => setArea(e.target.checked)} />
-            Area
-          </label>
+          <SwitchStyled checked={area} onChange={setArea} label="Area" size="sm" tone="primary" />
         )}
         {type === "pie" && (
-          <label style={checkboxStyle}>
-            <input type="checkbox" checked={donut} onChange={(e) => setDonut(e.target.checked)} />
-            Donut
-          </label>
+          <SwitchStyled checked={donut} onChange={setDonut} label="Donut" size="sm" tone="primary" />
         )}
       </div>
 
@@ -195,23 +178,11 @@ export default function ChartDemo() {
 
       {/* Interactive flags row — only meaningful on AreaChart for now */}
       {type === "area" && (
-        <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem", fontSize: "0.85rem" }}>
-          <label style={checkboxStyle}>
-            <input type="checkbox" checked={tooltipPin} onChange={(e) => setTooltipPin(e.target.checked)} />
-            tooltipPin
-          </label>
-          <label style={checkboxStyle}>
-            <input type="checkbox" checked={hoverDim} onChange={(e) => setHoverDim(e.target.checked)} />
-            hoverDim
-          </label>
-          <label style={checkboxStyle}>
-            <input type="checkbox" checked={withDrillClick} onChange={(e) => setWithDrillClick(e.target.checked)} />
-            onPointClick
-          </label>
-          <label style={checkboxStyle}>
-            <input type="checkbox" checked={withBrush} onChange={(e) => setWithBrush(e.target.checked)} />
-            onRangeSelect (drag to brush)
-          </label>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem", alignItems: "center", fontSize: "0.85rem" }}>
+          <SwitchStyled checked={tooltipPin}     onChange={setTooltipPin}     label="tooltipPin" size="sm" tone="primary" />
+          <SwitchStyled checked={hoverDim}       onChange={setHoverDim}       label="hoverDim"   size="sm" tone="primary" />
+          <SwitchStyled checked={withDrillClick} onChange={setWithDrillClick} label="onPointClick" size="sm" tone="primary" />
+          <SwitchStyled checked={withBrush}      onChange={setWithBrush}      label="onRangeSelect (drag to brush)" size="sm" tone="primary" />
           {lastClick && (
             <span style={{ color: "var(--fg-muted, #71717a)", fontSize: "0.78rem" }}>
               clicked → {lastClick}

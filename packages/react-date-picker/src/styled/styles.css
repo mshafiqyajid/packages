@@ -41,6 +41,13 @@
 
   /* Today indicator */
   --rdp-today-color: #3b82f6;
+
+  /* Motion tokens — reused across every interactive surface. */
+  --rdp-duration-fast: 120ms;
+  --rdp-duration: 200ms;
+  --rdp-duration-slow: 260ms;
+  --rdp-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --rdp-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 /* Dark mode overrides */
@@ -87,9 +94,16 @@
   font-size: var(--rdp-font-size-md);
   line-height: 1;
   padding: 0 12px;
-  transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+  transition:
+    background var(--rdp-duration-fast) var(--rdp-ease),
+    border-color var(--rdp-duration-fast) var(--rdp-ease),
+    box-shadow var(--rdp-duration-fast) var(--rdp-ease),
+    transform var(--rdp-duration-fast) var(--rdp-ease);
   white-space: nowrap;
   min-width: 180px;
+}
+.rdp-trigger:active:not(:disabled) {
+  transform: scale(0.99);
 }
 
 .rdp-trigger[data-placeholder="true"] {
@@ -150,6 +164,12 @@
   padding: 12px;
   width: 280px;
   user-select: none;
+  animation: rdp-calendar-in var(--rdp-duration-slow) var(--rdp-ease) both;
+  transform-origin: top center;
+}
+@keyframes rdp-calendar-in {
+  from { opacity: 0; transform: translateY(-6px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 .rdp-calendar[data-size="sm"] {
@@ -184,12 +204,17 @@
   height: 28px;
   width: 28px;
   padding: 0;
-  transition: background 0.12s;
+  transition:
+    background var(--rdp-duration-fast) var(--rdp-ease),
+    color var(--rdp-duration-fast) var(--rdp-ease),
+    transform var(--rdp-duration-fast) var(--rdp-ease);
 }
 
 .rdp-nav-btn:hover {
   background: var(--rdp-nav-hover);
+  color: var(--rdp-today-color);
 }
+.rdp-nav-btn:active { transform: scale(0.92); }
 
 .rdp-nav-btn:focus-visible {
   outline: 2px solid var(--rdp-today-color);
@@ -246,12 +271,20 @@
   font-size: 0.875em;
   padding: 0;
   position: relative;
-  transition: background 0.1s, color 0.1s;
+  transition:
+    background var(--rdp-duration-fast) var(--rdp-ease),
+    color var(--rdp-duration-fast) var(--rdp-ease),
+    transform var(--rdp-duration-fast) var(--rdp-ease),
+    box-shadow var(--rdp-duration) var(--rdp-ease);
   width: 100%;
 }
 
 .rdp-day:hover:not([data-disabled="true"]):not([data-outside-month="true"]) {
   background: var(--rdp-day-hover);
+  transform: scale(1.05);
+}
+.rdp-day:active:not([data-disabled="true"]):not([data-outside-month="true"]) {
+  transform: scale(0.95);
 }
 
 .rdp-day:focus-visible {
@@ -305,6 +338,7 @@
   background: var(--rdp-primary-selected-bg);
   color: var(--rdp-primary-selected-text);
   font-weight: 600;
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--rdp-primary-selected-bg) 28%, transparent);
 }
 
 /* Range start/end caps */
@@ -381,7 +415,10 @@
   padding: 0 4px;
   cursor: pointer;
   font-weight: 600;
-  transition: border-color 120ms ease, background 120ms ease;
+  transition:
+    border-color var(--rdp-duration-fast) var(--rdp-ease),
+    background var(--rdp-duration-fast) var(--rdp-ease),
+    color var(--rdp-duration-fast) var(--rdp-ease);
 }
 
 .rdp-month-select:hover,
@@ -450,13 +487,19 @@
   padding: 0.2rem 0.6rem;
   border-radius: 999px;
   cursor: pointer;
-  transition: background 100ms ease, color 100ms ease, border-color 100ms ease;
+  transition:
+    background var(--rdp-duration-fast) var(--rdp-ease),
+    color var(--rdp-duration-fast) var(--rdp-ease),
+    border-color var(--rdp-duration-fast) var(--rdp-ease),
+    transform var(--rdp-duration-fast) var(--rdp-ease);
 }
 .rdp-quick-pick:hover {
   background: rgba(99, 102, 241, 0.06);
   border-color: var(--rdp-color-active, #6366f1);
   color: var(--rdp-color-active, #6366f1);
+  transform: translateY(-1px);
 }
+.rdp-quick-pick:active { transform: translateY(0) scale(0.97); }
 [data-theme="dark"] .rdp-quick-pick {
   border-color: var(--rdp-border, #3f3f46);
   color: var(--rdp-fg-muted, #a1a1aa);
@@ -492,7 +535,9 @@
   font-size: 0.85rem;
   font-variant-numeric: tabular-nums;
   outline: none;
-  transition: border-color 120ms ease, box-shadow 120ms ease;
+  transition:
+    border-color var(--rdp-duration-fast) var(--rdp-ease),
+    box-shadow var(--rdp-duration-fast) var(--rdp-ease);
 }
 .rdp-time-input:focus-visible {
   border-color: var(--rdp-color-active, #6366f1);
@@ -500,6 +545,18 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .rdp-trigger,
+  .rdp-nav-btn,
+  .rdp-day,
+  .rdp-month-select,
+  .rdp-year-select,
   .rdp-quick-pick,
   .rdp-time-input { transition: none; }
+  .rdp-calendar { animation: none; }
+  .rdp-trigger:active:not(:disabled),
+  .rdp-nav-btn:active,
+  .rdp-day:hover:not([data-disabled="true"]):not([data-outside-month="true"]),
+  .rdp-day:active:not([data-disabled="true"]):not([data-outside-month="true"]),
+  .rdp-quick-pick:hover,
+  .rdp-quick-pick:active { transform: none; }
 }

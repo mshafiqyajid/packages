@@ -1,5 +1,6 @@
 /* react-command-palette
  * Dark mode via [data-theme="dark"] ancestor only.
+ * All transitions respect prefers-reduced-motion.
  */
 :root {
   --rcmd-overlay-bg: rgba(0, 0, 0, 0.45);
@@ -12,6 +13,12 @@
   --rcmd-hover-bg: rgba(99, 102, 241, 0.08);
   --rcmd-radius: 10px;
   --rcmd-shadow: 0 24px 48px rgba(0, 0, 0, 0.18), 0 4px 12px rgba(0, 0, 0, 0.06);
+  /* Motion tokens — reused across every interactive surface. */
+  --rcmd-duration-fast: 120ms;
+  --rcmd-duration: 220ms;
+  --rcmd-duration-slow: 280ms;
+  --rcmd-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --rcmd-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 [data-theme="dark"] {
   --rcmd-overlay-bg: rgba(0, 0, 0, 0.6);
@@ -24,6 +31,7 @@
   --rcmd-shadow: 0 24px 48px rgba(0, 0, 0, 0.6), 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
+/* ── Overlay ─────────────────────────────────────────────────────── */
 .rcmd-overlay {
   position: fixed;
   inset: 0;
@@ -33,15 +41,25 @@
   align-items: flex-start;
   justify-content: center;
   padding: 14vh 1rem 0;
-  backdrop-filter: blur(2px);
-  -webkit-backdrop-filter: blur(2px);
-  animation: rcmd-fade-in 140ms ease both;
+  /* Animate the blur in alongside the fade for a softer reveal. */
+  animation: rcmd-overlay-in var(--rcmd-duration) var(--rcmd-ease) both;
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
 }
-@keyframes rcmd-fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+@keyframes rcmd-overlay-in {
+  from {
+    opacity: 0;
+    -webkit-backdrop-filter: blur(0px);
+    backdrop-filter: blur(0px);
+  }
+  to {
+    opacity: 1;
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+  }
 }
 
+/* ── Panel ───────────────────────────────────────────────────────── */
 .rcmd-panel {
   width: min(640px, 100%);
   max-height: 70vh;
@@ -53,13 +71,18 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  animation: rcmd-pop-in 180ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  /* Slightly slower spring with a touch of overshoot — feels deliberate. */
+  animation: rcmd-pop-in var(--rcmd-duration-slow) var(--rcmd-ease-spring) both;
+  transform-origin: top center;
+  /* Containment isolates layout work as the list re-flows on every keystroke. */
+  contain: layout paint;
 }
 @keyframes rcmd-pop-in {
-  from { opacity: 0; transform: translateY(-8px) scale(0.98); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+  from { opacity: 0; transform: translateY(-12px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0)    scale(1); }
 }
 
+/* ── Input ───────────────────────────────────────────────────────── */
 .rcmd-input-wrap {
   display: flex;
   align-items: center;
@@ -72,6 +95,10 @@
   height: 16px;
   color: var(--rcmd-fg-muted);
   flex-shrink: 0;
+  transition: color var(--rcmd-duration-fast) var(--rcmd-ease);
+}
+.rcmd-input-wrap:focus-within .rcmd-search-icon {
+  color: var(--rcmd-active-bg);
 }
 .rcmd-input {
   flex: 1;
@@ -82,9 +109,14 @@
   font: inherit;
   font-size: 0.95rem;
   padding: 0.25rem 0;
+  caret-color: var(--rcmd-active-bg);
 }
-.rcmd-input::placeholder { color: var(--rcmd-fg-muted); }
+.rcmd-input::placeholder {
+  color: var(--rcmd-fg-muted);
+  transition: color var(--rcmd-duration-fast) var(--rcmd-ease);
+}
 
+/* ── Kbd ─────────────────────────────────────────────────────────── */
 .rcmd-kbd {
   display: inline-flex;
   align-items: center;
@@ -99,18 +131,32 @@
   border-radius: 4px;
   line-height: 1.4;
   text-transform: lowercase;
+  transition: background var(--rcmd-duration-fast) var(--rcmd-ease),
+              border-color var(--rcmd-duration-fast) var(--rcmd-ease),
+              color var(--rcmd-duration-fast) var(--rcmd-ease);
 }
 [data-theme="dark"] .rcmd-kbd { background: rgba(255, 255, 255, 0.06); }
 
+/* ── List ────────────────────────────────────────────────────────── */
 .rcmd-list {
   list-style: none;
   margin: 0;
   padding: 0.4rem 0;
   overflow-y: auto;
   flex: 1;
+  scroll-behavior: smooth;
+  scrollbar-gutter: stable;
 }
 
-.rcmd-group { list-style: none; }
+.rcmd-group {
+  list-style: none;
+  /* Subtle group reveal as the list re-renders. */
+  animation: rcmd-group-in var(--rcmd-duration) var(--rcmd-ease) both;
+}
+@keyframes rcmd-group-in {
+  from { opacity: 0; transform: translateY(2px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 .rcmd-group + .rcmd-group { margin-top: 0.25rem; }
 .rcmd-group-label {
   font-size: 0.68rem;
@@ -122,6 +168,12 @@
 }
 .rcmd-group-list { list-style: none; margin: 0; padding: 0; }
 
+/* ── Items ───────────────────────────────────────────────────────── *
+ * Each transition runs on every interactive cue:
+ * - background + color for hover / active row change
+ * - transform for a small lift on active (so the row "rises" toward you)
+ * - the chevron-style hover glow on the icon
+ * --------------------------------------------------------------- */
 .rcmd-item {
   display: flex;
   align-items: center;
@@ -131,23 +183,49 @@
   font-size: 0.875rem;
   border-radius: 6px;
   margin: 0 0.4rem;
-  transition: background 90ms ease, color 90ms ease;
+  position: relative;
+  /* Smooth EVERY interaction state — not just hover. */
+  transition:
+    background var(--rcmd-duration-fast) var(--rcmd-ease),
+    color var(--rcmd-duration-fast) var(--rcmd-ease),
+    transform var(--rcmd-duration-fast) var(--rcmd-ease),
+    box-shadow var(--rcmd-duration-fast) var(--rcmd-ease);
+  will-change: background, color, transform;
 }
-.rcmd-item:hover,
-.rcmd-item[data-active] {
+
+.rcmd-item:hover:not([data-disabled]) {
+  background: var(--rcmd-hover-bg);
+}
+
+/* Active row (keyboard-driven) — primary accent + slight lift. */
+.rcmd-item[data-active="true"] {
   background: var(--rcmd-active-bg);
   color: var(--rcmd-active-fg);
+  transform: translateX(2px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
 }
-.rcmd-item[data-active] .rcmd-item-hint,
-.rcmd-item[data-active] .rcmd-kbd {
+[data-theme="dark"] .rcmd-item[data-active="true"] {
+  box-shadow: 0 4px 12px rgba(129, 140, 248, 0.3);
+}
+
+/* Click feedback — micro-press for tactile feel. */
+.rcmd-item:active:not([data-disabled]) {
+  transform: translateX(2px) scale(0.99);
+}
+
+/* Active-state child treatment for hint/kbd. */
+.rcmd-item[data-active="true"] .rcmd-item-hint,
+.rcmd-item[data-active="true"] .rcmd-kbd {
   color: var(--rcmd-active-fg);
-  background: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.2);
   border-color: rgba(255, 255, 255, 0.3);
 }
+
 .rcmd-item[data-disabled] {
   opacity: 0.45;
   cursor: not-allowed;
 }
+
 .rcmd-item-icon {
   display: inline-flex;
   align-items: center;
@@ -155,8 +233,19 @@
   width: 20px;
   height: 20px;
   flex-shrink: 0;
+  transition: transform var(--rcmd-duration) var(--rcmd-ease-spring);
 }
-.rcmd-item-label { flex: 1; min-width: 0; }
+.rcmd-item[data-active="true"] .rcmd-item-icon {
+  transform: scale(1.08);
+}
+
+.rcmd-item-label {
+  flex: 1;
+  min-width: 0;
+  /* Subtle slide as the active state shifts. */
+  transition: transform var(--rcmd-duration-fast) var(--rcmd-ease);
+}
+
 .rcmd-item-hint {
   color: var(--rcmd-fg-muted);
   font-size: 0.78rem;
@@ -164,11 +253,17 @@
 }
 .rcmd-item-shortcut { margin-left: auto; }
 
+/* ── Empty / footer ─────────────────────────────────────────────── */
 .rcmd-empty {
   padding: 1.25rem;
   text-align: center;
   color: var(--rcmd-fg-muted);
   font-size: 0.875rem;
+  animation: rcmd-empty-in var(--rcmd-duration) var(--rcmd-ease) both;
+}
+@keyframes rcmd-empty-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .rcmd-footer {
@@ -181,8 +276,26 @@
   color: var(--rcmd-fg-muted);
 }
 
+/* ── Reduced motion ─────────────────────────────────────────────── *
+ * Strip every animation/transition so users who prefer reduced motion
+ * see instantaneous state changes. NEVER skip this block — every
+ * package in the monorepo respects this preference.
+ * --------------------------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {
   .rcmd-overlay,
-  .rcmd-panel { animation: none; }
-  .rcmd-item { transition: none; }
+  .rcmd-panel,
+  .rcmd-group,
+  .rcmd-empty {
+    animation: none;
+  }
+  .rcmd-item,
+  .rcmd-item-icon,
+  .rcmd-item-label,
+  .rcmd-search-icon,
+  .rcmd-kbd,
+  .rcmd-list {
+    transition: none;
+  }
+  .rcmd-list { scroll-behavior: auto; }
+  .rcmd-item[data-active="true"] { transform: none; }
 }

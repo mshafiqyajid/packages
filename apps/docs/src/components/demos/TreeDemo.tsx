@@ -1,7 +1,11 @@
 import { useState } from "react";
 import { TreeStyled } from "@mshafiqyajid/react-tree/styled";
 import type { TreeNode } from "@mshafiqyajid/react-tree";
+import { SelectStyled } from "@mshafiqyajid/react-select/styled";
+import { SwitchStyled } from "@mshafiqyajid/react-switch/styled";
 import "@mshafiqyajid/react-tree/styles.css";
+import "@mshafiqyajid/react-select/styles.css";
+import "@mshafiqyajid/react-switch/styles.css";
 
 const ITEMS: TreeNode[] = [
   {
@@ -61,6 +65,12 @@ const decorate = (nodes: TreeNode[]): TreeNode[] =>
 
 const ITEMS_DECORATED = decorate(ITEMS);
 
+const SIZE_ITEMS = [
+  { value: "sm", label: "sm" },
+  { value: "md", label: "md" },
+  { value: "lg", label: "lg" },
+];
+
 export default function TreeDemo() {
   const [size, setSize] = useState<"sm" | "md" | "lg">("md");
   const [showGuides, setShowGuides] = useState(true);
@@ -70,22 +80,30 @@ export default function TreeDemo() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem", width: "100%", maxWidth: 480 }}>
-      <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", fontSize: "0.85rem", alignItems: "center" }}>
-        <label>size:&nbsp;
-          <select value={size} onChange={(e) => setSize(e.target.value as "sm" | "md" | "lg")}>
-            <option value="sm">sm</option>
-            <option value="md">md</option>
-            <option value="lg">lg</option>
-          </select>
+      <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", fontSize: "0.85rem", alignItems: "center" }}>
+        <label style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem" }}>
+          size:
+          <SelectStyled
+            items={SIZE_ITEMS}
+            value={size}
+            onChange={(v) => setSize(v as "sm" | "md" | "lg")}
+            size="sm"
+          />
         </label>
-        <label>
-          <input type="checkbox" checked={showGuides} onChange={(e) => setShowGuides(e.target.checked)} />
-          &nbsp;guides
-        </label>
-        <label>
-          <input type="checkbox" checked={multi} onChange={(e) => setMulti(e.target.checked)} />
-          &nbsp;multi-select
-        </label>
+        <SwitchStyled
+          checked={showGuides}
+          onChange={setShowGuides}
+          label="guides"
+          size="sm"
+          tone="primary"
+        />
+        <SwitchStyled
+          checked={multi}
+          onChange={setMulti}
+          label="multi-select"
+          size="sm"
+          tone="primary"
+        />
       </div>
 
       <TreeStyled
