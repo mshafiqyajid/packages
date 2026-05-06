@@ -72,6 +72,38 @@ import "@mshafiqyajid/react-table/styles.css";
 | `manualSorting` / `manualFiltering` / `manualPagination` | `boolean` | Server-driven mode |
 | `totalCount` | `number` | Drives `pageCount` under `manualPagination` |
 | `storageKey` / `storage` | `string` / `Storage` | Persist sort/filter/page |
+| `expandable` | `{ renderExpanded: (row) => ReactNode }` | Adds a chevron column; clicking toggles a detail panel beneath the row |
+| `defaultExpandedRowIds` / `expandedRowIds` / `onExpandedRowsChange` | `string[]` / `(ids) => void` | Uncontrolled / controlled expansion state |
+| `defaultColumnWidths` | `Record<string, number>` | Initial per-column widths in px |
+
+## Expandable rows
+
+```tsx
+<TableStyled
+  data={users}
+  columns={cols}
+  expandable={{
+    renderExpanded: (user) => (
+      <div>
+        <strong>{user.name}</strong>
+        <p>{user.bio}</p>
+      </div>
+    ),
+  }}
+  defaultExpandedRowIds={["3"]}
+/>
+```
+
+## Column resize
+
+Set `resizable: true` on a column to enable drag-to-resize on the right edge of its header. Optional `minWidth` / `maxWidth` clamp (default 60 / 800 px).
+
+```tsx
+const cols: ColumnDef<User>[] = [
+  { key: "name",  header: "Name",  resizable: true, minWidth: 120 },
+  { key: "email", header: "Email", resizable: true },
+];
+```
 
 ## License
 

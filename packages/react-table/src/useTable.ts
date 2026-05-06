@@ -24,6 +24,12 @@ export interface ColumnDef<T extends Record<string, unknown>> {
   filterFn?: (row: T, query: string) => boolean;
   aggregate?: Aggregator | ((rows: T[]) => unknown);
   footer?: ReactNode | ((rows: T[], aggregate: unknown) => ReactNode);
+  /** Drag the right edge of the header to resize this column. */
+  resizable?: boolean;
+  /** Minimum width in px when resizing. Default: 60. */
+  minWidth?: number;
+  /** Maximum width in px when resizing. Default: 800. */
+  maxWidth?: number;
 }
 
 export interface DefaultSort {
@@ -49,6 +55,13 @@ export interface UseTableOptions<T extends Record<string, unknown>> {
   totalCount?: number;
   storageKey?: string;
   storage?: Storage;
+  /** Initial expanded row ids (uncontrolled). */
+  defaultExpandedRowIds?: string[];
+  /** Controlled expanded row ids. */
+  expandedRowIds?: string[];
+  onExpandedRowsChange?: (ids: string[]) => void;
+  /** Initial per-column widths in px (uncontrolled). */
+  defaultColumnWidths?: Record<string, number>;
 }
 
 export interface UseTableResult<T extends Record<string, unknown>> {
@@ -70,6 +83,11 @@ export interface UseTableResult<T extends Record<string, unknown>> {
   setColumnFilter: (key: string, value: string) => void;
   getRowId: (row: T, index: number) => string;
   aggregates: Record<string, unknown>;
+  expandedRowIds: string[];
+  isRowExpanded: (id: string) => boolean;
+  toggleRowExpansion: (id: string) => void;
+  columnWidths: Record<string, number>;
+  setColumnWidth: (key: string, width: number) => void;
 }
 
 interface PersistedState {
@@ -163,6 +181,10 @@ export function useTable<T extends Record<string, unknown>>(
     totalCount,
     storageKey,
     storage,
+    defaultExpandedRowIds,
+    expandedRowIds: controlledExpanded,
+    onExpandedRowsChange,
+    defaultColumnWidths,
   } = options;
 
   const resolvedStorage =
@@ -357,6 +379,47 @@ export function useTable<T extends Record<string, unknown>>(
     });
   }, [pageRowIds, onSelect]);
 
+  // ---- Expansion state ---------------------------------------------------
+  const isExpansionControlled = controlledExpanded !== undefined;
+  const [internalExpanded, setInternalExpanded] = useState<string[]>(
+    defaultExpandedRowIds ?? [],
+  );
+  const expandedRowIds = isExpansionControlled
+    ? (controlledExpanded as string[])
+    : internalExpanded;
+
+  const setExpanded = useCallback(
+    (next: string[]) => {
+      if (!isExpansionControlled) setInternalExpanded(next);
+      onExpandedRowsChange?.(next);
+    },
+    [isExpansionControlled, onExpandedRowsChange],
+  );
+
+  const isRowExpanded = useCallback(
+    (id: string) => expandedRowIds.includes(id),
+    [expandedRowIds],
+  );
+
+  const toggleRowExpansion = useCallback(
+    (id: string) => {
+      if (expandedRowIds.includes(id)) {
+        setExpanded(expandedRowIds.filter((x) => x !== id));
+      } else {
+        setExpanded([...expandedRowIds, id]);
+      }
+    },
+    [expandedRowIds, setExpanded],
+  );
+
+  // ---- Column widths -----------------------------------------------------
+  const [columnWidths, setColumnWidths] = useState<Record<string, number>>(
+    defaultColumnWidths ?? {},
+  );
+  const setColumnWidth = useCallback((key: string, width: number) => {
+    setColumnWidths((prev) => ({ ...prev, [key]: width }));
+  }, []);
+
   return {
     rows,
     filteredRows: sorted,
@@ -376,5 +439,10 @@ export function useTable<T extends Record<string, unknown>>(
     setColumnFilter,
     getRowId,
     aggregates,
+    expandedRowIds,
+    isRowExpanded,
+    toggleRowExpansion,
+    columnWidths,
+    setColumnWidth,
   };
 }

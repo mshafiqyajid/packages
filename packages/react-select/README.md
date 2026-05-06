@@ -133,6 +133,26 @@ Dark mode uses `[data-theme="dark"]` on an ancestor element — not `@media (pre
 </div>
 ```
 
+## Async options (`loadOptions`)
+
+```tsx
+<SelectStyled
+  items={[]}                       // seeds + provides labels for selected values
+  value={value}
+  onChange={setValue}
+  loadOptions={async (query) => {
+    const res = await fetch(`/api/users?q=${encodeURIComponent(query)}`);
+    return res.json(); // SelectItem[]
+  }}
+  debounceMs={300}                 // default
+  loadingText="Searching…"
+  emptyText="No matches"
+  errorText="Couldn’t load — try again"
+/>
+```
+
+The hook debounces on `searchValue`, cancels stale requests via `AbortController`, and exposes `isLoading: boolean` + `loadError: Error | null`. Listbox lands `aria-busy="true"` while in flight.
+
 ## License
 
 MIT © Shafiq Yajid

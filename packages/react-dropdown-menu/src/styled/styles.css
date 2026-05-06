@@ -130,6 +130,26 @@
 }
 
 /* ============================================================================
+ * Submenu (nested items)
+ * ============================================================================ */
+.rdrop-item--has-submenu {
+  position: relative;
+  padding-right: 1.75rem;
+}
+.rdrop-item-chevron {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0.6;
+  pointer-events: none;
+}
+.rdrop-item--has-submenu[data-submenu-open="true"],
+.rdrop-item--has-submenu[data-active="true"] {
+  background: var(--rdrop-item-bg-hover);
+}
+
+/* ============================================================================
  * Dark mode
  * ============================================================================ */
 [data-theme="dark"] {

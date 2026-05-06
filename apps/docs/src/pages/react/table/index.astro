@@ -21,6 +21,31 @@ const columns: ColumnDef<User>[] = [
 ];
 <TableStyled data={users} columns={columns} sortable filterable paginate pageSize={10} hoverable />`} />
     </div>
+    <div class="pkg-section"><H2>Expandable rows</H2>
+      <CodeBlock lang="tsx" code={`<TableStyled
+  data={users}
+  columns={cols}
+  expandable={{
+    renderExpanded: (user) => (
+      <div>
+        <strong>{user.name}</strong>
+        <p>{user.bio}</p>
+      </div>
+    ),
+  }}
+  defaultExpandedRowIds={["3"]}
+/>`} />
+      <p>Adds a chevron column; clicking toggles a detail row beneath. Pair with <code>defaultExpandedRowIds</code> (uncontrolled) or <code>expandedRowIds</code> + <code>onExpandedRowsChange</code> (controlled).</p>
+    </div>
+
+    <div class="pkg-section"><H2>Column resize</H2>
+      <CodeBlock lang="tsx" code={`const cols: ColumnDef<User>[] = [
+  { key: "name",  header: "Name",  resizable: true, minWidth: 120 },
+  { key: "email", header: "Email", resizable: true },
+];`} />
+      <p>Drag the right edge of any header to resize. <code>minWidth</code> / <code>maxWidth</code> clamp the range (defaults 60 / 800 px). Pointer-event-driven, no external dep.</p>
+    </div>
+
     <div class="pkg-section"><H2>Headless</H2>
       <CodeBlock lang="tsx" code={`import { useTable } from "@mshafiqyajid/react-table";
 

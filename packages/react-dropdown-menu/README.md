@@ -65,6 +65,30 @@ function App() {
 }
 ```
 
+## Submenus
+
+```tsx
+<DropdownMenuStyled
+  trigger={<button>File</button>}
+  items={[
+    { label: "New", onClick: () => create() },
+    {
+      label: "Open recent",
+      items: [
+        { label: "report.pdf", onClick: () => open("report.pdf") },
+        { label: "notes.md",   onClick: () => open("notes.md") },
+        { divider: true },
+        { label: "Clear",      onClick: () => clearRecents() },
+      ],
+    },
+    { divider: true },
+    { label: "Quit", onClick: () => quit() },
+  ]}
+/>
+```
+
+Parent rows render a chevron and a hover/click-driven flyout. Keyboard: `→` opens the submenu, `←` returns to the parent, `Enter` / `Space` activates.
+
 ## Positioning
 
 | Prop | Type | Default | Description |

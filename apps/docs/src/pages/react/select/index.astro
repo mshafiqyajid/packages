@@ -59,6 +59,24 @@ const [value, setValue] = useState("");
     </div>
 
     <div class="pkg-section">
+      <H2>Async loadOptions</H2>
+      <CodeBlock lang="tsx" code={`<SelectStyled
+  items={[]}                       // seeds + provides labels for selected values
+  value={value}
+  onChange={setValue}
+  loadOptions={async (query) => {
+    const res = await fetch(\`/api/users?q=\${encodeURIComponent(query)}\`);
+    return res.json(); // SelectItem[]
+  }}
+  debounceMs={300}                 // default
+  loadingText="Searching…"
+  emptyText="No matches"
+  errorText="Couldn't load — try again"
+/>`} />
+      <p>Debounced on <code>searchValue</code>; stale requests cancelled via <code>AbortController</code>. Hook exposes <code>isLoading</code> + <code>loadError</code>; listbox lands <code>aria-busy="true"</code> while in flight.</p>
+    </div>
+
+    <div class="pkg-section">
       <H2>Headless</H2>
       <CodeBlock lang="tsx" code={`import { useSelect } from "@mshafiqyajid/react-select";
 

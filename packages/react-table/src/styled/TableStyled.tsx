@@ -1,6 +1,7 @@
-import {
+import React, {
   forwardRef,
   useId,
+  useRef,
   useState,
   type ReactNode,
   type ChangeEvent,
@@ -48,6 +49,13 @@ export interface TableStyledProps<T extends Record<string, unknown>>
     column: ColumnDef<T>,
   ) => Partial<TdHTMLAttributes<HTMLTableCellElement>> & Record<string, unknown>;
   highlightMatches?: boolean;
+  /**
+   * When set, prepends a chevron column. Click toggles a detail panel rendered
+   * below the row. Pair with `defaultExpandedRowIds` / controlled `expandedRowIds`.
+   */
+  expandable?: {
+    renderExpanded: (row: T) => ReactNode;
+  };
 }
 
 const SKELETON_ROWS = 5;
@@ -68,6 +76,70 @@ function highlight(text: string, query: string): ReactNode {
     ) : (
       <span key={i}>{part}</span>
     ),
+  );
+}
+
+function ExpandChevron({ open }: { open: boolean }) {
+  return (
+    <svg
+      className="rtbl-expand-chevron"
+      width="10"
+      height="10"
+      viewBox="0 0 10 10"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      data-open={open || undefined}
+    >
+      <path d="M2 3.5l3 3 3-3" />
+    </svg>
+  );
+}
+
+function ResizeHandle({
+  colKey,
+  current,
+  onCommit,
+  min,
+  max,
+  thRef,
+}: {
+  colKey: string;
+  current: number | undefined;
+  onCommit: (key: string, w: number) => void;
+  min: number;
+  max: number;
+  thRef: React.RefObject<HTMLTableCellElement>;
+}) {
+  return (
+    <span
+      className="rtbl-resize-handle"
+      role="separator"
+      aria-orientation="vertical"
+      aria-label={`Resize column ${colKey}`}
+      onPointerDown={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const startX = e.clientX;
+        const startW = current ?? thRef.current?.getBoundingClientRect().width ?? min;
+        const target = e.currentTarget;
+        target.setPointerCapture(e.pointerId);
+        const onMove = (mv: PointerEvent) => {
+          const next = Math.min(max, Math.max(min, startW + (mv.clientX - startX)));
+          onCommit(colKey, next);
+        };
+        const onUp = () => {
+          target.releasePointerCapture(e.pointerId);
+          window.removeEventListener("pointermove", onMove);
+          window.removeEventListener("pointerup", onUp);
+        };
+        window.addEventListener("pointermove", onMove);
+        window.addEventListener("pointerup", onUp);
+      }}
+    />
   );
 }
 
@@ -133,6 +205,11 @@ function TableStyledInner<T extends Record<string, unknown>>(
     getRowProps,
     getCellProps,
     highlightMatches = false,
+    expandable,
+    defaultExpandedRowIds,
+    expandedRowIds: controlledExpanded,
+    onExpandedRowsChange,
+    defaultColumnWidths,
   } = props;
 
   const filterId = useId();
@@ -170,6 +247,10 @@ function TableStyledInner<T extends Record<string, unknown>>(
     getRowId,
     aggregates,
     filteredRows,
+    isRowExpanded,
+    toggleRowExpansion,
+    columnWidths,
+    setColumnWidth,
   } = useTable<T>({
     data,
     columns,
@@ -188,11 +269,19 @@ function TableStyledInner<T extends Record<string, unknown>>(
     totalCount,
     storageKey,
     storage,
+    defaultExpandedRowIds,
+    expandedRowIds: controlledExpanded,
+    onExpandedRowsChange,
+    defaultColumnWidths,
   });
 
   const pageRowIds = rows.map((row, i) => getRowId(row, (page - 1) * pageSize + i));
 
-  const skeletonCols = selectable ? columns.length + 1 : columns.length;
+  const skeletonCols =
+    columns.length + (selectable ? 1 : 0) + (expandable ? 1 : 0);
+
+  // thRefs for the resize handle to read each header's measured width.
+  const thRefs = useRef<Record<string, HTMLTableCellElement | null>>({});
 
   const showFooterRow =
     showFooter && columns.some((c) => c.footer !== undefined || c.aggregate !== undefined);
@@ -271,6 +360,9 @@ function TableStyledInner<T extends Record<string, unknown>>(
           {caption && <caption className="rtbl-caption">{caption}</caption>}
           <thead className="rtbl-thead">
             <tr className="rtbl-tr">
+              {expandable && (
+                <th className="rtbl-th rtbl-th--expand" scope="col" aria-label="Expand row" />
+              )}
               {selectable && (
                 <th className="rtbl-th rtbl-th--check" scope="col">
                   <input
@@ -285,15 +377,21 @@ function TableStyledInner<T extends Record<string, unknown>>(
               {columns.map((col: ColumnDef<T>) => (
                 <th
                   key={col.key}
+                  ref={(el) => { thRefs.current[col.key] = el; }}
                   className={[
                     "rtbl-th",
                     col.sortable ? "rtbl-th--sortable" : "",
+                    col.resizable ? "rtbl-th--resizable" : "",
                   ]
                     .filter(Boolean)
                     .join(" ")}
                   scope="col"
                   style={{
-                    ...(col.width !== undefined ? { width: col.width } : {}),
+                    ...(columnWidths[col.key] !== undefined
+                      ? { width: columnWidths[col.key] }
+                      : col.width !== undefined
+                      ? { width: col.width }
+                      : {}),
                     ...(col.align ? { textAlign: col.align } : {}),
                   }}
                   data-sticky={col.sticky ?? undefined}
@@ -341,6 +439,16 @@ function TableStyledInner<T extends Record<string, unknown>>(
                       onClick={(e) => e.stopPropagation()}
                     />
                   )}
+                  {col.resizable && (
+                    <ResizeHandle
+                      colKey={col.key}
+                      current={columnWidths[col.key]}
+                      onCommit={setColumnWidth}
+                      min={col.minWidth ?? 60}
+                      max={col.maxWidth ?? 800}
+                      thRef={{ current: thRefs.current[col.key] ?? null }}
+                    />
+                  )}
                 </th>
               ))}
             </tr>
@@ -380,49 +488,79 @@ function TableStyledInner<T extends Record<string, unknown>>(
               rows.map((row, ri) => {
                 const rowId = pageRowIds[ri] ?? String(ri);
                 const isSelected = selectable && selectedRows.includes(rowId);
+                const isExpanded = expandable ? isRowExpanded(rowId) : false;
                 const customRowProps = getRowProps ? getRowProps(row, ri) : {};
                 return (
-                  <tr
-                    key={rowId}
-                    {...customRowProps}
-                    className={["rtbl-tr", customRowProps.className]
-                      .filter(Boolean)
-                      .join(" ")}
-                    data-selected={isSelected ? "true" : undefined}
-                    data-clickable={onRowClick ? "true" : undefined}
-                    onClick={onRowClick ? () => onRowClick(row) : customRowProps.onClick}
-                  >
-                    {selectable && (
-                      <td className="rtbl-td rtbl-td--check">
-                        <input
-                          type="checkbox"
-                          className="rtbl-checkbox"
-                          checked={isSelected}
-                          onChange={() => toggleRow(rowId)}
-                          aria-label={`Select row ${rowId}`}
-                        />
-                      </td>
-                    )}
-                    {columns.map((col: ColumnDef<T>) => {
-                      const customCellProps = getCellProps ? getCellProps(row, col) : {};
-                      return (
-                        <td
-                          key={col.key}
-                          {...customCellProps}
-                          className={["rtbl-td", customCellProps.className]
-                            .filter(Boolean)
-                            .join(" ")}
-                          style={{
-                            ...(col.align ? { textAlign: col.align } : {}),
-                            ...customCellProps.style,
-                          }}
-                          data-sticky={col.sticky ?? undefined}
-                        >
-                          {renderCell(col, row)}
+                  <React.Fragment key={rowId}>
+                    <tr
+                      {...customRowProps}
+                      className={["rtbl-tr", customRowProps.className]
+                        .filter(Boolean)
+                        .join(" ")}
+                      data-selected={isSelected ? "true" : undefined}
+                      data-expanded={isExpanded || undefined}
+                      data-clickable={onRowClick ? "true" : undefined}
+                      onClick={onRowClick ? () => onRowClick(row) : customRowProps.onClick}
+                    >
+                      {expandable && (
+                        <td className="rtbl-td rtbl-td--expand">
+                          <button
+                            type="button"
+                            className="rtbl-expand-btn"
+                            aria-expanded={isExpanded}
+                            aria-controls={`rtbl-expanded-${rowId}`}
+                            aria-label={isExpanded ? "Collapse row" : "Expand row"}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleRowExpansion(rowId);
+                            }}
+                          >
+                            <ExpandChevron open={isExpanded} />
+                          </button>
                         </td>
-                      );
-                    })}
-                  </tr>
+                      )}
+                      {selectable && (
+                        <td className="rtbl-td rtbl-td--check">
+                          <input
+                            type="checkbox"
+                            className="rtbl-checkbox"
+                            checked={isSelected}
+                            onChange={() => toggleRow(rowId)}
+                            aria-label={`Select row ${rowId}`}
+                          />
+                        </td>
+                      )}
+                      {columns.map((col: ColumnDef<T>) => {
+                        const customCellProps = getCellProps ? getCellProps(row, col) : {};
+                        return (
+                          <td
+                            key={col.key}
+                            {...customCellProps}
+                            className={["rtbl-td", customCellProps.className]
+                              .filter(Boolean)
+                              .join(" ")}
+                            style={{
+                              ...(col.align ? { textAlign: col.align } : {}),
+                              ...customCellProps.style,
+                            }}
+                            data-sticky={col.sticky ?? undefined}
+                          >
+                            {renderCell(col, row)}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                    {expandable && isExpanded && (
+                      <tr
+                        id={`rtbl-expanded-${rowId}`}
+                        className="rtbl-tr rtbl-tr--expanded"
+                      >
+                        <td className="rtbl-td rtbl-td--expanded-content" colSpan={skeletonCols}>
+                          {expandable.renderExpanded(row)}
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
                 );
               })
             )}

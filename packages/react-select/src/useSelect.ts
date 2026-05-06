@@ -20,6 +20,15 @@ export interface UseSelectOptions {
   onChange: (value: string | string[]) => void;
   multiple?: boolean;
   searchable?: boolean;
+  /**
+   * Async loader. When set, the listbox is populated by the promise's result
+   * (debounced on `searchValue`) instead of the in-memory `items` filter.
+   * `items` still seeds the initial render and provides labels for already-
+   * selected values.
+   */
+  loadOptions?: (query: string) => Promise<SelectItem[]>;
+  /** Debounce delay (ms) before `loadOptions` fires. Default: 300. */
+  debounceMs?: number;
 }
 
 export interface UseSelectResult {
@@ -57,6 +66,10 @@ export interface UseSelectResult {
   setSearchValue: (v: string) => void;
   filteredItems: SelectItem[];
   selectedItems: SelectItem[];
+  /** True while an async `loadOptions` request is in flight. */
+  isLoading: boolean;
+  /** The error from the most recent `loadOptions` rejection, if any. */
+  loadError: Error | null;
 }
 
 export function useSelect({
@@ -65,6 +78,8 @@ export function useSelect({
   onChange,
   multiple = false,
   searchable = false,
+  loadOptions,
+  debounceMs = 300,
 }: UseSelectOptions): UseSelectResult {
   const triggerId = useId();
   const listboxId = useId();
@@ -72,6 +87,11 @@ export function useSelect({
   const [isOpen, setIsOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [focusedIndex, setFocusedIndex] = useState(-1);
+  const [asyncItems, setAsyncItems] = useState<SelectItem[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadError, setLoadError] = useState<Error | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const triggerRef = useRef<HTMLButtonElement>(null);
   const listboxRef = useRef<HTMLUListElement>(null);
@@ -82,7 +102,9 @@ export function useSelect({
     selectedValues.includes(item.value),
   );
 
-  const filteredItems = searchable && searchValue
+  const filteredItems = loadOptions
+    ? asyncItems
+    : searchable && searchValue
     ? items.filter((item) =>
         item.label.toLowerCase().includes(searchValue.toLowerCase()),
       )
@@ -206,6 +228,45 @@ export function useSelect({
     setFocusedIndex(-1);
   }, [searchValue]);
 
+  // ---- Async loadOptions (debounced + cancellable) ------------------------
+  useEffect(() => {
+    if (!loadOptions || !isOpen) return;
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+
+    debounceRef.current = setTimeout(() => {
+      // Cancel previous in-flight request.
+      if (abortRef.current) abortRef.current.abort();
+      const controller = new AbortController();
+      abortRef.current = controller;
+
+      setIsLoading(true);
+      setLoadError(null);
+      Promise.resolve(loadOptions(searchValue))
+        .then((next) => {
+          if (controller.signal.aborted) return;
+          setAsyncItems(next);
+          setIsLoading(false);
+        })
+        .catch((err) => {
+          if (controller.signal.aborted) return;
+          setLoadError(err instanceof Error ? err : new Error(String(err)));
+          setIsLoading(false);
+        });
+    }, debounceMs);
+
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, [searchValue, isOpen, loadOptions, debounceMs]);
+
+  // Cancel in-flight request on unmount.
+  useEffect(() => {
+    return () => {
+      if (abortRef.current) abortRef.current.abort();
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, []);
+
   const focusedItemId =
     focusedIndex >= 0 && focusableItems[focusedIndex]
       ? `${listboxId}-item-${focusableItems[focusedIndex]!.value}`
@@ -256,5 +317,7 @@ export function useSelect({
     setSearchValue,
     filteredItems,
     selectedItems,
+    isLoading,
+    loadError,
   };
 }

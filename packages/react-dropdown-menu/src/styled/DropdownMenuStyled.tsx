@@ -28,6 +28,8 @@ export interface DropdownMenuItem {
   onClick?: () => void;
   disabled?: boolean;
   divider?: boolean;
+  /** Nested submenu items. When set, the row becomes a parent (chevron, hover-flyout, →/← keyboard nav). */
+  items?: DropdownMenuItem[];
 }
 
 export interface DropdownMenuStyledProps {
@@ -72,6 +74,25 @@ function buildPlacement(
   align: DropdownMenuAlign,
 ): DropdownMenuPlacement {
   return (align === "center" ? side : `${side}-${align}`) as DropdownMenuPlacement;
+}
+
+function SubmenuChevron() {
+  return (
+    <svg
+      className="rdrop-item-chevron"
+      width="10"
+      height="10"
+      viewBox="0 0 10 10"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M3.5 2L6.5 5L3.5 8" />
+    </svg>
+  );
 }
 
 interface ComputeOpts {
@@ -149,6 +170,150 @@ function computePosition({
   return { top: top + sy, left: left + sx, placement: buildPlacement(chosen, align) };
 }
 
+// ---------------------------------------------------------------------------
+// SubMenu — renders a hover/keyboard-driven flyout for nested items.
+// Anchored to the parent <li> rect; uses the same compute-position helper.
+// ---------------------------------------------------------------------------
+
+interface SubMenuProps {
+  parentRef: React.RefObject<HTMLLIElement>;
+  items: DropdownMenuItem[];
+  size: DropdownMenuSize;
+  collisionPadding: number;
+  flip: boolean;
+  shift: boolean;
+  strategy: DropdownMenuStrategy;
+  onCloseAll: () => void;
+  onCloseSelf: () => void;
+}
+
+function SubMenu({
+  parentRef,
+  items,
+  size,
+  collisionPadding,
+  flip,
+  shift,
+  strategy,
+  onCloseAll,
+  onCloseSelf,
+}: SubMenuProps) {
+  const subId = useId();
+  const subRef = useRef<HTMLUListElement>(null);
+  const [resolvedPlacement, setResolvedPlacement] =
+    useState<DropdownMenuPlacement>("right-start");
+  const [coords, setCoords] = useState<{ top: number; left: number }>({ top: -9999, left: -9999 });
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const visibleItems = items.filter((it) => !it.divider);
+
+  const reposition = useCallback(() => {
+    if (!parentRef.current || !subRef.current) return;
+    const pos = computePosition({
+      trigger: parentRef.current.getBoundingClientRect(),
+      floating: subRef.current.getBoundingClientRect(),
+      placement: "right-start",
+      offset: 0,
+      collisionPadding,
+      flip,
+      shift,
+      strategy,
+    });
+    setCoords({ top: pos.top, left: pos.left });
+    setResolvedPlacement(pos.placement);
+  }, [parentRef, collisionPadding, flip, shift, strategy]);
+
+  useEffect(() => {
+    requestAnimationFrame(() => reposition());
+  }, [reposition]);
+
+  useEffect(() => {
+    const onScroll = () => reposition();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, [reposition]);
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLUListElement>) => {
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        setActiveIndex((i) => (i + 1) % visibleItems.length);
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        setActiveIndex((i) => (i - 1 + visibleItems.length) % visibleItems.length);
+      } else if (e.key === "ArrowLeft" || e.key === "Escape") {
+        e.preventDefault();
+        onCloseSelf();
+      } else if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        const item = visibleItems[activeIndex];
+        if (item && !item.disabled) {
+          item.onClick?.();
+          onCloseAll();
+        }
+      } else if (e.key === "Tab") {
+        onCloseAll();
+      }
+    },
+    [visibleItems, activeIndex, onCloseAll, onCloseSelf],
+  );
+
+  // Auto-focus the submenu so keyboard nav works
+  useEffect(() => {
+    requestAnimationFrame(() => subRef.current?.focus());
+  }, []);
+
+  let visibleIndex = -1;
+  return createPortal(
+    <ul
+      ref={subRef}
+      id={subId}
+      role="menu"
+      className="rdrop-menu rdrop-submenu"
+      data-placement={resolvedPlacement}
+      data-size={size}
+      data-open="true"
+      tabIndex={-1}
+      style={{ position: strategy, top: coords.top, left: coords.left, zIndex: 10000 }}
+      onKeyDown={handleKeyDown}
+    >
+      {items.map((item, rawIndex) => {
+        if (item.divider) {
+          return <li key={rawIndex} role="separator" className="rdrop-divider" aria-hidden="true" />;
+        }
+        visibleIndex += 1;
+        const curIdx = visibleIndex;
+        const isActive = activeIndex === curIdx;
+        return (
+          <li
+            key={rawIndex}
+            role="menuitem"
+            tabIndex={isActive ? 0 : -1}
+            className="rdrop-item"
+            data-active={isActive ? "true" : undefined}
+            data-disabled={item.disabled ? "true" : undefined}
+            aria-disabled={item.disabled}
+            onMouseEnter={() => setActiveIndex(curIdx)}
+            onClick={() => {
+              if (item.disabled) return;
+              item.onClick?.();
+              onCloseAll();
+            }}
+          >
+            {item.icon && <span className="rdrop-item-icon" aria-hidden="true">{item.icon}</span>}
+            <span className="rdrop-item-label">{item.label}</span>
+          </li>
+        );
+      })}
+    </ul>,
+    document.body,
+  );
+}
+
 export const DropdownMenuStyled = forwardRef<HTMLElement, DropdownMenuStyledProps>(
   function DropdownMenuStyled(
     {
@@ -171,6 +336,8 @@ export const DropdownMenuStyled = forwardRef<HTMLElement, DropdownMenuStyledProp
     const [isOpen, setIsOpen] = useState(false);
     const [rendered, setRendered] = useState(false);
     const [activeIndex, setActiveIndex] = useState(-1);
+    const [openSubmenuIndex, setOpenSubmenuIndex] = useState<number | null>(null);
+    const itemRefs = useRef<Array<HTMLLIElement | null>>([]);
     const [coords, setCoords] = useState<{ top: number; left: number }>({ top: -9999, left: -9999 });
     const [mounted, setMounted] = useState(false);
 
@@ -193,6 +360,7 @@ export const DropdownMenuStyled = forwardRef<HTMLElement, DropdownMenuStyledProp
     const close = useCallback(() => {
       setIsOpen(false);
       setActiveIndex(-1);
+      setOpenSubmenuIndex(null);
       exitTimerRef.current = setTimeout(() => setRendered(false), 150);
       triggerRef.current?.focus();
     }, []);
@@ -247,16 +415,33 @@ export const DropdownMenuStyled = forwardRef<HTMLElement, DropdownMenuStyledProp
     }, [isOpen, visibleItems.length, open, close]);
 
     const handleMenuKeyDown = useCallback((e: React.KeyboardEvent<HTMLUListElement>) => {
+      // When a submenu is open, defer keyboard nav to it.
+      if (openSubmenuIndex !== null) return;
       if (e.key === "ArrowDown") { e.preventDefault(); setActiveIndex((i) => (i + 1) % visibleItems.length); }
       else if (e.key === "ArrowUp") { e.preventDefault(); setActiveIndex((i) => (i - 1 + visibleItems.length) % visibleItems.length); }
       else if (e.key === "Escape") { e.preventDefault(); close(); }
       else if (e.key === "Tab") close();
+      else if (e.key === "ArrowRight") {
+        // Open submenu on the active item if it has children.
+        const item = visibleItems[activeIndex];
+        if (item && item.items && item.items.length > 0 && !item.disabled) {
+          e.preventDefault();
+          setOpenSubmenuIndex(activeIndex);
+        }
+      }
       else if (e.key === "Enter" || e.key === " ") {
         e.preventDefault();
         const item = visibleItems[activeIndex];
-        if (item && !item.disabled) { item.onClick?.(); close(); }
+        if (!item || item.disabled) return;
+        // If the item has children, open the submenu instead of firing.
+        if (item.items && item.items.length > 0) {
+          setOpenSubmenuIndex(activeIndex);
+          return;
+        }
+        item.onClick?.();
+        close();
       }
-    }, [visibleItems, activeIndex, close]);
+    }, [visibleItems, activeIndex, openSubmenuIndex, close]);
 
     // Clone trigger to attach ref + aria + event handlers
     const triggerEl = isValidElement(trigger)
@@ -311,20 +496,54 @@ export const DropdownMenuStyled = forwardRef<HTMLElement, DropdownMenuStyledProp
               visibleIndex += 1;
               const curIdx = visibleIndex;
               const isActive = activeIndex === curIdx;
+              const hasChildren = !!item.items && item.items.length > 0;
+              const isSubOpen = openSubmenuIndex === curIdx;
               return (
                 <li
                   key={rawIndex}
+                  ref={(el) => { itemRefs.current[curIdx] = el; }}
                   role="menuitem"
                   tabIndex={isActive ? 0 : -1}
-                  className="rdrop-item"
+                  className={["rdrop-item", hasChildren ? "rdrop-item--has-submenu" : ""].filter(Boolean).join(" ")}
                   data-active={isActive ? "true" : undefined}
                   data-disabled={item.disabled ? "true" : undefined}
+                  data-submenu-open={isSubOpen ? "true" : undefined}
+                  aria-haspopup={hasChildren ? "menu" : undefined}
+                  aria-expanded={hasChildren ? isSubOpen : undefined}
                   aria-disabled={item.disabled}
-                  onMouseEnter={() => setActiveIndex(curIdx)}
-                  onClick={() => { if (item.disabled) return; item.onClick?.(); close(); }}
+                  onMouseEnter={() => {
+                    setActiveIndex(curIdx);
+                    if (hasChildren && !item.disabled) setOpenSubmenuIndex(curIdx);
+                    else setOpenSubmenuIndex(null);
+                  }}
+                  onClick={(e) => {
+                    if (item.disabled) return;
+                    if (hasChildren) {
+                      // Open the submenu instead of firing.
+                      e.stopPropagation();
+                      setOpenSubmenuIndex(curIdx);
+                      return;
+                    }
+                    item.onClick?.();
+                    close();
+                  }}
                 >
                   {item.icon && <span className="rdrop-item-icon" aria-hidden="true">{item.icon}</span>}
                   <span className="rdrop-item-label">{item.label}</span>
+                  {hasChildren && <SubmenuChevron />}
+                  {hasChildren && isSubOpen && (
+                    <SubMenu
+                      parentRef={{ current: itemRefs.current[curIdx] ?? null }}
+                      items={item.items!}
+                      size={size}
+                      collisionPadding={collisionPadding}
+                      flip={flip}
+                      shift={shift}
+                      strategy={strategy}
+                      onCloseAll={close}
+                      onCloseSelf={() => setOpenSubmenuIndex(null)}
+                    />
+                  )}
                 </li>
               );
             })}

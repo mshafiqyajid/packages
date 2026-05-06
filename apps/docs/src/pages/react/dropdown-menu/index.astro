@@ -23,6 +23,27 @@ import "@mshafiqyajid/react-dropdown-menu/styles.css";
   ]}
 />`} />
     </div>
+    <div class="pkg-section"><H2>Submenus</H2>
+      <CodeBlock lang="tsx" code={`<DropdownMenuStyled
+  trigger={<button>File</button>}
+  items={[
+    { label: "New", onClick: () => create() },
+    {
+      label: "Open recent",
+      items: [
+        { label: "report.pdf", onClick: () => open("report.pdf") },
+        { label: "notes.md",   onClick: () => open("notes.md") },
+        { divider: true },
+        { label: "Clear",      onClick: () => clearRecents() },
+      ],
+    },
+    { divider: true },
+    { label: "Quit", onClick: () => quit() },
+  ]}
+/>`} />
+      <p>Parent rows render a chevron and a hover/click flyout. Keyboard: <code>→</code> opens, <code>←</code> returns, <code>Enter</code>/<code>Space</code> activates. Submenus inherit positioning props from the parent menu.</p>
+    </div>
+
     <div class="pkg-section"><H2>Headless</H2>
       <CodeBlock lang="tsx" code={`import { useDropdownMenu } from "@mshafiqyajid/react-dropdown-menu";
 

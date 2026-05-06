@@ -25,6 +25,16 @@ export interface SelectStyledProps {
   placeholder?: string;
   multiple?: boolean;
   searchable?: boolean;
+  /** Async loader. When set, listbox is populated by this promise (debounced + cancellable). */
+  loadOptions?: (query: string) => Promise<SelectItem[]>;
+  /** Debounce (ms) before `loadOptions` fires. Default: 300. */
+  debounceMs?: number;
+  /** Text shown while async results are loading. Default: "Loading..." */
+  loadingText?: React.ReactNode;
+  /** Text shown when an async load fails. Default: "Failed to load." */
+  errorText?: React.ReactNode;
+  /** Text shown when there are no matching options. Default: "No results." */
+  emptyText?: React.ReactNode;
   size?: SelectSize;
   tone?: SelectTone;
   disabled?: boolean;
@@ -100,6 +110,11 @@ export const SelectStyled = forwardRef<HTMLDivElement, SelectStyledProps>(
       placeholder = "Select…",
       multiple = false,
       searchable = false,
+      loadOptions,
+      debounceMs = 300,
+      loadingText = "Loading…",
+      errorText = "Failed to load.",
+      emptyText = "No results.",
       size = "md",
       tone = "neutral",
       disabled = false,
@@ -131,7 +146,15 @@ export const SelectStyled = forwardRef<HTMLDivElement, SelectStyledProps>(
       setMounted(true);
     }, []);
 
-    const select = useSelect({ items, value, onChange, multiple, searchable });
+    const select = useSelect({
+      items,
+      value,
+      onChange,
+      multiple,
+      searchable: searchable || !!loadOptions,
+      loadOptions,
+      debounceMs,
+    });
 
     const updatePosition = useCallback(() => {
       if (!wrapperRef.current || !dropdownRef.current) return;
@@ -330,10 +353,19 @@ export const SelectStyled = forwardRef<HTMLDivElement, SelectStyledProps>(
               <ul
                 {...select.listboxProps}
                 className="rsel-listbox"
+                aria-busy={select.isLoading || undefined}
               >
-                {select.filteredItems.length === 0 ? (
+                {select.isLoading ? (
+                  <li className="rsel-empty rsel-loading" role="option" aria-disabled="true">
+                    {loadingText}
+                  </li>
+                ) : select.loadError ? (
+                  <li className="rsel-empty rsel-error" role="option" aria-disabled="true">
+                    {errorText}
+                  </li>
+                ) : select.filteredItems.length === 0 ? (
                   <li className="rsel-empty" role="option" aria-disabled="true">
-                    No options
+                    {emptyText}
                   </li>
                 ) : (
                   select.filteredItems.map((item) => {
