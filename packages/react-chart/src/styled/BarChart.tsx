@@ -27,6 +27,12 @@ export interface BarChartProps
   height?: number;
   direction?: "vertical" | "horizontal";
   stacked?: boolean;
+  /**
+   * Visual variant.
+   * - `"default"` / `"rounded"` — solid bars (default; honours `radius`).
+   * - `"lollipop"` — thin stem + circle marker at the value.
+   */
+  variant?: "default" | "rounded" | "lollipop";
   gap?: number;
   radius?: number;
   showValues?: boolean;
@@ -91,6 +97,7 @@ export const BarChart = forwardRef<HTMLDivElement, BarChartProps>(
       height: heightProp = 300,
       direction = "vertical",
       stacked = false,
+      variant = "default",
       gap = 4,
       radius = 3,
       showValues = false,
@@ -373,6 +380,45 @@ export const BarChart = forwardRef<HTMLDivElement, BarChartProps>(
             })}
 
           {bars.map((bar, i) => {
+            // Lollipop variant — thin stem + circle marker, no rectangle.
+            if (variant === "lollipop") {
+              const stemThickness = 2;
+              const dotR = Math.max(4, Math.min(bar.w, bar.h) / 4);
+              let stemX1 = 0, stemY1 = 0, stemX2 = 0, stemY2 = 0, dotX = 0, dotY = 0;
+              if (direction === "vertical") {
+                const cx = bar.x + bar.w / 2;
+                stemX1 = cx; stemY1 = bar.y + bar.h; // baseline
+                stemX2 = cx; stemY2 = bar.y;          // top of bar
+                dotX = cx; dotY = bar.y;
+              } else {
+                const cy = bar.y + bar.h / 2;
+                stemX1 = bar.x; stemY1 = cy;          // baseline (left)
+                stemX2 = bar.x + bar.w; stemY2 = cy;
+                dotX = bar.x + bar.w; dotY = cy;
+              }
+              return (
+                <g
+                  key={i}
+                  className={[
+                    "rchart-lollipop",
+                    animated ? "rchart-lollipop-animated" : "",
+                  ].filter(Boolean).join(" ")}
+                  style={{ ...(animated ? { animationDelay: `${i * 0.04}s` } : {}), cursor: onClick ? "pointer" : undefined }}
+                  onClick={onClick ? () => onClick(bar.dataPoint, i) : undefined}
+                >
+                  <line
+                    x1={stemX1}
+                    y1={stemY1}
+                    x2={stemX2}
+                    y2={stemY2}
+                    stroke={bar.color}
+                    strokeWidth={stemThickness}
+                    strokeLinecap="round"
+                  />
+                  <circle cx={dotX} cy={dotY} r={dotR} fill={bar.color} />
+                </g>
+              );
+            }
             const d = roundedRect(bar.x, bar.y, bar.w, bar.h, radius, direction);
             if (!d) return null;
             return (

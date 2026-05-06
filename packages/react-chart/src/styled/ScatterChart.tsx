@@ -40,6 +40,12 @@ export interface ScatterChartProps
   yDomain?: [number, number];
   /** Range for bubble radii in px when point.size is set. Default: [4, 24]. */
   bubbleRange?: [number, number];
+  /**
+   * Visual variant.
+   * - `"points"` — points only (default).
+   * - `"connected"` — additionally draws a line connecting points in array order.
+   */
+  variant?: "points" | "connected";
   showGrid?: boolean;
   showXAxis?: boolean;
   showYAxis?: boolean;
@@ -66,6 +72,7 @@ function ScatterChartImpl(
     xDomain,
     yDomain,
     bubbleRange = [4, 24],
+    variant = "points",
     showGrid = true,
     showXAxis = true,
     showYAxis = true,
@@ -255,8 +262,26 @@ function ScatterChartImpl(
 
         {series.map((s, idx) => {
           const seriesColor = s.color ?? resolveColor(undefined, idx, palette);
+          const connectedPath =
+            variant === "connected" && s.points.length > 1
+              ? "M " +
+                s.points
+                  .map((p) => `${xPos(p.x)} ${yPos(p.y)}`)
+                  .join(" L ")
+              : null;
           return (
             <g key={s.name} className="rchart-scatter-series" data-series={s.name}>
+              {connectedPath && (
+                <path
+                  d={connectedPath}
+                  fill="none"
+                  stroke={seriesColor}
+                  strokeOpacity={0.55}
+                  strokeWidth={1.5}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              )}
               {s.points.map((p, pi) => (
                 <circle
                   key={pi}

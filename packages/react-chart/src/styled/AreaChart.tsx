@@ -23,8 +23,23 @@ import {
   resolveColor,
   scaleLinear,
 } from "../chartUtils";
+import { useChartSyncCursor } from "./ChartSync";
 
 export type AreaChartTone = "neutral" | "primary";
+
+export interface AreaPointPayload {
+  seriesName: string;
+  label: string;
+  index: number;
+  value: number;
+}
+
+export interface AreaRangeSelection {
+  startLabel: string;
+  endLabel: string;
+  startIndex: number;
+  endIndex: number;
+}
 
 export interface AreaChartHandle {
   exportSVG(): string;
@@ -38,6 +53,8 @@ export interface AreaChartProps
   width?: number;
   height?: number;
   smooth?: boolean;
+  /** Visual variant. `"stepped"` renders the area as stair-stepped levels. */
+  variant?: "default" | "stepped";
   /** Solid fill colour or a gradient. Default: derives a soft alpha from the line stroke. */
   fill?: string | ChartGradient;
   /** Stack series areas. Default: false. */
@@ -72,6 +89,18 @@ export interface AreaChartProps
   /** Hidden series ids (legend interactivity). When provided, takes precedence. */
   hiddenSeries?: string[];
   onHiddenSeriesChange?: (next: string[]) => void;
+  /** Click any point/series to drill down. Fires for every series at the clicked x. */
+  onPointClick?: (payload: AreaPointPayload[]) => void;
+  /** Drag horizontally on the chart to select an x-range; fires once on release. */
+  onRangeSelect?: (range: AreaRangeSelection) => void;
+  /** Click chart to pin the tooltip in place. Default: true. */
+  tooltipPin?: boolean;
+  /** Hovering a series in the legend dims the rest of the chart. Default: true. */
+  hoverDim?: boolean;
+  /** Synchronise the crosshair across multiple AreaChart instances sharing a `<ChartSyncProvider>`. */
+  syncId?: string;
+  /** Enable arrow-key navigation of the crosshair when the chart has focus. Default: true. */
+  keyboardNav?: boolean;
   className?: string;
   loading?: boolean;
   emptyText?: ReactNode;
@@ -92,6 +121,7 @@ function AreaChartImpl(
     width = 600,
     height = 280,
     smooth = true,
+    variant = "default",
     fill,
     stacked = false,
     showLine = true,
@@ -112,12 +142,25 @@ function AreaChartImpl(
     formatLabel,
     hiddenSeries: hiddenSeriesProp,
     onHiddenSeriesChange,
+    onPointClick,
+    onRangeSelect,
+    tooltipPin = true,
+    hoverDim = true,
+    syncId,
+    keyboardNav = true,
     className,
     loading = false,
     emptyText = "No data",
     style,
     ...rest
   } = props;
+
+  // Sync cursor across charts via ChartSyncProvider
+  const { label: syncedLabel, setLabel: setSyncedLabel } = useChartSyncCursor(syncId);
+  const [pinned, setPinned] = useState(false);
+  const [rangeStart, setRangeStart] = useState<number | null>(null);
+  const [rangeEnd, setRangeEnd] = useState<number | null>(null);
+  const [hoveredSeries, setHoveredSeries] = useState<string | null>(null);
 
   const padding = 40;
   const isSeries = isSeriesData(data);
@@ -214,6 +257,15 @@ function AreaChartImpl(
   const buildLinePath = (pts: { x: number; y: number }[]): string => {
     if (pts.length === 0) return "";
     if (pts.length === 1) return `M ${pts[0]!.x} ${pts[0]!.y}`;
+    // Stepped variant — H/V move to create stair-step levels.
+    if (variant === "stepped") {
+      const seg: string[] = [`M ${pts[0]!.x} ${pts[0]!.y}`];
+      for (let i = 1; i < pts.length; i++) {
+        seg.push(`H ${pts[i]!.x}`);
+        seg.push(`V ${pts[i]!.y}`);
+      }
+      return seg.join(" ");
+    }
     if (!smooth) return `M ${pts.map((p) => `${p.x} ${p.y}`).join(" L ")}`;
     const d: string[] = [`M ${pts[0]!.x} ${pts[0]!.y}`];
     for (let i = 1; i < pts.length; i++) {
@@ -238,17 +290,31 @@ function AreaChartImpl(
   };
 
   // Crosshair / tooltip
-  const [hoverIndex, setHoverIndex] = useState<number | null>(null);
+  const [hoverIndex, setHoverIndexState] = useState<number | null>(null);
+  // When a sync cursor lands, prefer it; otherwise use the local hover index.
+  const syncedIndex = useMemo(() => {
+    if (syncedLabel == null) return null;
+    const idx = labels.indexOf(syncedLabel);
+    return idx >= 0 ? idx : null;
+  }, [syncedLabel, labels]);
+  const effectiveIndex = syncedIndex ?? hoverIndex;
+
+  const setHoverIndex = useCallback(
+    (i: number | null) => {
+      setHoverIndexState(i);
+      if (syncId) setSyncedLabel(i === null ? null : labels[i] ?? null);
+    },
+    [syncId, setSyncedLabel, labels],
+  );
+
   const svgRef = useRef<SVGSVGElement>(null);
-  const handlePointerMove = useCallback(
-    (e: React.PointerEvent<SVGSVGElement>) => {
-      if (!showTooltip || labels.length === 0) return;
+  const indexFromClientX = useCallback(
+    (clientX: number): number | null => {
       const svg = svgRef.current;
-      if (!svg) return;
+      if (!svg) return null;
       const rect = svg.getBoundingClientRect();
-      const xRatio = (e.clientX - rect.left) / rect.width; // 0..1 across viewBox width
+      const xRatio = (clientX - rect.left) / rect.width;
       const xPx = xRatio * width;
-      // Find the nearest x-index
       let nearest = 0;
       let bestDist = Infinity;
       for (let i = 0; i < labels.length; i++) {
@@ -256,11 +322,112 @@ function AreaChartImpl(
         const dist = Math.abs(px - xPx);
         if (dist < bestDist) { bestDist = dist; nearest = i; }
       }
-      setHoverIndex(nearest);
+      return nearest;
     },
-    [labels.length, showTooltip, width],
+    [labels.length, width, /* xPos via labels.length */],
   );
-  const handlePointerLeave = () => setHoverIndex(null);
+
+  const handlePointerMove = useCallback(
+    (e: React.PointerEvent<SVGSVGElement>) => {
+      if (labels.length === 0) return;
+      const idx = indexFromClientX(e.clientX);
+      if (idx === null) return;
+      // While dragging a brush selection, update the end index instead of the
+      // hover crosshair (the crosshair stays at the start).
+      if (rangeStart !== null) {
+        setRangeEnd(idx);
+        return;
+      }
+      if (!pinned && showTooltip) setHoverIndex(idx);
+    },
+    [labels.length, showTooltip, pinned, rangeStart, indexFromClientX, setHoverIndex],
+  );
+  const handlePointerLeave = useCallback(() => {
+    if (!pinned) setHoverIndex(null);
+  }, [pinned, setHoverIndex]);
+
+  // Drag-to-select brush range
+  const handlePointerDown = useCallback(
+    (e: React.PointerEvent<SVGSVGElement>) => {
+      if (!onRangeSelect || labels.length === 0) return;
+      const idx = indexFromClientX(e.clientX);
+      if (idx === null) return;
+      setRangeStart(idx);
+      setRangeEnd(idx);
+      // Capture so we keep getting move events even outside the chart bounds.
+      (e.currentTarget as SVGSVGElement).setPointerCapture(e.pointerId);
+    },
+    [onRangeSelect, labels.length, indexFromClientX],
+  );
+
+  const handlePointerUp = useCallback(
+    () => {
+      if (rangeStart === null || rangeEnd === null) return;
+      const a = Math.min(rangeStart, rangeEnd);
+      const b = Math.max(rangeStart, rangeEnd);
+      if (a !== b && onRangeSelect) {
+        onRangeSelect({
+          startIndex: a,
+          endIndex: b,
+          startLabel: labels[a] ?? "",
+          endLabel: labels[b] ?? "",
+        });
+      }
+      setRangeStart(null);
+      setRangeEnd(null);
+    },
+    [rangeStart, rangeEnd, labels, onRangeSelect],
+  );
+
+  // Click — toggle pin OR drill-down
+  const handleClick = useCallback(() => {
+    if (effectiveIndex === null || labels.length === 0) return;
+    // If a brush drag just released, don't treat as a click.
+    if (rangeStart !== null) return;
+
+    if (onPointClick) {
+      const payload: AreaPointPayload[] = visibleSeries.map((s) => ({
+        seriesName: s.name,
+        label: labels[effectiveIndex] ?? "",
+        index: effectiveIndex,
+        value: s.values[effectiveIndex] ?? 0,
+      }));
+      onPointClick(payload);
+    }
+    if (tooltipPin) setPinned((p) => !p);
+  }, [effectiveIndex, labels, onPointClick, tooltipPin, rangeStart, visibleSeries]);
+
+  // Keyboard navigation
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLDivElement>) => {
+      if (!keyboardNav || labels.length === 0) return;
+      if (e.key === "ArrowRight" || e.key === "ArrowLeft" || e.key === "Home" || e.key === "End") {
+        e.preventDefault();
+        const cur = effectiveIndex ?? 0;
+        let next = cur;
+        if (e.key === "ArrowRight") next = Math.min(labels.length - 1, cur + 1);
+        else if (e.key === "ArrowLeft") next = Math.max(0, cur - 1);
+        else if (e.key === "Home") next = 0;
+        else if (e.key === "End") next = labels.length - 1;
+        setHoverIndex(next);
+      } else if (e.key === "Escape") {
+        setHoverIndex(null);
+        setPinned(false);
+      } else if (e.key === "Enter" || e.key === " ") {
+        if (effectiveIndex !== null && onPointClick) {
+          e.preventDefault();
+          const payload: AreaPointPayload[] = visibleSeries.map((s) => ({
+            seriesName: s.name,
+            label: labels[effectiveIndex] ?? "",
+            index: effectiveIndex,
+            value: s.values[effectiveIndex] ?? 0,
+          }));
+          onPointClick(payload);
+        }
+      }
+    },
+    [keyboardNav, labels, effectiveIndex, onPointClick, setHoverIndex, visibleSeries],
+  );
 
   // Imperative export
   useImperativeHandle(
@@ -358,6 +525,10 @@ function AreaChartImpl(
       className={["rchart-area", className].filter(Boolean).join(" ")}
       style={wrapperStyle}
       data-tone={tone}
+      data-pinned={pinned || undefined}
+      data-hovered-series={hoveredSeries || undefined}
+      tabIndex={keyboardNav ? 0 : undefined}
+      onKeyDown={keyboardNav ? handleKeyDown : undefined}
       {...rest}
     >
       <svg
@@ -366,6 +537,9 @@ function AreaChartImpl(
         className="rchart-svg"
         onPointerMove={handlePointerMove}
         onPointerLeave={handlePointerLeave}
+        onPointerDown={onRangeSelect ? handlePointerDown : undefined}
+        onPointerUp={onRangeSelect ? handlePointerUp : undefined}
+        onClick={handleClick}
         role="img"
       >
         <defs>
@@ -453,8 +627,17 @@ function AreaChartImpl(
         {seriesPoints.map((sp, idx) => {
           const areaPath = buildAreaPath(sp.top, sp.baseline);
           const linePath = buildLinePath(sp.top);
+          const dimmed = hoverDim && hoveredSeries !== null && hoveredSeries !== sp.name;
           return (
-            <g key={sp.name} className="rchart-area-series" data-series={sp.name}>
+            <g
+              key={sp.name}
+              className="rchart-area-series"
+              data-series={sp.name}
+              style={{
+                opacity: dimmed ? 0.22 : 1,
+                transition: "opacity 140ms ease",
+              }}
+            >
               <path
                 className={[
                   "rchart-area-fill",
@@ -526,11 +709,11 @@ function AreaChartImpl(
         )}
 
         {/* Crosshair */}
-        {showTooltip && hoverIndex !== null && (
+        {showTooltip && effectiveIndex !== null && (
           <g className="rchart-crosshair">
             <line
-              x1={xPos(hoverIndex)}
-              x2={xPos(hoverIndex)}
+              x1={xPos(effectiveIndex)}
+              x2={xPos(effectiveIndex)}
               y1={padding}
               y2={height - padding}
               stroke="currentColor"
@@ -538,7 +721,7 @@ function AreaChartImpl(
               strokeWidth={1}
             />
             {seriesPoints.map((sp) => {
-              const p = sp.top[hoverIndex];
+              const p = sp.top[effectiveIndex];
               if (!p) return null;
               return (
                 <circle
@@ -554,19 +737,36 @@ function AreaChartImpl(
             })}
           </g>
         )}
+
+        {/* Brush selection rectangle */}
+        {rangeStart !== null && rangeEnd !== null && rangeStart !== rangeEnd && (
+          <rect
+            className="rchart-brush"
+            x={Math.min(xPos(rangeStart), xPos(rangeEnd))}
+            y={padding}
+            width={Math.abs(xPos(rangeEnd) - xPos(rangeStart))}
+            height={plotHeight}
+            fill="currentColor"
+            fillOpacity={0.08}
+            stroke="currentColor"
+            strokeOpacity={0.35}
+            strokeDasharray="3 3"
+          />
+        )}
       </svg>
 
       {/* Tooltip box */}
-      {showTooltip && hoverIndex !== null && (
+      {showTooltip && effectiveIndex !== null && (
         <div
           className="rchart-tooltip"
+          data-pinned={pinned || undefined}
           style={{
-            left: `${(xPos(hoverIndex) / width) * 100}%`,
+            left: `${(xPos(effectiveIndex) / width) * 100}%`,
           }}
         >
-          <div className="rchart-tooltip-label">{labels[hoverIndex]}</div>
+          <div className="rchart-tooltip-label">{labels[effectiveIndex]}</div>
           {seriesPoints.map((sp) => {
-            const p = sp.top[hoverIndex];
+            const p = sp.top[effectiveIndex];
             if (!p) return null;
             return (
               <div key={sp.name} className="rchart-tooltip-row">
@@ -578,6 +778,7 @@ function AreaChartImpl(
               </div>
             );
           })}
+          {pinned && <div className="rchart-tooltip-pin-hint">📌 click to unpin</div>}
         </div>
       )}
 
@@ -593,6 +794,8 @@ function AreaChartImpl(
                 className="rchart-legend-item"
                 data-hidden={isHidden || undefined}
                 onClick={() => toggleSeries(s.name)}
+                onMouseEnter={hoverDim ? () => setHoveredSeries(s.name) : undefined}
+                onMouseLeave={hoverDim ? () => setHoveredSeries(null) : undefined}
                 aria-pressed={!isHidden}
               >
                 <span className="rchart-legend-swatch" style={{ background: s.color }} />

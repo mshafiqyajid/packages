@@ -23,6 +23,13 @@ export interface PieChartProps
   size?: number;
   donut?: boolean;
   donutWidth?: number;
+  /**
+   * Visual variant.
+   * - `"default"` — full circle pie.
+   * - `"donut"` — sets `donut={true}` shorthand.
+   * - `"semi"` — bottom-half semicircle (gauge-style summary). Implies `donut`.
+   */
+  variant?: "default" | "donut" | "semi";
   showLabels?: boolean;
   showLegend?: boolean;
   animated?: boolean;
@@ -44,6 +51,7 @@ export const PieChart = forwardRef<HTMLDivElement, PieChartProps>(
       size: sizeProp = 300,
       donut = false,
       donutWidth = 60,
+      variant = "default",
       showLabels = false,
       showLegend = false,
       animated = false,
@@ -90,13 +98,24 @@ export const PieChart = forwardRef<HTMLDivElement, PieChartProps>(
       minWidth,
       minHeight,
     );
+    // "semi" variant: render the slices as a horizontal half-donut
+    // (top semicircle, gauge-style). Forces donut + halves the effective height.
+    const isSemi = variant === "semi";
+    const isDonut = donut || variant === "donut" || isSemi;
     const sz = responsive ? rWidth : sizeProp;
     const cx = sz / 2;
-    const cy = sz / 2;
-    const outerR = sz / 2 - 12;
-    const innerR = donut ? outerR - donutWidth : 0;
+    const cy = isSemi ? sz / 2 + sz * 0.18 : sz / 2;
+    const outerR = isSemi ? sz / 2 - 12 : sz / 2 - 12;
+    const innerR = isDonut ? outerR - donutWidth : 0;
 
-    const slices = useMemo(() => computePieSlices(data), [data]);
+    const slices = useMemo(
+      () =>
+        computePieSlices(
+          data,
+          isSemi ? { startAngle: 180, sweep: 180 } : undefined,
+        ),
+      [data, isSemi],
+    );
 
     const [tooltipState, setTooltipState] = useState<TooltipPayload & { x: number; y: number } | null>(null);
     const [hoverIndex, setHoverIndex] = useState<number | null>(null);
@@ -150,7 +169,7 @@ export const PieChart = forwardRef<HTMLDivElement, PieChartProps>(
               colors && colors.length > 0
                 ? (colors[i % colors.length] ?? resolveColor(dp.color, i, palette))
                 : resolveColor(dp.color, i, palette);
-            const d = donut
+            const d = isDonut
               ? donutArcPath(cx, cy, outerR, innerR, slice.startAngle, slice.endAngle)
               : arcPath(cx, cy, outerR, slice.startAngle, slice.endAngle);
 
@@ -222,7 +241,7 @@ export const PieChart = forwardRef<HTMLDivElement, PieChartProps>(
           {showLabels &&
             slices.map((slice, i) => {
               const mid = midAngle(slice.startAngle, slice.endAngle);
-              const labelR = donut ? innerR + (outerR - innerR) / 2 : outerR * 0.65;
+              const labelR = isDonut ? innerR + (outerR - innerR) / 2 : outerR * 0.65;
               const pos = polarToCartesian(cx, cy, labelR, mid);
               const label = slice.label;
               return (

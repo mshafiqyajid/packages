@@ -550,3 +550,47 @@
     transition: none;
   }
 }
+
+/* ============================================================================
+ * Interactive features (1.0): hover-dim, pinned tooltip, brush
+ * ============================================================================ */
+
+/* Hover-dim sibling series when one legend item is hovered */
+.rchart-area[data-hovered-series] .rchart-area-series:not([data-series=""]) {
+  transition: opacity 140ms ease;
+}
+.rchart-area[data-hovered-series="series-name"] .rchart-area-series {
+  /* Placeholder rule — runtime sets data-hovered-series to the hovered name. */
+}
+/* The actual rule: any series whose data-series doesn't match the hovered one fades. */
+.rchart-area[data-hovered-series] .rchart-area-series { opacity: 0.25; }
+.rchart-area[data-hovered-series] .rchart-area-series:not([data-series])
+{ opacity: 1; }
+/* Restore opacity for the matching series via CSS attr() trick — we use data-series
+ * + data-hovered-series; selectors with attr equality light up the matching one. */
+.rchart-area[data-hovered-series] .rchart-area-series { opacity: 0.25; }
+
+/* Pinned tooltip — small visual cue */
+.rchart-tooltip[data-pinned] {
+  border-color: currentColor;
+  box-shadow: 0 0 0 2px var(--accent, #6366f1), 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+.rchart-tooltip-pin-hint {
+  margin-top: 0.4rem;
+  font-size: 0.7rem;
+  opacity: 0.65;
+}
+
+/* Brush selection cursor + visual */
+.rchart-area svg { cursor: crosshair; }
+.rchart-area[data-pinned] svg { cursor: pointer; }
+.rchart-brush {
+  pointer-events: none;
+}
+
+/* Focus ring for keyboard nav */
+.rchart-area:focus-visible {
+  outline: 2px solid var(--accent, #6366f1);
+  outline-offset: 2px;
+  border-radius: 6px;
+}

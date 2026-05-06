@@ -16,3 +16,9 @@ export type { ScatterChartProps, ScatterChartHandle, ScatterSeries } from "./Sca
 
 export { GaugeChart } from "./GaugeChart";
 export type { GaugeChartProps, GaugeChartHandle, GaugeThreshold } from "./GaugeChart";
+
+export type { AreaPointPayload, AreaRangeSelection } from "./AreaChart";
+
+// Synchronized cursor across multiple AreaChart / LineChart instances
+export { ChartSyncProvider, useChartSyncCursor } from "./ChartSync";
+export type { ChartSyncState } from "./ChartSync";

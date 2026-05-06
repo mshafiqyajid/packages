@@ -90,6 +90,42 @@ const data = [
 />`} />
     </div>
 
+    <div class="pkg-section"><H2>Visual variants</H2>
+      <p>Each chart accepts a <code>variant</code> prop for design alternatives — not just colours, but different visualisation styles.</p>
+      <table class="props-table"><thead><tr><th>Chart</th><th>Variants</th><th>Notes</th></tr></thead><tbody>
+        <tr><td>BarChart</td><td><code>"default" | "rounded" | "lollipop"</code></td><td><code>"lollipop"</code> renders as thin stem + circle marker. <code>direction="horizontal"</code> still works.</td></tr>
+        <tr><td>LineChart</td><td><code>"default" | "sparkline" | "stepped" | "dashed"</code></td><td><code>"stepped"</code> draws stair-step segments; <code>"dashed"</code> applies <code>stroke-dasharray</code>.</td></tr>
+        <tr><td>AreaChart</td><td><code>"default" | "stepped"</code></td><td><code>"stepped"</code> renders the fill as level plateaus.</td></tr>
+        <tr><td>PieChart</td><td><code>"default" | "donut" | "semi"</code></td><td><code>"semi"</code> renders a horizontal half-donut (gauge-style); implies donut.</td></tr>
+        <tr><td>ScatterChart</td><td><code>"points" | "connected"</code></td><td><code>"connected"</code> draws a 1.5 px line through points in array order.</td></tr>
+        <tr><td>GaugeChart</td><td><code>"arc" | "ring" | "linear"</code></td><td><code>"ring"</code> forces sweep to 360°; <code>"linear"</code> renders a horizontal bar with markers.</td></tr>
+      </tbody></table>
+    </div>
+
+    <div class="pkg-section"><H2>Interactive features (AreaChart)</H2>
+      <p>The 1.0 release adds a stack of interactivity to <code>AreaChart</code> that goes well beyond what most chart libraries ship by default:</p>
+      <ul>
+        <li><strong>Click-to-drill</strong> — <code>onPointClick(payload)</code> fires with every visible series' value at the clicked x.</li>
+        <li><strong>Pinned tooltip</strong> — click any point to pin the tooltip; click again to unpin. <code>tooltipPin</code> default <code>true</code>.</li>
+        <li><strong>Brush range selection</strong> — drag horizontally to select; <code>onRangeSelect({`{ startLabel, endLabel, startIndex, endIndex }`})</code> fires once on release.</li>
+        <li><strong>Hover-dim siblings</strong> — hovering a legend item fades the rest to <code>0.22</code> opacity. Toggle with <code>hoverDim</code>.</li>
+        <li><strong>Synchronised cursor</strong> — wrap a group of charts in <code>&lt;ChartSyncProvider&gt;</code> and pass the same <code>syncId</code> to share crosshair x-index. Dashboard-friendly.</li>
+        <li><strong>Keyboard navigation</strong> — focus the chart and use <code>←</code>/<code>→</code>/<code>Home</code>/<code>End</code> to move the crosshair, <code>Enter</code>/<code>Space</code> to fire <code>onPointClick</code>, <code>Esc</code> to clear.</li>
+      </ul>
+      <CodeBlock lang="tsx" code={`import { ChartSyncProvider, AreaChart } from "@mshafiqyajid/react-chart/styled";
+
+<ChartSyncProvider>
+  <AreaChart
+    data={revenue}
+    syncId="dashboard-q1"
+    onPointClick={(rows) => openDrawer(rows)}
+    onRangeSelect={(range) => setRange(range)}
+  />
+  <AreaChart data={users} syncId="dashboard-q1" />
+  {/* Both charts now share the same crosshair x-index. */}
+</ChartSyncProvider>`} />
+    </div>
+
     <div class="pkg-section"><H2>Imperative export</H2>
       <CodeBlock lang="tsx" code={`import { useRef } from "react";
 import { AreaChart, type AreaChartHandle } from "@mshafiqyajid/react-chart/styled";

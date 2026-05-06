@@ -35,6 +35,13 @@ export interface GaugeChartProps
   thickness?: number;
   /** Sweep angle in degrees (180 = semicircle, 270 = three-quarter, 360 = full circle). Default: 220. */
   sweep?: number;
+  /**
+   * Visual variant.
+   * - `"arc"` — partial arc, sweep-controlled (default).
+   * - `"ring"` — full circle (sweep is forced to 360).
+   * - `"linear"` — horizontal bar with markers, ignores `sweep`.
+   */
+  variant?: "arc" | "ring" | "linear";
   /** Single fill color (overridden by `thresholds`). */
   color?: string;
   /** Threshold-based colouring. The first entry whose `from` ≤ value wins. */
@@ -64,7 +71,8 @@ function GaugeChartImpl(
     max = 100,
     size = 240,
     thickness = 18,
-    sweep = 220,
+    sweep: sweepProp = 220,
+    variant = "arc",
     color: colorProp,
     thresholds,
     showTicks = true,
@@ -78,6 +86,7 @@ function GaugeChartImpl(
     ...rest
   } = props;
 
+  const sweep = variant === "ring" ? 360 : sweepProp;
   const cx = size / 2;
   const cy = size / 2;
   const r = size / 2 - thickness / 2 - 4; // small safety inset
@@ -150,6 +159,80 @@ function GaugeChartImpl(
   );
 
   const wrapperStyle: CSSProperties = { ...style };
+
+  // Linear variant — horizontal bar with markers; ignore sweep / arc math.
+  if (variant === "linear") {
+    const linW = size;
+    const linH = thickness * 1.6;
+    const fillRatio = (clamped - min) / (max - min);
+    return (
+      <div
+        className={["rchart-gauge", "rchart-gauge--linear", className].filter(Boolean).join(" ")}
+        style={wrapperStyle}
+        role="meter"
+        aria-valuenow={clamped}
+        aria-valuemin={min}
+        aria-valuemax={max}
+        {...rest}
+      >
+        <svg
+          ref={svgRef}
+          viewBox={`0 0 ${linW} ${linH + 24}`}
+          className="rchart-svg"
+        >
+          <rect
+            x={0}
+            y={0}
+            width={linW}
+            height={linH}
+            rx={linH / 2}
+            ry={linH / 2}
+            fill={trackColor ?? "var(--rchart-track, #e5e7eb)"}
+          />
+          <rect
+            x={0}
+            y={0}
+            width={linW * fillRatio}
+            height={linH}
+            rx={linH / 2}
+            ry={linH / 2}
+            fill={fillColor}
+          />
+          {showTicks &&
+            Array.from({ length: tickCount }).map((_, i) => (
+              <line
+                key={i}
+                x1={(i / (tickCount - 1)) * linW}
+                x2={(i / (tickCount - 1)) * linW}
+                y1={0}
+                y2={linH}
+                stroke="white"
+                strokeOpacity={0.4}
+                strokeWidth={1}
+              />
+            ))}
+          {showValue && (
+            <text
+              x={linW / 2}
+              y={linH + 18}
+              textAnchor="middle"
+              fontSize={size * 0.07}
+              fontWeight={600}
+              fill="currentColor"
+            >
+              {formatValue ? formatValue(clamped) : Math.round(clamped)}
+              {(activeThreshold?.label || label) && (
+                <tspan opacity={0.6} fontWeight={400}>
+                  {" — "}
+                  {activeThreshold?.label ?? label}
+                </tspan>
+              )}
+            </text>
+          )}
+        </svg>
+      </div>
+    );
+  }
 
   return (
     <div

@@ -22,7 +22,7 @@ import {
 } from "./chartShared";
 
 export type LineChartTone = "neutral" | "primary";
-export type LineChartVariant = "default" | "sparkline";
+export type LineChartVariant = "default" | "sparkline" | "stepped" | "dashed";
 
 export interface LineChartProps
   extends Omit<React.HTMLAttributes<HTMLDivElement>, "onClick">,
@@ -71,6 +71,7 @@ function buildSeriesLines(
   maxVal: number,
   palette: string[],
   colors?: string[],
+  variant: LineChartVariant = "default",
 ): Array<{ path: string; color: string; name: string; points: Array<{ x: number; y: number }> }> {
   const plotW = width - padding * 2;
   const plotH = height - padding * 2;
@@ -99,9 +100,33 @@ function buildSeriesLines(
       palette[si % palette.length] ??
       DEFAULT_PALETTE[si % DEFAULT_PALETTE.length] ??
       "#6366f1";
-    const pathStr = smooth ? pointsToSmoothPath(points) : pointsToLinePath(points);
+    const pathStr = buildVariantPath(points, variant, smooth);
     return { path: pathStr, color: resolvedColor, name, points };
   });
+}
+
+function pointsToSteppedPath(points: Array<{ x: number; y: number }>): string {
+  if (points.length === 0) return "";
+  if (points.length === 1) return `M ${points[0]!.x} ${points[0]!.y}`;
+  const seg: string[] = [`M ${points[0]!.x} ${points[0]!.y}`];
+  for (let i = 1; i < points.length; i++) {
+    const prev = points[i - 1]!;
+    const curr = points[i]!;
+    // Step-after: hold y at the previous level until the new x, then jump.
+    seg.push(`H ${curr.x}`);
+    void prev;
+    seg.push(`V ${curr.y}`);
+  }
+  return seg.join(" ");
+}
+
+function buildVariantPath(
+  points: Array<{ x: number; y: number }>,
+  variant: LineChartVariant,
+  smooth: boolean,
+): string {
+  if (variant === "stepped") return pointsToSteppedPath(points);
+  return smooth ? pointsToSmoothPath(points) : pointsToLinePath(points);
 }
 
 function pointsToLinePath(points: Array<{ x: number; y: number }>): string {
@@ -206,7 +231,7 @@ export const LineChart = forwardRef<HTMLDivElement, LineChartProps>(
             );
 
         return {
-          lines: buildSeriesLines(sd, width, height, padding, smooth, resolved.min, resolved.max, palette, colors),
+          lines: buildSeriesLines(sd, width, height, padding, smooth, resolved.min, resolved.max, palette, colors, variant),
           gridValues: computedTicks,
           gridTicks: computedTicks.length - 1,
           labels: sd.map((d) => d.label),
@@ -225,7 +250,7 @@ export const LineChart = forwardRef<HTMLDivElement, LineChartProps>(
         x: padding + (fd.length === 1 ? plotW / 2 : (i / (fd.length - 1)) * plotW),
         y: padding + scaleLinear(d.value, resolved.min, resolved.max, plotH, 0),
       }));
-      const pathStr = smooth ? pointsToSmoothPath(pts) : pointsToLinePath(pts);
+      const pathStr = buildVariantPath(pts, variant, smooth);
       const resolvedColor =
         colors && colors.length > 0
           ? (colors[0] ?? (tone === "primary" ? "var(--rchart-primary)" : "var(--rchart-neutral)"))
@@ -254,7 +279,7 @@ export const LineChart = forwardRef<HTMLDivElement, LineChartProps>(
         dataMin: resolved.min,
         dataMax: resolved.max,
       };
-    }, [data, width, height, smooth, tone, isSeries, colors, domain, yTicks, palette, padding]);
+    }, [data, width, height, smooth, tone, isSeries, colors, domain, yTicks, palette, padding, variant]);
 
     const plotH = height - padding * 2;
     const plotW = width - padding * 2;
@@ -360,6 +385,7 @@ export const LineChart = forwardRef<HTMLDivElement, LineChartProps>(
                 className="rchart-line"
                 d={line.path}
                 stroke={line.color}
+                strokeDasharray={variant === "dashed" ? "6 5" : undefined}
                 pathLength={animated ? 1 : undefined}
                 style={animated ? { animationDelay: `${li * 0.1}s` } : undefined}
               />

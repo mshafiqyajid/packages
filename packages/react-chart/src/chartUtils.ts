@@ -203,12 +203,14 @@ export function donutArcPath(
 
 export function computePieSlices(
   data: DataPoint[],
+  options: { startAngle?: number; sweep?: number } = {},
 ): Array<{ startAngle: number; endAngle: number; label: string; value: number; color?: string }> {
+  const { startAngle = -90, sweep = 360 } = options;
   const total = data.reduce((s, d) => s + d.value, 0);
   if (total === 0) return [];
-  let cursor = -90;
+  let cursor = startAngle;
   return data.map((d) => {
-    const span = (d.value / total) * 360;
+    const span = (d.value / total) * sweep;
     const start = cursor;
     cursor += span;
     return {
