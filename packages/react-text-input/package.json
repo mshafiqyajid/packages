@@ -1,6 +1,6 @@
 {
   "name": "@mshafiqyajid/react-text-input",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Headless text input hook and styled component for React. Supports text/email/password/url with size, tone, prefix/suffix slots, and a clear button.",
   "keywords": [
     "react",

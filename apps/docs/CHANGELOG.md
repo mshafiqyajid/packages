@@ -1,5 +1,19 @@
 # @mshafiqyajid/docs
 
+## 0.0.16
+
+### Patch Changes
+
+- Updated dependencies [aa09804]
+- Updated dependencies [0802cf5]
+  - @mshafiqyajid/react-command-palette@0.2.1
+  - @mshafiqyajid/react-stepper@0.2.1
+  - @mshafiqyajid/react-tree@0.2.1
+  - @mshafiqyajid/react-date-picker@0.3.1
+  - @mshafiqyajid/react-button@0.2.0
+  - @mshafiqyajid/react-checkbox@0.2.0
+  - @mshafiqyajid/react-text-input@0.2.0
+
 ## 0.0.15
 
 ### Patch Changes
