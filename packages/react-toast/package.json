@@ -1,6 +1,6 @@
 {
   "name": "@mshafiqyajid/react-toast",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Headless toast hook and styled provider for React. Context-free pub/sub store, typed, animated, SSR-safe, dark mode, fully accessible.",
   "keywords": [
     "react",
