@@ -125,4 +125,11 @@ const lastUpdated = formatLastUpdated(lastUpdatedIso);
     margin: 1.5rem 0 0.5rem;
     color: var(--fg);
   }
+
+  /* ---- Mobile spacing ---- */
+  @media (max-width: 640px) {
+    .pkg-header { padding-bottom: 1.5rem; }
+    .pkg-header__desc { font-size: 0.875rem; }
+    :global(.pkg-section) { margin-top: 2rem; }
+  }
 </style>

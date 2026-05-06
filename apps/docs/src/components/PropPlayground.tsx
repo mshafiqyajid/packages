@@ -306,7 +306,7 @@ export default function PropPlayground({
           grid-template-columns: 1fr 1fr;
           min-height: 240px;
         }
-        @media (max-width: 720px) {
+        @media (max-width: 860px) {
           .pp__top { grid-template-columns: 1fr; }
         }
         .pp__preview {
@@ -319,8 +319,14 @@ export default function PropPlayground({
           overflow-x: auto;
           min-width: 0;
         }
-        @media (max-width: 720px) {
+        @media (max-width: 860px) {
           .pp__preview { border-right: none; border-bottom: 1px solid var(--border); }
+        }
+        @media (max-width: 480px) {
+          .pp__preview { padding: 1.25rem 0.85rem; }
+          .pp__controls-body { padding: 0.65rem 0.85rem; gap: 0.7rem; }
+          .pp__code-header { padding: 0.4rem 0.85rem; }
+          .pp-code { padding: 0.85rem 1rem; font-size: 0.74rem; }
         }
         .pp__controls {
           display: flex;
@@ -391,6 +397,8 @@ export default function PropPlayground({
           background: var(--bg-subtle);
           border: 1px solid var(--border);
           border-radius: 7px;
+          max-width: 100%;
+          overflow: hidden;
         }
         .pp-segmented button {
           font: inherit;

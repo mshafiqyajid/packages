@@ -419,6 +419,12 @@ const packages = [
     position: relative;
     overflow: hidden;
   }
+  @media (max-width: 640px) {
+    .hero { padding: 3.5rem 1rem 3rem; }
+  }
+  @media (max-width: 380px) {
+    .hero { padding: 2.5rem 0.85rem 2.5rem; }
+  }
   .hero::before {
     content: "";
     position: absolute;
@@ -548,12 +554,15 @@ const packages = [
 
   /* ── Packages grid ──────────────────────────────────────────── */
   .packages { padding: 3rem 1.5rem; }
+  @media (max-width: 640px) { .packages { padding: 2rem 1rem; } }
+  @media (max-width: 380px) { .packages { padding: 1.5rem 0.75rem; } }
   .packages__inner { max-width: 1100px; margin: 0 auto; }
   .packages__header {
     display: flex;
     align-items: baseline;
     gap: 0.75rem;
     margin-bottom: 1.5rem;
+    flex-wrap: wrap;
   }
   .packages__heading { font-size: 1.25rem; color: var(--fg); }
   .packages__count {
@@ -569,6 +578,13 @@ const packages = [
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 0.875rem;
+  }
+  /* Drop the minmax floor on small screens so cards don't overflow when
+   * the viewport is narrower than 280px (we still get a full-width card). */
+  @media (max-width: 380px) {
+    .packages__grid {
+      grid-template-columns: 1fr;
+    }
   }
   .pkg-card {
     position: relative;
@@ -657,6 +673,7 @@ const packages = [
     border-top: 1px solid var(--border);
     padding: 1.25rem 1.5rem;
     background: var(--bg-subtle);
+    padding-bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
   }
   .footer__inner {
     max-width: 1100px;
@@ -666,7 +683,16 @@ const packages = [
     align-items: center;
     font-size: 0.8rem;
     color: var(--fg-subtle);
+    gap: 0.75rem;
+    flex-wrap: wrap;
   }
   .footer a { color: var(--fg-subtle); transition: color 140ms ease; }
   .footer a:hover { color: var(--fg); text-decoration: none; }
+
+  /* ── Features strip on narrow screens ───────────────────────── */
+  @media (max-width: 640px) {
+    .features__inner { padding: 0.75rem 0.85rem; gap: 0.5rem; }
+    .features__sep { display: none; }
+    .features__item { padding: 0.25rem 0.5rem; font-size: 0.74rem; }
+  }
 </style>
