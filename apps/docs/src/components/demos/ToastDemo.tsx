@@ -10,12 +10,20 @@ function ToastTrigger({
   duration,
   title,
   showAction,
+  actionVariant,
+  withUndo,
+  pauseOnHover,
+  draggable,
 }: {
   type: string;
   position: string;
   duration: number;
   title: string;
   showAction: boolean;
+  actionVariant: string;
+  withUndo: boolean;
+  pauseOnHover: boolean;
+  draggable: boolean;
 }) {
   const { toast } = useToast();
   const messages: Record<string, string> = {
@@ -29,10 +37,10 @@ function ToastTrigger({
   const message = messages[type] ?? messages["neutral"]!;
 
   const fireSimple = () => {
-    const opts = {
-      ...(title.trim() ? { title } : {}),
-      ...(showAction ? { action: { label: "Undo", onClick: () => {} } } : {}),
-    };
+    const opts: Record<string, unknown> = {};
+    if (title.trim()) opts.title = title;
+    if (showAction) opts.action = { label: "Open", onClick: () => {}, variant: actionVariant };
+    if (withUndo) opts.undo = () => {};
     (toast as unknown as Record<string, (m: string, o?: object) => string>)[
       type === "neutral" ? "info" : type
     ]?.(message, opts);
@@ -62,7 +70,12 @@ function ToastTrigger({
 
   return (
     <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", alignItems: "center" }}>
-      <ToastProvider position={position as "bottom-right"} duration={duration} />
+      <ToastProvider
+        position={position as "bottom-right"}
+        duration={duration}
+        pauseOnHover={pauseOnHover}
+        draggable={draggable}
+      />
       <button onClick={fireSimple} style={btnStyle}>
         Show toast
       </button>
@@ -85,8 +98,12 @@ export default function ToastDemo() {
         { name: "type",       control: { type: "segmented", options: ["neutral","success","error","warning","info","loading"] as const },                              defaultValue: "success",      omitWhen: "success" },
         { name: "position",   control: { type: "select",    options: ["top-left","top-center","top-right","bottom-left","bottom-center","bottom-right"] as const },   defaultValue: "bottom-right", omitWhen: "bottom-right" },
         { name: "duration",   control: { type: "slider", min: 1000, max: 8000, step: 500 },                                                                          defaultValue: 4000,           omitWhen: 4000 },
-        { name: "title",      control: { type: "text", placeholder: "Optional title…" },                                                                              defaultValue: "",             omitWhen: "" },
-        { name: "showAction", control: { type: "toggle" },                                                                                                            defaultValue: false,          omitWhen: false },
+        { name: "title",         control: { type: "text", placeholder: "Optional title…" },                                                              defaultValue: "",             omitWhen: "" },
+        { name: "showAction",    control: { type: "toggle" },                                                                                              defaultValue: false,          omitWhen: false },
+        { name: "actionVariant", control: { type: "segmented", options: ["primary","outline","ghost"] as const },                                          defaultValue: "primary",      omitWhen: "primary" },
+        { name: "withUndo",      label: "undo + countdown",       control: { type: "toggle" },                                                              defaultValue: false,          omitWhen: false },
+        { name: "pauseOnHover",  control: { type: "toggle" },                                                                                               defaultValue: true,           omitWhen: true },
+        { name: "draggable",     label: "draggable region",       control: { type: "toggle" },                                                              defaultValue: false,          omitWhen: false },
       ]}
       render={(v) => (
         <ToastTrigger
@@ -95,6 +112,10 @@ export default function ToastDemo() {
           duration={v.duration as number}
           title={v.title as string}
           showAction={v.showAction as boolean}
+          actionVariant={v.actionVariant as string}
+          withUndo={v.withUndo as boolean}
+          pauseOnHover={v.pauseOnHover as boolean}
+          draggable={v.draggable as boolean}
         />
       )}
     />

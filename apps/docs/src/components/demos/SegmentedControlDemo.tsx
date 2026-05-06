@@ -3,6 +3,19 @@ import PropPlayground from "../PropPlayground";
 import { SegmentedControlStyled } from "@mshafiqyajid/react-segmented-control/styled";
 import "@mshafiqyajid/react-segmented-control/styles.css";
 
+const SIMPLE_OPTIONS = ["Day", "Week", "Month", "Year"];
+
+const BADGED_OPTIONS = [
+  { value: "All",      label: "All" },
+  { value: "Active",   label: "Active",   badge: 3 },
+  { value: "Pending",  label: "Pending",  badge: 12 },
+  { value: "Archived", label: "Archived" },
+];
+
+const MANY_OPTIONS = [
+  "Quarter", "Year", "All time", "Last 7 days", "Last 30 days", "Last 90 days", "Custom",
+];
+
 export default function SegmentedControlDemo() {
   const [value, setValue] = useState("Week");
 
@@ -11,26 +24,45 @@ export default function SegmentedControlDemo() {
       componentName="SegmentedControlStyled"
       importLine={`import { SegmentedControlStyled } from "@mshafiqyajid/react-segmented-control/styled";\nimport "@mshafiqyajid/react-segmented-control/styles.css";`}
       props={[
-        { name: "variant",   control: { type: "segmented", options: ["solid","pill","underline"] as const },            defaultValue: "solid",  omitWhen: "solid" },
-        { name: "size",      control: { type: "segmented", options: ["sm","md","lg"] as const },                        defaultValue: "md",     omitWhen: "md" },
-        { name: "tone",      control: { type: "segmented", options: ["neutral","primary","success","danger"] as const },defaultValue: "primary",omitWhen: "primary" },
-        { name: "fullWidth", control: { type: "toggle" },                                                               defaultValue: false,    omitWhen: false },
-        { name: "disabled",  control: { type: "toggle" },                                                               defaultValue: false,    omitWhen: false },
+        { name: "variant",     control: { type: "segmented", options: ["solid","pill","underline"] as const },            defaultValue: "solid",  omitWhen: "solid" },
+        { name: "size",        control: { type: "segmented", options: ["sm","md","lg"] as const },                        defaultValue: "md",     omitWhen: "md" },
+        { name: "tone",        control: { type: "segmented", options: ["neutral","primary","success","danger"] as const },defaultValue: "primary",omitWhen: "primary" },
+        { name: "fullWidth",   control: { type: "toggle" },                                                               defaultValue: false,    omitWhen: false },
+        { name: "withBadges",  label: "badge per segment",  control: { type: "toggle" },                                  defaultValue: false,    omitWhen: false },
+        { name: "scrollable",  label: "scrollable overflow", control: { type: "toggle" },                                  defaultValue: false,    omitWhen: false },
+        { name: "equalize",    label: "equalize widths",    control: { type: "toggle" },                                  defaultValue: false,    omitWhen: false },
+        { name: "disabled",    control: { type: "toggle" },                                                               defaultValue: false,    omitWhen: false },
       ]}
-      staticProps={{ options: '["Day","Week","Month","Year"]', value: "{value}", onChange: "{setValue}" }}
-      render={(v) => (
-        <SegmentedControlStyled
-          options={["Day", "Week", "Month", "Year"]}
-          value={value}
-          onChange={setValue}
-          variant={v.variant as "solid"|"pill"|"underline"}
-          size={v.size as "sm"|"md"|"lg"}
-          tone={v.tone as "neutral"|"primary"|"success"|"danger"}
-          fullWidth={v.fullWidth as boolean}
-          disabled={v.disabled as boolean}
-          label="Time range"
-        />
-      )}
+      staticProps={{ options: '[…]', value: "{value}", onChange: "{setValue}" }}
+      render={(v) => {
+        const isScrollable = v.scrollable as boolean;
+        const useBadges = v.withBadges as boolean;
+        const options: typeof BADGED_OPTIONS | string[] =
+          isScrollable ? MANY_OPTIONS : useBadges ? BADGED_OPTIONS : SIMPLE_OPTIONS;
+        const initialValue =
+          isScrollable ? "Year" : useBadges ? "Active" : "Week";
+        const ctlValue = isScrollable || useBadges ? initialValue : value;
+        const onChange = isScrollable || useBadges ? () => {} : setValue;
+
+        return (
+          <div style={{ width: "100%", maxWidth: 380 }}>
+            <SegmentedControlStyled
+              key={`${v.scrollable}-${v.withBadges}-${v.equalize}`}
+              options={options as string[]}
+              value={ctlValue}
+              onChange={onChange}
+              variant={v.variant as "solid"|"pill"|"underline"}
+              size={v.size as "sm"|"md"|"lg"}
+              tone={v.tone as "neutral"|"primary"|"success"|"danger"}
+              fullWidth={v.fullWidth as boolean}
+              disabled={v.disabled as boolean}
+              scrollable={isScrollable}
+              equalize={v.equalize as boolean}
+              label="Time range"
+            />
+          </div>
+        );
+      }}
     />
   );
 }
