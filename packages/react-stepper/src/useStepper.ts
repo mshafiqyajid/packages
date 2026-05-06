@@ -13,6 +13,10 @@ export interface StepperStep {
   icon?: ReactNode;
   /** Disable the step — can't be navigated to. */
   disabled?: boolean;
+  /** Marks the step as optional — shown as "(optional)" next to the label. */
+  optional?: boolean;
+  /** Per-step error state — shows the indicator in danger tone. */
+  error?: boolean;
   /** Validate before leaving this step. Return false / a message to block `goNext`. */
   validate?: () => boolean | string | Promise<boolean | string>;
 }

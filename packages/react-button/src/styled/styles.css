@@ -87,6 +87,9 @@
   white-space: nowrap;
   vertical-align: middle;
   line-height: 1;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
   transition:
     background var(--rbtn-duration-fast) var(--rbtn-ease),
     border-color var(--rbtn-duration-fast) var(--rbtn-ease),
@@ -95,6 +98,46 @@
     box-shadow var(--rbtn-duration-fast) var(--rbtn-ease),
     opacity var(--rbtn-duration-fast) var(--rbtn-ease);
   outline: none;
+}
+
+/* ── Radius variants ───────────────────────────────────────── */
+.rbtn-root[data-radius="pill"]  { border-radius: 999px; }
+.rbtn-root[data-radius="sharp"] { border-radius: 2px; }
+.rbtn-root[data-variant="link"] { overflow: visible; isolation: auto; }
+
+/* ── Pulse animation ───────────────────────────────────────── */
+.rbtn-root[data-pulse="true"]::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  border: 2px solid currentColor;
+  opacity: 0;
+  pointer-events: none;
+  animation: rbtn-pulse 1.6s var(--rbtn-ease) infinite;
+}
+@keyframes rbtn-pulse {
+  0%   { transform: scale(1);    opacity: 0.45; }
+  60%  { transform: scale(1.15); opacity: 0; }
+  100% { transform: scale(1.15); opacity: 0; }
+}
+
+/* ── Ripple effect ─────────────────────────────────────────── */
+.rbtn-ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.25;
+  pointer-events: none;
+  transform: scale(0);
+  animation: rbtn-ripple 600ms var(--rbtn-ease) forwards;
+  z-index: -1;
+}
+@keyframes rbtn-ripple {
+  to {
+    transform: scale(1);
+    opacity: 0;
+  }
 }
 .rbtn-root:focus-visible {
   outline: 2px solid currentColor;
@@ -199,4 +242,6 @@
   .rbtn-root { transition: none; }
   .rbtn-root:active:not(:disabled) { transform: none; }
   .rbtn-spinner { animation-duration: 2s; }
+  .rbtn-root[data-pulse="true"]::after { animation: none; opacity: 0; }
+  .rbtn-ripple { animation: none; opacity: 0; }
 }

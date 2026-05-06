@@ -193,12 +193,16 @@
   will-change: background, color, transform;
 }
 
-.rcmd-item:hover:not([data-disabled]) {
+/* Hover: only when NOT already keyboard-active (otherwise hover's higher
+ * specificity would override the active background, leaving white text on
+ * a near-white background — invisible). */
+.rcmd-item:hover:not([data-disabled]):not([data-active="true"]) {
   background: var(--rcmd-hover-bg);
 }
 
 /* Active row (keyboard-driven) — primary accent + slight lift. */
-.rcmd-item[data-active="true"] {
+.rcmd-item[data-active="true"],
+.rcmd-item[data-active="true"]:hover {
   background: var(--rcmd-active-bg);
   color: var(--rcmd-active-fg);
   transform: translateX(2px);
@@ -253,9 +257,16 @@
 }
 .rcmd-item-shortcut { margin-left: auto; }
 
-/* ── Empty / footer ─────────────────────────────────────────────── */
+/* ── Empty / loading / footer ───────────────────────────────────── */
 .rcmd-empty {
   padding: 1.25rem;
+  text-align: center;
+  color: var(--rcmd-fg-muted);
+  font-size: 0.875rem;
+  animation: rcmd-empty-in var(--rcmd-duration) var(--rcmd-ease) both;
+}
+.rcmd-loading {
+  padding: 1rem 1.25rem;
   text-align: center;
   color: var(--rcmd-fg-muted);
   font-size: 0.875rem;
@@ -264,6 +275,30 @@
 @keyframes rcmd-empty-in {
   from { opacity: 0; transform: translateY(4px); }
   to   { opacity: 1; transform: translateY(0); }
+}
+
+.rcmd-spinner {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  animation: rcmd-spin 700ms linear infinite;
+  color: var(--rcmd-active-bg);
+  flex-shrink: 0;
+}
+@keyframes rcmd-spin { to { transform: rotate(360deg); } }
+
+.rcmd-mark {
+  background: color-mix(in srgb, var(--rcmd-active-bg) 18%, transparent);
+  color: inherit;
+  border-radius: 2px;
+  padding: 0 1px;
+  font-weight: 600;
+}
+.rcmd-item[data-active="true"] .rcmd-mark {
+  background: rgba(255, 255, 255, 0.28);
+  color: var(--rcmd-active-fg);
 }
 
 .rcmd-footer {
@@ -285,9 +320,11 @@
   .rcmd-overlay,
   .rcmd-panel,
   .rcmd-group,
-  .rcmd-empty {
+  .rcmd-empty,
+  .rcmd-loading {
     animation: none;
   }
+  .rcmd-spinner { animation-duration: 2s; }
   .rcmd-item,
   .rcmd-item-icon,
   .rcmd-item-label,

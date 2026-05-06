@@ -47,7 +47,11 @@ return (
         <tr><td>size</td><td>"sm" | "md" | "lg"</td><td>"md"</td><td>Size</td></tr>
         <tr><td>tone</td><td>"neutral" | "primary" | "success" | "danger"</td><td>"primary"</td><td>Color when checked</td></tr>
         <tr><td>label</td><td>ReactNode</td><td>—</td><td>Label</td></tr>
+        <tr><td>description</td><td>ReactNode</td><td>—</td><td>Helper text below the label</td></tr>
+        <tr><td>error</td><td>ReactNode</td><td>—</td><td>Error message — flips tone to danger and renders below</td></tr>
         <tr><td>labelPosition</td><td>"left" | "right"</td><td>"right"</td><td>Label side</td></tr>
+        <tr><td>card</td><td>boolean</td><td>false</td><td>Bordered card; whole row becomes clickable</td></tr>
+        <tr><td>required</td><td>boolean</td><td>false</td><td>Append a red asterisk to the label</td></tr>
         <tr><td>disabled</td><td>boolean</td><td>false</td><td>Disable</td></tr>
       </tbody></table>
     </div>

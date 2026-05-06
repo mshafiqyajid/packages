@@ -30,9 +30,75 @@
 /* ── Root ──────────────────────────────────────────────────── */
 .rchk-root {
   display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
+  flex-direction: column;
+  gap: 0.4rem;
   vertical-align: middle;
+}
+.rchk-row {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+}
+
+/* ── Card variant ──────────────────────────────────────────── */
+.rchk-root[data-card="true"] {
+  display: flex;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--rchk-border);
+  border-radius: 10px;
+  background: transparent;
+  cursor: pointer;
+  transition:
+    background var(--rchk-duration) var(--rchk-ease),
+    border-color var(--rchk-duration) var(--rchk-ease),
+    box-shadow var(--rchk-duration) var(--rchk-ease);
+}
+.rchk-root[data-card="true"]:hover:not([data-disabled="true"]) {
+  border-color: var(--rchk-on-bg);
+  background: color-mix(in srgb, var(--rchk-on-bg) 4%, transparent);
+}
+.rchk-root[data-card="true"]:has(.rchk-box[data-checked="true"]),
+.rchk-root[data-card="true"]:has(.rchk-box[data-indeterminate="true"]) {
+  border-color: var(--rchk-on-bg);
+  background: color-mix(in srgb, var(--rchk-on-bg) 8%, transparent);
+  box-shadow: 0 0 0 1px var(--rchk-on-bg) inset;
+}
+.rchk-root[data-card="true"][data-disabled="true"] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.rchk-root[data-card="true"][data-error="true"] {
+  border-color: var(--rchk-on-bg);
+  background: rgba(220, 38, 38, 0.04);
+}
+
+/* ── Label block ───────────────────────────────────────────── */
+.rchk-label-block {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.rchk-description {
+  font-size: 0.78rem;
+  color: var(--rchk-fg-muted, #71717a);
+  line-height: 1.4;
+}
+[data-theme="dark"] .rchk-description { color: #a1a1aa; }
+.rchk-required { color: #dc2626; font-weight: 600; }
+
+/* ── Error message ─────────────────────────────────────────── */
+.rchk-error {
+  font-size: 0.78rem;
+  color: #dc2626;
+  line-height: 1.3;
+  padding-left: 1.7rem;
+  animation: rchk-error-in var(--rchk-duration) var(--rchk-ease-spring) both;
+}
+[data-theme="dark"] .rchk-error { color: #f87171; }
+@keyframes rchk-error-in {
+  from { opacity: 0; transform: translateY(-3px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 /* ── Box ───────────────────────────────────────────────────── */
@@ -124,6 +190,8 @@
 /* ── Reduced motion ────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   .rchk-box,
-  .rchk-icon { transition: none; }
+  .rchk-icon,
+  .rchk-root[data-card="true"] { transition: none; }
   .rchk-box:active:not([data-disabled="true"]) { transform: none; }
+  .rchk-error { animation: none; }
 }

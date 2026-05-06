@@ -151,6 +151,36 @@
   color: var(--rti-fg);
 }
 
+/* ── Label ─────────────────────────────────────────────────── */
+.rti-label {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--rti-fg);
+  line-height: 1.3;
+  padding: 0 0.15rem;
+  user-select: none;
+}
+.rti-required { color: var(--rti-danger); font-weight: 600; }
+
+/* ── Meta row (hint/error + count) ─────────────────────────── */
+.rti-meta {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.6rem;
+  min-height: 0.95rem;
+}
+.rti-count {
+  font-size: 0.72rem;
+  color: var(--rti-fg-muted);
+  font-variant-numeric: tabular-nums;
+  padding: 0 0.15rem;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
 /* ── Hint / error message ──────────────────────────────────── */
 .rti-message {
   font-size: 0.75rem;
@@ -158,10 +188,77 @@
   line-height: 1.3;
   padding: 0 0.15rem;
 }
-.rti-message--error { color: var(--rti-danger); }
+.rti-message--error {
+  color: var(--rti-danger);
+  animation: rti-error-in var(--rti-duration) var(--rti-ease) both;
+}
+@keyframes rti-error-in {
+  from { opacity: 0; transform: translateY(-2px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Inline status icons ───────────────────────────────────── */
+.rti-spinner {
+  width: 0.85em;
+  height: 0.85em;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  animation: rti-spin 700ms linear infinite;
+  color: var(--rti-fg-muted);
+  margin-left: 0.4rem;
+  flex-shrink: 0;
+}
+@keyframes rti-spin { to { transform: rotate(360deg); } }
+.rti-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--rti-success);
+  margin-left: 0.4rem;
+  flex-shrink: 0;
+  animation: rti-check-in var(--rti-duration) var(--rti-ease-spring, cubic-bezier(0.34, 1.56, 0.64, 1)) both;
+}
+@keyframes rti-check-in {
+  from { opacity: 0; transform: scale(0.6); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* ── Reveal (password show/hide) ───────────────────────────── */
+.rti-reveal {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--rti-fg-muted);
+  cursor: pointer;
+  margin-left: 0.4rem;
+  flex-shrink: 0;
+  transition:
+    background var(--rti-duration-fast) var(--rti-ease),
+    color var(--rti-duration-fast) var(--rti-ease);
+}
+.rti-reveal:hover {
+  background: color-mix(in srgb, var(--rti-fg-muted) 15%, transparent);
+  color: var(--rti-fg);
+}
+
+/* ── Root padding when label/hint/error wraps ──────────────── */
+.rti-root {
+  gap: 0.3rem;
+}
 
 /* ── Reduced motion ────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   .rti-wrap,
-  .rti-clear { transition: none; }
+  .rti-clear,
+  .rti-reveal { transition: none; }
+  .rti-spinner { animation-duration: 2s; }
+  .rti-check,
+  .rti-message--error { animation: none; }
 }

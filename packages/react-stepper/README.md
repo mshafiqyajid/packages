@@ -86,7 +86,9 @@ const stepper = useStepper({ steps, mode: "linear" });
 | `defaultCompleted` / `completed` / `onCompletedChange` | controlled completed ids | — | — |
 | `onFinish` | `() => void` | — | Fires on Finish (after final-step validate) |
 | `showFooter` | `boolean` | `true` | Built-in Back / Next / Finish buttons |
-| `labels` | `{ back?, next?, finish? }` | — | Customise footer button labels |
+| `clickableSteps` | `boolean` | `true` | Allow clicking visited / earlier steps |
+| `progressBar` | `boolean` | `false` | Render a thin progress bar (completed / total) above the steps |
+| `labels` | `{ back?, next?, finish?, optional? }` | — | Customise footer button + "(optional)" labels |
 
 ### StepperStep
 
@@ -97,6 +99,8 @@ const stepper = useStepper({ steps, mode: "linear" });
 | `description` | `ReactNode?` | Sub-text below label |
 | `icon` | `ReactNode?` | Custom indicator icon |
 | `disabled` | `boolean?` | Skipped by prev/next |
+| `optional` | `boolean?` | Renders "(optional)" next to the label |
+| `error` | `boolean?` | Mark indicator as failed (shake animation, danger ring) |
 | `validate` | `() => boolean \| string \| Promise<...>` | Run before leaving this step |
 
 ## License

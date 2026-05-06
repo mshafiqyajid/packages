@@ -4,4 +4,5 @@ export type {
   ButtonSize,
   ButtonTone,
   ButtonVariant,
+  ButtonRadius,
 } from "./ButtonStyled";

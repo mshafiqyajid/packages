@@ -26,8 +26,12 @@ export interface StepperStyledProps extends UseStepperOptions {
   tone?: StepperTone;
   /** Show a Back / Next footer (and Finish on the last step). Default: true. */
   showFooter?: boolean;
+  /** Allow clicking visited (or earlier) steps to jump to them. Default: true (linear mode permits jumping back). */
+  clickableSteps?: boolean;
+  /** Render a thin progress bar showing N of M complete. Default: false. */
+  progressBar?: boolean;
   /** Customise the footer button labels. */
-  labels?: { back?: string; next?: string; finish?: string };
+  labels?: { back?: string; next?: string; finish?: string; optional?: string };
   className?: string;
 }
 
@@ -41,6 +45,8 @@ export const StepperStyled = forwardRef<HTMLDivElement, StepperStyledProps>(
       size = "md",
       tone = "primary",
       showFooter = true,
+      clickableSteps = true,
+      progressBar = false,
       labels,
       className,
       steps,
@@ -58,6 +64,10 @@ export const StepperStyled = forwardRef<HTMLDivElement, StepperStyledProps>(
       isVisited: stepper.visitedIds.includes(step.id),
     });
 
+    const completedCount = stepper.completedIds.length;
+    const totalCount = steps.length;
+    const progress = totalCount === 0 ? 0 : (completedCount / totalCount) * 100;
+
     return (
       <div
         ref={ref}
@@ -66,9 +76,26 @@ export const StepperStyled = forwardRef<HTMLDivElement, StepperStyledProps>(
         data-size={size}
         data-tone={tone}
       >
+        {progressBar && (
+          <div
+            className="rstep-progress"
+            role="progressbar"
+            aria-valuemin={0}
+            aria-valuemax={totalCount}
+            aria-valuenow={completedCount}
+            aria-label="Stepper progress"
+          >
+            <span className="rstep-progress-bar" style={{ width: `${progress}%` }} />
+          </div>
+        )}
         <ol className="rstep-list" aria-label="Progress">
           {steps.map((step, i) => {
             const ctx = visit(i, step);
+            const stepError = step.error || undefined;
+            const canClick =
+              clickableSteps &&
+              !step.disabled &&
+              (ctx.isVisited || i === stepper.activeStep + 1 || i < stepper.activeStep);
             return (
               <li
                 key={step.id}
@@ -77,6 +104,8 @@ export const StepperStyled = forwardRef<HTMLDivElement, StepperStyledProps>(
                 data-completed={ctx.isCompleted || undefined}
                 data-disabled={ctx.isDisabled || undefined}
                 data-visited={ctx.isVisited || undefined}
+                data-error={stepError}
+                data-optional={step.optional || undefined}
               >
                 {renderStep ? (
                   renderStep(ctx)
@@ -84,13 +113,17 @@ export const StepperStyled = forwardRef<HTMLDivElement, StepperStyledProps>(
                   <button
                     type="button"
                     className="rstep-trigger"
-                    onClick={() => stepper.goTo(i)}
-                    disabled={step.disabled}
+                    onClick={() => canClick && stepper.goTo(i)}
+                    disabled={step.disabled || !canClick}
                     aria-current={ctx.isActive ? "step" : undefined}
                   >
                     <span className="rstep-indicator" aria-hidden="true">
                       {step.icon ??
-                        (ctx.isCompleted ? (
+                        (stepError ? (
+                          <svg viewBox="0 0 12 12" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M6 3v3.5M6 8.5v.01" />
+                          </svg>
+                        ) : ctx.isCompleted ? (
                           <svg viewBox="0 0 12 12" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M2.5 6l2.5 2.5L9.5 3.5" />
                           </svg>
@@ -99,7 +132,12 @@ export const StepperStyled = forwardRef<HTMLDivElement, StepperStyledProps>(
                         ))}
                     </span>
                     <span className="rstep-label-block">
-                      <span className="rstep-label">{step.label}</span>
+                      <span className="rstep-label">
+                        {step.label}
+                        {step.optional && (
+                          <span className="rstep-optional"> ({labels?.optional ?? "optional"})</span>
+                        )}
+                      </span>
                       {step.description && <span className="rstep-description">{step.description}</span>}
                     </span>
                   </button>

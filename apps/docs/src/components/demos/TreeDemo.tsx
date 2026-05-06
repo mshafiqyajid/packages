@@ -1,11 +1,10 @@
 import { useState } from "react";
+import PropPlayground from "../PropPlayground";
 import { TreeStyled } from "@mshafiqyajid/react-tree/styled";
+import { TextInputStyled } from "@mshafiqyajid/react-text-input/styled";
 import type { TreeNode } from "@mshafiqyajid/react-tree";
-import { SelectStyled } from "@mshafiqyajid/react-select/styled";
-import { SwitchStyled } from "@mshafiqyajid/react-switch/styled";
 import "@mshafiqyajid/react-tree/styles.css";
-import "@mshafiqyajid/react-select/styles.css";
-import "@mshafiqyajid/react-switch/styles.css";
+import "@mshafiqyajid/react-text-input/styles.css";
 
 const ITEMS: TreeNode[] = [
   {
@@ -29,8 +28,8 @@ const ITEMS: TreeNode[] = [
           { id: "useDebounce.ts", label: "useDebounce.ts" },
         ],
       },
-      { id: "index.ts",   label: "index.ts" },
-      { id: "App.tsx",    label: "App.tsx" },
+      { id: "index.ts", label: "index.ts" },
+      { id: "App.tsx",  label: "App.tsx" },
     ],
   },
   {
@@ -65,63 +64,59 @@ const decorate = (nodes: TreeNode[]): TreeNode[] =>
 
 const ITEMS_DECORATED = decorate(ITEMS);
 
-const SIZE_ITEMS = [
-  { value: "sm", label: "sm" },
-  { value: "md", label: "md" },
-  { value: "lg", label: "lg" },
-];
-
 export default function TreeDemo() {
-  const [size, setSize] = useState<"sm" | "md" | "lg">("md");
-  const [showGuides, setShowGuides] = useState(true);
-  const [multi, setMulti] = useState(false);
   const [single, setSingle] = useState<string | null>(null);
   const [multiSel, setMultiSel] = useState<string[]>([]);
+  const [search, setSearch] = useState("");
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem", width: "100%", maxWidth: 480 }}>
-      <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", fontSize: "0.85rem", alignItems: "center" }}>
-        <label style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem" }}>
-          size:
-          <SelectStyled
-            items={SIZE_ITEMS}
-            value={size}
-            onChange={(v) => setSize(v as "sm" | "md" | "lg")}
-            size="sm"
-          />
-        </label>
-        <SwitchStyled
-          checked={showGuides}
-          onChange={setShowGuides}
-          label="guides"
-          size="sm"
-          tone="primary"
-        />
-        <SwitchStyled
-          checked={multi}
-          onChange={setMulti}
-          label="multi-select"
-          size="sm"
-          tone="primary"
-        />
-      </div>
-
-      <TreeStyled
-        key={multi ? "multi" : "single"}
-        items={ITEMS_DECORATED}
-        defaultExpandedIds={["src", "components"]}
-        size={size}
-        showGuides={showGuides}
-        selectionMode={multi ? "multiple" : "single"}
-        onSelectedChange={(id) => setSingle(id)}
-        onSelectedIdsChange={(ids) => setMultiSel(ids)}
-      />
-
-      <div style={{ fontSize: "0.78rem", color: "var(--fg-muted)" }}>
-        {multi
-          ? `selected: ${multiSel.length === 0 ? "(none)" : multiSel.join(", ")}`
-          : `selected: ${single ?? "(none)"}`}
-      </div>
-    </div>
+    <PropPlayground
+      componentName="TreeStyled"
+      importLine={`import { TreeStyled } from "@mshafiqyajid/react-tree/styled";\nimport "@mshafiqyajid/react-tree/styles.css";`}
+      props={[
+        { name: "size",           control: { type: "segmented", options: ["sm","md","lg"] as const },         defaultValue: "md",       omitWhen: "md" },
+        { name: "tone",           control: { type: "segmented", options: ["primary","neutral"] as const },    defaultValue: "primary",  omitWhen: "primary" },
+        { name: "showGuides",     control: { type: "toggle" },                                                  defaultValue: true,       omitWhen: true },
+        { name: "checkboxes",     control: { type: "toggle" },                                                  defaultValue: false,      omitWhen: false },
+        { name: "highlightMatches", control: { type: "toggle" },                                                defaultValue: true,       omitWhen: true },
+        { name: "selectionMode",  control: { type: "segmented", options: ["single","multiple"] as const },     defaultValue: "single",   omitWhen: "single" },
+      ]}
+      staticProps={{ items: "{items}", searchQuery: "{search}", defaultExpandedIds: '{["src", "components"]}' }}
+      render={(v) => {
+        const multi = v.selectionMode === "multiple";
+        return (
+          <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem", width: "100%", maxWidth: 360 }}>
+            <TextInputStyled
+              type="search"
+              size="sm"
+              placeholder="Filter…"
+              value={search}
+              onChange={setSearch}
+              clearable
+              block
+            />
+            <TreeStyled
+              key={multi ? "multi" : "single"}
+              items={ITEMS_DECORATED}
+              defaultExpandedIds={["src", "components"]}
+              size={v.size as "sm"|"md"|"lg"}
+              tone={v.tone as "primary"|"neutral"}
+              showGuides={v.showGuides as boolean}
+              checkboxes={v.checkboxes as boolean}
+              highlightMatches={v.highlightMatches as boolean}
+              searchQuery={search}
+              selectionMode={multi ? "multiple" : "single"}
+              onSelectedChange={(id) => setSingle(id)}
+              onSelectedIdsChange={(ids) => setMultiSel(ids)}
+            />
+            <div style={{ fontSize: "0.78rem", color: "var(--fg-muted)" }}>
+              {multi
+                ? `selected: ${multiSel.length === 0 ? "(none)" : multiSel.join(", ")}`
+                : `selected: ${single ?? "(none)"}`}
+            </div>
+          </div>
+        );
+      }}
+    />
   );
 }

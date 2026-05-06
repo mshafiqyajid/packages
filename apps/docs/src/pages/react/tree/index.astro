@@ -92,7 +92,12 @@ return (
         <tr><td>size</td><td>"sm" | "md" | "lg"</td><td>"md"</td><td>Row size</td></tr>
         <tr><td>tone</td><td>"neutral" | "primary"</td><td>"primary"</td><td>Accent color</td></tr>
         <tr><td>showGuides</td><td>boolean</td><td>true</td><td>Vertical indent guide lines</td></tr>
+        <tr><td>searchQuery</td><td>string</td><td>""</td><td>Filter visible nodes by case-insensitive label match. Auto-expands matching ancestors.</td></tr>
+        <tr><td>highlightMatches</td><td>boolean</td><td>true</td><td>Bolden matched query characters in labels</td></tr>
+        <tr><td>checkboxes</td><td>boolean</td><td>false</td><td>Render a checkbox per node alongside the label</td></tr>
         <tr><td>renderLabel</td><td>(node, depth) =&gt; ReactNode</td><td>—</td><td>Custom label renderer</td></tr>
+        <tr><td>renderBadge</td><td>(node) =&gt; ReactNode</td><td>—</td><td>Slot rendered after the label (count, status, etc.)</td></tr>
+        <tr><td>emptyState</td><td>ReactNode</td><td>auto</td><td>Shown when no nodes match the search</td></tr>
       </tbody></table>
     </div>
 

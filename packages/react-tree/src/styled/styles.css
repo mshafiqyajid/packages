@@ -167,6 +167,56 @@
   transition: color var(--rtree-duration-fast) var(--rtree-ease);
 }
 
+/* ── Highlighted matches ───────────────────────────────────── */
+.rtree-mark {
+  background: color-mix(in srgb, var(--rtree-active) 22%, transparent);
+  color: inherit;
+  border-radius: 2px;
+  padding: 0 1px;
+  font-weight: 600;
+}
+
+/* ── Checkbox indicator ────────────────────────────────────── */
+.rtree-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border: 1.5px solid var(--rtree-fg-muted);
+  border-radius: 3px;
+  flex-shrink: 0;
+  color: white;
+  background: transparent;
+  transition:
+    background var(--rtree-duration-fast) var(--rtree-ease),
+    border-color var(--rtree-duration-fast) var(--rtree-ease),
+    transform var(--rtree-duration-fast) var(--rtree-ease-spring);
+}
+.rtree-check[data-checked="true"] {
+  background: var(--rtree-active);
+  border-color: var(--rtree-active);
+  transform: scale(1.05);
+}
+
+/* ── Badge slot ────────────────────────────────────────────── */
+.rtree-badge {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  font-size: 0.7rem;
+  color: var(--rtree-fg-muted);
+}
+
+/* ── Empty state ───────────────────────────────────────────── */
+.rtree-empty {
+  padding: 1.5rem 1rem;
+  text-align: center;
+  color: var(--rtree-fg-muted);
+  font-size: 0.85rem;
+  animation: rtree-row-in var(--rtree-duration) var(--rtree-ease) both;
+}
+
 .rtree-item[aria-disabled] {
   opacity: 0.5;
   cursor: not-allowed;

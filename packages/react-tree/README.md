@@ -105,7 +105,12 @@ return (
 | `size` | `"sm" \| "md" \| "lg"` | `"md"` | Row size |
 | `tone` | `"neutral" \| "primary"` | `"primary"` | Accent |
 | `showGuides` | `boolean` | `true` | Indent guide lines |
+| `searchQuery` | `string` | `""` | Filter visible nodes by case-insensitive label match. Auto-expands matching ancestors. |
+| `highlightMatches` | `boolean` | `true` | Bolden matched query characters in labels |
+| `checkboxes` | `boolean` | `false` | Render a checkbox per node alongside the label |
 | `renderLabel` | `(node, depth) => ReactNode` | — | Custom label renderer |
+| `renderBadge` | `(node) => ReactNode` | — | Slot rendered after the label (e.g., count, status) |
+| `emptyState` | `ReactNode` | auto | Shown when no nodes match the search |
 
 ### TreeNode
 

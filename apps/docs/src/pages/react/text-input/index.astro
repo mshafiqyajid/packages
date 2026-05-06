@@ -70,8 +70,15 @@ return (
         <tr><td>type</td><td>"text" | "email" | "password" | "url" | "search" | "tel"</td><td>"text"</td><td>Input type</td></tr>
         <tr><td>size</td><td>"sm" | "md" | "lg"</td><td>"md"</td><td>Size</td></tr>
         <tr><td>tone</td><td>"neutral" | "primary" | "success" | "danger"</td><td>"neutral"</td><td>Color</td></tr>
+        <tr><td>label</td><td>ReactNode</td><td>—</td><td>Field label rendered above the input</td></tr>
+        <tr><td>required</td><td>boolean</td><td>false</td><td>Append a red asterisk to the label</td></tr>
         <tr><td>block</td><td>boolean</td><td>false</td><td>Full-width</td></tr>
-        <tr><td>clearable</td><td>boolean</td><td>false</td><td>Show clear (✕) button</td></tr>
+        <tr><td>clearable</td><td>boolean</td><td>false</td><td>Show clear (✕) button when value is non-empty</td></tr>
+        <tr><td>passwordToggle</td><td>boolean</td><td>false</td><td>For type="password": show an eye toggle that reveals/hides</td></tr>
+        <tr><td>loading</td><td>boolean</td><td>false</td><td>Show a spinner suffix while async work runs</td></tr>
+        <tr><td>success</td><td>boolean</td><td>false</td><td>Apply success tone + show a green check suffix</td></tr>
+        <tr><td>maxLength</td><td>number</td><td>—</td><td>Max characters; auto-shows a counter</td></tr>
+        <tr><td>showCount</td><td>boolean</td><td>auto</td><td>Force-show or hide the character counter</td></tr>
         <tr><td>prefix</td><td>ReactNode</td><td>—</td><td>Slot before the input</td></tr>
         <tr><td>suffix</td><td>ReactNode</td><td>—</td><td>Slot after the input</td></tr>
         <tr><td>hint</td><td>ReactNode</td><td>—</td><td>Helper text below the field</td></tr>

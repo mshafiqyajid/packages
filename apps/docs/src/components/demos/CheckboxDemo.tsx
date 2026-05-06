@@ -1,57 +1,42 @@
 import { useState } from "react";
+import PropPlayground from "../PropPlayground";
 import { CheckboxStyled } from "@mshafiqyajid/react-checkbox/styled";
-import { SelectStyled } from "@mshafiqyajid/react-select/styled";
-import { SwitchStyled } from "@mshafiqyajid/react-switch/styled";
+import type { CheckboxState } from "@mshafiqyajid/react-checkbox";
 import "@mshafiqyajid/react-checkbox/styles.css";
-import "@mshafiqyajid/react-select/styles.css";
-import "@mshafiqyajid/react-switch/styles.css";
-
-const SIZE_ITEMS = [
-  { value: "sm", label: "sm" },
-  { value: "md", label: "md" },
-  { value: "lg", label: "lg" },
-];
-const TONE_ITEMS = [
-  { value: "primary", label: "primary" },
-  { value: "neutral", label: "neutral" },
-  { value: "success", label: "success" },
-  { value: "danger",  label: "danger" },
-];
 
 export default function CheckboxDemo() {
-  const [size, setSize] = useState<"sm" | "md" | "lg">("md");
-  const [tone, setTone] = useState<"primary" | "neutral" | "success" | "danger">("primary");
-  const [a, setA] = useState(true);
-  const [b, setB] = useState(false);
-  const [c, setC] = useState<boolean | "indeterminate">("indeterminate");
-  const [disabled, setDisabled] = useState(false);
-
+  const [checked, setChecked] = useState<CheckboxState>(true);
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "1rem", width: "100%" }}>
-      <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", fontSize: "0.85rem", alignItems: "center" }}>
-        <label style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem" }}>
-          size:
-          <SelectStyled items={SIZE_ITEMS} value={size} onChange={(v) => setSize(v as typeof size)} size="sm" />
-        </label>
-        <label style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem" }}>
-          tone:
-          <SelectStyled items={TONE_ITEMS} value={tone} onChange={(v) => setTone(v as typeof tone)} size="sm" />
-        </label>
-        <SwitchStyled checked={disabled} onChange={setDisabled} label="disabled" size="sm" tone="primary" />
-      </div>
-
-      <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
-        <CheckboxStyled checked={a} onChange={setA} label="Default checked" size={size} tone={tone} disabled={disabled} />
-        <CheckboxStyled checked={b} onChange={setB} label="Unchecked" size={size} tone={tone} disabled={disabled} />
+    <PropPlayground
+      componentName="CheckboxStyled"
+      importLine={`import { CheckboxStyled } from "@mshafiqyajid/react-checkbox/styled";\nimport "@mshafiqyajid/react-checkbox/styles.css";`}
+      props={[
+        { name: "size",          control: { type: "segmented", options: ["sm","md","lg"] as const },                                 defaultValue: "md",      omitWhen: "md" },
+        { name: "tone",          control: { type: "segmented", options: ["neutral","primary","success","danger"] as const },          defaultValue: "primary", omitWhen: "primary" },
+        { name: "labelPosition", control: { type: "segmented", options: ["left","right"] as const },                                  defaultValue: "right",   omitWhen: "right" },
+        { name: "card",          control: { type: "toggle" },                                                                          defaultValue: false,     omitWhen: false },
+        { name: "description",   control: { type: "text", placeholder: "Helper text…" },                                              defaultValue: "",        omitWhen: "" },
+        { name: "withError",     label: "show error",     control: { type: "toggle" },                                                  defaultValue: false,     omitWhen: false },
+        { name: "required",      control: { type: "toggle" },                                                                          defaultValue: false,     omitWhen: false },
+        { name: "indeterminate", control: { type: "toggle" },                                                                          defaultValue: false,     omitWhen: false },
+        { name: "disabled",      control: { type: "toggle" },                                                                          defaultValue: false,     omitWhen: false },
+      ]}
+      staticProps={{ checked: "{checked}", onChange: "{setChecked}", label: '"I agree to the terms"' }}
+      render={(v) => (
         <CheckboxStyled
-          checked={c}
-          onChange={(v) => setC(v)}
-          label='Indeterminate (click → "checked")'
-          size={size}
-          tone={tone}
-          disabled={disabled}
+          checked={v.indeterminate ? "indeterminate" : checked}
+          onChange={setChecked}
+          label="I agree to the terms"
+          description={(v.description as string) || undefined}
+          error={v.withError ? "You must agree to continue" : undefined}
+          size={v.size as "sm"|"md"|"lg"}
+          tone={v.tone as "neutral"|"primary"|"success"|"danger"}
+          labelPosition={v.labelPosition as "left"|"right"}
+          card={v.card as boolean}
+          required={v.required as boolean}
+          disabled={v.disabled as boolean}
         />
-      </div>
-    </div>
+      )}
+    />
   );
 }

@@ -77,7 +77,9 @@ return (
         <tr><td>defaultCompleted / completed / onCompletedChange</td><td>controlled ids</td><td>[]</td><td>Completed step ids</td></tr>
         <tr><td>onFinish</td><td>() =&gt; void</td><td>—</td><td>Fires on Finish (after final-step validate)</td></tr>
         <tr><td>showFooter</td><td>boolean</td><td>true</td><td>Built-in Back / Next / Finish buttons</td></tr>
-        <tr><td>labels</td><td>{`{ back?, next?, finish? }`}</td><td>—</td><td>Footer button labels</td></tr>
+        <tr><td>clickableSteps</td><td>boolean</td><td>true</td><td>Allow clicking visited / earlier steps</td></tr>
+        <tr><td>progressBar</td><td>boolean</td><td>false</td><td>Render a thin progress bar above the steps</td></tr>
+        <tr><td>labels</td><td>{`{ back?, next?, finish?, optional? }`}</td><td>—</td><td>Footer button + "(optional)" labels</td></tr>
       </tbody></table>
     </div>
 
@@ -88,6 +90,8 @@ return (
         <tr><td>description</td><td>ReactNode?</td><td>Sub-text below the label</td></tr>
         <tr><td>icon</td><td>ReactNode?</td><td>Custom indicator icon</td></tr>
         <tr><td>disabled</td><td>boolean?</td><td>Skipped by prev/next</td></tr>
+        <tr><td>optional</td><td>boolean?</td><td>Renders "(optional)" next to the label</td></tr>
+        <tr><td>error</td><td>boolean?</td><td>Mark step as failed (shake animation, danger ring)</td></tr>
         <tr><td>validate</td><td>{`() => boolean | string | Promise<...>`}</td><td>Run before leaving this step</td></tr>
       </tbody></table>
     </div>

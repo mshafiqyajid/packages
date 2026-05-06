@@ -83,6 +83,10 @@ return (
 | `hotkey` | `{ key, meta?, ctrl?, shift? } \| null` | `{ key: "k", meta: true, ctrl: true }` | Global open shortcut |
 | `placeholder` | `string` | `"Type a command…"` | Search input placeholder |
 | `emptyText` | `ReactNode` | `"No results."` | When nothing matches |
+| `emptyState` | `(query) => ReactNode` | — | Custom empty state — receives the active query. Overrides `emptyText`. |
+| `loading` | `boolean` | `false` | Show a loading row instead of items. Use with async filtering. |
+| `loadingText` | `ReactNode` | `"Loading…"` | Loading row text |
+| `highlightMatches` | `boolean` | `true` | Bolden matched query characters in labels |
 | `footer` | `ReactNode` | — | Footer slot (keyboard hints, etc) |
 
 ### CommandItem

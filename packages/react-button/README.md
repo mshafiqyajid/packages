@@ -1,6 +1,6 @@
 # @mshafiqyajid/react-button
 
-Headless button hook and styled component for React. Variants, tones, sizes, async loading state, icon slots, fully accessible.
+Headless button hook and styled component for React. Variants, tones, sizes, async loading state, icon slots, ripple, pulse, fully accessible.
 
 **[Full docs →](https://docs.shafiqyajid.com/react/button/)**
 
@@ -38,18 +38,31 @@ import "@mshafiqyajid/react-button/styles.css";
 
 ## Async clicks
 
-Return a `Promise` from `onClick` to drive the loading spinner automatically. The button blocks further clicks while the promise is in flight.
+Return a `Promise` from `onClick` to drive the loading spinner automatically. Pass `loadingText` to swap the label for an in-flight message without layout shift.
 
 ```tsx
 <ButtonStyled
   tone="primary"
+  loadingText="Saving…"
   onClick={async () => {
-    await fetch("/api/checkout", { method: "POST" });
+    await fetch("/api/save", { method: "POST" });
   }}
 >
-  Checkout
+  Save changes
 </ButtonStyled>
 ```
+
+## Pulse for CTAs
+
+`pulse` renders a soft animated ring around the button — useful for primary CTAs that need attention.
+
+```tsx
+<ButtonStyled pulse tone="primary">Get started</ButtonStyled>
+```
+
+## Ripple
+
+Material-style click ripple. Enabled by default — pass `ripple={false}` to opt out.
 
 ## Props
 
@@ -59,8 +72,12 @@ Return a `Promise` from `onClick` to drive the loading spinner automatically. Th
 | `variant` | `"solid" \| "outline" \| "ghost" \| "link"` | `"solid"` | Visual style |
 | `tone` | `"neutral" \| "primary" \| "success" \| "danger"` | `"primary"` | Color |
 | `size` | `"sm" \| "md" \| "lg"` | `"md"` | Size |
+| `radius` | `"default" \| "pill" \| "sharp"` | `"default"` | Border radius shape |
 | `block` | `boolean` | `false` | Full-width button |
 | `loading` | `boolean` | `false` | Force spinner |
+| `loadingText` | `ReactNode` | — | Label shown while loading (replaces children) |
+| `pulse` | `boolean` | `false` | Subtle pulsing glow ring |
+| `ripple` | `boolean` | `true` | Material-style ripple on click |
 | `disabled` | `boolean` | `false` | Disable the button |
 | `iconLeft` | `ReactNode` | — | Icon before label |
 | `iconRight` | `ReactNode` | — | Icon after label |

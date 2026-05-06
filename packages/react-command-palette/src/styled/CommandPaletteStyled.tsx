@@ -8,17 +8,48 @@ export interface CommandPaletteStyledProps<TData = unknown>
   placeholder?: string;
   /** Text shown when no items match. Default: "No results." */
   emptyText?: ReactNode;
+  /** Custom render for the empty state — receives the current query. Overrides emptyText. */
+  emptyState?: (query: string) => ReactNode;
+  /** Show a loading row instead of the list. Use with async `onSearch`. */
+  loading?: boolean;
+  /** Loading message — default: "Loading…" */
+  loadingText?: ReactNode;
+  /** Bolden matched query characters in item labels. Default: true. */
+  highlightMatches?: boolean;
   /** Footer content (keyboard hints, etc). */
   footer?: ReactNode;
   /** Class on the root portal container. */
   className?: string;
 }
 
+function escapeRegExp(s: string) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function highlight(label: string, query: string): ReactNode {
+  if (!query.trim()) return label;
+  const re = new RegExp(`(${escapeRegExp(query.trim())})`, "ig");
+  const parts = label.split(re);
+  return parts.map((p, i) =>
+    re.test(p) ? <mark key={i} className="rcmd-mark">{p}</mark> : <span key={i}>{p}</span>,
+  );
+}
+
 function CommandPaletteImpl<TData>(
   props: CommandPaletteStyledProps<TData>,
   _ref: React.Ref<HTMLDivElement>,
 ) {
-  const { placeholder = "Type a command…", emptyText = "No results.", footer, className, ...hookOpts } = props;
+  const {
+    placeholder = "Type a command…",
+    emptyText = "No results.",
+    emptyState,
+    loading = false,
+    loadingText = "Loading…",
+    highlightMatches = true,
+    footer,
+    className,
+    ...hookOpts
+  } = props;
   void _ref;
   const cmd = useCommandPalette<TData>(hookOpts);
   const [mounted, setMounted] = useState(false);
@@ -47,12 +78,17 @@ function CommandPaletteImpl<TData>(
                 <path d="M11 11l3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
               </svg>
               <input {...cmd.inputProps} className="rcmd-input" placeholder={placeholder} />
+              {loading && <span className="rcmd-spinner" aria-hidden="true" />}
               <kbd className="rcmd-kbd">esc</kbd>
             </div>
 
             <ul {...cmd.listProps} className="rcmd-list">
-              {cmd.groups.length === 0 || cmd.filteredItems.length === 0 ? (
-                <li className="rcmd-empty" aria-disabled="true">{emptyText}</li>
+              {loading ? (
+                <li className="rcmd-loading" aria-live="polite">{loadingText}</li>
+              ) : cmd.groups.length === 0 || cmd.filteredItems.length === 0 ? (
+                <li className="rcmd-empty" aria-disabled="true">
+                  {emptyState ? emptyState(cmd.query) : emptyText}
+                </li>
               ) : (
                 cmd.groups.map((group) => (
                   <li key={group.id} className="rcmd-group">
@@ -61,7 +97,12 @@ function CommandPaletteImpl<TData>(
                     )}
                     <ul className="rcmd-group-list">
                       {group.items.map((item) => (
-                        <CommandItemRow key={item.id} item={item} cmd={cmd} />
+                        <CommandItemRow
+                          key={item.id}
+                          item={item}
+                          cmd={cmd}
+                          query={highlightMatches ? cmd.query : ""}
+                        />
                       ))}
                     </ul>
                   </li>
@@ -81,9 +122,11 @@ function CommandPaletteImpl<TData>(
 function CommandItemRow<TData>({
   item,
   cmd,
+  query,
 }: {
   item: CommandItem<TData>;
   cmd: ReturnType<typeof useCommandPalette<TData>>;
+  query: string;
 }) {
   const props = cmd.getItemProps(item);
   return (
@@ -94,7 +137,7 @@ function CommandItemRow<TData>({
       data-disabled={item.disabled || undefined}
     >
       {item.icon && <span className="rcmd-item-icon" aria-hidden="true">{item.icon}</span>}
-      <span className="rcmd-item-label">{item.label}</span>
+      <span className="rcmd-item-label">{query ? highlight(item.label, query) : item.label}</span>
       {item.hint && <span className="rcmd-item-hint">{item.hint}</span>}
       {item.shortcut && <kbd className="rcmd-kbd rcmd-item-shortcut">{item.shortcut}</kbd>}
     </li>

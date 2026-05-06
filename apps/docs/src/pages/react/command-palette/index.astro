@@ -62,6 +62,10 @@ return cmd.isOpen ? (
         <tr><td>hotkey</td><td>{`{ key, meta?, ctrl?, shift? } | null`}</td><td>{`{ key: "k", meta: true, ctrl: true }`}</td><td>Global open shortcut</td></tr>
         <tr><td>placeholder</td><td>string</td><td>"Type a command…"</td><td>Search input placeholder</td></tr>
         <tr><td>emptyText</td><td>ReactNode</td><td>"No results."</td><td>Shown when no items match</td></tr>
+        <tr><td>emptyState</td><td>(query) =&gt; ReactNode</td><td>—</td><td>Custom empty state — receives the active query. Overrides emptyText.</td></tr>
+        <tr><td>loading</td><td>boolean</td><td>false</td><td>Show a loading row instead of items (use with async filtering)</td></tr>
+        <tr><td>loadingText</td><td>ReactNode</td><td>"Loading…"</td><td>Loading row text</td></tr>
+        <tr><td>highlightMatches</td><td>boolean</td><td>true</td><td>Bolden matched query characters in labels</td></tr>
         <tr><td>footer</td><td>ReactNode</td><td>—</td><td>Footer slot (keyboard hints, etc)</td></tr>
       </tbody></table>
     </div>

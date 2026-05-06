@@ -49,8 +49,12 @@ return <button {...buttonProps}>{isPending ? "Saving…" : "Save"}</button>;`} /
         <tr><td>variant</td><td>"solid" | "outline" | "ghost" | "link"</td><td>"solid"</td><td>Visual style</td></tr>
         <tr><td>tone</td><td>"neutral" | "primary" | "success" | "danger"</td><td>"primary"</td><td>Color</td></tr>
         <tr><td>size</td><td>"sm" | "md" | "lg"</td><td>"md"</td><td>Size</td></tr>
+        <tr><td>radius</td><td>"default" | "pill" | "sharp"</td><td>"default"</td><td>Border radius shape</td></tr>
         <tr><td>block</td><td>boolean</td><td>false</td><td>Full-width</td></tr>
         <tr><td>loading</td><td>boolean</td><td>false</td><td>Force spinner</td></tr>
+        <tr><td>loadingText</td><td>ReactNode</td><td>—</td><td>Replaces children while loading (no layout shift)</td></tr>
+        <tr><td>pulse</td><td>boolean</td><td>false</td><td>Soft pulsing ring — use for primary CTAs</td></tr>
+        <tr><td>ripple</td><td>boolean</td><td>true</td><td>Material-style click ripple</td></tr>
         <tr><td>disabled</td><td>boolean</td><td>false</td><td>Disable</td></tr>
         <tr><td>iconLeft</td><td>ReactNode</td><td>—</td><td>Icon before label</td></tr>
         <tr><td>iconRight</td><td>ReactNode</td><td>—</td><td>Icon after label</td></tr>
