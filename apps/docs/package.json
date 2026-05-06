@@ -1,6 +1,6 @@
 {
   "name": "@mshafiqyajid/docs",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "private": true,
   "type": "module",
   "scripts": {
@@ -29,7 +29,7 @@
     "@mshafiqyajid/react-popover": "^0.3.1",
     "@mshafiqyajid/react-dropdown-menu": "^0.3.2",
     "@mshafiqyajid/react-timeline": "^1.1.1",
-    "@mshafiqyajid/react-date-picker": "^0.2.0",
+    "@mshafiqyajid/react-date-picker": "^0.3.0",
     "@mshafiqyajid/react-file-upload": "^0.2.1",
     "@mshafiqyajid/react-number-input": "^1.1.1",
     "@mshafiqyajid/react-phone-input": "^1.1.1",
@@ -39,9 +39,9 @@
     "@mshafiqyajid/react-table": "^0.3.0",
     "@mshafiqyajid/react-chart": "^1.0.0",
     "@mshafiqyajid/react-kanban": "^0.2.0",
-    "@mshafiqyajid/react-command-palette": "^0.1.0",
-    "@mshafiqyajid/react-stepper": "^0.1.0",
-    "@mshafiqyajid/react-tree": "^0.1.0",
+    "@mshafiqyajid/react-command-palette": "^0.2.0",
+    "@mshafiqyajid/react-stepper": "^0.2.0",
+    "@mshafiqyajid/react-tree": "^0.2.0",
     "react": "^18.3.0",
     "react-dom": "^18.3.0"
   },

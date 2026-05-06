@@ -1,5 +1,16 @@
 # @mshafiqyajid/docs
 
+## 0.0.15
+
+### Patch Changes
+
+- Updated dependencies [993dbe1]
+- Updated dependencies [993dbe1]
+  - @mshafiqyajid/react-date-picker@0.3.0
+  - @mshafiqyajid/react-command-palette@0.2.0
+  - @mshafiqyajid/react-stepper@0.2.0
+  - @mshafiqyajid/react-tree@0.2.0
+
 ## 0.0.14
 
 ### Patch Changes
