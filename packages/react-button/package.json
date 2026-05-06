@@ -1,6 +1,6 @@
 {
   "name": "@mshafiqyajid/react-button",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Headless button hook and styled component for React. Variants, tones, sizes, async loading state, icon slots, fully accessible.",
   "keywords": [
     "react",
