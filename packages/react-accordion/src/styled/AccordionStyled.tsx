@@ -1,4 +1,4 @@
-import { forwardRef, useId, useMemo, type ReactNode, type Ref } from "react";
+import { forwardRef, useId, useMemo, type CSSProperties, type ReactNode, type Ref } from "react";
 import { useAccordion, type AccordionType } from "../useAccordion";
 
 export type AccordionSize = "sm" | "md" | "lg";
@@ -41,6 +41,7 @@ export interface AccordionStyledProps {
   /** Imperative ref handle exposing expandAll / collapseAll. */
   apiRef?: Ref<AccordionImperative>;
   className?: string;
+  style?: CSSProperties;
 }
 
 function indicesToIds(
@@ -101,6 +102,7 @@ export const AccordionStyled = forwardRef<HTMLDivElement, AccordionStyledProps>(
       animated = true,
       apiRef,
       className,
+      style,
     },
     ref,
   ) {
@@ -159,6 +161,7 @@ export const AccordionStyled = forwardRef<HTMLDivElement, AccordionStyledProps>(
       <div
         ref={ref}
         className={["racc-root", className].filter(Boolean).join(" ")}
+        style={style}
         data-size={size}
         data-tone={tone}
         data-animated={animated ? "true" : undefined}

@@ -1,4 +1,4 @@
-import { forwardRef, useId, type ReactNode } from "react";
+import { forwardRef, useId, type CSSProperties, type ReactNode } from "react";
 import { useCheckbox, type CheckboxState } from "../useCheckbox";
 
 export type CheckboxSize = "sm" | "md" | "lg";
@@ -22,6 +22,7 @@ export interface CheckboxStyledProps {
   /** Append a red asterisk to the label. */
   required?: boolean;
   className?: string;
+  style?: CSSProperties;
 }
 
 export const CheckboxStyled = forwardRef<HTMLButtonElement, CheckboxStyledProps>(
@@ -40,6 +41,7 @@ export const CheckboxStyled = forwardRef<HTMLButtonElement, CheckboxStyledProps>
       card = false,
       required = false,
       className,
+      style,
     },
     ref,
   ) {
@@ -70,6 +72,7 @@ export const CheckboxStyled = forwardRef<HTMLButtonElement, CheckboxStyledProps>
     return (
       <div
         className={rootClass}
+        style={style}
         data-label-position={labelPosition}
         data-card={card ? "true" : undefined}
         data-error={error ? "true" : undefined}

@@ -1,4 +1,4 @@
-import { forwardRef, useState, useCallback, type ReactNode } from "react";
+import { forwardRef, useState, useCallback, type CSSProperties, type ReactNode } from "react";
 
 export type BadgeVariant = "solid" | "subtle" | "outline";
 export type BadgeSize = "sm" | "md" | "lg";
@@ -33,6 +33,7 @@ export interface BadgeStyledProps {
   icon?: ReactNode;
   uppercase?: boolean;
   className?: string;
+  style?: CSSProperties;
 }
 
 export const BadgeStyled = forwardRef<HTMLSpanElement, BadgeStyledProps>(
@@ -54,6 +55,7 @@ export const BadgeStyled = forwardRef<HTMLSpanElement, BadgeStyledProps>(
       icon,
       uppercase = false,
       className,
+      style,
     },
     ref,
   ) {
@@ -87,6 +89,7 @@ export const BadgeStyled = forwardRef<HTMLSpanElement, BadgeStyledProps>(
         ref={ref}
         role="status"
         className={["rbadge-badge", className].filter(Boolean).join(" ")}
+        style={style}
         data-variant={variant}
         data-size={size}
         data-tone={tone}

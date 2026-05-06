@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type CSSProperties } from "react";
 import { createPortal } from "react-dom";
 import { toastStore, type ToastItem } from "../store";
 import { useToasts } from "../useToast";
@@ -23,6 +23,12 @@ export interface ToastProviderProps {
   draggable?: boolean;
   /** Persist the dragged position under this localStorage key. Used only when `draggable`. */
   positionStorageKey?: string;
+  /** Extra className applied to the portal region (`.rtoast-region`). */
+  className?: string;
+  /** Inline style merged onto the portal region — useful for one-off offsets like
+   *  `style={{ marginTop: 80 }}` to clear a sticky header. Translate transforms
+   *  used by the centred positions are preserved. */
+  style?: CSSProperties;
 }
 
 const POSITIONS: ToastPosition[] = [
@@ -45,6 +51,8 @@ export function ToastProvider({
   pauseOnHover = true,
   draggable = false,
   positionStorageKey,
+  className,
+  style,
 }: ToastProviderProps) {
   const [mounted, setMounted] = useState(false);
   const [hoveringRegion, setHoveringRegion] = useState(false);
@@ -128,7 +136,8 @@ export function ToastProvider({
 
   return createPortal(
     <div
-      className="rtoast-region"
+      className={["rtoast-region", className].filter(Boolean).join(" ")}
+      style={style}
       data-position={position}
       data-draggable={draggable || undefined}
       aria-label="Notifications"

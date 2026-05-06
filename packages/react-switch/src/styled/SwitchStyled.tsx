@@ -1,4 +1,4 @@
-import { forwardRef, useId, type ReactNode } from "react";
+import { forwardRef, useId, type CSSProperties, type ReactNode } from "react";
 import { useSwitch } from "../useSwitch";
 
 export type SwitchSize = "sm" | "md" | "lg";
@@ -17,6 +17,7 @@ export interface SwitchStyledProps {
   /** Force loading state. The hook also auto-sets loading when onChange returns a Promise. */
   loading?: boolean;
   className?: string;
+  style?: CSSProperties;
 }
 
 export const SwitchStyled = forwardRef<HTMLButtonElement, SwitchStyledProps>(
@@ -32,6 +33,7 @@ export const SwitchStyled = forwardRef<HTMLButtonElement, SwitchStyledProps>(
       labelPosition = "right",
       loading = false,
       className,
+      style,
     },
     ref,
   ) {
@@ -52,7 +54,7 @@ export const SwitchStyled = forwardRef<HTMLButtonElement, SwitchStyledProps>(
       .join(" ");
 
     return (
-      <span className={rootClass} data-label-position={labelPosition}>
+      <span className={rootClass} style={style} data-label-position={labelPosition}>
         {label && labelPosition === "left" && (
           <span id={labelId} className="rsw-label">
             {label}
