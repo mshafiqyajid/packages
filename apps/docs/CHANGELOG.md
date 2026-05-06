@@ -1,5 +1,16 @@
 # @mshafiqyajid/docs
 
+## 0.0.12
+
+### Patch Changes
+
+- Updated dependencies [89b989f]
+- Updated dependencies [1cf1b1a]
+  - @mshafiqyajid/react-timeline@1.1.0
+  - @mshafiqyajid/react-dropdown-menu@0.3.0
+  - @mshafiqyajid/react-select@0.3.0
+  - @mshafiqyajid/react-table@0.3.0
+
 ## 0.0.11
 
 ### Patch Changes
