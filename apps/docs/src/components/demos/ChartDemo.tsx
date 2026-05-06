@@ -60,6 +60,15 @@ const PIE_DATA = [
 
 type ChartKind = "bar" | "line" | "pie" | "area" | "scatter" | "gauge";
 
+const VARIANTS: Record<ChartKind, readonly string[]> = {
+  bar:     ["default", "rounded", "lollipop"] as const,
+  line:    ["default", "sparkline", "stepped", "dashed"] as const,
+  area:    ["default", "stepped"] as const,
+  pie:     ["default", "donut", "semi"] as const,
+  scatter: ["points", "connected"] as const,
+  gauge:   ["arc", "ring", "linear"] as const,
+};
+
 export default function ChartDemo() {
   const [type, setType] = useState<ChartKind>("bar");
   const [animated, setAnimated] = useState(true);
@@ -69,6 +78,21 @@ export default function ChartDemo() {
   const [donut, setDonut] = useState(false);
   const [colorScheme, setColorScheme] = useState<ColorScheme>("default");
   const [pieSelected, setPieSelected] = useState<number | null>(null);
+  const [variant, setVariant] = useState<string>("default");
+
+  // Wave 1.0 interactive flags (only used by AreaChart)
+  const [tooltipPin, setTooltipPin] = useState(true);
+  const [hoverDim, setHoverDim] = useState(true);
+  const [withDrillClick, setWithDrillClick] = useState(false);
+  const [withBrush, setWithBrush] = useState(false);
+  const [lastClick, setLastClick] = useState<string | null>(null);
+  const [lastRange, setLastRange] = useState<string | null>(null);
+
+  // Reset variant when chart type changes
+  const onTypeChange = (t: ChartKind) => {
+    setType(t);
+    setVariant("default" in VARIANTS[t] ? "default" : (VARIANTS[t][0] as string));
+  };
 
   const checkboxStyle: React.CSSProperties = {
     display: "flex",
@@ -83,7 +107,7 @@ export default function ChartDemo() {
         {(["bar", "line", "area", "pie", "scatter", "gauge"] as ChartKind[]).map((t) => (
           <button
             key={t}
-            onClick={() => setType(t)}
+            onClick={() => onTypeChange(t)}
             style={{
               padding: "0.25rem 0.75rem",
               borderRadius: "0.375rem",
@@ -147,6 +171,60 @@ export default function ChartDemo() {
         ))}
       </div>
 
+      {/* Variant selector — picks change per chart type */}
+      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.875rem", flexWrap: "wrap" }}>
+        <span>Variant:</span>
+        {VARIANTS[type].map((v) => (
+          <button
+            key={v}
+            onClick={() => setVariant(v)}
+            style={{
+              padding: "0.15rem 0.5rem",
+              borderRadius: "0.25rem",
+              border: "1px solid var(--border, #e2e8f0)",
+              background: variant === v ? "var(--accent, #6366f1)" : "transparent",
+              color: variant === v ? "#fff" : "inherit",
+              cursor: "pointer",
+              fontSize: "0.78rem",
+            }}
+          >
+            {v}
+          </button>
+        ))}
+      </div>
+
+      {/* Interactive flags row — only meaningful on AreaChart for now */}
+      {type === "area" && (
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem", fontSize: "0.85rem" }}>
+          <label style={checkboxStyle}>
+            <input type="checkbox" checked={tooltipPin} onChange={(e) => setTooltipPin(e.target.checked)} />
+            tooltipPin
+          </label>
+          <label style={checkboxStyle}>
+            <input type="checkbox" checked={hoverDim} onChange={(e) => setHoverDim(e.target.checked)} />
+            hoverDim
+          </label>
+          <label style={checkboxStyle}>
+            <input type="checkbox" checked={withDrillClick} onChange={(e) => setWithDrillClick(e.target.checked)} />
+            onPointClick
+          </label>
+          <label style={checkboxStyle}>
+            <input type="checkbox" checked={withBrush} onChange={(e) => setWithBrush(e.target.checked)} />
+            onRangeSelect (drag to brush)
+          </label>
+          {lastClick && (
+            <span style={{ color: "var(--fg-muted, #71717a)", fontSize: "0.78rem" }}>
+              clicked → {lastClick}
+            </span>
+          )}
+          {lastRange && (
+            <span style={{ color: "var(--fg-muted, #71717a)", fontSize: "0.78rem" }}>
+              range → {lastRange}
+            </span>
+          )}
+        </div>
+      )}
+
       {type === "bar" && (
         <BarChart
           data={BAR_DATA}
@@ -157,11 +235,13 @@ export default function ChartDemo() {
           colorScheme={colorScheme}
           domain="nice"
           radius={4}
+          variant={variant as "default" | "rounded" | "lollipop"}
           style={{ width: "100%" }}
         />
       )}
       {type === "line" && (
         <LineChart
+          key={variant}
           data={LINE_DATA}
           height={240}
           showDots
@@ -172,6 +252,7 @@ export default function ChartDemo() {
           colorScheme={colorScheme}
           domain="nice"
           formatValue={(v) => `${v}k`}
+          variant={variant as "default" | "sparkline" | "stepped" | "dashed"}
           style={{ width: "100%" }}
         />
       )}
@@ -181,18 +262,20 @@ export default function ChartDemo() {
           size={260}
           showLegend
           animated={animated}
-          donut={donut}
+          donut={donut || variant === "donut" || variant === "semi"}
           tooltip={tooltip}
           colorScheme={colorScheme}
           hoverOffset={6}
           selectedIndex={pieSelected}
           onSelectedChange={setPieSelected}
+          variant={variant as "default" | "donut" | "semi"}
           style={{ margin: "0 auto" }}
         />
       )}
 
       {type === "area" && (
         <AreaChart
+          key={variant}
           data={AREA_DATA}
           height={260}
           smooth
@@ -204,6 +287,19 @@ export default function ChartDemo() {
           colorScheme={colorScheme}
           referenceLines={[{ value: 250, label: "target", color: "#dc2626", dashed: true }]}
           annotations={[{ x: "Apr", label: "launch", color: "#16a34a" }]}
+          variant={variant as "default" | "stepped"}
+          tooltipPin={tooltipPin}
+          hoverDim={hoverDim}
+          onPointClick={
+            withDrillClick
+              ? (rows) => setLastClick(`${rows[0]?.label ?? "?"} (${rows.length} series)`)
+              : undefined
+          }
+          onRangeSelect={
+            withBrush
+              ? (r) => setLastRange(`${r.startLabel} → ${r.endLabel}`)
+              : undefined
+          }
           style={{ width: "100%" }}
         />
       )}
@@ -216,6 +312,7 @@ export default function ChartDemo() {
           colorScheme={colorScheme}
           showTooltip={tooltip}
           showLegend
+          variant={variant as "points" | "connected"}
           style={{ width: "100%" }}
         />
       )}
@@ -223,10 +320,11 @@ export default function ChartDemo() {
       {type === "gauge" && (
         <div style={{ display: "flex", justifyContent: "center" }}>
           <GaugeChart
+            key={variant}
             value={72}
             min={0}
             max={100}
-            sweep={220}
+            sweep={variant === "ring" ? 360 : 220}
             size={240}
             thresholds={[
               { from: 0,  color: "#dc2626", label: "Critical" },
@@ -234,6 +332,7 @@ export default function ChartDemo() {
               { from: 80, color: "#16a34a", label: "Healthy" },
             ]}
             formatValue={(v) => `${v}%`}
+            variant={variant as "arc" | "ring" | "linear"}
           />
         </div>
       )}

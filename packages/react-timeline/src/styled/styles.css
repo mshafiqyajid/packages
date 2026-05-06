@@ -593,36 +593,89 @@
   margin-top: 0;
 }
 
-/* ---- Grouped layout ------------------------------------------------------- */
+/* ---- Grouped layout -------------------------------------------------------
+ * Visually distinct group sections with inset labels (no edge-to-edge solid
+ * blocks), proper padding, breathing room between groups, and a sticky
+ * header that doesn't overlap dots/connectors when scrolled.
+ * --------------------------------------------------------------------- */
 .rtl-group {
   list-style: none;
   margin: 0;
   padding: 0;
 }
 .rtl-group + .rtl-group {
-  margin-top: 1rem;
+  /* More breathing room between groups so they read as separate sections. */
+  margin-top: 1.5rem;
 }
+
 .rtl-group-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  /* Real horizontal padding so the label isn't flush against the rail edge. */
+  padding: 0.5rem 0.75rem;
+  margin: 0 0 0.625rem 0;
+
   font-size: 0.7rem;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--rtl-date-fg);
-  padding: 0.5rem 0 0.5rem 0;
+
+  /* Soft inset background instead of a solid white block — reads as a
+   * subtle section heading regardless of the surrounding page colour. */
+  background: var(--rtl-group-bg, rgba(0, 0, 0, 0.025));
+  border: 1px solid var(--rtl-group-border, rgba(0, 0, 0, 0.06));
+  border-radius: 6px;
+
+  /* Sticky header so it stays visible when scrolling long groups. */
   position: sticky;
   top: 0;
-  background: var(--rtl-dot-bg, #fff);
   z-index: 2;
+
+  /* Use backdrop-filter for elegant overlap when content scrolls underneath. */
+  backdrop-filter: saturate(140%) blur(2px);
+  -webkit-backdrop-filter: saturate(140%) blur(2px);
 }
+
+/* Optional accent rule on the left edge to tie the label to the rail. */
+.rtl-group-label::before {
+  content: "";
+  display: inline-block;
+  width: 3px;
+  height: 0.85em;
+  border-radius: 2px;
+  background: var(--rtl-color-active);
+  opacity: 0.75;
+  flex-shrink: 0;
+}
+
 [data-theme="dark"] .rtl-group-label {
-  background: var(--rtl-dot-bg, #18181b);
+  background: var(--rtl-group-bg, rgba(255, 255, 255, 0.04));
+  border-color: var(--rtl-group-border, rgba(255, 255, 255, 0.08));
 }
+
 .rtl-group-list {
   list-style: none;
   margin: 0;
   padding: 0;
   display: flex;
   flex-direction: column;
+}
+
+/* Horizontal orientation — label sits at the start of the row, not full-width */
+.rtl-timeline[data-orientation="horizontal"] .rtl-group-label {
+  position: static;
+  margin: 0 0.75rem 0 0;
+}
+
+/* Reduced motion — kill the backdrop-filter for paint cost */
+@media (prefers-reduced-motion: reduce) {
+  .rtl-group-label {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
 }
 
 /* ---- Load-more sentinel (zero-height, observed by the hook) -------------- */
