@@ -15,7 +15,42 @@ export interface SeriesDataPoint {
   series: SeriesEntry[];
 }
 
-export type ChartType = "line" | "bar" | "pie";
+export type ChartType = "line" | "bar" | "pie" | "area" | "scatter" | "gauge";
+
+/** Optional gradient fill descriptor for area / bar / line strokes. */
+export interface ChartGradient {
+  from: string;
+  to: string;
+  /** 0–1; default 1 for `from` and 0 for `to` (vertical fade). */
+  fromOpacity?: number;
+  toOpacity?: number;
+}
+
+/** Horizontal reference line (e.g. target / threshold). */
+export interface ChartReferenceLine {
+  value: number;
+  label?: string;
+  color?: string;
+  dashed?: boolean;
+}
+
+/** Vertical annotation guide at a specific x-index (or label). */
+export interface ChartAnnotation {
+  /** Either the label of the data point, or its 0-based index. */
+  x: string | number;
+  label?: string;
+  color?: string;
+}
+
+/** Scatter/bubble data point — adds optional bubble size dimension. */
+export interface ScatterPoint {
+  x: number;
+  y: number;
+  /** Optional bubble radius value (gets scaled into the configured range). */
+  size?: number;
+  label?: string;
+  color?: string;
+}
 
 export type ColorScheme = "default" | "warm" | "cool" | "muted" | "vivid" | "mono";
 

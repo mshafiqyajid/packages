@@ -71,6 +71,66 @@ Adds `domain`, `yTicks`, `xTicks`, plus existing `direction`, `stacked`, `gap`, 
 
 Adds `hoverOffset`, `selectedIndex`, `onSelectedChange`, `selectedOffset`. Click a slice to toggle selection when `onSelectedChange` is provided.
 
+## 1.0 — three new chart types + cross-cutting features
+
+```tsx
+import {
+  AreaChart, ScatterChart, GaugeChart,
+  type AreaChartHandle,
+} from "@mshafiqyajid/react-chart/styled";
+
+// AreaChart — gradient fill, crosshair tooltip, stacked, interactive legend
+<AreaChart
+  data={seriesData}
+  smooth
+  stacked
+  fill={{ from: "#6366f1", to: "#6366f1", fromOpacity: 0.5, toOpacity: 0 }}
+  referenceLines={[{ value: 200, label: "target", color: "#dc2626", dashed: true }]}
+  annotations={[{ x: "Feb", label: "launch", color: "#16a34a" }]}
+  showLegend
+  showTooltip
+/>
+
+// ScatterChart — points only with optional bubble sizing
+<ScatterChart
+  series={[{ name: "Cohort A", points: [{ x: 1, y: 4, size: 10 }, ...] }]}
+  bubbleRange={[4, 24]}
+  showLegend
+/>
+
+// GaugeChart — single-value KPI dial with threshold colours
+<GaugeChart
+  value={72}
+  thresholds={[
+    { from: 0,  color: "#dc2626" },
+    { from: 50, color: "#eab308" },
+    { from: 80, color: "#16a34a" },
+  ]}
+  formatValue={(v) => `${v}%`}
+/>
+```
+
+### Cross-cutting features
+
+| Feature | Where | Notes |
+|---|---|---|
+| Crosshair tooltip | Line / Area | Vertical guide that snaps to the nearest x-index, lists every series at that point. |
+| Animated reveal | Line / Area | `stroke-dasharray` reveal on mount; respects `prefers-reduced-motion`. |
+| Gradient fills | Area (and any chart that accepts a fill) | `fill: { from, to, fromOpacity?, toOpacity? }`. |
+| Reference lines | Area / Bar | `referenceLines: [{ value, label?, color?, dashed? }]` for thresholds. |
+| Annotations | Area / Bar | `annotations: [{ x: label \| index, label?, color? }]` for vertical guides. |
+| Interactive legend | Area | Click any series in the legend to toggle visibility. |
+| Imperative export | Area / Scatter / Gauge | `chartRef.current.exportSVG()` / `exportPNG()` (2× canvas). |
+
+### Imperative export
+
+```tsx
+const ref = useRef<AreaChartHandle>(null);
+
+await ref.current?.exportSVG();   // string
+await ref.current?.exportPNG();   // Promise<Blob | null>
+```
+
 ## Dark mode
 
 Add `data-theme="dark"` to any ancestor element.

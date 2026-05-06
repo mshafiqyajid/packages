@@ -1,7 +1,27 @@
 import { useState } from "react";
-import { BarChart, LineChart, PieChart } from "@mshafiqyajid/react-chart/styled";
+import { BarChart, LineChart, PieChart, AreaChart, ScatterChart, GaugeChart } from "@mshafiqyajid/react-chart/styled";
 import type { ColorScheme } from "@mshafiqyajid/react-chart";
 import "@mshafiqyajid/react-chart/styles.css";
+
+const AREA_DATA = [
+  { label: "Jan", series: [{ name: "Sales", values: [120] }, { name: "Refunds", values: [12] }] },
+  { label: "Feb", series: [{ name: "Sales", values: [180] }, { name: "Refunds", values: [8]  }] },
+  { label: "Mar", series: [{ name: "Sales", values: [240] }, { name: "Refunds", values: [15] }] },
+  { label: "Apr", series: [{ name: "Sales", values: [200] }, { name: "Refunds", values: [22] }] },
+  { label: "May", series: [{ name: "Sales", values: [280] }, { name: "Refunds", values: [18] }] },
+  { label: "Jun", series: [{ name: "Sales", values: [320] }, { name: "Refunds", values: [10] }] },
+];
+
+const SCATTER_SERIES = [
+  { name: "Cohort A", points: [
+    { x: 0.4, y: 12, size: 4 },  { x: 0.55, y: 22, size: 12 },
+    { x: 0.7, y: 28, size: 18 }, { x: 0.85, y: 18, size: 8 },
+  ]},
+  { name: "Cohort B", points: [
+    { x: 0.5, y: 22, size: 8 },  { x: 0.65, y: 32, size: 14 },
+    { x: 0.9, y: 35, size: 26 }, { x: 1.1, y: 24, size: 10 },
+  ]},
+];
 
 const BAR_DATA = [
   { label: "Jan", value: 42 },
@@ -38,7 +58,7 @@ const PIE_DATA = [
   { label: "Svelte",  value: 12 },
 ];
 
-type ChartKind = "bar" | "line" | "pie";
+type ChartKind = "bar" | "line" | "pie" | "area" | "scatter" | "gauge";
 
 export default function ChartDemo() {
   const [type, setType] = useState<ChartKind>("bar");
@@ -60,7 +80,7 @@ export default function ChartDemo() {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem", width: "100%", maxWidth: 560 }}>
       <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
-        {(["bar", "line", "pie"] as ChartKind[]).map((t) => (
+        {(["bar", "line", "area", "pie", "scatter", "gauge"] as ChartKind[]).map((t) => (
           <button
             key={t}
             onClick={() => setType(t)}
@@ -169,6 +189,53 @@ export default function ChartDemo() {
           onSelectedChange={setPieSelected}
           style={{ margin: "0 auto" }}
         />
+      )}
+
+      {type === "area" && (
+        <AreaChart
+          data={AREA_DATA}
+          height={260}
+          smooth
+          stacked
+          fill={{ from: "#6366f1", to: "#6366f1", fromOpacity: 0.45, toOpacity: 0 }}
+          showTooltip={tooltip}
+          showLegend
+          animate={animated}
+          colorScheme={colorScheme}
+          referenceLines={[{ value: 250, label: "target", color: "#dc2626", dashed: true }]}
+          annotations={[{ x: "Apr", label: "launch", color: "#16a34a" }]}
+          style={{ width: "100%" }}
+        />
+      )}
+
+      {type === "scatter" && (
+        <ScatterChart
+          series={SCATTER_SERIES}
+          height={280}
+          bubbleRange={[4, 26]}
+          colorScheme={colorScheme}
+          showTooltip={tooltip}
+          showLegend
+          style={{ width: "100%" }}
+        />
+      )}
+
+      {type === "gauge" && (
+        <div style={{ display: "flex", justifyContent: "center" }}>
+          <GaugeChart
+            value={72}
+            min={0}
+            max={100}
+            sweep={220}
+            size={240}
+            thresholds={[
+              { from: 0,  color: "#dc2626", label: "Critical" },
+              { from: 50, color: "#eab308", label: "Warning" },
+              { from: 80, color: "#16a34a", label: "Healthy" },
+            ]}
+            formatValue={(v) => `${v}%`}
+          />
+        </div>
       )}
 
       {type === "line" && (

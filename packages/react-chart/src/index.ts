@@ -13,6 +13,10 @@ export type {
   ColorScheme,
   ChartDomain,
   ChartSeriesResult,
+  ChartGradient,
+  ChartReferenceLine,
+  ChartAnnotation,
+  ScatterPoint,
 } from "./chartUtils";
 export {
   scaleLinear,

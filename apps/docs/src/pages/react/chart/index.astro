@@ -5,12 +5,12 @@ import H2 from "~/components/H2.astro";
 import CodeBlock from "~/components/CodeBlock.astro";
 import ChartDemo from "~/components/demos/ChartDemo";
 ---
-<DocLayout title="react-chart" description="Pure SVG bar, line, and pie charts with animations, legends, and zero dependencies." pkg="chart">
-  <PackagePageShell name="react-chart" version="0.2.0" description="Pure SVG chart components — BarChart, LineChart, PieChart. Series support in useChart, format slots, renderTooltip slot, niceDomain + axis ticks, responsive resize, sparkline variant, named palettes, loading/empty/error states, pie selection. Zero external dependencies." size="~12 KB">
+<DocLayout title="react-chart" description="Pure SVG charts — Bar, Line, Pie, Area, Scatter, Gauge — with crosshair tooltips, gradient fills, animated reveals, interactive legends, reference lines, and zero dependencies." pkg="chart">
+  <PackagePageShell name="react-chart" description="Pure SVG chart suite — BarChart, LineChart, PieChart, AreaChart, ScatterChart, GaugeChart. Crosshair tooltips, gradient fills, animated path reveal, interactive legend, reference lines + annotations, imperative SVG/PNG export, niceDomain ticks, responsive resize, named palettes, loading / empty / error states. Zero external dependencies." size="~16 KB">
     <div class="pkg-section"><H2>Playground</H2><ChartDemo client:load /></div>
     <div class="pkg-section"><H2>Install</H2><CodeBlock lang="bash" code="npm install @mshafiqyajid/react-chart" /></div>
     <div class="pkg-section"><H2>Quick start</H2>
-      <CodeBlock lang="tsx" code={`import { BarChart, LineChart, PieChart } from "@mshafiqyajid/react-chart/styled";
+      <CodeBlock lang="tsx" code={`import { BarChart, LineChart, PieChart, AreaChart, ScatterChart, GaugeChart } from "@mshafiqyajid/react-chart/styled";
 import "@mshafiqyajid/react-chart/styles.css";
 
 const data = [
@@ -19,9 +19,103 @@ const data = [
   { label: "Mar", value: 55 },
 ];
 
-<BarChart data={data} height={240} showValues animated />
-<LineChart data={data} height={240} showDots showGrid animated />
-<PieChart data={pieData} showLegend animated />`} />
+<BarChart    data={data} height={240} showValues animated />
+<LineChart   data={data} height={240} showDots showGrid animated />
+<AreaChart   data={data} height={240} smooth fill={{ from: "#6366f1", to: "#6366f1" }} />
+<PieChart    data={pieData} showLegend animated />
+<ScatterChart data={[{ x: 1, y: 4, size: 10 }, { x: 2, y: 7, size: 22 }]} />
+<GaugeChart  value={72} thresholds={[{ from: 0, color: "#dc2626" }, { from: 50, color: "#eab308" }, { from: 80, color: "#16a34a" }]} />`} />
+    </div>
+
+    <div class="pkg-section"><H2>AreaChart</H2>
+      <p>Filled-area variant with crosshair tooltip, gradient fills, stacked mode, interactive legend, and reference / annotation lines.</p>
+      <CodeBlock lang="tsx" code={`<AreaChart
+  data={[
+    { label: "Jan", series: [
+      { name: "Sales", values: [120] },
+      { name: "Refunds", values: [12] },
+    ]},
+    { label: "Feb", series: [
+      { name: "Sales", values: [180] },
+      { name: "Refunds", values: [8]  },
+    ]},
+    { label: "Mar", series: [
+      { name: "Sales", values: [240] },
+      { name: "Refunds", values: [15] },
+    ]},
+  ]}
+  height={260}
+  smooth
+  stacked
+  fill={{ from: "#6366f1", to: "#6366f1", fromOpacity: 0.5, toOpacity: 0 }}
+  referenceLines={[{ value: 200, label: "target", color: "#dc2626", dashed: true }]}
+  annotations={[{ x: "Feb", label: "launch", color: "#16a34a" }]}
+  showLegend
+  showTooltip   // crosshair + multi-series tooltip
+/>`} />
+    </div>
+
+    <div class="pkg-section"><H2>ScatterChart</H2>
+      <p>Points only, with optional <code>size</code> dimension for bubble charts. Hover any point for a tooltip with x / y / size.</p>
+      <CodeBlock lang="tsx" code={`<ScatterChart
+  series={[
+    { name: "Cohort A", points: [
+      { x: 0.4, y: 12, size: 4 },
+      { x: 0.7, y: 28, size: 18 },
+    ]},
+    { name: "Cohort B", points: [
+      { x: 0.5, y: 22, size: 8 },
+      { x: 0.9, y: 35, size: 26 },
+    ]},
+  ]}
+  bubbleRange={[4, 28]}
+  showLegend
+/>`} />
+    </div>
+
+    <div class="pkg-section"><H2>GaugeChart</H2>
+      <p>Single-value KPI dial. Thresholds drive both the colour and an optional centered label.</p>
+      <CodeBlock lang="tsx" code={`<GaugeChart
+  value={72}
+  min={0}
+  max={100}
+  sweep={220}                         // 180 = semicircle, 360 = ring
+  thresholds={[
+    { from: 0,  color: "#dc2626", label: "Critical" },
+    { from: 50, color: "#eab308", label: "Warning" },
+    { from: 80, color: "#16a34a", label: "Healthy" },
+  ]}
+  formatValue={(v) => \`\${v}%\`}
+  label="CPU"
+/>`} />
+    </div>
+
+    <div class="pkg-section"><H2>Imperative export</H2>
+      <CodeBlock lang="tsx" code={`import { useRef } from "react";
+import { AreaChart, type AreaChartHandle } from "@mshafiqyajid/react-chart/styled";
+
+const ref = useRef<AreaChartHandle>(null);
+
+<>
+  <button onClick={async () => {
+    const png = await ref.current?.exportPNG();
+    if (png) downloadBlob(png, "chart.png");
+  }}>Download PNG</button>
+
+  <AreaChart ref={ref} data={data} />
+</>`} />
+      <p><code>AreaChart</code>, <code>ScatterChart</code>, and <code>GaugeChart</code> all expose an imperative ref handle with <code>exportSVG()</code> (returns the SVG markup string) and <code>exportPNG()</code> (returns a 2× <code>Blob</code>).</p>
+    </div>
+
+    <div class="pkg-section"><H2>Cross-cutting features (Line / Area / Bar)</H2>
+      <table class="props-table"><thead><tr><th>Feature</th><th>Prop</th><th>Notes</th></tr></thead><tbody>
+        <tr><td>Crosshair tooltip</td><td><code>showTooltip</code></td><td>Vertical guide that snaps to the nearest x; lists all series at that point.</td></tr>
+        <tr><td>Animated reveal</td><td><code>animate</code> / <code>animated</code></td><td>Stroke-dasharray reveal on Line / Area; transform reveal on Bar. Respects <code>prefers-reduced-motion</code>.</td></tr>
+        <tr><td>Gradient fills</td><td><code>fill: {`{ from, to, fromOpacity?, toOpacity? }`}</code></td><td>Vertical gradient for AreaChart fill (defaults: 1 → 0 opacity).</td></tr>
+        <tr><td>Reference lines</td><td><code>referenceLines: [{`{ value, label?, color?, dashed? }`}]</code></td><td>Horizontal targets / thresholds.</td></tr>
+        <tr><td>Annotations</td><td><code>annotations: [{`{ x, label?, color? }`}]</code></td><td>Vertical guide at a label / index (release marker, deploy, etc.).</td></tr>
+        <tr><td>Interactive legend</td><td><code>showLegend</code> + <code>hiddenSeries</code> / <code>onHiddenSeriesChange</code></td><td>Click any series swatch to toggle visibility.</td></tr>
+      </tbody></table>
     </div>
     <div class="pkg-section"><H2>Shared props (all charts)</H2>
       <table class="props-table"><thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
