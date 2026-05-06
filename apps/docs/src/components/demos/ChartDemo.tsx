@@ -2,8 +2,10 @@ import { useState } from "react";
 import { BarChart, LineChart, PieChart, AreaChart, ScatterChart, GaugeChart } from "@mshafiqyajid/react-chart/styled";
 import type { ColorScheme } from "@mshafiqyajid/react-chart";
 import { SwitchStyled } from "@mshafiqyajid/react-switch/styled";
+import { ButtonStyled } from "@mshafiqyajid/react-button/styled";
 import "@mshafiqyajid/react-chart/styles.css";
 import "@mshafiqyajid/react-switch/styles.css";
+import "@mshafiqyajid/react-button/styles.css";
 
 const AREA_DATA = [
   { label: "Jan", series: [{ name: "Sales", values: [120] }, { name: "Refunds", values: [12] }] },
@@ -98,24 +100,17 @@ export default function ChartDemo() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem", width: "100%", maxWidth: 560 }}>
-      <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", alignItems: "center" }}>
+      <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap", alignItems: "center" }}>
         {(["bar", "line", "area", "pie", "scatter", "gauge"] as ChartKind[]).map((t) => (
-          <button
+          <ButtonStyled
             key={t}
+            size="sm"
+            variant={type === t ? "solid" : "outline"}
+            tone={type === t ? "primary" : "neutral"}
             onClick={() => onTypeChange(t)}
-            style={{
-              padding: "0.25rem 0.75rem",
-              borderRadius: "0.375rem",
-              border: "1px solid var(--border, #e2e8f0)",
-              background: type === t ? "var(--accent, #6366f1)" : "transparent",
-              color: type === t ? "#fff" : "inherit",
-              cursor: "pointer",
-              fontSize: "0.875rem",
-              fontWeight: 500,
-            }}
           >
             {t.charAt(0).toUpperCase() + t.slice(1)} Chart
-          </button>
+          </ButtonStyled>
         ))}
       </div>
 
@@ -133,46 +128,34 @@ export default function ChartDemo() {
         )}
       </div>
 
-      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.875rem" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", flexWrap: "wrap", fontSize: "0.875rem" }}>
         <span>Palette:</span>
         {(["default", "warm", "cool", "muted", "vivid", "mono"] as ColorScheme[]).map((s) => (
-          <button
+          <ButtonStyled
             key={s}
+            size="sm"
+            variant={colorScheme === s ? "solid" : "ghost"}
+            tone={colorScheme === s ? "primary" : "neutral"}
             onClick={() => setColorScheme(s)}
-            style={{
-              padding: "0.15rem 0.5rem",
-              borderRadius: "0.25rem",
-              border: "1px solid var(--border, #e2e8f0)",
-              background: colorScheme === s ? "var(--accent, #6366f1)" : "transparent",
-              color: colorScheme === s ? "#fff" : "inherit",
-              cursor: "pointer",
-              fontSize: "0.78rem",
-            }}
           >
             {s}
-          </button>
+          </ButtonStyled>
         ))}
       </div>
 
       {/* Variant selector — picks change per chart type */}
-      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.875rem", flexWrap: "wrap" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontSize: "0.875rem", flexWrap: "wrap" }}>
         <span>Variant:</span>
         {VARIANTS[type].map((v) => (
-          <button
+          <ButtonStyled
             key={v}
+            size="sm"
+            variant={variant === v ? "solid" : "ghost"}
+            tone={variant === v ? "primary" : "neutral"}
             onClick={() => setVariant(v)}
-            style={{
-              padding: "0.15rem 0.5rem",
-              borderRadius: "0.25rem",
-              border: "1px solid var(--border, #e2e8f0)",
-              background: variant === v ? "var(--accent, #6366f1)" : "transparent",
-              color: variant === v ? "#fff" : "inherit",
-              cursor: "pointer",
-              fontSize: "0.78rem",
-            }}
           >
             {v}
-          </button>
+          </ButtonStyled>
         ))}
       </div>
 

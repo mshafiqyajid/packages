@@ -1,0 +1,129 @@
+/* react-checkbox — styled component
+ * Dark mode via [data-theme="dark"] ancestor only.
+ * All transitions respect prefers-reduced-motion.
+ */
+:root {
+  --rchk-radius: 4px;
+  --rchk-border: #d4d4d8;
+  --rchk-bg: transparent;
+  --rchk-fg: transparent;
+  --rchk-on-bg: #6366f1;
+  --rchk-on-fg: #ffffff;
+  --rchk-focus-ring: rgba(99, 102, 241, 0.35);
+
+  --rchk-size-sm: 14px;
+  --rchk-size-md: 18px;
+  --rchk-size-lg: 22px;
+
+  --rchk-duration-fast: 120ms;
+  --rchk-duration: 180ms;
+  --rchk-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --rchk-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+[data-theme="dark"] {
+  --rchk-border: #52525b;
+  --rchk-on-bg: #818cf8;
+  --rchk-on-fg: #18181b;
+  --rchk-focus-ring: rgba(129, 140, 248, 0.45);
+}
+
+/* ── Root ──────────────────────────────────────────────────── */
+.rchk-root {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  vertical-align: middle;
+}
+
+/* ── Box ───────────────────────────────────────────────────── */
+.rchk-box {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--rchk-bg);
+  border: 1.5px solid var(--rchk-border);
+  border-radius: var(--rchk-radius);
+  padding: 0;
+  cursor: pointer;
+  flex-shrink: 0;
+  outline: none;
+  color: var(--rchk-fg);
+  transition:
+    background var(--rchk-duration) var(--rchk-ease),
+    border-color var(--rchk-duration) var(--rchk-ease),
+    color var(--rchk-duration) var(--rchk-ease),
+    box-shadow var(--rchk-duration-fast) var(--rchk-ease),
+    transform var(--rchk-duration-fast) var(--rchk-ease);
+}
+.rchk-box[data-size="sm"] { width: var(--rchk-size-sm); height: var(--rchk-size-sm); }
+.rchk-box[data-size="md"] { width: var(--rchk-size-md); height: var(--rchk-size-md); }
+.rchk-box[data-size="lg"] { width: var(--rchk-size-lg); height: var(--rchk-size-lg); }
+
+.rchk-box:hover:not([data-disabled="true"]) {
+  border-color: var(--rchk-on-bg);
+}
+.rchk-box:focus-visible {
+  box-shadow: 0 0 0 3px var(--rchk-focus-ring);
+}
+.rchk-box:active:not([data-disabled="true"]) {
+  transform: scale(0.92);
+}
+
+.rchk-box[data-checked="true"],
+.rchk-box[data-indeterminate="true"] {
+  background: var(--rchk-on-bg);
+  border-color: var(--rchk-on-bg);
+  color: var(--rchk-on-fg);
+}
+
+.rchk-box[data-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* ── Tones ─────────────────────────────────────────────────── */
+.rchk-box[data-tone="neutral"][data-checked="true"],
+.rchk-box[data-tone="neutral"][data-indeterminate="true"] { --rchk-on-bg: #18181b; }
+[data-theme="dark"] .rchk-box[data-tone="neutral"][data-checked="true"],
+[data-theme="dark"] .rchk-box[data-tone="neutral"][data-indeterminate="true"] { --rchk-on-bg: #fafafa; --rchk-on-fg: #18181b; }
+
+.rchk-box[data-tone="success"][data-checked="true"],
+.rchk-box[data-tone="success"][data-indeterminate="true"] { --rchk-on-bg: #16a34a; }
+.rchk-box[data-tone="danger"][data-checked="true"],
+.rchk-box[data-tone="danger"][data-indeterminate="true"]  { --rchk-on-bg: #dc2626; }
+
+.rchk-box[data-tone="success"]:focus-visible { box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.35); }
+.rchk-box[data-tone="danger"]:focus-visible  { box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.35); }
+.rchk-box[data-tone="neutral"]:focus-visible { box-shadow: 0 0 0 3px rgba(24, 24, 27, 0.3); }
+
+/* ── Icon ──────────────────────────────────────────────────── */
+.rchk-icon {
+  width: 80%;
+  height: 80%;
+  opacity: 0;
+  transform: scale(0.6);
+  transition:
+    opacity var(--rchk-duration-fast) var(--rchk-ease),
+    transform var(--rchk-duration) var(--rchk-ease-spring);
+}
+.rchk-box[data-checked="true"] .rchk-icon,
+.rchk-box[data-indeterminate="true"] .rchk-icon {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ── Label ─────────────────────────────────────────────────── */
+.rchk-label {
+  font-size: 0.875rem;
+  line-height: 1.4;
+  user-select: none;
+  cursor: pointer;
+}
+
+/* ── Reduced motion ────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .rchk-box,
+  .rchk-icon { transition: none; }
+  .rchk-box:active:not([data-disabled="true"]) { transform: none; }
+}

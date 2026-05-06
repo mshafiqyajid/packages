@@ -1,7 +1,9 @@
 import { useState } from "react";
 import PropPlayground from "../PropPlayground";
 import { ModalStyled, confirm } from "@mshafiqyajid/react-modal/styled";
+import { ButtonStyled } from "@mshafiqyajid/react-button/styled";
 import "@mshafiqyajid/react-modal/styles.css";
+import "@mshafiqyajid/react-button/styles.css";
 
 function ModalWrapper({ size, variant, blur, padding, scrollable, closeOnOverlayClick, closeOnEsc, showCloseButton, transition, swipeToDismiss, closeOnSubmit }: {
   size: string; variant: string; blur: string; padding: string; scrollable: boolean; closeOnOverlayClick: boolean; closeOnEsc: boolean; showCloseButton: boolean; transition: string; swipeToDismiss: boolean; closeOnSubmit: boolean;
@@ -10,19 +12,19 @@ function ModalWrapper({ size, variant, blur, padding, scrollable, closeOnOverlay
   const [open2, setOpen2] = useState(false);
   const [confirmResult, setConfirmResult] = useState<string>("");
 
-  const btn: React.CSSProperties = { padding: "0.5rem 1.25rem", borderRadius: "8px", border: "1px solid var(--border)", background: "var(--bg-elevated)", color: "var(--fg)", cursor: "pointer", fontSize: "0.875rem", fontWeight: 500 };
   return (
     <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", alignItems: "center" }}>
-      <button onClick={() => setOpen(true)} style={btn}>Open modal</button>
-      <button
+      <ButtonStyled variant="outline" tone="neutral" onClick={() => setOpen(true)}>Open modal</ButtonStyled>
+      <ButtonStyled
+        variant="outline"
+        tone="neutral"
         onClick={async () => {
           const ok = await confirm({ title: "Delete this item?", body: "This can't be undone.", confirmLabel: "Delete", danger: true });
           setConfirmResult(ok ? "confirmed" : "cancelled");
         }}
-        style={btn}
       >
         confirm() utility
-      </button>
+      </ButtonStyled>
       {confirmResult && <span style={{ fontSize: "0.85rem", color: "var(--fg-muted)" }}>→ {confirmResult}</span>}
       <ModalStyled
         isOpen={open}
@@ -41,8 +43,8 @@ function ModalWrapper({ size, variant, blur, padding, scrollable, closeOnOverlay
         closeOnSubmit={closeOnSubmit}
         footer={
           <div style={{ display: "flex", gap: "0.5rem", justifyContent: "flex-end" }}>
-            <button type="button" onClick={() => setOpen(false)} style={{ padding: "0.4rem 1rem", borderRadius: "6px", border: "1px solid var(--border)", background: "transparent", color: "var(--fg)", cursor: "pointer" }}>Cancel</button>
-            <button type="button" onClick={() => setOpen2(true)} style={{ padding: "0.4rem 1rem", borderRadius: "6px", border: "none", background: "var(--accent)", color: "white", cursor: "pointer" }}>Open second modal</button>
+            <ButtonStyled variant="outline" tone="neutral" size="sm" onClick={() => setOpen(false)}>Cancel</ButtonStyled>
+            <ButtonStyled variant="solid" tone="primary" size="sm" onClick={() => setOpen2(true)}>Open second modal</ButtonStyled>
           </div>
         }
       >

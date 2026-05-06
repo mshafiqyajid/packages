@@ -1,6 +1,10 @@
 import PropPlayground from "../PropPlayground";
 import { PopoverStyled } from "@mshafiqyajid/react-popover/styled";
+import { ButtonStyled } from "@mshafiqyajid/react-button/styled";
+import { TextInputStyled } from "@mshafiqyajid/react-text-input/styled";
 import "@mshafiqyajid/react-popover/styles.css";
+import "@mshafiqyajid/react-button/styles.css";
+import "@mshafiqyajid/react-text-input/styles.css";
 
 export default function PopoverDemo() {
   return (
@@ -35,17 +39,15 @@ export default function PopoverDemo() {
             <div>
               <p style={{ margin: 0, fontSize: "0.875rem", color: "var(--fg-muted)" }}>This is the popover content. Add any rich content here.</p>
               {v.modal && (
-                <div style={{ marginTop: "0.5rem", display: "flex", gap: "0.4rem" }}>
-                  <input type="text" placeholder="Try Tab cycling" style={{ flex: 1, padding: "4px 8px", fontSize: "0.85rem" }} />
-                  <button type="button" style={{ padding: "4px 10px", fontSize: "0.85rem" }}>OK</button>
+                <div style={{ marginTop: "0.5rem", display: "flex", gap: "0.4rem", alignItems: "center" }}>
+                  <TextInputStyled placeholder="Try Tab cycling" size="sm" block />
+                  <ButtonStyled variant="solid" tone="primary" size="sm">OK</ButtonStyled>
                 </div>
               )}
             </div>
           }
         >
-          <button style={{ padding: "0.5rem 1.25rem", borderRadius: "8px", border: "1px solid var(--border)", background: "var(--bg-elevated)", color: "var(--fg)", cursor: "pointer", fontSize: "0.875rem", fontWeight: 500 }}>
-            Open popover
-          </button>
+          <ButtonStyled variant="outline" tone="neutral">Open popover</ButtonStyled>
         </PopoverStyled>
       )}
     />

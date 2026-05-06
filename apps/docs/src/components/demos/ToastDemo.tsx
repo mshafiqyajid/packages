@@ -2,7 +2,9 @@
 import PropPlayground from "../PropPlayground";
 import { ToastProvider } from "@mshafiqyajid/react-toast/styled";
 import { useToast } from "@mshafiqyajid/react-toast";
+import { ButtonStyled } from "@mshafiqyajid/react-button/styled";
 import "@mshafiqyajid/react-toast/styles.css";
+import "@mshafiqyajid/react-button/styles.css";
 
 function ToastTrigger({
   type,
@@ -57,17 +59,6 @@ function ToastTrigger({
     });
   };
 
-  const btnStyle: React.CSSProperties = {
-    padding: "0.5rem 1.25rem",
-    borderRadius: "8px",
-    border: "1px solid var(--border)",
-    background: "var(--bg-elevated)",
-    color: "var(--fg)",
-    cursor: "pointer",
-    fontSize: "0.875rem",
-    fontWeight: 500,
-  };
-
   return (
     <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", alignItems: "center" }}>
       <ToastProvider
@@ -76,15 +67,12 @@ function ToastTrigger({
         pauseOnHover={pauseOnHover}
         draggable={draggable}
       />
-      <button onClick={fireSimple} style={btnStyle}>
+      <ButtonStyled variant="outline" tone="neutral" onClick={fireSimple}>
         Show toast
-      </button>
-      <button
-        onClick={firePromise}
-        style={{ ...btnStyle, background: "var(--accent)", color: "#fff", borderColor: "var(--accent)" }}
-      >
+      </ButtonStyled>
+      <ButtonStyled variant="solid" tone="primary" onClick={firePromise}>
         toast.promise()
-      </button>
+      </ButtonStyled>
     </div>
   );
 }

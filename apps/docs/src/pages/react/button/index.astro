@@ -1,0 +1,60 @@
+---
+import DocLayout from "~/layouts/DocLayout.astro";
+import PackagePageShell from "~/components/PackagePageShell.astro";
+import H2 from "~/components/H2.astro";
+import CodeBlock from "~/components/CodeBlock.astro";
+import ButtonDemo from "~/components/demos/ButtonDemo";
+---
+<DocLayout title="react-button" description="Headless button hook and styled component for React. Variants, tones, sizes, async loading state, icon slots, fully accessible." pkg="button">
+  <PackagePageShell name="react-button" description="Headless button hook + styled component. Variants (solid/outline/ghost/link), tones (neutral/primary/success/danger), three sizes, async loading state (Promise-driven), icon slots, full-width block mode, fully accessible." size="~3 KB">
+    <div class="pkg-section"><H2>Playground</H2><ButtonDemo client:load /></div>
+    <div class="pkg-section"><H2>Install</H2><CodeBlock lang="bash" code="npm install @mshafiqyajid/react-button" /></div>
+
+    <div class="pkg-section"><H2>Quick start</H2>
+      <CodeBlock lang="tsx" code={`import { ButtonStyled } from "@mshafiqyajid/react-button/styled";
+import "@mshafiqyajid/react-button/styles.css";
+
+<ButtonStyled tone="primary" size="md" onClick={() => alert("hi")}>
+  Click me
+</ButtonStyled>`} />
+    </div>
+
+    <div class="pkg-section"><H2>Async clicks</H2>
+      <p>Return a <code>Promise</code> from <code>onClick</code> and the button shows a spinner, blocks further clicks, and clears automatically when the promise resolves or rejects.</p>
+      <CodeBlock lang="tsx" code={`<ButtonStyled
+  tone="primary"
+  onClick={async () => {
+    await fetch("/api/checkout", { method: "POST" });
+  }}
+>
+  Checkout
+</ButtonStyled>`} />
+    </div>
+
+    <div class="pkg-section"><H2>Headless</H2>
+      <CodeBlock lang="tsx" code={`import { useButton } from "@mshafiqyajid/react-button";
+
+const { buttonProps, isPending } = useButton({
+  onClick: async () => {
+    await fetch("/api/save", { method: "POST" });
+  },
+});
+
+return <button {...buttonProps}>{isPending ? "Saving…" : "Save"}</button>;`} />
+    </div>
+
+    <div class="pkg-section"><H2>API</H2>
+      <table class="props-table"><thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+        <tr><td>onClick</td><td>(e) =&gt; void | Promise&lt;void&gt;</td><td>—</td><td>Click handler. Promise drives the spinner.</td></tr>
+        <tr><td>variant</td><td>"solid" | "outline" | "ghost" | "link"</td><td>"solid"</td><td>Visual style</td></tr>
+        <tr><td>tone</td><td>"neutral" | "primary" | "success" | "danger"</td><td>"primary"</td><td>Color</td></tr>
+        <tr><td>size</td><td>"sm" | "md" | "lg"</td><td>"md"</td><td>Size</td></tr>
+        <tr><td>block</td><td>boolean</td><td>false</td><td>Full-width</td></tr>
+        <tr><td>loading</td><td>boolean</td><td>false</td><td>Force spinner</td></tr>
+        <tr><td>disabled</td><td>boolean</td><td>false</td><td>Disable</td></tr>
+        <tr><td>iconLeft</td><td>ReactNode</td><td>—</td><td>Icon before label</td></tr>
+        <tr><td>iconRight</td><td>ReactNode</td><td>—</td><td>Icon after label</td></tr>
+      </tbody></table>
+    </div>
+  </PackagePageShell>
+</DocLayout>

@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { CommandPaletteStyled } from "@mshafiqyajid/react-command-palette/styled";
+import { ButtonStyled } from "@mshafiqyajid/react-button/styled";
 import "@mshafiqyajid/react-command-palette/styles.css";
+import "@mshafiqyajid/react-button/styles.css";
 
 const ITEMS = [
   { id: "new",       label: "New file",         group: "File", shortcut: "⌘N" },
@@ -19,37 +21,29 @@ export default function CommandPaletteDemo() {
   const [open, setOpen] = useState(false);
   const [last, setLast] = useState<string | null>(null);
 
-  const btn: React.CSSProperties = {
-    padding: "0.55rem 1rem",
-    borderRadius: 8,
-    border: "1px solid var(--border)",
-    background: "var(--bg-elevated)",
-    color: "var(--fg)",
-    cursor: "pointer",
-    fontSize: "0.875rem",
-    fontWeight: 500,
-    display: "inline-flex",
-    alignItems: "center",
-    gap: "0.4rem",
-  };
-
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem", alignItems: "flex-start" }}>
-      <button onClick={() => setOpen(true)} style={btn}>
+      <ButtonStyled
+        variant="outline"
+        tone="neutral"
+        onClick={() => setOpen(true)}
+        iconRight={
+          <kbd
+            style={{
+              padding: "1px 6px",
+              border: "1px solid currentColor",
+              borderRadius: 4,
+              fontSize: "0.7rem",
+              opacity: 0.7,
+              fontFamily: "inherit",
+            }}
+          >
+            ⌘K
+          </kbd>
+        }
+      >
         Open palette
-        <kbd
-          style={{
-            padding: "1px 6px",
-            border: "1px solid var(--border)",
-            borderRadius: 4,
-            background: "var(--bg-subtle, transparent)",
-            fontSize: "0.7rem",
-            color: "var(--fg-muted)",
-          }}
-        >
-          ⌘K
-        </kbd>
-      </button>
+      </ButtonStyled>
       {last && (
         <div style={{ fontSize: "0.85rem", color: "var(--fg-muted)" }}>
           Last selected: <code>{last}</code>

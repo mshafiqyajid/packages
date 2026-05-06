@@ -1,6 +1,8 @@
 import PropPlayground from "../PropPlayground";
 import { TooltipStyled } from "@mshafiqyajid/react-tooltip/styled";
+import { ButtonStyled } from "@mshafiqyajid/react-button/styled";
 import "@mshafiqyajid/react-tooltip/styles.css";
+import "@mshafiqyajid/react-button/styles.css";
 
 export default function TooltipDemo() {
   return (
@@ -41,20 +43,7 @@ export default function TooltipDemo() {
           sticky={v.sticky as boolean}
           longPressDelay={v.longPressDelay as number}
         >
-          <button
-            style={{
-              padding: "0.5rem 1.25rem",
-              borderRadius: "8px",
-              border: "1px solid var(--border)",
-              background: "var(--bg-elevated)",
-              color: "var(--fg)",
-              cursor: "pointer",
-              fontSize: "0.875rem",
-              fontWeight: 500,
-            }}
-          >
-            Hover me
-          </button>
+          <ButtonStyled variant="outline" tone="neutral">Hover me</ButtonStyled>
         </TooltipStyled>
       )}
     />

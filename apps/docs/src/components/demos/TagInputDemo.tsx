@@ -1,7 +1,9 @@
 import { useState } from "react";
 import PropPlayground from "../PropPlayground";
 import { TagInputStyled } from "@mshafiqyajid/react-tag-input/styled";
+import { ButtonStyled } from "@mshafiqyajid/react-button/styled";
 import "@mshafiqyajid/react-tag-input/styles.css";
+import "@mshafiqyajid/react-button/styles.css";
 
 const SUGGESTIONS = ["React", "TypeScript", "CSS", "Node.js", "GraphQL", "Tailwind", "Next.js", "Astro"];
 
@@ -46,17 +48,15 @@ function TagInputWrapper({
       tagActions={
         withActions
           ? () => (
-              <button
-                type="button"
+              <ButtonStyled
+                variant="ghost"
+                tone="neutral"
+                size="sm"
                 aria-label="More"
-                style={{
-                  fontSize: "0.65rem", padding: "0 4px", marginLeft: 4,
-                  border: "none", background: "rgba(0,0,0,0.06)",
-                  borderRadius: 3, cursor: "pointer",
-                }}
+                style={{ height: 18, padding: "0 4px", marginLeft: 4, fontSize: "0.7rem", minWidth: 0 }}
               >
                 ⋯
-              </button>
+              </ButtonStyled>
             )
           : undefined
       }

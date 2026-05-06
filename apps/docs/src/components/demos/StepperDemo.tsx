@@ -2,9 +2,11 @@ import { useState } from "react";
 import { StepperStyled } from "@mshafiqyajid/react-stepper/styled";
 import { SelectStyled } from "@mshafiqyajid/react-select/styled";
 import { SwitchStyled } from "@mshafiqyajid/react-switch/styled";
+import { TextInputStyled } from "@mshafiqyajid/react-text-input/styled";
 import "@mshafiqyajid/react-stepper/styles.css";
 import "@mshafiqyajid/react-select/styles.css";
 import "@mshafiqyajid/react-switch/styles.css";
+import "@mshafiqyajid/react-text-input/styles.css";
 
 const ORIENTATION_ITEMS = [
   { value: "horizontal", label: "horizontal" },
@@ -75,16 +77,16 @@ export default function StepperDemo() {
         renderContent={({ step }) => {
           if (step.id === "account") {
             return (
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                <input placeholder="Email" type="email" style={{ padding: "0.4rem 0.6rem" }} />
-                <input placeholder="Password" type="password" style={{ padding: "0.4rem 0.6rem" }} />
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
+                <TextInputStyled placeholder="Email" type="email" block />
+                <TextInputStyled placeholder="Password" type="password" block />
               </div>
             );
           }
           if (step.id === "billing") {
             return (
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                <input placeholder="Card number" style={{ padding: "0.4rem 0.6rem" }} />
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
+                <TextInputStyled placeholder="Card number" block />
                 <SwitchStyled
                   checked={agree}
                   onChange={setAgree}
