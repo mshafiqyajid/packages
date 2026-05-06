@@ -138,3 +138,40 @@ Add `data-theme="dark"` to any ancestor element.
 ## License
 
 MIT
+
+## What's new in 1.0.0
+
+**Three new chart types:**
+
+- **`<AreaChart>`** — filled-area variant with smooth/stepped interpolation, gradient fills (`fill: { from, to, fromOpacity?, toOpacity? }`), single- or multi-series, opt-in `stacked`, crosshair tooltip with snap-to-nearest-x, and an interactive legend (click a series swatch to toggle visibility).
+- **`<ScatterChart>`** — points-only chart with optional `size` field for bubble layouts. Auto-scales bubble radii into a configurable `bubbleRange` (default `[4, 24]`). Multi-series via `series` prop.
+- **`<GaugeChart>`** — single-value KPI dial. Threshold-based colouring, configurable `sweep` (180 = semicircle, 220 = default, 360 = ring), tick marks, centered numeric readout.
+
+**Visual variants per chart** (not just colour — actual design alternatives):
+
+| Chart | Variants |
+|---|---|
+| BarChart | `default \| rounded \| lollipop` |
+| LineChart | `default \| sparkline \| stepped \| dashed` |
+| AreaChart | `default \| stepped` |
+| PieChart | `default \| donut \| semi` (semi = horizontal half-donut) |
+| ScatterChart | `points \| connected` |
+| GaugeChart | `arc \| ring \| linear` |
+
+**Interactive features (focused on AreaChart):**
+
+- **Click-to-drill** — `onPointClick(payload)` fires with every visible series' value at the clicked x.
+- **Pinned tooltip** — click any point to pin; click again to unpin (`tooltipPin`).
+- **Brush range selection** — drag horizontally to select; `onRangeSelect({ startLabel, endLabel, startIndex, endIndex })` fires once on release.
+- **Hover-dim siblings** — hovering a legend item fades the rest to 0.22 opacity (`hoverDim`).
+- **Synchronised cursor** — wrap a group of charts in `<ChartSyncProvider>` and pass the same `syncId` to share crosshair x-index. Dashboard-friendly.
+- **Keyboard navigation** — focus the chart and ←/→/Home/End move the crosshair, Enter/Space fire `onPointClick`, Esc clears.
+- **Imperative export** — `chartRef.current.exportSVG()` returns the SVG markup string; `exportPNG()` returns a 2× `Blob` rasterised via canvas. Available on Area / Scatter / Gauge.
+
+**Cross-cutting features (apply to Area; subset on others):**
+
+- **Crosshair tooltip** (`showTooltip`) — vertical guide snaps to the nearest x-index, lists every visible series at that point.
+- **Animated reveal** (`animate`) — `stroke-dasharray` reveal on mount for the line, fade-in for the fill. Respects `prefers-reduced-motion`.
+- **Reference lines** (`referenceLines: [{ value, label?, color?, dashed? }]`) — horizontal targets / thresholds.
+- **Annotations** (`annotations: [{ x, label?, color? }]`) — vertical guides at a label or index.
+- **Interactive legend** (`showLegend`, optionally controlled via `hiddenSeries` + `onHiddenSeriesChange`).

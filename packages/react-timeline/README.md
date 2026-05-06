@@ -236,3 +236,17 @@ interface TimelineHandle {
 ## License
 
 MIT
+
+## What's new in 1.1.0
+
+- **Smooth re-layout on expand/collapse** — replaced the `max-height` keyframe with `grid-template-rows: 0fr → 1fr` (no magic numbers, works for any content height); added `scrollbar-gutter: stable` and `contain: layout` so a single panel opening doesn't reflow the rest of the list.
+- **`statusIcons`** — global override for the built-in ✓/✕/⚠ icons. `statusIcons: { completed?, error?, warning?, active?, default? }`. Resolution order: `item.icon` → `statusIcons[status]` → built-in default. Setting `statusIcons.active` suppresses the default pulse ring.
+- **`pendingIcon`** — replace the spinner used for the `pendingId` item.
+
+## 1.1.x — group label polish
+
+- Real horizontal padding inside group labels (was flush against the rail edge).
+- Soft inset card styling — themeable via `--rtl-group-bg` / `--rtl-group-border`.
+- 6 px border-radius and an accent bar on the left edge.
+- 1.5 rem breathing room between groups.
+- `backdrop-filter` on the sticky header so content scrolling underneath stays legible (disabled under `prefers-reduced-motion`).

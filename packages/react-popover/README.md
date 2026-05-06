@@ -69,3 +69,11 @@ function App() {
 ## License
 
 MIT
+
+## What's new in 0.3.0
+
+- **Virtual element anchoring** — `anchor: { getBoundingClientRect: () => DOMRect } | null` lets you anchor at a cursor position / selection rect / arbitrary point instead of `children`.
+- **`--rpv-arrow-bg` / `--rpv-arrow-border` CSS vars** — themed popovers can now keep arrow colour in sync with the body.
+- **`returnFocus`** (default `true`) — restores focus to the trigger on close.
+- **`closeWhenAnchorHidden`** — auto-close when the trigger scrolls out of the viewport (IntersectionObserver-driven).
+- **`modal: true`** — modal-popover variant. Sets `aria-modal="true"` on the popover and traps Tab focus inside the body.

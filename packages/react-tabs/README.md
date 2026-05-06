@@ -112,3 +112,11 @@ Add `data-theme="dark"` to a parent element (or `data-rtab-theme="dark"` for com
 ## License
 
 MIT
+
+## What's new in 0.3.0
+
+- **Closeable tabs** — `tab.closable?: boolean` renders a × button; pair with `onTabClose(value)`.
+- **Scrollable overflow** — `scrollable: true` keeps tabs on one line and renders chevron scroll buttons at the edges instead of wrapping.
+- **Drag-to-reorder** — `sortable: true` + `onReorder(values: string[])`. HTML5 DnD, no external dep.
+- **Keyboard typeahead** — letters jump to the first matching tab whose label starts with the buffer (600 ms reset).
+- **`scrollActiveIntoView`** — default `true` when `scrollable`. Keeps the active tab in the viewport on activation.

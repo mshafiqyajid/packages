@@ -329,31 +329,59 @@
  * 1.x additions: badge slot · scrollable · equalize · link mode
  * ============================================================================ */
 
-/* Badge inside an option */
-.rsc-option-label { display: inline-flex; align-items: center; }
+/* Badge inside an option ---------------------------------------------------
+ * The badge sits inline with the label; for visual breathing room we add
+ * extra horizontal padding to the *button* (so the badge isn't pressed
+ * up against the next segment) and bump the track's gap when any segment
+ * carries a badge.
+ * --------------------------------------------------------------------- */
+.rsc-option-label {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+}
 .rsc-option-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  margin-left: 0.4rem;
-  padding: 0 0.4rem;
-  height: 16px;
-  min-width: 16px;
+  margin-left: 0.5rem;
+  padding: 1px 0.5rem;          /* slightly taller, more horizontal room */
+  min-width: 20px;
+  height: 18px;
   border-radius: 999px;
-  background: var(--rsc-badge-bg, rgba(0, 0, 0, 0.08));
+  background: var(--rsc-badge-bg, rgba(0, 0, 0, 0.1));
   color: var(--rsc-badge-fg, currentColor);
   font-size: 0.7rem;
   font-weight: 600;
+  font-variant-numeric: tabular-nums;
   line-height: 1;
+  flex-shrink: 0;
 }
 [data-theme="dark"] .rsc-option-badge {
-  background: var(--rsc-badge-bg, rgba(255, 255, 255, 0.12));
+  background: var(--rsc-badge-bg, rgba(255, 255, 255, 0.14));
 }
 .rsc-track button[aria-checked="true"] .rsc-option-badge,
 .rsc-track .rsc-option--link[data-active] .rsc-option-badge {
-  background: var(--rsc-badge-active-bg, rgba(255, 255, 255, 0.25));
+  background: var(--rsc-badge-active-bg, rgba(255, 255, 255, 0.28));
   color: white;
 }
+
+/* Give badged segments extra horizontal padding so the badge doesn't
+ * crash into the next segment's text (previously the gap was 2 px which
+ * looked cramped when a badge was present). */
+.rsc-track > button:has(.rsc-option-badge),
+.rsc-track > a:has(.rsc-option-badge) {
+  padding-right: calc(var(--rsc-segment-padding-x) + 0.35rem);
+  padding-left: calc(var(--rsc-segment-padding-x) + 0.1rem);
+}
+
+/* When ANY segment in the track has a badge, bump the inter-segment gap
+ * so segments don't feel cramped. `:has()` lifts to the parent. */
+.rsc-track:has(.rsc-option-badge) {
+  gap: 6px;
+}
+
+/* Sliding pill / underline indicator readjusts automatically; no extra rule needed. */
 
 /* Scrollable mode — track scrolls horizontally without wrapping */
 .rsc-track[data-scrollable="true"] {

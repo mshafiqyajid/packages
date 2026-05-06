@@ -72,3 +72,11 @@ function MyTooltip({ content, children }) {
 ## License
 
 MIT
+
+## What's new in 0.3.0
+
+- **`sticky: true`** — keeps the tooltip open when the cursor moves from the trigger onto the tooltip body (interactive content).
+- **`--rtt-arrow-bg` CSS var** — themed tooltips now keep arrow colour in sync.
+- **`group?: string` + `groupId?: string`** — sequential keyboard nav; ↓/↑ on a focused trigger cycles through every tooltip sharing the group.
+- **`header?` / `footer?` slots** — render rich content above/below the main tooltip body without composing a popover.
+- **`longPressDelay?: number`** (default `500`) — touch long-press to show; set `0` to disable touch trigger entirely.

@@ -259,3 +259,11 @@ MIT © Shafiq Yajid
 | `label` / `hint` | `ReactNode` | Already supported |
 
 The wrapper lands `data-invalid="true"` whenever `error` or `invalid` is truthy.
+
+## What's new in 0.3.0
+
+- **Per-segment `badge`** — option config accepts `{ value, label, badge }`; badge renders as a pill on the right of the label, with active-state styling.
+- **`scrollable: true`** — track scrolls horizontally instead of wrapping when content overflows.
+- **`equalize: true`** — every segment is sized to the widest via CSS grid (`grid-template-columns: repeat(N, 1fr)`).
+- **`href` per option** — when set, segment renders as `<a href>` for routing while still wired to the control's keyboard nav.
+- The hook return shape exposes the new `badge` and `href` so headless consumers see them too.

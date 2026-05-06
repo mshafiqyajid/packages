@@ -129,3 +129,11 @@ Set `data-theme="dark"` on any ancestor element:
 ## License
 
 MIT
+
+## What's new in 0.3.0
+
+- **Swipe-to-dismiss** — touch-drag a toast horizontally to dismiss; threshold ~80 px. Per-toast opt-out via `dismissibleSwipe: false`.
+- **Undo with countdown ring** — toasts with `undo: () => void` render a circular SVG progress that counts down from `duration`; clicking it cancels and dismisses.
+- **Pause-on-hover** — hovering any toast pauses *every* toast's auto-dismiss timer. `<ToastProvider pauseOnHover>` (default `true`).
+- **`action.variant`** — `action: { label, onClick, variant?: "primary" | "outline" | "ghost" }`.
+- **Draggable region** — `<ToastProvider draggable positionStorageKey="...">` exposes a small handle; users can drag the entire stack to a different corner; the choice is persisted.

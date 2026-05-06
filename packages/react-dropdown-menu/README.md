@@ -105,3 +105,11 @@ Parent rows render a chevron and a hover/click-driven flyout. Keyboard: `→` op
 ## License
 
 MIT
+
+## What's new in 0.3.0
+
+- **Nested submenus** — `DropdownMenuItem` accepts `items?: DropdownMenuItem[]`. Parent rows render a chevron and a hover/click flyout. → opens the submenu, ← returns, Enter/Space activates. Submenus inherit `size` / `collisionPadding` / `flip` / `shift` / `strategy` from the parent menu.
+
+## 0.3.1 — submenu polish
+
+- 4 px gap between the parent menu and the submenu (was flush) plus a subtle entry transition. Fixes the no-padding feedback on the initial submenu release.

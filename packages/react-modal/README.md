@@ -101,3 +101,11 @@ Set `data-theme="dark"` on any ancestor element — no `prefers-color-scheme` qu
 ## License
 
 MIT
+
+## What's new in 0.3.0
+
+- **Stacked modals** — depth-aware z-index + behind-scale-down effect. Open a second modal and the first scales/translates back automatically.
+- **Transition variants** — `transition: "fade" | "zoom" | "slide-up" | "slide-down"` (default `"fade"`). Drawers keep their slide-from-edge transition.
+- **`confirm()` programmatic utility** — `import { confirm } from "@mshafiqyajid/react-modal/styled"`. Self-mounts a one-off modal with `Cancel` / `Confirm` buttons (with `danger` variant). Returns `Promise<boolean>`.
+- **Swipe-to-dismiss** — `swipeToDismiss?: boolean` (default `true` for `drawer-bottom`). Touch-drag down past 120 px to dismiss.
+- **`closeOnSubmit?: boolean`** — when the modal contains a `<form>` and it submits successfully, auto-close (skipped if the consumer's onSubmit calls `e.preventDefault()`).

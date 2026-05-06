@@ -101,3 +101,11 @@ MIT
 | `required` | `boolean` | aria-required on the track + required on the hidden inputs |
 | `error` / `invalid` | `ReactNode` / `boolean` | Sets `data-invalid` on the root, `aria-invalid` on the track, swaps the active track fill to the error color |
 | `label` / `hint` | `ReactNode` | Above / below the track |
+
+## What's new in 0.3.0
+
+- **Animated value bubble** — `showValueOnInteraction: true` shows the bubble only on thumb hover/active with smooth opacity + translate transition.
+- **Labelled marks** — `marks` now accepts `number[]` or `{ value, label }[]` (in addition to the existing `boolean`); labels render below each tick.
+- **`formatValue: (value) => ReactNode`** — custom renderer for the bubble.
+- **`orientation: "horizontal" | "vertical"`** — adds `data-orientation="vertical"` for vertical-layout styling.
+- **`onCommit: (value) => void`** — fires only on pointer release / keyboard commit, not every step.

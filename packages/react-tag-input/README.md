@@ -92,3 +92,11 @@ function App() {
 ## License
 
 MIT
+
+## What's new in 1.2.0
+
+- **Async `loadOptions: (query: string) => Promise<string[]>`** — debounced (default 300 ms), cancellable via `AbortController`, with `isLoading` + `loadError` exposed.
+- **`colorize: (tag: string) => string`** — derive a CSS color per tag (category-based, hash-based) and apply as the chip background. `data-colorized` lands for further styling hooks.
+- **`tagActions: (tag, index) => ReactNode`** — render extra buttons inside each chip (rename, link, copy).
+- **`onReorder: (tags: string[]) => void`** — fires after a drag-reorder commits (alongside the existing `onChange`).
+- **Spreadsheet TSV paste** — `spreadsheetPaste: true` (default) treats `\n` and `\t` as cell breaks alongside the existing comma/semicolon split.
