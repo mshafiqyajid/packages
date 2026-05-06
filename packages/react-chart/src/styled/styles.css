@@ -44,13 +44,18 @@
   --rchart-error-bg: rgba(239, 68, 68, 0.12);
 }
 
-/* ── Tooltip ──────────────────────────────────────────────────── */
+/* ── Tooltip (Bar / Line / Pie — positioned via JS top/left) ──────
+ * Used by the original three chart types. AreaChart and ScatterChart
+ * have their own scoped tooltip rules further down — keep this one
+ * unscoped but contain the unique behaviour to elements that don't
+ * sit inside .rchart-area or .rchart-scatter.
+ * ─────────────────────────────────────────────────────────────── */
 .rchart-tooltip {
   position: absolute;
   background: var(--rchart-tooltip-bg);
   color: var(--rchart-tooltip-color);
-  padding: 0.3rem 0.6rem;
-  border-radius: 6px;
+  padding: 0.4rem 0.65rem;
+  border-radius: 8px;
   font-size: 0.78rem;
   font-weight: 500;
   white-space: nowrap;
@@ -59,8 +64,20 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+  gap: 2px;
+  box-shadow:
+    0 4px 14px rgba(0, 0, 0, 0.16),
+    0 1px 3px rgba(0, 0, 0, 0.08);
+  /* Smooth pop-in. The component renders the tooltip at a translated
+   * "ready" state by default; the keyframe lifts it from a slightly
+   * lower / smaller starting state. */
+  animation: rchart-tooltip-in 140ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  transform-origin: bottom center;
+  transition: transform 140ms ease, opacity 140ms ease;
+}
+@keyframes rchart-tooltip-in {
+  from { opacity: 0; transform: translate(0, 4px) scale(0.96); }
+  to   { opacity: 1; transform: translate(0, 0)   scale(1); }
 }
 
 .rchart-tooltip::after {
@@ -69,18 +86,26 @@
   top: 100%;
   left: 50%;
   transform: translateX(-50%);
-  border: 5px solid transparent;
+  border: 6px solid transparent;
   border-top-color: var(--rchart-tooltip-bg);
+  /* A pinch of contrast so the arrow doesn't look detached from the body. */
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.06));
 }
 
 .rchart-tooltip-label {
   font-size: 0.72rem;
   opacity: 0.8;
+  letter-spacing: 0.01em;
 }
 
 .rchart-tooltip-value {
   font-weight: 700;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rchart-tooltip { animation: none; }
 }
 
 /* ── SVG wrapper ──────────────────────────────────────────────── */
@@ -122,21 +147,29 @@
   stroke: var(--rchart-dot-stroke);
   stroke-width: 2;
   cursor: pointer;
-  transition: r var(--rchart-transition);
+  transition:
+    r 160ms cubic-bezier(0.22, 1, 0.36, 1),
+    fill-opacity 140ms ease,
+    filter 140ms ease;
 }
 
 .rchart-dot:hover {
   r: 6px;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.18));
 }
 
 /* ── Bar chart ────────────────────────────────────────────────── */
 .rchart-bar {
   cursor: pointer;
-  transition: opacity var(--rchart-transition);
+  /* Smooth hover with brighten + subtle filter; transform-origin set per-orientation. */
+  transition:
+    opacity 140ms ease,
+    filter 140ms ease;
 }
 
 .rchart-bar:hover {
-  opacity: 0.8;
+  opacity: 1;
+  filter: brightness(1.08) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.12));
 }
 
 .rchart-bar-value {
@@ -150,11 +183,26 @@
   cursor: pointer;
   stroke: var(--rchart-dot-stroke);
   stroke-width: 2;
-  transition: opacity var(--rchart-transition);
+  /* Smooth pop on hover. */
+  transition:
+    opacity 140ms ease,
+    filter 160ms ease,
+    transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
+  transform-origin: center;
+  transform-box: fill-box;
 }
 
 .rchart-slice:hover {
-  opacity: 0.8;
+  opacity: 1;
+  filter: brightness(1.06) drop-shadow(0 2px 6px rgba(0, 0, 0, 0.14));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rchart-dot,
+  .rchart-bar,
+  .rchart-slice {
+    transition: none;
+  }
 }
 
 .rchart-pie-label {
@@ -407,57 +455,84 @@
   animation-delay: 120ms;
 }
 
-/* Crosshair / tooltip */
-.rchart-tooltip {
+/* Crosshair / tooltip — SCOPED to AreaChart + ScatterChart only.
+ *
+ * The original Bar/Line/Pie tooltip (defined near the top of this file)
+ * uses JS-driven `top/left` pixel positioning. Earlier this rule was
+ * unscoped which clobbered that positioning — fixing the regression by
+ * scoping every selector here under .rchart-area or .rchart-scatter.
+ * ─────────────────────────────────────────────────────────────── */
+.rchart-area .rchart-tooltip,
+.rchart-scatter .rchart-tooltip {
   position: absolute;
   bottom: calc(100% - 60px);
   transform: translate(-50%, 0);
   background: var(--rchart-tooltip-bg, white);
   color: var(--rchart-fg, #18181b);
   padding: 0.5rem 0.75rem;
-  border-radius: 6px;
+  border-radius: 8px;
   border: 1px solid var(--rchart-border, #e5e7eb);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow:
+    0 4px 14px rgba(0, 0, 0, 0.12),
+    0 1px 3px rgba(0, 0, 0, 0.06);
   font-size: 0.78rem;
   pointer-events: none;
   min-width: 120px;
   z-index: 10;
+  /* Pop-in animation, mirrors the one used by Bar/Line/Pie. */
+  animation: rchart-tooltip-area-in 160ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  transition: transform 140ms ease, opacity 140ms ease;
+}
+@keyframes rchart-tooltip-area-in {
+  from { opacity: 0; transform: translate(-50%, 6px) scale(0.97); }
+  to   { opacity: 1; transform: translate(-50%, 0)   scale(1); }
 }
 .rchart-scatter .rchart-tooltip {
   bottom: auto;
   transform: translate(-50%, calc(-100% - 12px));
 }
-[data-theme="dark"] .rchart-tooltip {
+[data-theme="dark"] .rchart-area .rchart-tooltip,
+[data-theme="dark"] .rchart-scatter .rchart-tooltip {
   background: var(--rchart-tooltip-bg, #18181b);
   color: var(--rchart-fg, #fafafa);
   border-color: var(--rchart-border, #3f3f46);
 }
-.rchart-tooltip-label {
+.rchart-area .rchart-tooltip-label,
+.rchart-scatter .rchart-tooltip-label {
   font-weight: 600;
   margin-bottom: 0.25rem;
   font-size: 0.72rem;
   color: var(--rchart-axis-fg, #71717a);
   letter-spacing: 0.02em;
 }
-.rchart-tooltip-row {
+.rchart-area .rchart-tooltip-row,
+.rchart-scatter .rchart-tooltip-row {
   display: flex;
   align-items: center;
   gap: 0.4rem;
   line-height: 1.4;
 }
-.rchart-tooltip-swatch {
+.rchart-area .rchart-tooltip-swatch,
+.rchart-scatter .rchart-tooltip-swatch {
   width: 8px;
   height: 8px;
   border-radius: 2px;
   flex-shrink: 0;
 }
-.rchart-tooltip-name {
+.rchart-area .rchart-tooltip-name,
+.rchart-scatter .rchart-tooltip-name {
   flex: 1;
   color: var(--rchart-axis-fg, #71717a);
 }
-.rchart-tooltip-value {
+.rchart-area .rchart-tooltip-value,
+.rchart-scatter .rchart-tooltip-value {
   font-variant-numeric: tabular-nums;
   font-weight: 500;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rchart-area .rchart-tooltip,
+  .rchart-scatter .rchart-tooltip { animation: none; }
 }
 
 /* Interactive legend */
