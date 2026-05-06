@@ -1,5 +1,20 @@
 # @mshafiqyajid/docs
 
+## 0.0.13
+
+### Patch Changes
+
+- Updated dependencies [0526171]
+  - @mshafiqyajid/react-toast@0.3.0
+  - @mshafiqyajid/react-tabs@0.3.0
+  - @mshafiqyajid/react-modal@0.3.0
+  - @mshafiqyajid/react-popover@0.3.0
+  - @mshafiqyajid/react-tooltip@0.3.0
+  - @mshafiqyajid/react-slider@0.3.0
+  - @mshafiqyajid/react-segmented-control@0.3.0
+  - @mshafiqyajid/react-tag-input@1.2.0
+  - @mshafiqyajid/react-dropdown-menu@0.3.1
+
 ## 0.0.12
 
 ### Patch Changes
