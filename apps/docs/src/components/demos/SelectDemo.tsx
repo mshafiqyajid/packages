@@ -11,19 +11,48 @@ const items = [
   { value: "solid",   label: "SolidJS" },
 ];
 
-function SelectWrapper({ multiple, searchable, size, tone, clearable, disabled }: {
-  multiple: boolean; searchable: boolean; size: string; tone: string; clearable: boolean; disabled: boolean;
+const ASYNC_POOL = [
+  { value: "alice",   label: "Alice Anderson" },
+  { value: "bob",     label: "Bob Brown" },
+  { value: "carol",   label: "Carol Chen" },
+  { value: "dave",    label: "Dave Davis" },
+  { value: "eve",     label: "Eve Evans" },
+  { value: "frank",   label: "Frank Foster" },
+  { value: "grace",   label: "Grace Garcia" },
+  { value: "heidi",   label: "Heidi Hayes" },
+  { value: "ivan",    label: "Ivan Iglesias" },
+  { value: "julia",   label: "Julia Jones" },
+];
+
+function mockLoadOptions(query: string): Promise<typeof items> {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const q = query.trim().toLowerCase();
+      resolve(
+        q === ""
+          ? ASYNC_POOL
+          : ASYNC_POOL.filter((i) => i.label.toLowerCase().includes(q)),
+      );
+    }, 600);
+  });
+}
+
+function SelectWrapper({ multiple, searchable, size, tone, clearable, disabled, async: useAsync }: {
+  multiple: boolean; searchable: boolean; size: string; tone: string; clearable: boolean; disabled: boolean; async: boolean;
 }) {
   const [value, setValue] = useState<string | string[]>(multiple ? [] : "");
   return (
-    <div style={{ width: 240 }}>
+    <div style={{ width: 260 }}>
       <SelectStyled
-        items={items}
+        items={useAsync ? [] : items}
         value={value}
         onChange={setValue}
-        placeholder="Select a framework…"
+        placeholder={useAsync ? "Type to search people…" : "Select a framework…"}
         multiple={multiple}
-        searchable={searchable}
+        searchable={!useAsync && searchable}
+        loadOptions={useAsync ? mockLoadOptions : undefined}
+        loadingText="Searching…"
+        emptyText="No matches"
         size={size as "sm" | "md" | "lg"}
         tone={tone as "neutral" | "primary" | "success" | "danger"}
         clearable={clearable}
@@ -45,16 +74,19 @@ export default function SelectDemo() {
         { name: "searchable", control: { type: "toggle" },                                                               defaultValue: false,     omitWhen: false },
         { name: "clearable",  control: { type: "toggle" },                                                               defaultValue: false,     omitWhen: false },
         { name: "disabled",   control: { type: "toggle" },                                                               defaultValue: false,     omitWhen: false },
+        { name: "async",      label: "loadOptions (mock)", control: { type: "toggle" },                                  defaultValue: false,     omitWhen: false },
       ]}
       staticProps={{ items: "{items}", value: "{value}", onChange: "{setValue}" }}
       render={(v) => (
         <SelectWrapper
+          key={String(v.async)}
           multiple={v.multiple as boolean}
           searchable={v.searchable as boolean}
           size={v.size as string}
           tone={v.tone as string}
           clearable={v.clearable as boolean}
           disabled={v.disabled as boolean}
+          async={v.async as boolean}
         />
       )}
     />

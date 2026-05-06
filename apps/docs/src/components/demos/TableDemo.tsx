@@ -24,8 +24,8 @@ const DATA: Person[] = [
 ];
 
 const COLUMNS: ColumnDef<Person>[] = [
-  { key: "name",   header: "Name",   sortable: true,  footer: "Total" },
-  { key: "role",   header: "Role",   filterable: true },
+  { key: "name",   header: "Name",   sortable: true, resizable: true, footer: "Total" },
+  { key: "role",   header: "Role",   filterable: true, resizable: true },
   { key: "status", header: "Status", filterable: true },
   { key: "joined", header: "Joined", sortable: true   },
   {
@@ -52,10 +52,12 @@ export default function TableDemo() {
         { name: "showDensityToggle",  control: { type: "toggle" }, defaultValue: true,  omitWhen: false },
         { name: "highlightMatches",   control: { type: "toggle" }, defaultValue: true,  omitWhen: false },
         { name: "loading",            control: { type: "toggle" }, defaultValue: false, omitWhen: false },
+        { name: "expandableRows",     label: "expandable rows",    control: { type: "toggle" }, defaultValue: false, omitWhen: false },
       ]}
       staticProps={{ data: "{DATA}", columns: "{COLUMNS}" }}
       render={(v) => (
         <TableStyled
+          key={String(v.expandableRows)}
           data={DATA}
           columns={COLUMNS}
           tone={v.tone as "neutral" | "primary"}
@@ -66,6 +68,20 @@ export default function TableDemo() {
           showFooter={v.showFooter as boolean}
           showDensityToggle={v.showDensityToggle as boolean}
           highlightMatches={v.highlightMatches as boolean}
+          expandable={
+            v.expandableRows
+              ? {
+                  renderExpanded: (row) => (
+                    <div style={{ display: "flex", gap: "1.5rem", fontSize: "0.85rem" }}>
+                      <span><strong>Joined:</strong> {row.joined}</span>
+                      <span><strong>Role:</strong> {row.role}</span>
+                      <span><strong>Status:</strong> {row.status}</span>
+                      <span><strong>Salary:</strong> ${row.salary.toLocaleString()}</span>
+                    </div>
+                  ),
+                }
+              : undefined
+          }
           pageSize={4}
           pageSizeOptions={[4, 6, 8]}
           stickyHeader

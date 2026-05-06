@@ -56,6 +56,25 @@ const items: TimelineItem[] = [
 
 const groupLabels = { today: "Today", earlier: "Earlier this week" };
 
+const CUSTOM_ICONS = {
+  completed: <span style={{ fontSize: 11 }}>★</span>,
+  error:     <span style={{ fontSize: 11 }}>!</span>,
+  warning:   <span style={{ fontSize: 11 }}>?</span>,
+  default:   <span style={{ fontSize: 10, fontWeight: 700 }}>•</span>,
+};
+
+const CUSTOM_PENDING = (
+  <span
+    style={{
+      width: 8,
+      height: 8,
+      borderRadius: "50%",
+      background: "currentColor",
+      animation: "pulse 1.5s ease-in-out infinite",
+    }}
+  />
+);
+
 export default function TimelineDemo() {
   return (
     <PropPlayground
@@ -72,6 +91,7 @@ export default function TimelineDemo() {
         { name: "animate",     control: { type: "toggle" }, defaultValue: false, omitWhen: false },
         { name: "grouped",     control: { type: "toggle" }, defaultValue: false, omitWhen: false },
         { name: "withPending", label: "pending tail", control: { type: "toggle" }, defaultValue: false, omitWhen: false },
+        { name: "customIcons", label: "custom statusIcons", control: { type: "toggle" }, defaultValue: false, omitWhen: false },
       ]}
       staticProps={{ items: "{items}" }}
       render={(v) => (
@@ -89,6 +109,8 @@ export default function TimelineDemo() {
           groupBy={v.grouped ? "groupId" : undefined}
           groupLabels={v.grouped ? groupLabels : undefined}
           pendingId={v.withPending ? "5" : undefined}
+          statusIcons={v.customIcons ? CUSTOM_ICONS : undefined}
+          pendingIcon={v.customIcons && v.withPending ? CUSTOM_PENDING : undefined}
         />
       )}
     />
