@@ -118,6 +118,29 @@ export interface DatePickerStyledProps {
   flip?: boolean;
   shift?: boolean;
   strategy?: DatePickerStrategy;
+
+  /**
+   * Show an HH:mm time input below the calendar so consumers can pick
+   * date *and* time. Only applies when `mode === "single"`. Default: false.
+   */
+  showTime?: boolean;
+  /** Time-input step in seconds (HTML `<input type="time">` step attribute). Default: 60 (1-min). */
+  timeStep?: number;
+  /** Use `step={1}` semantics by including seconds. Default: false. */
+  showSeconds?: boolean;
+
+  /**
+   * Quick-pick chips rendered above the calendar — one-click presets
+   * (Today, This week, Last 30 days, etc). Use the helper from this
+   * package or pass arbitrary `{ label, range }` items.
+   */
+  quickPicks?: QuickPick[];
+}
+
+export interface QuickPick {
+  label: string;
+  /** Returns the date / range to apply when this chip is clicked. */
+  apply: () => Date | RangeValue;
 }
 
 function formatValue(
@@ -242,6 +265,10 @@ export const DatePickerStyled = forwardRef<HTMLDivElement, DatePickerStyledProps
       flip = true,
       shift = true,
       strategy = "absolute",
+      showTime = false,
+      timeStep,
+      showSeconds = false,
+      quickPicks,
     },
     ref,
   ) {
@@ -693,14 +720,72 @@ export const DatePickerStyled = forwardRef<HTMLDivElement, DatePickerStyledProps
       );
     };
 
+    // Time picker — only for single mode. Reads HH:mm[:ss] from the current
+    // selected Date and applies edits via setHours/setMinutes/setSeconds.
+    const currentValue = value !== undefined ? value : picker.selected;
+    const currentDate =
+      mode === "single" && currentValue instanceof Date ? currentValue : null;
+    const timeStr = currentDate
+      ? showSeconds
+        ? `${String(currentDate.getHours()).padStart(2, "0")}:${String(currentDate.getMinutes()).padStart(2, "0")}:${String(currentDate.getSeconds()).padStart(2, "0")}`
+        : `${String(currentDate.getHours()).padStart(2, "0")}:${String(currentDate.getMinutes()).padStart(2, "0")}`
+      : showSeconds ? "00:00:00" : "00:00";
+    const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const [h, m, s] = e.target.value.split(":");
+      const base = currentDate ?? new Date();
+      const next = new Date(base.getTime());
+      if (h !== undefined) next.setHours(parseInt(h, 10));
+      if (m !== undefined) next.setMinutes(parseInt(m, 10));
+      if (s !== undefined) next.setSeconds(parseInt(s, 10));
+      else next.setSeconds(0);
+      onChange?.(next);
+    };
+
     const calendarBody = (
       <Fragment>
+        {quickPicks && quickPicks.length > 0 && (
+          <div className="rdp-quick-picks" role="toolbar" aria-label="Quick picks">
+            {quickPicks.map((qp) => (
+              <button
+                key={qp.label}
+                type="button"
+                className="rdp-quick-pick"
+                onClick={() => {
+                  const v = qp.apply();
+                  onChange?.(v);
+                  if (mode === "single" && !inline) closeCalendar();
+                }}
+              >
+                {qp.label}
+              </button>
+            ))}
+          </div>
+        )}
         <div
           className="rdp-months"
           data-count={numberOfMonths}
         >
           {Array.from({ length: numberOfMonths }, (_, i) => renderMonthGrid(i))}
         </div>
+        {showTime && mode === "single" && (
+          <div className="rdp-time-row">
+            <label className="rdp-time-label">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+                <circle cx="8" cy="8" r="6.5" />
+                <path d="M8 4v4l2.5 2" strokeLinecap="round" />
+              </svg>
+              <span>Time</span>
+            </label>
+            <input
+              type="time"
+              className="rdp-time-input"
+              value={timeStr}
+              step={timeStep ?? (showSeconds ? 1 : 60)}
+              onChange={handleTimeChange}
+              aria-label="Time"
+            />
+          </div>
+        )}
         <span className="rdp-sr-only" role="status" aria-live="polite">
           {announcement}
         </span>

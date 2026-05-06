@@ -429,3 +429,77 @@
   white-space: nowrap;
   border: 0;
 }
+
+/* ============================================================================
+ * Time picker + quick-picks (0.3.0 additions)
+ * ============================================================================ */
+.rdp-quick-picks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--rdp-border, #e5e7eb);
+}
+.rdp-quick-pick {
+  appearance: none;
+  background: transparent;
+  border: 1px solid var(--rdp-border, #e5e7eb);
+  color: var(--rdp-fg-muted, #71717a);
+  font: inherit;
+  font-size: 0.78rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 100ms ease, color 100ms ease, border-color 100ms ease;
+}
+.rdp-quick-pick:hover {
+  background: rgba(99, 102, 241, 0.06);
+  border-color: var(--rdp-color-active, #6366f1);
+  color: var(--rdp-color-active, #6366f1);
+}
+[data-theme="dark"] .rdp-quick-pick {
+  border-color: var(--rdp-border, #3f3f46);
+  color: var(--rdp-fg-muted, #a1a1aa);
+}
+[data-theme="dark"] .rdp-quick-pick:hover {
+  background: rgba(129, 140, 248, 0.12);
+}
+
+.rdp-time-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.75rem;
+  border-top: 1px solid var(--rdp-border, #e5e7eb);
+}
+.rdp-time-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--rdp-fg-muted, #71717a);
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+.rdp-time-input {
+  flex: 1;
+  appearance: none;
+  border: 1px solid var(--rdp-border, #e5e7eb);
+  border-radius: 6px;
+  padding: 0.3rem 0.55rem;
+  background: transparent;
+  color: var(--rdp-fg, currentColor);
+  font: inherit;
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+  outline: none;
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+.rdp-time-input:focus-visible {
+  border-color: var(--rdp-color-active, #6366f1);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--rdp-color-active, #6366f1) 20%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rdp-quick-pick,
+  .rdp-time-input { transition: none; }
+}

@@ -1,0 +1,188 @@
+/* react-command-palette
+ * Dark mode via [data-theme="dark"] ancestor only.
+ */
+:root {
+  --rcmd-overlay-bg: rgba(0, 0, 0, 0.45);
+  --rcmd-bg: #ffffff;
+  --rcmd-fg: #18181b;
+  --rcmd-fg-muted: #71717a;
+  --rcmd-border: rgba(0, 0, 0, 0.08);
+  --rcmd-active-bg: #6366f1;
+  --rcmd-active-fg: #ffffff;
+  --rcmd-hover-bg: rgba(99, 102, 241, 0.08);
+  --rcmd-radius: 10px;
+  --rcmd-shadow: 0 24px 48px rgba(0, 0, 0, 0.18), 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+[data-theme="dark"] {
+  --rcmd-overlay-bg: rgba(0, 0, 0, 0.6);
+  --rcmd-bg: #18181b;
+  --rcmd-fg: #fafafa;
+  --rcmd-fg-muted: #a1a1aa;
+  --rcmd-border: rgba(255, 255, 255, 0.08);
+  --rcmd-active-bg: #818cf8;
+  --rcmd-hover-bg: rgba(129, 140, 248, 0.16);
+  --rcmd-shadow: 0 24px 48px rgba(0, 0, 0, 0.6), 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.rcmd-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--rcmd-overlay-bg);
+  z-index: 9999;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 14vh 1rem 0;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  animation: rcmd-fade-in 140ms ease both;
+}
+@keyframes rcmd-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.rcmd-panel {
+  width: min(640px, 100%);
+  max-height: 70vh;
+  background: var(--rcmd-bg);
+  color: var(--rcmd-fg);
+  border: 1px solid var(--rcmd-border);
+  border-radius: var(--rcmd-radius);
+  box-shadow: var(--rcmd-shadow);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: rcmd-pop-in 180ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes rcmd-pop-in {
+  from { opacity: 0; transform: translateY(-8px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.rcmd-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem 0.85rem;
+  border-bottom: 1px solid var(--rcmd-border);
+}
+.rcmd-search-icon {
+  width: 16px;
+  height: 16px;
+  color: var(--rcmd-fg-muted);
+  flex-shrink: 0;
+}
+.rcmd-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--rcmd-fg);
+  font: inherit;
+  font-size: 0.95rem;
+  padding: 0.25rem 0;
+}
+.rcmd-input::placeholder { color: var(--rcmd-fg-muted); }
+
+.rcmd-kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1px 6px;
+  font-size: 0.7rem;
+  font-family: inherit;
+  font-weight: 500;
+  color: var(--rcmd-fg-muted);
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid var(--rcmd-border);
+  border-radius: 4px;
+  line-height: 1.4;
+  text-transform: lowercase;
+}
+[data-theme="dark"] .rcmd-kbd { background: rgba(255, 255, 255, 0.06); }
+
+.rcmd-list {
+  list-style: none;
+  margin: 0;
+  padding: 0.4rem 0;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.rcmd-group { list-style: none; }
+.rcmd-group + .rcmd-group { margin-top: 0.25rem; }
+.rcmd-group-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--rcmd-fg-muted);
+  padding: 0.4rem 0.85rem 0.2rem;
+}
+.rcmd-group-list { list-style: none; margin: 0; padding: 0; }
+
+.rcmd-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.85rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  border-radius: 6px;
+  margin: 0 0.4rem;
+  transition: background 90ms ease, color 90ms ease;
+}
+.rcmd-item:hover,
+.rcmd-item[data-active] {
+  background: var(--rcmd-active-bg);
+  color: var(--rcmd-active-fg);
+}
+.rcmd-item[data-active] .rcmd-item-hint,
+.rcmd-item[data-active] .rcmd-kbd {
+  color: var(--rcmd-active-fg);
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+.rcmd-item[data-disabled] {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.rcmd-item-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+.rcmd-item-label { flex: 1; min-width: 0; }
+.rcmd-item-hint {
+  color: var(--rcmd-fg-muted);
+  font-size: 0.78rem;
+  flex-shrink: 0;
+}
+.rcmd-item-shortcut { margin-left: auto; }
+
+.rcmd-empty {
+  padding: 1.25rem;
+  text-align: center;
+  color: var(--rcmd-fg-muted);
+  font-size: 0.875rem;
+}
+
+.rcmd-footer {
+  display: flex;
+  gap: 0.85rem;
+  align-items: center;
+  padding: 0.5rem 0.85rem;
+  border-top: 1px solid var(--rcmd-border);
+  font-size: 0.72rem;
+  color: var(--rcmd-fg-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rcmd-overlay,
+  .rcmd-panel { animation: none; }
+  .rcmd-item { transition: none; }
+}

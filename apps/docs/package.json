@@ -39,6 +39,9 @@
     "@mshafiqyajid/react-table": "^0.3.0",
     "@mshafiqyajid/react-chart": "^1.0.0",
     "@mshafiqyajid/react-kanban": "^0.2.0",
+    "@mshafiqyajid/react-command-palette": "^0.1.0",
+    "@mshafiqyajid/react-stepper": "^0.1.0",
+    "@mshafiqyajid/react-tree": "^0.1.0",
     "react": "^18.3.0",
     "react-dom": "^18.3.0"
   },
