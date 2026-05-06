@@ -63,6 +63,14 @@
   margin: 0;
   padding: 0;
   display: flex;
+  /* Reserve scrollbar gutter so toggling expandable items doesn't reflow page width. */
+  scrollbar-gutter: stable;
+}
+
+/* Containment isolates each item's reflow when it expands/collapses,
+ * so a single panel opening doesn't paint-invalidate the whole list. */
+.rtl-item {
+  contain: layout;
 }
 
 .rtl-timeline[data-orientation="vertical"]   { flex-direction: column; }
@@ -449,8 +457,26 @@
 .rtl-item[data-expanded="true"] .rtl-toggle { transform: rotate(180deg); }
 [data-theme="dark"] .rtl-toggle:hover { background: rgba(129, 140, 248, 0.18); }
 
-/* ---- Expandable details panel -------------------------------------------- */
+/* ---- Expandable details panel --------------------------------------------
+ * Smooth height transition via `grid-template-rows: 0fr → 1fr`.
+ * No magic max-height; works for arbitrarily tall content; kills the layout
+ * jerk that the old keyframe caused once content exceeded ~500 px.
+ * ------------------------------------------------------------------------ */
+.rtl-details-wrap {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition:
+    grid-template-rows 240ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity            180ms ease;
+}
+.rtl-details-wrap[data-expanded="true"] {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
 .rtl-details {
+  min-height: 0;       /* allow the grid row to truly collapse to 0 */
+  overflow: hidden;
   margin-top: 0.5rem;
   padding: 0.5rem 0.75rem;
   background: rgba(0, 0, 0, 0.025);
@@ -458,15 +484,15 @@
   border-radius: 0 4px 4px 0;
   font-size: 0.825rem;
   color: var(--rtl-description-fg);
-  animation: rtl-expand 220ms ease;
-  overflow: hidden;
+}
+.rtl-details-wrap:not([data-expanded="true"]) .rtl-details {
+  margin-top: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  border-left-color: transparent;
 }
 [data-theme="dark"] .rtl-details {
   background: rgba(255, 255, 255, 0.04);
-}
-@keyframes rtl-expand {
-  from { opacity: 0; transform: translateY(-4px); max-height: 0; }
-  to   { opacity: 1; transform: translateY(0);    max-height: 500px; }
 }
 
 .rtl-item[data-expandable="true"]:not([data-disabled="true"]) {
@@ -615,7 +641,7 @@
     opacity: 1;
     transform: none;
   }
-  .rtl-details { animation: none; }
-  .rtl-toggle  { transition: none; }
+  .rtl-details-wrap { transition: none; }
+  .rtl-toggle       { transition: none; }
   .rtl-dot[data-pending="true"] .rtl-spinner { animation: none; }
 }

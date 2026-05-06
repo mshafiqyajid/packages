@@ -28,6 +28,19 @@ export type TimelineDensity = "compact" | "comfortable" | "spacious";
 export type TimelineDotVariant = "outline" | "solid" | "ring";
 export type TimelineSpacing = "uniform" | "time";
 
+export interface TimelineStatusIcons {
+  /** Override the built-in ✓ for items with status="completed". */
+  completed?: ReactNode;
+  /** Override the built-in ✕ for items with status="error". */
+  error?: ReactNode;
+  /** Override the built-in ⚠ for items with status="warning". */
+  warning?: ReactNode;
+  /** Render an icon inside the dot for items with status="active" (suppresses the pulse ring). */
+  active?: ReactNode;
+  /** Render an icon for items with status="default" — handy for stepper-style timelines (e.g. step number). */
+  default?: ReactNode;
+}
+
 export interface TimelineRenderItemContext<TData = unknown> {
   item: TimelineItem<TData>;
   index: number;
@@ -62,6 +75,10 @@ export interface TimelineStyledProps<TData = unknown> {
   activeId?: string;
   /** Render this item as a pending tail with spinner + dashed connector. */
   pendingId?: string;
+  /** Override the built-in status icons (✓ / ✕ / ⚠) globally for this timeline. Per-item `item.icon` still wins. */
+  statusIcons?: TimelineStatusIcons;
+  /** Replace the spinner used for the `pendingId` item. */
+  pendingIcon?: ReactNode;
   /** Reverse render order (newest first). */
   reverse?: boolean;
   /** Filter by string match (title/description/date) or predicate. */
@@ -130,7 +147,10 @@ function ChevronIcon() {
   );
 }
 
-function statusIcon(status: TimelineStatus): ReactNode {
+function statusIcon(status: TimelineStatus, override?: TimelineStatusIcons): ReactNode {
+  // Per-status override (consumer wins).
+  if (override && override[status] !== undefined) return override[status];
+  // Built-in defaults.
   if (status === "completed") return <CheckIcon />;
   if (status === "error") return <CloseIcon />;
   if (status === "warning") return <WarningIcon />;
@@ -152,6 +172,8 @@ function TimelineStyledImpl<TData>(
     dotVariant = "outline",
     activeId,
     pendingId,
+    statusIcons,
+    pendingIcon,
     reverse,
     filter,
     groupBy,
@@ -266,7 +288,8 @@ function TimelineStyledImpl<TData>(
       );
     }
 
-    const defaultIcon = statusIcon(status);
+    const defaultIcon = statusIcon(status, statusIcons);
+    const pendingNode = pendingIcon ?? <PendingSpinner />;
 
     return (
       <li
@@ -286,10 +309,13 @@ function TimelineStyledImpl<TData>(
             {item.dot != null ? (
               item.dot
             ) : isPending ? (
-              <PendingSpinner />
+              pendingNode
             ) : (
               <>
-                {isActive && <span className="rtl-dot-pulse" aria-hidden="true" />}
+                {/* Suppress the pulse ring when consumer supplies a custom active icon. */}
+                {isActive && statusIcons?.active === undefined && (
+                  <span className="rtl-dot-pulse" aria-hidden="true" />
+                )}
                 {(item.icon != null || defaultIcon != null) && (
                   <span className="rtl-icon">{item.icon ?? defaultIcon}</span>
                 )}
@@ -320,13 +346,17 @@ function TimelineStyledImpl<TData>(
           {item.description != null && <p className="rtl-description">{item.description}</p>}
           {expandable && (
             <div
-              id={`rtl-details-${item.id}`}
-              className="rtl-details"
-              role="region"
-              aria-labelledby={`rtl-item-${item.id}`}
-              hidden={!expanded}
+              className="rtl-details-wrap"
+              data-expanded={expanded || undefined}
             >
-              {item.details}
+              <div
+                id={`rtl-details-${item.id}`}
+                className="rtl-details"
+                role="region"
+                aria-labelledby={`rtl-item-${item.id}`}
+              >
+                {item.details}
+              </div>
             </div>
           )}
         </div>

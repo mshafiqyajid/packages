@@ -79,6 +79,25 @@ const items = activity.map((a) => ({
 <TimelineStyled items={items} spacing="time" />
 ```
 
+### Custom status icons
+
+```tsx
+import { CheckCircle, XCircle, AlertTriangle } from "lucide-react";
+
+<TimelineStyled
+  items={items}
+  statusIcons={{
+    completed: <CheckCircle size={12} />,
+    error:     <XCircle size={12} />,
+    warning:   <AlertTriangle size={12} />,
+    default:   <span>{/* render step number, etc. */}</span>,
+  }}
+  pendingIcon={<MyBrandSpinner />}  // overrides the built-in spinner for `pendingId`
+/>
+```
+
+Per-item `item.icon` still wins over `statusIcons`. Setting `statusIcons.active` suppresses the default pulse ring.
+
 ### Programmatic control via ref
 
 ```tsx
@@ -158,6 +177,8 @@ return (
 | `dotVariant` | `"outline" \| "solid" \| "ring"` | `"outline"` | Dot visual style |
 | `activeId` | `string` | — | Marks the matching item with `aria-current="step"` |
 | `pendingId` | `string` | — | Renders the matching item as pending tail |
+| `statusIcons` | `{ completed?, error?, warning?, active?, default? }` | — | Override the built-in dot icons globally. `item.icon` wins. |
+| `pendingIcon` | `ReactNode` | spinner | Replace the spinner used for the `pendingId` item. |
 | `reverse` | `boolean` | `false` | Newest first |
 | `filter` | `string \| (item) => boolean` | — | Hide non-matching items |
 | `groupBy` | `"groupId" \| (item) => string` | — | Cluster items under a sticky header |
