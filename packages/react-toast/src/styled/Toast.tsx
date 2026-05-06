@@ -125,48 +125,50 @@ export function Toast({ toast, onDismiss, isBottom, paused }: ToastProps) {
         )}
       </div>
 
-      {toast.undo && durationMs > 0 && (
+      <div className="rtoast-actions">
+        {toast.undo && durationMs > 0 && (
+          <button
+            type="button"
+            className="rtoast-undo"
+            aria-label={toast.undoLabel ?? "Undo"}
+            onClick={() => { toast.undo!(); setExiting(true); }}
+          >
+            <svg
+              viewBox="0 0 32 32"
+              width="28"
+              height="28"
+              className="rtoast-undo-ring"
+              aria-hidden="true"
+            >
+              <circle cx="16" cy="16" r="14" className="rtoast-undo-ring-bg" />
+              <circle
+                cx="16"
+                cy="16"
+                r="14"
+                className="rtoast-undo-ring-fill"
+                style={
+                  {
+                    animationDuration: `${durationMs}ms`,
+                    animationPlayState: isPaused ? "paused" : "running",
+                  } as React.CSSProperties
+                }
+              />
+            </svg>
+            <span className="rtoast-undo-label">{toast.undoLabel ?? "Undo"}</span>
+          </button>
+        )}
+
         <button
           type="button"
-          className="rtoast-undo"
-          aria-label={toast.undoLabel ?? "Undo"}
-          onClick={() => { toast.undo!(); setExiting(true); }}
+          className="rtoast-close"
+          aria-label="Dismiss"
+          onClick={() => setExiting(true)}
         >
-          <svg
-            viewBox="0 0 32 32"
-            width="32"
-            height="32"
-            className="rtoast-undo-ring"
-            aria-hidden="true"
-          >
-            <circle cx="16" cy="16" r="14" className="rtoast-undo-ring-bg" />
-            <circle
-              cx="16"
-              cy="16"
-              r="14"
-              className="rtoast-undo-ring-fill"
-              style={
-                {
-                  animationDuration: `${durationMs}ms`,
-                  animationPlayState: isPaused ? "paused" : "running",
-                } as React.CSSProperties
-              }
-            />
+          <svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+            <path d="M2 2l12 12M14 2L2 14" />
           </svg>
-          <span className="rtoast-undo-label">{toast.undoLabel ?? "Undo"}</span>
         </button>
-      )}
-
-      <button
-        type="button"
-        className="rtoast-close"
-        aria-label="Dismiss"
-        onClick={() => setExiting(true)}
-      >
-        <svg viewBox="0 0 16 16" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
-          <path d="M2 2l12 12M14 2L2 14" />
-        </svg>
-      </button>
+      </div>
 
       {/* Progress bar driven by CSS animation — no RAF/state needed */}
       {durationMs > 0 && !toast.undo && (
