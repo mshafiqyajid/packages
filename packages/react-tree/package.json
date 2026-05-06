@@ -1,6 +1,6 @@
 {
   "name": "@mshafiqyajid/react-tree",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Headless tree view hook and styled component for React. Expand/collapse, selection, async children, keyboard navigation. Zero dependencies, fully typed.",
   "keywords": [
     "react",
