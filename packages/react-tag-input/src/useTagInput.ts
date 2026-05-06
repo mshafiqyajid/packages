@@ -1,6 +1,7 @@
 import {
   useState,
   useCallback,
+  useEffect,
   useRef,
   type KeyboardEvent,
   type ChangeEvent,
@@ -32,6 +33,18 @@ export interface UseTagInputOptions {
   caseSensitive?: boolean;
   /** When the input is empty, Backspace pulls the last tag back into the input for editing instead of just removing it. Default false. */
   backspaceEditsLastTag?: boolean;
+  /**
+   * Async suggestions loader. When set, replaces the in-memory `suggestions`
+   * filter — the list is debounced + cancellable.
+   */
+  loadOptions?: (query: string) => Promise<string[]>;
+  /** Debounce delay (ms) before `loadOptions` fires. Default: 300. */
+  debounceMs?: number;
+  /**
+   * When true, paste support also splits multi-row TSV / spreadsheet content
+   * — each cell becomes a tag. Default: true.
+   */
+  spreadsheetPaste?: boolean;
 }
 
 export interface UseTagInputResult {
@@ -57,6 +70,10 @@ export interface UseTagInputResult {
   filteredSuggestions: string[];
   activeIndex: number;
   validationError: string | null;
+  /** True while an async `loadOptions` request is in flight. */
+  isLoading: boolean;
+  /** The error from the most recent `loadOptions` rejection, if any. */
+  loadError: Error | null;
 }
 
 export function useTagInput({
@@ -76,6 +93,9 @@ export function useTagInput({
   onTagRemove,
   caseSensitive = false,
   backspaceEditsLastTag = false,
+  loadOptions,
+  debounceMs = 300,
+  spreadsheetPaste = true,
 }: UseTagInputOptions = {}): UseTagInputResult {
   const isControlled = controlledValue !== undefined;
 
@@ -131,7 +151,53 @@ export function useTagInput({
     [isControlled],
   );
 
-  const filteredSuggestions = inputValue.trim()
+  // Async loadOptions state (debounced + cancellable). Only used when
+  // `loadOptions` is supplied; otherwise the in-memory `suggestions` filter
+  // is used as before.
+  const [asyncSuggestions, setAsyncSuggestions] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadError, setLoadError] = useState<Error | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (!loadOptions) return;
+    if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+    debounceTimerRef.current = setTimeout(() => {
+      if (abortRef.current) abortRef.current.abort();
+      const controller = new AbortController();
+      abortRef.current = controller;
+      setIsLoading(true);
+      setLoadError(null);
+      Promise.resolve(loadOptions(inputValue))
+        .then((next) => {
+          if (controller.signal.aborted) return;
+          setAsyncSuggestions(next);
+          setIsLoading(false);
+        })
+        .catch((err) => {
+          if (controller.signal.aborted) return;
+          setLoadError(err instanceof Error ? err : new Error(String(err)));
+          setIsLoading(false);
+        });
+    }, debounceMs);
+    return () => {
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+    };
+  }, [inputValue, loadOptions, debounceMs]);
+
+  useEffect(() => {
+    return () => {
+      if (abortRef.current) abortRef.current.abort();
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+    };
+  }, []);
+
+  const filteredSuggestions = loadOptions
+    ? asyncSuggestions.filter(
+        (s) => allowDuplicatesRef.current || !tags.includes(s),
+      )
+    : inputValue.trim()
     ? suggestions.filter((s) => {
         const matches = s.toLowerCase().includes(inputValue.toLowerCase());
         if (!matches) return false;
@@ -294,7 +360,11 @@ export function useTagInput({
   const splitPasted = useCallback(
     (text: string): string[] => {
       if (pasteDelimiters === null) return [text];
-      const patterns = pasteDelimiters ?? [",", "\n", "\t", ";"];
+      // Spreadsheet TSV (multi-row) — when enabled, treat \n as a row break and
+      // \t as a cell break; both produce tags.
+      const patterns =
+        pasteDelimiters ??
+        (spreadsheetPaste ? [",", "\n", "\t", ";"] : [",", ";"]);
       // Build a regex that matches any of the delimiters.
       const re = new RegExp(
         patterns
@@ -306,7 +376,7 @@ export function useTagInput({
         .map((s) => s.trim())
         .filter((s) => s.length > 0);
     },
-    [pasteDelimiters],
+    [pasteDelimiters, spreadsheetPaste],
   );
 
   const handlePaste = useCallback(
@@ -335,6 +405,8 @@ export function useTagInput({
       "aria-activedescendant": activeSuggestionId,
       role: "combobox",
     },
+    isLoading,
+    loadError,
     addTag,
     addTags,
     removeTag,

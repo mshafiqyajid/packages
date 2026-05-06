@@ -29,6 +29,10 @@ export interface SegmentedControlStyledProps<TValue>
   name?: string;
   /** Override the wrapper id (used for label association). */
   id?: string;
+  /** When the control overflows its container, allow horizontal scrolling. Default: false. */
+  scrollable?: boolean;
+  /** Force every segment to the width of the widest one (CSS grid layout). Default: false. */
+  equalize?: boolean;
 }
 
 function SegmentedControlStyledInner<TValue>(
@@ -44,6 +48,8 @@ function SegmentedControlStyledInner<TValue>(
     required,
     name,
     id: idProp,
+    scrollable = false,
+    equalize = false,
     className,
     value,
     defaultValue,
@@ -91,6 +97,8 @@ function SegmentedControlStyledInner<TValue>(
         data-size={size}
         data-tone={tone}
         data-full-width={fullWidth ? "true" : undefined}
+        data-scrollable={scrollable ? "true" : undefined}
+        data-equalize={equalize ? "true" : undefined}
         data-invalid={isInvalid ? "true" : undefined}
         aria-invalid={isInvalid ? true : undefined}
         aria-required={required ? true : undefined}

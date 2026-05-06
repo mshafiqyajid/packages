@@ -328,3 +328,91 @@
 
 [data-theme="dark"] .rtab-list[data-tone="success"] { --rtab-fg-active: #bbf7d0; --rtab-bg-tab-active: #14532d; --rtab-bg-indicator: #4ade80; }
 [data-theme="dark"] .rtab-list[data-tone="danger"]  { --rtab-fg-active: #fecaca; --rtab-bg-tab-active: #7f1d1d; --rtab-bg-indicator: #f87171; }
+
+/* ============================================================================
+ * Closeable / scrollable / sortable tabs (1.x additions)
+ * ============================================================================ */
+
+/* Wrap that holds the list + the chevron scroll buttons */
+.rtab-list-wrap {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+}
+
+/* Scrollable mode — list itself becomes a horizontal scroll container */
+.rtab-list[data-scrollable] {
+  overflow-x: auto;
+  scrollbar-width: none;             /* Firefox */
+  scroll-behavior: smooth;
+  flex-wrap: nowrap;
+}
+.rtab-list[data-scrollable]::-webkit-scrollbar { display: none; }
+.rtab-list[data-scrollable] .rtab-tab {
+  flex-shrink: 0;
+}
+
+/* Chevron scroll buttons */
+.rtab-scroll-btn {
+  appearance: none;
+  background: var(--rtab-bg, transparent);
+  border: none;
+  width: 28px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--rtab-fg-muted, currentColor);
+  opacity: 0.85;
+  transition: opacity 120ms ease, background 120ms ease;
+}
+.rtab-scroll-btn:hover { opacity: 1; }
+.rtab-scroll-btn:focus-visible {
+  outline: 2px solid var(--rtab-color-active, #6366f1);
+  outline-offset: 1px;
+}
+.rtab-scroll-btn--left {
+  background: linear-gradient(to right, var(--rtab-bg, var(--bg, #fff)) 50%, transparent);
+}
+.rtab-scroll-btn--right {
+  background: linear-gradient(to left, var(--rtab-bg, var(--bg, #fff)) 50%, transparent);
+}
+
+/* Close (×) button on closable tabs */
+.rtab-tab[data-closable] {
+  padding-right: 0.4rem;
+}
+.rtab-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  margin-left: 0.4rem;
+  border-radius: 3px;
+  cursor: pointer;
+  color: var(--rtab-fg-muted, currentColor);
+  opacity: 0.55;
+  transition: background 120ms ease, opacity 120ms ease;
+}
+.rtab-close:hover {
+  opacity: 1;
+  background: var(--rtab-close-hover-bg, rgba(0, 0, 0, 0.08));
+}
+[data-theme="dark"] .rtab-close:hover {
+  background: var(--rtab-close-hover-bg, rgba(255, 255, 255, 0.12));
+}
+
+/* Drag-to-reorder visuals */
+.rtab-tab[draggable="true"] { cursor: grab; }
+.rtab-tab[draggable="true"]:active { cursor: grabbing; }
+.rtab-tab[draggable="true"]:hover {
+  background: var(--rtab-tab-hover-bg, rgba(0, 0, 0, 0.04));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rtab-list { scroll-behavior: auto; }
+  .rtab-scroll-btn { transition: none; }
+  .rtab-close { transition: none; }
+}

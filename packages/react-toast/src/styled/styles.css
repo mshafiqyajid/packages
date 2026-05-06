@@ -269,3 +269,112 @@
   .rtoast-progress         { animation: none !important; display: none; }
   .rtoast-spinner          { animation: none !important; }
 }
+
+/* ============================================================================
+ * 1.x additions: undo ring · action variants · swipe · drag handle
+ * ============================================================================ */
+
+/* Undo button + countdown ring */
+.rtoast-undo {
+  appearance: none;
+  background: transparent;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.25rem 0.55rem 0.25rem 0.25rem;
+  border-radius: 999px;
+  cursor: pointer;
+  color: inherit;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  flex-shrink: 0;
+  position: relative;
+  transition: background 120ms ease;
+}
+.rtoast-undo:hover { background: rgba(0, 0, 0, 0.06); }
+[data-theme="dark"] .rtoast-undo:hover { background: rgba(255, 255, 255, 0.08); }
+.rtoast-undo:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 1px;
+}
+.rtoast-undo-ring {
+  flex-shrink: 0;
+  transform: rotate(-90deg);
+}
+.rtoast-undo-ring-bg {
+  fill: none;
+  stroke: currentColor;
+  stroke-opacity: 0.18;
+  stroke-width: 2.5;
+}
+.rtoast-undo-ring-fill {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-dasharray: 88;
+  stroke-dashoffset: 0;
+  animation-name: rtoast-undo-countdown;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+@keyframes rtoast-undo-countdown {
+  from { stroke-dashoffset: 0; }
+  to   { stroke-dashoffset: 88; }
+}
+.rtoast-undo-label { white-space: nowrap; }
+
+/* Action button variants */
+.rtoast-action[data-variant="outline"] {
+  background: transparent;
+  border: 1px solid currentColor;
+  border-radius: 4px;
+  padding: 0.2rem 0.55rem;
+}
+.rtoast-action[data-variant="ghost"] {
+  background: transparent;
+  border: none;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* Swipe transitions */
+.rtoast-item:not([data-swiping="true"]) {
+  transition:
+    transform var(--rtoast-duration) var(--rtoast-ease, cubic-bezier(0.22, 1, 0.36, 1)),
+    opacity   var(--rtoast-duration) var(--rtoast-ease, cubic-bezier(0.22, 1, 0.36, 1));
+}
+.rtoast-item[data-swiping="true"] { transition: none; }
+
+/* Drag handle on the region */
+.rtoast-region[data-draggable] { position: relative; }
+.rtoast-region[data-dragging="true"] { cursor: grabbing; opacity: 0.85; }
+.rtoast-drag-handle {
+  position: absolute;
+  top: -28px;
+  right: -4px;
+  width: 26px;
+  height: 26px;
+  appearance: none;
+  background: var(--rtoast-bg, #fff);
+  border: 1px solid var(--rtoast-border, rgba(0, 0, 0, 0.08));
+  border-radius: 6px;
+  color: var(--rtoast-fg-muted, #71717a);
+  cursor: grab;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  touch-action: none;
+}
+.rtoast-drag-handle:active { cursor: grabbing; }
+[data-theme="dark"] .rtoast-drag-handle {
+  background: var(--rtoast-bg, #18181b);
+  border-color: var(--rtoast-border, rgba(255, 255, 255, 0.08));
+  color: var(--rtoast-fg-muted, #a1a1aa);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rtoast-undo-ring-fill { animation: none; }
+}

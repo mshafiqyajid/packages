@@ -21,6 +21,10 @@ export type SegmentedControlOption<TValue> =
       value: TValue;
       label?: React.ReactNode;
       disabled?: boolean;
+      /** Optional badge rendered to the right of the label (counts, "new" pills, etc.). */
+      badge?: React.ReactNode;
+      /** Optional href — when present, the segment renders as `<a>` for routing. */
+      href?: string;
     };
 
 export interface UseSegmentedControlOptions<TValue> {
@@ -41,6 +45,10 @@ export interface UseSegmentedControlOptions<TValue> {
 export interface SegmentedControlOptionState<TValue> {
   value: TValue;
   label: React.ReactNode;
+  /** Optional badge passed through from the option config. */
+  badge?: React.ReactNode;
+  /** Optional href passed through from the option config (link mode). */
+  href?: string;
   index: number;
   isSelected: boolean;
   isDisabled: boolean;
@@ -71,7 +79,13 @@ export interface UseSegmentedControlResult<TValue> {
 
 function normalize<TValue>(
   options: ReadonlyArray<SegmentedControlOption<TValue>>,
-): { value: TValue; label: React.ReactNode; disabled: boolean }[] {
+): {
+  value: TValue;
+  label: React.ReactNode;
+  disabled: boolean;
+  badge?: React.ReactNode;
+  href?: string;
+}[] {
   return options.map((opt) => {
     if (
       opt !== null &&
@@ -82,11 +96,15 @@ function normalize<TValue>(
         value: TValue;
         label?: React.ReactNode;
         disabled?: boolean;
+        badge?: React.ReactNode;
+        href?: string;
       };
       return {
         value: o.value,
         label: o.label ?? String(o.value),
         disabled: o.disabled ?? false,
+        badge: o.badge,
+        href: o.href,
       };
     }
     return {
@@ -242,6 +260,8 @@ export function useSegmentedControl<TValue>(
       return {
         value: opt.value,
         label: opt.label,
+        badge: opt.badge,
+        href: opt.href,
         index: i,
         isSelected,
         isDisabled,

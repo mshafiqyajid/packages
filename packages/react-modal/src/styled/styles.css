@@ -259,3 +259,104 @@
 .rmod-panel[data-padding="none"] .rmod-description { padding: 0; }
 .rmod-panel[data-padding="sm"] .rmod-description { padding: 0 0.75rem; }
 .rmod-panel[data-padding="lg"] .rmod-description { padding: 0 1.5rem; }
+
+/* ============================================================================
+ * 1.x additions — transition variants · stacked behind · swipe · confirm()
+ * ============================================================================ */
+
+/* Transition variants on the dialog panel.
+ * Drawers (drawer-left/right/bottom) keep their existing slide-from-edge
+ * transition; these only apply to data-variant="dialog". */
+.rmod-panel[data-variant="dialog"][data-transition="zoom"] {
+  transform: scale(0.94);
+  opacity: 0;
+  transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1), opacity 200ms ease;
+}
+.rmod-panel[data-variant="dialog"][data-transition="zoom"].rmod-panel--visible {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.rmod-panel[data-variant="dialog"][data-transition="slide-up"] {
+  transform: translateY(20px);
+  opacity: 0;
+  transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1), opacity 200ms ease;
+}
+.rmod-panel[data-variant="dialog"][data-transition="slide-up"].rmod-panel--visible {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.rmod-panel[data-variant="dialog"][data-transition="slide-down"] {
+  transform: translateY(-20px);
+  opacity: 0;
+  transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1), opacity 200ms ease;
+}
+.rmod-panel[data-variant="dialog"][data-transition="slide-down"].rmod-panel--visible {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* Stacked-behind effect — applied via inline style from JS but we add a
+ * smooth transition here so depth changes animate. */
+.rmod-overlay[data-stack-position] .rmod-panel:not([data-swiping="true"]) {
+  transition:
+    transform 240ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity   220ms ease;
+}
+
+/* Swipe-to-dismiss visual */
+.rmod-panel[data-swiping="true"] {
+  transition: none;
+  cursor: grabbing;
+}
+
+/* Confirm() utility's footer buttons — minimal, inherit consumer themes
+ * via CSS variables. */
+.rmod-btn {
+  appearance: none;
+  font: inherit;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.875rem;
+  transition: background 120ms ease, border-color 120ms ease;
+}
+.rmod-btn--cancel {
+  background: transparent;
+  border: 1px solid var(--rmod-border, rgba(0, 0, 0, 0.12));
+  color: var(--rmod-fg, #18181b);
+}
+.rmod-btn--cancel:hover {
+  background: var(--rmod-surface-hover, rgba(0, 0, 0, 0.04));
+}
+.rmod-btn--confirm {
+  background: var(--rmod-confirm-bg, #6366f1);
+  border: 1px solid var(--rmod-confirm-bg, #6366f1);
+  color: white;
+}
+.rmod-btn--confirm:hover {
+  background: var(--rmod-confirm-bg-hover, #5558e6);
+}
+.rmod-btn--danger {
+  background: var(--rmod-danger-bg, #dc2626);
+  border-color: var(--rmod-danger-bg, #dc2626);
+}
+.rmod-btn--danger:hover {
+  background: var(--rmod-danger-bg-hover, #c01f1f);
+}
+[data-theme="dark"] .rmod-btn--cancel {
+  border-color: var(--rmod-border, rgba(255, 255, 255, 0.16));
+  color: var(--rmod-fg, #f4f4f5);
+}
+[data-theme="dark"] .rmod-btn--cancel:hover {
+  background: var(--rmod-surface-hover, rgba(255, 255, 255, 0.06));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rmod-panel[data-variant="dialog"][data-transition] {
+    transition: opacity 100ms linear;
+    transform: none !important;
+  }
+}

@@ -34,6 +34,14 @@ export interface TagInputStyledProps extends UseTagInputOptions {
   autoFocus?: boolean;
   renderTag?: (tag: string, index: number, onRemove: () => void) => ReactNode;
   sortable?: boolean;
+  /** Derive a CSS color from each tag (e.g. category-based or hash-based) and apply as the chip background. */
+  colorize?: (tag: string) => string;
+  /** Render extra actions inside each tag chip (rename, link, etc). */
+  tagActions?: (tag: string, index: number) => ReactNode;
+  /** When set, fires with the new tag order after a drag-reorder commits. */
+  onReorder?: (tags: string[]) => void;
+  /** Text rendered while async `loadOptions` is in flight. Default: "Loading…" */
+  loadingText?: ReactNode;
 }
 
 export const TagInputStyled = forwardRef<HTMLDivElement, TagInputStyledProps>(
@@ -70,6 +78,13 @@ export const TagInputStyled = forwardRef<HTMLDivElement, TagInputStyledProps>(
       autoFocus,
       renderTag,
       sortable = false,
+      colorize,
+      tagActions,
+      onReorder,
+      loadingText = "Loading…",
+      loadOptions,
+      debounceMs,
+      spreadsheetPaste,
     },
     ref,
   ) {
@@ -88,6 +103,8 @@ export const TagInputStyled = forwardRef<HTMLDivElement, TagInputStyledProps>(
       filteredSuggestions,
       activeIndex,
       validationError,
+      isLoading,
+      loadError,
     } = useTagInput({
       value,
       defaultValue,
@@ -102,6 +119,9 @@ export const TagInputStyled = forwardRef<HTMLDivElement, TagInputStyledProps>(
       onTagAdd,
       onTagRemove,
       caseSensitive,
+      loadOptions,
+      debounceMs,
+      spreadsheetPaste,
     });
 
     const [dragIndex, setDragIndex] = useState<number | null>(null);
@@ -131,7 +151,9 @@ export const TagInputStyled = forwardRef<HTMLDivElement, TagInputStyledProps>(
       });
     }, []);
 
-    const showDropdown = filteredSuggestions.length > 0;
+    // Dropdown visible when there are suggestions OR an async load is in flight / errored.
+    const showDropdown =
+      filteredSuggestions.length > 0 || isLoading || loadError !== null;
 
     useEffect(() => {
       if (showDropdown) updateCoords();
@@ -220,12 +242,15 @@ export const TagInputStyled = forwardRef<HTMLDivElement, TagInputStyledProps>(
               );
             }
 
+            const colorStyle = colorize ? ({ background: colorize(tag) } as React.CSSProperties) : undefined;
             return (
               <span
                 key={i}
                 className="rti-tag"
                 data-variant={tagVariant}
                 data-tone={resolvedTagTone}
+                data-colorized={colorize ? "true" : undefined}
+                style={colorStyle}
                 draggable={sortable}
                 data-sortable={sortable ? "true" : undefined}
                 data-drag-over={dragOverIndex === i ? "true" : undefined}
@@ -240,10 +265,16 @@ export const TagInputStyled = forwardRef<HTMLDivElement, TagInputStyledProps>(
                   const [moved] = next.splice(dragIndex, 1);
                   if (moved !== undefined) next.splice(i, 0, moved);
                   onChange?.(next);
+                  onReorder?.(next);
                   setDragIndex(null);
                 } : undefined}
               >
                 <span className="rti-tag-label">{tag}</span>
+                {tagActions && (
+                  <span className="rti-tag-actions" onClick={(e) => e.stopPropagation()}>
+                    {tagActions(tag, i)}
+                  </span>
+                )}
                 {!disabled && (
                   <button
                     type="button"
@@ -323,6 +354,16 @@ export const TagInputStyled = forwardRef<HTMLDivElement, TagInputStyledProps>(
                 zIndex: 9999,
               }}
             >
+              {isLoading && filteredSuggestions.length === 0 && (
+                <li className="rti-dropdown-item rti-dropdown-loading" aria-disabled="true">
+                  {loadingText}
+                </li>
+              )}
+              {loadError && filteredSuggestions.length === 0 && (
+                <li className="rti-dropdown-item rti-dropdown-error" aria-disabled="true">
+                  {loadError.message}
+                </li>
+              )}
               {filteredSuggestions.map((suggestion, i) => (
                 <li
                   key={suggestion}

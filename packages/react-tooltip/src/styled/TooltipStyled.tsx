@@ -42,7 +42,26 @@ export interface TooltipStyledProps {
   /** "absolute" or "fixed" positioning. Default: "absolute" */
   strategy?: TooltipStrategy;
   className?: string;
+  /** Keep the tooltip open while the cursor is over the tooltip body (interactive content). Default: false. */
+  sticky?: boolean;
+  /** Optional header rendered above the content. */
+  header?: ReactNode;
+  /** Optional footer rendered below the content. */
+  footer?: ReactNode;
+  /** Long-press delay (ms) on touch devices to show the tooltip. Default: 500. Set 0 to disable touch trigger. */
+  longPressDelay?: number;
+  /**
+   * Group key. Tooltips sharing a group are linked: ↓/↑ on a focused trigger
+   * cycles to the next/previous group member. Used for guided tours / help
+   * sequences.
+   */
+  group?: string;
+  /** Optional id within the group for ordering. Falls back to DOM order. */
+  groupId?: string;
 }
+
+// Tooltip group registry — maps group → [tooltip elements in registration order]
+const _tooltipGroups = new Map<string, Array<{ id: string; el: HTMLElement }>>();
 
 function parsePlacement(p: TooltipPlacement): { side: TooltipSide; align: TooltipAlign } {
   const dash = p.indexOf("-");
@@ -148,9 +167,16 @@ export const TooltipStyled = forwardRef<HTMLDivElement, TooltipStyledProps>(
       flip = true,
       shift = true,
       strategy = "absolute",
+      sticky = false,
+      header,
+      footer,
+      longPressDelay = 500,
+      group,
+      groupId,
     },
     ref,
   ) {
+    const groupMemberId = useId();
     const id = useId();
     const [isVisible, setIsVisible] = useState(false);
     const [resolvedPlacement, setResolvedPlacement] = useState<TooltipPlacement>(placement);
@@ -198,8 +224,62 @@ export const TooltipStyled = forwardRef<HTMLDivElement, TooltipStyledProps>(
 
     const hide = useCallback(() => {
       clearTimer();
+      // When sticky, defer the hide briefly so cursor moving from trigger to
+      // tooltip body doesn't dismiss it.
+      if (sticky) {
+        timer.current = setTimeout(() => setIsVisible(false), 80);
+      } else {
+        setIsVisible(false);
+      }
+    }, [clearTimer, sticky]);
+
+    // Long-press touch trigger
+    const handleTouchStart = useCallback(() => {
+      if (longPressDelay <= 0) return;
+      clearTimer();
+      timer.current = setTimeout(() => setIsVisible(true), longPressDelay);
+    }, [longPressDelay, clearTimer]);
+    const handleTouchEnd = useCallback(() => {
+      clearTimer();
       setIsVisible(false);
     }, [clearTimer]);
+
+    // Group registration: keep an entry for this trigger inside its group.
+    useEffect(() => {
+      if (!group) return;
+      const list = _tooltipGroups.get(group) ?? [];
+      const node = triggerRef.current;
+      if (!node) return;
+      list.push({ id: groupId ?? groupMemberId, el: node });
+      _tooltipGroups.set(group, list);
+      return () => {
+        const cur = _tooltipGroups.get(group);
+        if (!cur) return;
+        const next = cur.filter((m) => m.el !== node);
+        if (next.length === 0) _tooltipGroups.delete(group);
+        else _tooltipGroups.set(group, next);
+      };
+    }, [group, groupId, groupMemberId]);
+
+    // Group keyboard nav: ↓/↑ on a focused trigger cycles through the group.
+    const handleTriggerKeyDown = useCallback(
+      (e: React.KeyboardEvent) => {
+        if (!group || (e.key !== "ArrowDown" && e.key !== "ArrowUp")) return;
+        const list = _tooltipGroups.get(group);
+        if (!list) return;
+        const idx = list.findIndex((m) => m.el === triggerRef.current);
+        if (idx === -1) return;
+        const next =
+          e.key === "ArrowDown"
+            ? list[(idx + 1) % list.length]
+            : list[(idx - 1 + list.length) % list.length];
+        if (next) {
+          e.preventDefault();
+          next.el.focus?.();
+        }
+      },
+      [group],
+    );
 
     useEffect(() => {
       if (isVisible) updateCoords();
@@ -250,6 +330,18 @@ export const TooltipStyled = forwardRef<HTMLDivElement, TooltipStyledProps>(
             hide();
             (children.props as { onBlur?: (e: React.FocusEvent) => void }).onBlur?.(e);
           },
+          onTouchStart: (e: React.TouchEvent) => {
+            handleTouchStart();
+            (children.props as { onTouchStart?: (e: React.TouchEvent) => void }).onTouchStart?.(e);
+          },
+          onTouchEnd: (e: React.TouchEvent) => {
+            handleTouchEnd();
+            (children.props as { onTouchEnd?: (e: React.TouchEvent) => void }).onTouchEnd?.(e);
+          },
+          onKeyDown: (e: React.KeyboardEvent) => {
+            handleTriggerKeyDown(e);
+            (children.props as { onKeyDown?: (e: React.KeyboardEvent) => void }).onKeyDown?.(e);
+          },
         })
       : children;
 
@@ -279,10 +371,15 @@ export const TooltipStyled = forwardRef<HTMLDivElement, TooltipStyledProps>(
               data-tone={tone}
               data-visible={isVisible ? "true" : undefined}
               data-multiline={multiline ? "true" : undefined}
+              data-sticky={sticky || undefined}
               aria-hidden={!isVisible}
               style={tooltipStyle}
+              onMouseEnter={sticky ? clearTimer : undefined}
+              onMouseLeave={sticky ? hide : undefined}
             >
+              {header && <div className="rtt-header">{header}</div>}
               <span className="rtt-content">{content}</span>
+              {footer && <div className="rtt-footer">{footer}</div>}
             </div>,
             document.body,
           )}

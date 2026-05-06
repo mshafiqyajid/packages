@@ -49,6 +49,18 @@ export interface PopoverStyledProps {
   /** "absolute" (page-relative) or "fixed" (viewport-relative). Default: "absolute" */
   strategy?: PopoverStrategy;
   className?: string;
+  /**
+   * Anchor the popover to a virtual element (e.g. cursor position, selection rect)
+   * instead of `children`. When set, `children` still renders but isn't used as
+   * the anchor. Pass `{ getBoundingClientRect: () => DOMRect }`.
+   */
+  anchor?: { getBoundingClientRect: () => DOMRect } | null;
+  /** Restore focus to the trigger when the popover closes. Default: true. */
+  returnFocus?: boolean;
+  /** Auto-close when the trigger element scrolls out of the viewport. Default: false. */
+  closeWhenAnchorHidden?: boolean;
+  /** Trap focus inside the popover body (modal-popover variant). Default: false. */
+  modal?: boolean;
 }
 
 function parsePlacement(p: PopoverPlacement): { side: PopoverSide; align: PopoverAlign } {
@@ -157,6 +169,10 @@ export const PopoverStyled = forwardRef<HTMLDivElement, PopoverStyledProps>(
       flip = true,
       shift = true,
       strategy = "absolute",
+      anchor,
+      returnFocus = true,
+      closeWhenAnchorHidden = false,
+      modal: isModal = false,
     },
     ref,
   ) {
@@ -196,10 +212,20 @@ export const PopoverStyled = forwardRef<HTMLDivElement, PopoverStyledProps>(
       requestAnimationFrame(() => requestAnimationFrame(() => setIsOpen(true)));
     }, [placement]);
 
+    const previouslyFocusedRef = useRef<HTMLElement | null>(null);
+
     const close = useCallback(() => {
       setIsOpen(false);
       exitTimerRef.current = setTimeout(() => setRendered(false), 200);
-    }, []);
+      // Restore focus to the trigger (or wherever it was before opening).
+      if (returnFocus) {
+        const target = previouslyFocusedRef.current ?? triggerRef.current;
+        if (target && typeof target.focus === "function") {
+          // Defer so the close transition doesn't jank from a focus jump.
+          setTimeout(() => target.focus(), 0);
+        }
+      }
+    }, [returnFocus]);
 
     const toggle = useCallback(() => {
       if (isOpen) close();
@@ -207,9 +233,14 @@ export const PopoverStyled = forwardRef<HTMLDivElement, PopoverStyledProps>(
     }, [isOpen, open, close]);
 
     const updateCoords = useCallback(() => {
-      if (!triggerRef.current || !popoverRef.current) return;
+      if (!popoverRef.current) return;
+      // Anchor priority: virtual `anchor` prop, else the trigger element.
+      const anchorRect =
+        anchor?.getBoundingClientRect() ??
+        triggerRef.current?.getBoundingClientRect();
+      if (!anchorRect) return;
       const pos = computePosition({
-        trigger: triggerRef.current.getBoundingClientRect(),
+        trigger: anchorRect,
         floating: popoverRef.current.getBoundingClientRect(),
         placement,
         offset,
@@ -220,12 +251,62 @@ export const PopoverStyled = forwardRef<HTMLDivElement, PopoverStyledProps>(
       });
       setCoords({ top: pos.top, left: pos.left });
       setResolvedPlacement(pos.placement);
-    }, [offset, collisionPadding, flip, shift, strategy, placement]);
+    }, [anchor, offset, collisionPadding, flip, shift, strategy, placement]);
 
     // Recompute coords after open (popover has real size now)
     useEffect(() => {
-      if (isOpen) updateCoords();
+      if (isOpen) {
+        previouslyFocusedRef.current = document.activeElement as HTMLElement | null;
+        updateCoords();
+      }
     }, [isOpen, updateCoords]);
+
+    // Recompute when the anchor changes (virtual element moves)
+    useEffect(() => {
+      if (isOpen && anchor) updateCoords();
+    }, [isOpen, anchor, updateCoords]);
+
+    // Auto-close when the anchor scrolls out of the viewport
+    useEffect(() => {
+      if (!isOpen || !closeWhenAnchorHidden) return;
+      const node = triggerRef.current;
+      if (!node || typeof IntersectionObserver === "undefined") return;
+      const obs = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (!entry.isIntersecting) close();
+          }
+        },
+        { threshold: 0 },
+      );
+      obs.observe(node);
+      return () => obs.disconnect();
+    }, [isOpen, closeWhenAnchorHidden, close]);
+
+    // Modal-popover focus trap (cycles Tab inside the popover body).
+    useEffect(() => {
+      if (!isOpen || !isModal) return;
+      const root = popoverRef.current;
+      if (!root) return;
+      const onKeyDown = (e: KeyboardEvent) => {
+        if (e.key !== "Tab") return;
+        const focusables = root.querySelectorAll<HTMLElement>(
+          'a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])',
+        );
+        if (focusables.length === 0) return;
+        const first = focusables[0]!;
+        const last = focusables[focusables.length - 1]!;
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      };
+      root.addEventListener("keydown", onKeyDown);
+      return () => root.removeEventListener("keydown", onKeyDown);
+    }, [isOpen, isModal]);
 
     // Escape key
     useEffect(() => {
@@ -354,12 +435,13 @@ export const PopoverStyled = forwardRef<HTMLDivElement, PopoverStyledProps>(
               }}
               id={id}
               role="dialog"
-              aria-modal={false}
+              aria-modal={isModal}
               className="rpop-popover"
               data-placement={resolvedPlacement}
               data-size={size}
               data-open={isOpen ? "true" : undefined}
               data-arrow={showArrow ? "true" : undefined}
+              data-modal={isModal || undefined}
               style={popoverStyle}
             >
               <div className="rpop-inner">

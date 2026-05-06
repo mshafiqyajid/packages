@@ -98,6 +98,35 @@ function SegmentedControlInner<TValue>(
       {showIndicator ? <span className="rsc-indicator" aria-hidden="true" /> : null}
       {sc.options.map((opt) => {
         if (renderOption) return <span key={opt.index}>{renderOption(opt)}</span>;
+        const labelContent = (
+          <>
+            <span className="rsc-option-label">{opt.label}</span>
+            {opt.badge !== undefined && (
+              <span className="rsc-option-badge" aria-hidden="true">{opt.badge}</span>
+            )}
+          </>
+        );
+        // Link mode — render as <a>. Click still selects via the wired button onClick
+        // semantics (we drop the aria-checked since <a> isn't role=radio).
+        if (opt.href !== undefined) {
+          return (
+            <a
+              key={opt.index}
+              href={opt.href}
+              data-active={opt.isSelected || undefined}
+              data-disabled={opt.isDisabled || undefined}
+              tabIndex={opt.buttonProps.tabIndex}
+              onClick={(e) => {
+                if (opt.isDisabled) { e.preventDefault(); return; }
+                opt.buttonProps.onClick?.(e as unknown as React.MouseEvent<HTMLButtonElement>);
+              }}
+              onKeyDown={(e) => opt.buttonProps.onKeyDown?.(e as unknown as React.KeyboardEvent<HTMLButtonElement>)}
+              className="rsc-option rsc-option--link"
+            >
+              {labelContent}
+            </a>
+          );
+        }
         return (
           <button
             key={opt.index}
@@ -114,7 +143,7 @@ function SegmentedControlInner<TValue>(
             onClick={opt.buttonProps.onClick}
             onKeyDown={opt.buttonProps.onKeyDown}
           >
-            {opt.label}
+            {labelContent}
           </button>
         );
       })}

@@ -123,6 +123,17 @@ code:not(pre code) {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   overflow: hidden;
+  /* Prevent long type strings / function signatures from pushing the table
+   * wider than its container (which would visually overlap the right-side TOC). */
+  table-layout: auto;
+  word-break: break-word;
+}
+.props-table td,
+.props-table th {
+  /* Allow content to break at any character so long unions / signatures wrap
+   * instead of overflowing into the next column. */
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 .props-table th {
   text-align: left;
@@ -147,19 +158,23 @@ code:not(pre code) {
   font-family: "JetBrains Mono", monospace;
   font-size: 0.78rem;
   color: var(--accent);
-  white-space: nowrap;
+  /* Keep prop names on one line where possible, but allow break for very long ones. */
+  white-space: normal;
+  word-break: keep-all;
 }
 .props-table td:nth-child(2) {
   font-family: "JetBrains Mono", monospace;
   font-size: 0.75rem;
   color: var(--fg-muted);
-  max-width: 220px;
+  max-width: 260px;
 }
 .props-table td:nth-child(3) {
   font-family: "JetBrains Mono", monospace;
   font-size: 0.75rem;
   color: var(--fg-subtle);
-  white-space: nowrap;
+  /* Was nowrap — long defaults (function signatures, JSX) were pushing the
+   * cell wider than the column, causing the table to overflow into the TOC. */
+  white-space: normal;
 }
 
 /* ---- Heading anchors ---- */

@@ -61,10 +61,28 @@
   position: absolute;
   width: calc(var(--rtt-arrow-size) * 2);
   height: calc(var(--rtt-arrow-size) * 2);
-  background: var(--rtt-bg);
+  /* Arrow background defaults to tooltip bg, but consumers can override
+   * via --rtt-arrow-bg to keep arrow color in sync with themed tooltips. */
+  background: var(--rtt-arrow-bg, var(--rtt-bg));
   rotate: 45deg;
   border-radius: 2px;
   z-index: -1;
+}
+
+/* Header / footer slots inside the tooltip body */
+.rtt-header {
+  font-weight: 600;
+  font-size: 0.875em;
+  margin-bottom: 0.25rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+.rtt-footer {
+  margin-top: 0.25rem;
+  padding-top: 0.25rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  opacity: 0.85;
+  font-size: 0.85em;
 }
 
 .rtt-tooltip[data-placement="top"]::after {

@@ -97,7 +97,9 @@
     color: var(--accent);
     border-left-color: var(--accent);
   }
-  @media (max-width: 1100px) {
+  /* Hide TOC slightly earlier so the main column never gets cramped enough
+   * to start visually overlapping the sticky TOC. */
+  @media (max-width: 1180px) {
     .toc { display: none; }
   }
 </style>

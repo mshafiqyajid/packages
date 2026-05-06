@@ -126,8 +126,10 @@
   position: absolute;
   width: calc(var(--rpop-arrow-size) * 2);
   height: calc(var(--rpop-arrow-size) * 2);
-  background: var(--rpop-bg);
-  border: 1px solid var(--rpop-border);
+  /* Arrow background defaults to popover bg, but consumers can override
+   * via --rpop-arrow-bg to keep arrow color in sync with themed popovers. */
+  background: var(--rpop-arrow-bg, var(--rpop-bg));
+  border: 1px solid var(--rpop-arrow-border, var(--rpop-border));
   rotate: 45deg;
   border-radius: 2px;
   z-index: -1;

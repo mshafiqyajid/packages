@@ -324,3 +324,72 @@
     transition-duration: 0ms !important;
   }
 }
+
+/* ============================================================================
+ * 1.x additions: badge slot · scrollable · equalize · link mode
+ * ============================================================================ */
+
+/* Badge inside an option */
+.rsc-option-label { display: inline-flex; align-items: center; }
+.rsc-option-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 0.4rem;
+  padding: 0 0.4rem;
+  height: 16px;
+  min-width: 16px;
+  border-radius: 999px;
+  background: var(--rsc-badge-bg, rgba(0, 0, 0, 0.08));
+  color: var(--rsc-badge-fg, currentColor);
+  font-size: 0.7rem;
+  font-weight: 600;
+  line-height: 1;
+}
+[data-theme="dark"] .rsc-option-badge {
+  background: var(--rsc-badge-bg, rgba(255, 255, 255, 0.12));
+}
+.rsc-track button[aria-checked="true"] .rsc-option-badge,
+.rsc-track .rsc-option--link[data-active] .rsc-option-badge {
+  background: var(--rsc-badge-active-bg, rgba(255, 255, 255, 0.25));
+  color: white;
+}
+
+/* Scrollable mode — track scrolls horizontally without wrapping */
+.rsc-track[data-scrollable="true"] {
+  overflow-x: auto;
+  scrollbar-width: none;
+  flex-wrap: nowrap;
+}
+.rsc-track[data-scrollable="true"]::-webkit-scrollbar { display: none; }
+.rsc-track[data-scrollable="true"] > button,
+.rsc-track[data-scrollable="true"] > a {
+  flex-shrink: 0;
+}
+
+/* Equalize — every segment gets the width of the widest via grid */
+.rsc-track[data-equalize="true"] {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+}
+
+/* Link mode — render <a> with same look as button */
+.rsc-option--link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  user-select: none;
+}
+.rsc-option--link[data-disabled] {
+  opacity: 0.5;
+  pointer-events: none;
+}
+.rsc-option--link[data-active] {
+  /* Falls back to whatever variant styling targets aria-checked="true" — but
+   * since we're a link, mirror the active highlighting via this attribute. */
+  font-weight: 500;
+}

@@ -1,8 +1,12 @@
 export type ToastType = "neutral" | "success" | "error" | "warning" | "info" | "loading";
 
+export type ToastActionVariant = "primary" | "outline" | "ghost";
+
 export interface ToastAction {
   label: string;
   onClick: () => void;
+  /** Visual variant. Default: "primary". */
+  variant?: ToastActionVariant;
 }
 
 export interface ToastItem {
@@ -12,6 +16,12 @@ export interface ToastItem {
   type: ToastType;
   duration: number;
   action?: ToastAction;
+  /** When provided, renders an undo button with a circular countdown ring. */
+  undo?: () => void;
+  /** Label for the undo button. Default: "Undo". */
+  undoLabel?: string;
+  /** When true, the toast can be dismissed by swiping (touch only). Default: true. */
+  dismissibleSwipe?: boolean;
   createdAt: number;
   /** True when the toast is showing a pending state (set by toast.promise). */
   loading?: boolean;
@@ -22,6 +32,10 @@ export interface ToastOptions {
   duration?: number;
   title?: string;
   action?: ToastAction;
+  /** Render an undo button + countdown ring. The toast auto-dismisses unless cancelled. */
+  undo?: () => void;
+  undoLabel?: string;
+  dismissibleSwipe?: boolean;
   /** Pre-supplied id; useful for updating an existing toast. */
   id?: string;
 }
@@ -55,6 +69,9 @@ export const toastStore = {
       type,
       duration: options.duration ?? (type === "loading" ? Infinity : 4000),
       action: options.action,
+      undo: options.undo,
+      undoLabel: options.undoLabel,
+      dismissibleSwipe: options.dismissibleSwipe,
       createdAt: Date.now(),
       loading: type === "loading",
     };

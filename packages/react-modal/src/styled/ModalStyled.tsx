@@ -13,7 +13,14 @@ import { useFocusTrap } from "../useFocusTrap";
 
 export type ModalSize = "sm" | "md" | "lg" | "full";
 export type ModalVariant = "dialog" | "drawer-left" | "drawer-right" | "drawer-bottom";
-export type CloseReason = "esc" | "overlay" | "close-button" | "programmatic";
+export type CloseReason = "esc" | "overlay" | "close-button" | "programmatic" | "swipe" | "submit";
+export type ModalTransition = "fade" | "zoom" | "slide-up" | "slide-down";
+
+// ---- Stacking registry (depth-aware z-index + scale-behind effect) -------
+const _openModals: { id: number }[] = [];
+let _modalIdCounter = 0;
+const _stackListeners = new Set<() => void>();
+function _notifyStack() { _stackListeners.forEach((fn) => fn()); }
 
 export interface ModalStyledProps {
   /** Open state. `open` is the canonical name; `isOpen` continues to work. */
@@ -55,6 +62,12 @@ export interface ModalStyledProps {
   lockBodyScroll?: boolean;
   /** Override the portal container. Default: document.body. */
   container?: HTMLElement | null;
+  /** Transition variant for the panel (only `dialog`; drawers always slide). Default: "fade" */
+  transition?: ModalTransition;
+  /** Allow swipe-down-to-dismiss on touch devices. Default: false (true for `drawer-bottom`). */
+  swipeToDismiss?: boolean;
+  /** When the modal contains a single `<form>` and it submits successfully, auto-close. Default: false. */
+  closeOnSubmit?: boolean;
 }
 
 export const ModalStyled = forwardRef<HTMLDivElement, ModalStyledProps>(
@@ -84,9 +97,17 @@ export const ModalStyled = forwardRef<HTMLDivElement, ModalStyledProps>(
       preventClose,
       lockBodyScroll = true,
       container,
+      transition = "fade",
+      swipeToDismiss,
+      closeOnSubmit = false,
     },
     ref,
   ) {
+    const swipeEnabled = swipeToDismiss ?? variant === "drawer-bottom";
+    const myStackIdRef = useRef<number>(-1);
+    const [stackDepth, setStackDepth] = useState(0);
+    const [stackPosition, setStackPosition] = useState(0); // 0 = top
+    const [swipeY, setSwipeY] = useState(0);
     const titleId = useId();
     const descId = useId();
     const isActuallyOpen = open ?? isOpen ?? false;
@@ -161,6 +182,62 @@ export const ModalStyled = forwardRef<HTMLDivElement, ModalStyledProps>(
       };
     }, [lockBodyScroll]);
 
+    // ---- Stacking: register / deregister this modal ---------------------
+    useEffect(() => {
+      if (!isActuallyOpen) return;
+      const id = ++_modalIdCounter;
+      myStackIdRef.current = id;
+      _openModals.push({ id });
+      _notifyStack();
+      const sync = () => {
+        const idx = _openModals.findIndex((m) => m.id === id);
+        const total = _openModals.length;
+        setStackDepth(total);
+        setStackPosition(idx === -1 ? 0 : total - 1 - idx);
+      };
+      sync();
+      _stackListeners.add(sync);
+      return () => {
+        _stackListeners.delete(sync);
+        const idx = _openModals.findIndex((m) => m.id === id);
+        if (idx !== -1) _openModals.splice(idx, 1);
+        _notifyStack();
+      };
+    }, [isActuallyOpen]);
+
+    // ---- closeOnSubmit: auto-close on a contained <form> submit ---------
+    useEffect(() => {
+      if (!closeOnSubmit || !isActuallyOpen || !panelRef.current) return;
+      const panel = panelRef.current;
+      const onSubmit = (e: Event) => {
+        // Defer the close so the consumer's onSubmit handler runs first
+        // and can call e.preventDefault() if it wants to abort the close.
+        if (e.defaultPrevented) return;
+        setTimeout(() => requestClose("submit"), 0);
+      };
+      panel.addEventListener("submit", onSubmit);
+      return () => panel.removeEventListener("submit", onSubmit);
+    }, [closeOnSubmit, isActuallyOpen, requestClose]);
+
+    // ---- Swipe-to-dismiss (touch only) -----------------------------------
+    const swipeStartYRef = useRef<number | null>(null);
+    const handleSwipePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+      if (!swipeEnabled || e.pointerType !== "touch") return;
+      // Only initiate from the panel header / the panel itself, not buttons.
+      swipeStartYRef.current = e.clientY;
+    };
+    const handleSwipePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+      if (swipeStartYRef.current === null) return;
+      const dy = Math.max(0, e.clientY - swipeStartYRef.current);
+      setSwipeY(dy);
+    };
+    const handleSwipePointerUp = () => {
+      if (swipeStartYRef.current === null) return;
+      if (swipeY > 120) requestClose("swipe");
+      setSwipeY(0);
+      swipeStartYRef.current = null;
+    };
+
     // Focus management
     const previouslyFocusedRef = useRef<HTMLElement | null>(null);
     useEffect(() => {
@@ -220,6 +297,23 @@ export const ModalStyled = forwardRef<HTMLDivElement, ModalStyledProps>(
     const hasHeader = title !== undefined || showCloseButton;
     const portalTarget = container ?? document.body;
 
+    const overlayStyle: React.CSSProperties = {
+      ...(overlayColor ? ({ "--rmod-overlay-bg": overlayColor } as React.CSSProperties) : {}),
+      // Higher stack depth → lower modals scale down + fade slightly behind the topmost.
+      zIndex: 1000 + stackDepth * 10,
+    };
+
+    const panelStyle: React.CSSProperties = {
+      // Stack-position effects: only applied when this isn't the topmost modal.
+      ...(stackPosition > 0
+        ? {
+            transform: `translateY(${-stackPosition * 8}px) scale(${1 - stackPosition * 0.03})`,
+            opacity: Math.max(0.6, 1 - stackPosition * 0.18),
+          }
+        : {}),
+      ...(swipeY > 0 ? { transform: `translateY(${swipeY}px)`, transition: "none" } : {}),
+    };
+
     return createPortal(
       <div
         className={[
@@ -228,8 +322,10 @@ export const ModalStyled = forwardRef<HTMLDivElement, ModalStyledProps>(
         ].filter(Boolean).join(" ")}
         data-variant={variant}
         data-blur={blur}
+        data-transition={transition}
+        data-stack-position={stackPosition || undefined}
         data-state={visible ? "open" : "closed"}
-        style={overlayColor ? { "--rmod-overlay-bg": overlayColor } as React.CSSProperties : undefined}
+        style={overlayStyle}
         onClick={handleOverlayClick}
         onKeyDown={onKeyDown}
       >
@@ -249,7 +345,14 @@ export const ModalStyled = forwardRef<HTMLDivElement, ModalStyledProps>(
           data-variant={variant}
           data-padding={padding}
           data-scrollable={scrollable ? "true" : undefined}
+          data-transition={transition}
           data-state={visible ? "open" : "closed"}
+          data-swiping={swipeY > 0 ? "true" : undefined}
+          style={panelStyle}
+          onPointerDown={swipeEnabled ? handleSwipePointerDown : undefined}
+          onPointerMove={swipeEnabled ? handleSwipePointerMove : undefined}
+          onPointerUp={swipeEnabled ? handleSwipePointerUp : undefined}
+          onPointerCancel={swipeEnabled ? handleSwipePointerUp : undefined}
         >
           {hasHeader && (
             <div className="rmod-header">

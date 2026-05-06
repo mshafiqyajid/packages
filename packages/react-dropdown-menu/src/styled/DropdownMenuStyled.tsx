@@ -213,7 +213,10 @@ function SubMenu({
       trigger: parentRef.current.getBoundingClientRect(),
       floating: subRef.current.getBoundingClientRect(),
       placement: "right-start",
-      offset: 0,
+      // Same offset as the parent menu's default — keeps a small gap
+      // between the parent edge and the submenu so they read as
+      // distinct surfaces.
+      offset: 4,
       collisionPadding,
       flip,
       shift,

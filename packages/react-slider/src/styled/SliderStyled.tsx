@@ -1,5 +1,6 @@
 import {
   forwardRef,
+  useEffect,
   useRef,
   useCallback,
   useId,
@@ -10,11 +11,19 @@ import { useSlider, type SliderValue } from "../useSlider";
 
 export type SliderSize = "sm" | "md" | "lg";
 export type SliderTone = "neutral" | "primary" | "success" | "danger";
+export type SliderOrientation = "horizontal" | "vertical";
+
+export interface SliderMark {
+  value: number;
+  label?: ReactNode;
+}
 
 export interface SliderStyledProps {
   value?: SliderValue;
   defaultValue?: SliderValue;
   onChange?: (value: SliderValue) => void;
+  /** Fires only on pointer release / keyboard commit, not on every step. Useful for expensive update flows. */
+  onCommit?: (value: SliderValue) => void;
   min?: number;
   max?: number;
   step?: number;
@@ -22,8 +31,23 @@ export interface SliderStyledProps {
   size?: SliderSize;
   tone?: SliderTone;
   range?: boolean;
+  /** Show the current value next to the thumb. Default: false. */
   showValue?: boolean;
-  marks?: boolean;
+  /**
+   * Show the bubble only while the thumb is hovered/active. Default: depends on `showValue`.
+   * When `showValue` is true, the bubble is always visible. Set this true to make it appear on interaction only.
+   */
+  showValueOnInteraction?: boolean;
+  /** Format the value displayed in the bubble. */
+  formatValue?: (value: number) => ReactNode;
+  /** Render tick marks. Pass `true` to derive from `step`, or an array of values / `{ value, label }` objects. */
+  marks?: boolean | number[] | SliderMark[];
+  /**
+   * Orientation. Default: "horizontal". Vertical lays out the slider top-to-bottom
+   * via `data-orientation="vertical"` on the root; the hook math stays horizontal,
+   * so consumers using the hook directly should still wire pointer math themselves.
+   */
+  orientation?: SliderOrientation;
   className?: string;
   /** Label rendered above the slider. */
   label?: ReactNode;
@@ -49,6 +73,22 @@ function buildMarks(min: number, max: number, step: number): number[] {
   return result;
 }
 
+function normalizeMarks(
+  marks: SliderStyledProps["marks"],
+  min: number,
+  max: number,
+  step: number,
+): SliderMark[] {
+  if (!marks) return [];
+  if (marks === true) return buildMarks(min, max, step).map((value) => ({ value }));
+  if (Array.isArray(marks)) {
+    return marks.map((m) =>
+      typeof m === "number" ? ({ value: m } as SliderMark) : (m as SliderMark),
+    );
+  }
+  return [];
+}
+
 export const SliderStyled = forwardRef<HTMLDivElement, SliderStyledProps>(
   function SliderStyled(
     {
@@ -63,7 +103,11 @@ export const SliderStyled = forwardRef<HTMLDivElement, SliderStyledProps>(
       tone: toneProp = "neutral",
       range = false,
       showValue = false,
+      showValueOnInteraction,
+      formatValue,
       marks = false,
+      orientation = "horizontal",
+      onCommit,
       className,
       label,
       hint,
@@ -102,6 +146,34 @@ export const SliderStyled = forwardRef<HTMLDivElement, SliderStyledProps>(
       disabled,
     });
 
+    // onCommit: fire when the user releases pointer / keys after a change.
+    // Tracked via a ref so we don't refire on re-renders.
+    const lastCommittedRef = useRef<SliderValue | null>(null);
+    const liveValueRef = useRef(liveValue);
+    liveValueRef.current = liveValue;
+    useEffect(() => {
+      if (!onCommit) return;
+      const fire = () => {
+        const cur = liveValueRef.current;
+        const last = lastCommittedRef.current;
+        const changed =
+          last == null ||
+          (Array.isArray(cur) && Array.isArray(last)
+            ? cur[0] !== last[0] || cur[1] !== last[1]
+            : cur !== last);
+        if (changed) {
+          lastCommittedRef.current = cur;
+          onCommit(cur);
+        }
+      };
+      document.addEventListener("pointerup", fire);
+      document.addEventListener("keyup", fire);
+      return () => {
+        document.removeEventListener("pointerup", fire);
+        document.removeEventListener("keyup", fire);
+      };
+    }, [onCommit]);
+
     const trackInnerRef = useRef<HTMLDivElement | null>(null);
 
     const setTrackRef = useCallback(
@@ -111,9 +183,13 @@ export const SliderStyled = forwardRef<HTMLDivElement, SliderStyledProps>(
       [],
     );
 
-    const markValues = marks ? buildMarks(min, max, step) : [];
+    const normalizedMarks = normalizeMarks(marks, min, max, step);
     const getPercent = (v: number) =>
       max === min ? 0 : ((v - min) / (max - min)) * 100;
+    // showValue: bubble always visible.
+    // showValueOnInteraction: bubble only on hover/active (overrides showValue when true).
+    const showBubbleOnInteraction = showValueOnInteraction === true;
+    const showBubbleAlways = showValue && !showBubbleOnInteraction;
 
     const isRangeValue = Array.isArray(liveValue);
     const hiddenStart = isRangeValue ? liveValue[0] : (liveValue as number);
@@ -133,6 +209,8 @@ export const SliderStyled = forwardRef<HTMLDivElement, SliderStyledProps>(
         data-tone={tone}
         data-disabled={disabled || undefined}
         data-range={range || undefined}
+        data-orientation={orientation}
+        data-bubble-on-interaction={showBubbleOnInteraction || undefined}
         data-invalid={isInvalid ? "true" : undefined}
       >
         {label ? (
@@ -160,33 +238,41 @@ export const SliderStyled = forwardRef<HTMLDivElement, SliderStyledProps>(
             style={rangeProps.style as CSSProperties}
           />
 
-          {marks && markValues.map((v) => (
+          {normalizedMarks.map((m) => (
             <div
-              key={v}
+              key={m.value}
               className="rslider-mark"
               aria-hidden
+              data-has-label={m.label !== undefined || undefined}
               style={{
                 position: "absolute",
-                left: `${getPercent(v)}%`,
+                left: `${getPercent(m.value)}%`,
                 transform: "translateX(-50%)",
               }}
-            />
-          ))}
-
-          {thumbProps.map((tp, i) => (
-            <div
-              key={i}
-              {...tp}
-              className="rslider-thumb"
-              style={tp.style as CSSProperties}
             >
-              {showValue && (
-                <div className="rslider-tooltip" aria-hidden>
-                  {tp["aria-valuenow"]}
-                </div>
+              {m.label !== undefined && (
+                <span className="rslider-mark-label">{m.label}</span>
               )}
             </div>
           ))}
+
+          {thumbProps.map((tp, i) => {
+            const numValue = tp["aria-valuenow"];
+            return (
+              <div
+                key={i}
+                {...tp}
+                className="rslider-thumb"
+                style={tp.style as CSSProperties}
+              >
+                {(showBubbleAlways || showBubbleOnInteraction) && (
+                  <div className="rslider-tooltip" aria-hidden>
+                    {formatValue ? formatValue(numValue) : numValue}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
         {name ? (
           <>
