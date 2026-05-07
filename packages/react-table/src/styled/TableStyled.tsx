@@ -1,15 +1,23 @@
 import React, {
   forwardRef,
+  useCallback,
+  useEffect,
   useId,
   useRef,
   useState,
   type ReactNode,
   type ChangeEvent,
   type HTMLAttributes,
+  type KeyboardEvent as ReactKeyboardEvent,
+  type MouseEvent as ReactMouseEvent,
   type TdHTMLAttributes,
 } from "react";
-import { useTable } from "../useTable";
-import type { ColumnDef, UseTableOptions } from "../useTable";
+import {
+  exportTableCSV,
+  exportTableJSON,
+  useTable,
+} from "../useTable";
+import type { ColumnDef, SelectableMode, UseTableOptions } from "../useTable";
 
 export type TableSize = "sm" | "md" | "lg";
 export type TableTone = "neutral" | "primary";
@@ -56,6 +64,24 @@ export interface TableStyledProps<T extends Record<string, unknown>>
   expandable?: {
     renderExpanded: (row: T) => ReactNode;
   };
+  /** Render a "Columns" toolbar button that opens a visibility checklist. */
+  showColumnMenu?: boolean;
+  /**
+   * Render export button(s) in the toolbar. `true` enables CSV.
+   * Use the array form to enable specific formats.
+   * Always exports the current filter+sort (the hook's `filteredRows`).
+   */
+  exportable?: boolean | Array<"csv" | "json">;
+  /** Filename (without extension) used by export buttons. Default: "table". */
+  exportFilename?: string;
+  /**
+   * Apply WAI-ARIA grid pattern: `role="grid"`, `aria-rowindex`,
+   * `aria-colindex`, plus arrow / Home / End / PageUp / PageDown navigation.
+   * Default: false (opt-in to avoid changing existing screen-reader semantics).
+   */
+  ariaGrid?: boolean;
+  ariaLabel?: string;
+  ariaLabelledBy?: string;
 }
 
 const SKELETON_ROWS = 5;
@@ -143,7 +169,15 @@ function ResizeHandle({
   );
 }
 
-function SortIcon({ active, dir }: { active: boolean; dir: "asc" | "desc" }) {
+function SortIcon({
+  active,
+  dir,
+  index,
+}: {
+  active: boolean;
+  dir: "asc" | "desc";
+  index?: number;
+}) {
   return (
     <span
       className="rtbl-sort-icon"
@@ -152,7 +186,65 @@ function SortIcon({ active, dir }: { active: boolean; dir: "asc" | "desc" }) {
       data-dir={active ? dir : undefined}
     >
       {active ? (dir === "asc" ? "▲" : "▼") : "⇅"}
+      {active && index !== undefined && index > 0 && (
+        <span className="rtbl-sort-index">{index + 1}</span>
+      )}
     </span>
+  );
+}
+
+function ColumnMenu<T extends Record<string, unknown>>({
+  columns,
+  visibility,
+  onToggle,
+}: {
+  columns: ColumnDef<T>[];
+  visibility: Record<string, boolean>;
+  onToggle: (key: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    if (!open) return;
+    const onDocClick = (e: MouseEvent) => {
+      if (!containerRef.current) return;
+      if (!containerRef.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", onDocClick);
+    return () => document.removeEventListener("mousedown", onDocClick);
+  }, [open]);
+  return (
+    <div className="rtbl-col-menu" ref={containerRef}>
+      <button
+        type="button"
+        className="rtbl-col-menu-btn"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        onClick={() => setOpen((o) => !o)}
+      >
+        Columns
+      </button>
+      {open && (
+        <div className="rtbl-col-menu-popup" role="menu">
+          {columns
+            .filter((c) => !c.hidden)
+            .map((col) => {
+              const checked = visibility[col.key] !== false;
+              return (
+                <label key={col.key} className="rtbl-col-menu-item">
+                  <input
+                    type="checkbox"
+                    className="rtbl-checkbox"
+                    checked={checked}
+                    onChange={() => onToggle(col.key)}
+                  />
+                  <span>{col.header}</span>
+                </label>
+              );
+            })}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -165,10 +257,14 @@ function TableStyledInner<T extends Record<string, unknown>>(
     columns,
     pageSize: pageSizeProp = 10,
     defaultSort,
+    multiSort,
+    onSortChange,
     selectable = false,
     onSort,
     onFilter,
     onSelect,
+    selectedIds,
+    onSelectChange,
     rowKey,
     page: controlledPage,
     onPageChange,
@@ -178,6 +274,8 @@ function TableStyledInner<T extends Record<string, unknown>>(
     totalCount,
     storageKey,
     storage,
+    columnVisibility: controlledVisibility,
+    onColumnVisibilityChange,
     size: sizeProp,
     onSizeChange,
     tone = "neutral",
@@ -210,6 +308,12 @@ function TableStyledInner<T extends Record<string, unknown>>(
     expandedRowIds: controlledExpanded,
     onExpandedRowsChange,
     defaultColumnWidths,
+    showColumnMenu = false,
+    exportable,
+    exportFilename = "table",
+    ariaGrid = false,
+    ariaLabel,
+    ariaLabelledBy,
   } = props;
 
   const filterId = useId();
@@ -230,8 +334,8 @@ function TableStyledInner<T extends Record<string, unknown>>(
 
   const {
     rows,
-    sortKey,
     sortDir,
+    sorts,
     toggleSort,
     page,
     pageCount,
@@ -251,15 +355,22 @@ function TableStyledInner<T extends Record<string, unknown>>(
     toggleRowExpansion,
     columnWidths,
     setColumnWidth,
+    visibleColumns,
+    columnVisibility,
+    toggleColumnVisibility,
   } = useTable<T>({
     data,
     columns,
     pageSize,
     defaultSort,
+    multiSort,
+    onSortChange,
     selectable,
     onSort,
     onFilter,
     onSelect,
+    selectedIds,
+    onSelectChange,
     rowKey,
     page: controlledPage,
     onPageChange,
@@ -273,23 +384,121 @@ function TableStyledInner<T extends Record<string, unknown>>(
     expandedRowIds: controlledExpanded,
     onExpandedRowsChange,
     defaultColumnWidths,
+    columnVisibility: controlledVisibility,
+    onColumnVisibilityChange,
   });
 
   const pageRowIds = rows.map((row, i) => getRowId(row, (page - 1) * pageSize + i));
 
+  // Resolve selection mode for rendering decisions.
+  const selectMode: SelectableMode | null = selectable
+    ? selectable === true
+      ? "multi"
+      : (selectable as SelectableMode)
+    : null;
+
   const skeletonCols =
-    columns.length + (selectable ? 1 : 0) + (expandable ? 1 : 0);
+    visibleColumns.length + (selectMode ? 1 : 0) + (expandable ? 1 : 0);
 
   // thRefs for the resize handle to read each header's measured width.
   const thRefs = useRef<Record<string, HTMLTableCellElement | null>>({});
 
   const showFooterRow =
-    showFooter && columns.some((c) => c.footer !== undefined || c.aggregate !== undefined);
+    showFooter &&
+    visibleColumns.some((c) => c.footer !== undefined || c.aggregate !== undefined);
 
   const showSizeOptions =
     pageSizeOptions !== undefined &&
     pageSizeOptions.length > 0 &&
     (showPageSize ?? true);
+
+  // ---- Export handlers ---------------------------------------------------
+  const exportFormats: Array<"csv" | "json"> = Array.isArray(exportable)
+    ? exportable
+    : exportable === true
+      ? ["csv"]
+      : [];
+
+  const handleExport = useCallback(
+    (format: "csv" | "json") => {
+      const opts = {
+        rows: filteredRows,
+        columns: visibleColumns,
+        filename: `${exportFilename}.${format}`,
+        download: true,
+      };
+      if (format === "csv") exportTableCSV(opts);
+      else exportTableJSON(opts);
+    },
+    [filteredRows, visibleColumns, exportFilename],
+  );
+
+  // ---- ARIA grid keyboard navigation ------------------------------------
+  const [focused, setFocused] = useState<{ r: number; c: number }>({ r: 0, c: 0 });
+  const tbodyRef = useRef<HTMLTableSectionElement | null>(null);
+
+  const focusCell = useCallback((r: number, c: number) => {
+    const tbody = tbodyRef.current;
+    if (!tbody) return;
+    const row = tbody.querySelectorAll<HTMLTableRowElement>("tr.rtbl-tr-data")[r];
+    if (!row) return;
+    const cell = row.querySelectorAll<HTMLTableCellElement>("td.rtbl-td-data")[c];
+    if (!cell) return;
+    cell.focus();
+  }, []);
+
+  const onGridKeyDown = useCallback(
+    (e: ReactKeyboardEvent<HTMLTableElement>) => {
+      if (!ariaGrid) return;
+      const cellTarget = (e.target as HTMLElement).closest(
+        "td.rtbl-td-data",
+      ) as HTMLTableCellElement | null;
+      if (!cellTarget) return;
+      const colCount = visibleColumns.length;
+      const rowCount = rows.length;
+      let { r, c } = focused;
+      switch (e.key) {
+        case "ArrowRight":
+          c = Math.min(colCount - 1, c + 1);
+          break;
+        case "ArrowLeft":
+          c = Math.max(0, c - 1);
+          break;
+        case "ArrowDown":
+          r = Math.min(rowCount - 1, r + 1);
+          break;
+        case "ArrowUp":
+          r = Math.max(0, r - 1);
+          break;
+        case "Home":
+          c = 0;
+          break;
+        case "End":
+          c = colCount - 1;
+          break;
+        case "PageDown":
+          r = Math.min(rowCount - 1, r + 10);
+          break;
+        case "PageUp":
+          r = Math.max(0, r - 10);
+          break;
+        case "Enter":
+          if (onRowClick) {
+            e.preventDefault();
+            const row = rows[r];
+            if (row) onRowClick(row);
+          }
+          return;
+        default:
+          return;
+      }
+      e.preventDefault();
+      setFocused({ r, c });
+      // Focus on the next render frame after the data-focused attribute is set.
+      requestAnimationFrame(() => focusCell(r, c));
+    },
+    [ariaGrid, focused, focusCell, visibleColumns.length, rows, onRowClick],
+  );
 
   const renderCell = (col: ColumnDef<T>, row: T): ReactNode => {
     if (col.render) return col.render(row);
@@ -306,6 +515,9 @@ function TableStyledInner<T extends Record<string, unknown>>(
     }
     return text;
   };
+
+  const isAppendModifier = (e: ReactMouseEvent | ReactKeyboardEvent): boolean =>
+    !!multiSort && (e.shiftKey || e.metaKey || e.ctrlKey);
 
   return (
     <div
@@ -348,6 +560,28 @@ function TableStyledInner<T extends Record<string, unknown>>(
             ))}
           </div>
         )}
+        {showColumnMenu && (
+          <ColumnMenu
+            columns={columns}
+            visibility={columnVisibility}
+            onToggle={toggleColumnVisibility}
+          />
+        )}
+        {exportFormats.length > 0 && (
+          <div className="rtbl-export" role="group" aria-label="Export">
+            {exportFormats.map((fmt) => (
+              <button
+                key={fmt}
+                type="button"
+                className="rtbl-export-btn"
+                onClick={() => handleExport(fmt)}
+                aria-label={`Export as ${fmt.toUpperCase()}`}
+              >
+                {fmt.toUpperCase()}
+              </button>
+            ))}
+          </div>
+        )}
         {toolbar}
       </div>
 
@@ -356,104 +590,130 @@ function TableStyledInner<T extends Record<string, unknown>>(
           className="rtbl-table"
           data-sticky-header={stickyHeader ? "true" : undefined}
           data-sticky-footer={stickyFooter ? "true" : undefined}
+          role={ariaGrid ? "grid" : undefined}
+          aria-label={ariaLabel}
+          aria-labelledby={ariaLabelledBy}
+          aria-rowcount={ariaGrid ? rows.length + 1 : undefined}
+          aria-colcount={
+            ariaGrid
+              ? visibleColumns.length + (selectMode ? 1 : 0) + (expandable ? 1 : 0)
+              : undefined
+          }
+          onKeyDown={ariaGrid ? onGridKeyDown : undefined}
         >
           {caption && <caption className="rtbl-caption">{caption}</caption>}
           <thead className="rtbl-thead">
-            <tr className="rtbl-tr">
+            <tr className="rtbl-tr" aria-rowindex={ariaGrid ? 1 : undefined}>
               {expandable && (
                 <th className="rtbl-th rtbl-th--expand" scope="col" aria-label="Expand row" />
               )}
-              {selectable && (
+              {selectMode && (
                 <th className="rtbl-th rtbl-th--check" scope="col">
-                  <input
-                    type="checkbox"
-                    className="rtbl-checkbox"
-                    checked={allSelected}
-                    onChange={toggleAll}
-                    aria-label="Select all rows"
-                  />
+                  {selectMode === "multi" || selectMode === "range" ? (
+                    <input
+                      type="checkbox"
+                      className="rtbl-checkbox"
+                      checked={allSelected}
+                      onChange={toggleAll}
+                      aria-label="Select all rows"
+                    />
+                  ) : null}
                 </th>
               )}
-              {columns.map((col: ColumnDef<T>) => (
-                <th
-                  key={col.key}
-                  ref={(el) => { thRefs.current[col.key] = el; }}
-                  className={[
-                    "rtbl-th",
-                    col.sortable ? "rtbl-th--sortable" : "",
-                    col.resizable ? "rtbl-th--resizable" : "",
-                  ]
-                    .filter(Boolean)
-                    .join(" ")}
-                  scope="col"
-                  style={{
-                    ...(columnWidths[col.key] !== undefined
-                      ? { width: columnWidths[col.key] }
-                      : col.width !== undefined
-                      ? { width: col.width }
-                      : {}),
-                    ...(col.align ? { textAlign: col.align } : {}),
-                  }}
-                  data-sticky={col.sticky ?? undefined}
-                  aria-sort={
-                    col.sortable && sortKey === col.key
-                      ? sortDir === "asc"
-                        ? "ascending"
-                        : "descending"
-                      : undefined
-                  }
-                  onClick={
-                    col.sortable ? () => toggleSort(col.key) : undefined
-                  }
-                  tabIndex={col.sortable ? 0 : undefined}
-                  onKeyDown={
-                    col.sortable
-                      ? (e) => {
-                          if (e.key === "Enter" || e.key === " ") {
-                            e.preventDefault();
-                            toggleSort(col.key);
+              {visibleColumns.map((col: ColumnDef<T>, ci) => {
+                const sortIdx = sorts.findIndex((s) => s.key === col.key);
+                const isSortActive = sortIdx !== -1;
+                const colDir = isSortActive ? sorts[sortIdx]!.dir : sortDir;
+                return (
+                  <th
+                    key={col.key}
+                    ref={(el) => { thRefs.current[col.key] = el; }}
+                    className={[
+                      "rtbl-th",
+                      col.sortable ? "rtbl-th--sortable" : "",
+                      col.resizable ? "rtbl-th--resizable" : "",
+                    ]
+                      .filter(Boolean)
+                      .join(" ")}
+                    scope="col"
+                    style={{
+                      ...(columnWidths[col.key] !== undefined
+                        ? { width: columnWidths[col.key] }
+                        : col.width !== undefined
+                          ? { width: col.width }
+                          : {}),
+                      ...(col.align ? { textAlign: col.align } : {}),
+                    }}
+                    data-sticky={col.sticky ?? undefined}
+                    aria-sort={
+                      col.sortable && isSortActive
+                        ? colDir === "asc"
+                          ? "ascending"
+                          : "descending"
+                        : undefined
+                    }
+                    aria-colindex={
+                      ariaGrid
+                        ? ci + 1 + (selectMode ? 1 : 0) + (expandable ? 1 : 0)
+                        : undefined
+                    }
+                    onClick={
+                      col.sortable
+                        ? (e) =>
+                            toggleSort(col.key, { append: isAppendModifier(e) })
+                        : undefined
+                    }
+                    tabIndex={col.sortable ? 0 : undefined}
+                    onKeyDown={
+                      col.sortable
+                        ? (e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              e.preventDefault();
+                              toggleSort(col.key, { append: isAppendModifier(e) });
+                            }
                           }
+                        : undefined
+                    }
+                  >
+                    <span className="rtbl-th-inner">
+                      {col.header}
+                      {col.sortable && (
+                        <SortIcon
+                          active={isSortActive}
+                          dir={colDir}
+                          index={isSortActive ? sortIdx : undefined}
+                        />
+                      )}
+                    </span>
+                    {col.filterable && (
+                      <input
+                        type="text"
+                        className="rtbl-col-filter"
+                        value={columnFilters[col.key] ?? ""}
+                        onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                          setColumnFilter(col.key, e.target.value)
                         }
-                      : undefined
-                  }
-                >
-                  <span className="rtbl-th-inner">
-                    {col.header}
-                    {col.sortable && (
-                      <SortIcon
-                        active={sortKey === col.key}
-                        dir={sortDir}
+                        placeholder={`Filter…`}
+                        aria-label={`Filter by ${col.header}`}
+                        onClick={(e) => e.stopPropagation()}
                       />
                     )}
-                  </span>
-                  {col.filterable && (
-                    <input
-                      type="text"
-                      className="rtbl-col-filter"
-                      value={columnFilters[col.key] ?? ""}
-                      onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                        setColumnFilter(col.key, e.target.value)
-                      }
-                      placeholder={`Filter…`}
-                      aria-label={`Filter by ${col.header}`}
-                      onClick={(e) => e.stopPropagation()}
-                    />
-                  )}
-                  {col.resizable && (
-                    <ResizeHandle
-                      colKey={col.key}
-                      current={columnWidths[col.key]}
-                      onCommit={setColumnWidth}
-                      min={col.minWidth ?? 60}
-                      max={col.maxWidth ?? 800}
-                      thRef={{ current: thRefs.current[col.key] ?? null }}
-                    />
-                  )}
-                </th>
-              ))}
+                    {col.resizable && (
+                      <ResizeHandle
+                        colKey={col.key}
+                        current={columnWidths[col.key]}
+                        onCommit={setColumnWidth}
+                        min={col.minWidth ?? 60}
+                        max={col.maxWidth ?? 800}
+                        thRef={{ current: thRefs.current[col.key] ?? null }}
+                      />
+                    )}
+                  </th>
+                );
+              })}
             </tr>
           </thead>
-          <tbody className="rtbl-tbody">
+          <tbody className="rtbl-tbody" ref={tbodyRef}>
             {loading ? (
               renderLoading ? (
                 <tr className="rtbl-tr">
@@ -487,23 +747,43 @@ function TableStyledInner<T extends Record<string, unknown>>(
             ) : (
               rows.map((row, ri) => {
                 const rowId = pageRowIds[ri] ?? String(ri);
-                const isSelected = selectable && selectedRows.includes(rowId);
+                const isSelected = !!selectMode && selectedRows.includes(rowId);
                 const isExpanded = expandable ? isRowExpanded(rowId) : false;
                 const customRowProps = getRowProps ? getRowProps(row, ri) : {};
                 return (
                   <React.Fragment key={rowId}>
                     <tr
                       {...customRowProps}
-                      className={["rtbl-tr", customRowProps.className]
+                      className={["rtbl-tr rtbl-tr-data", customRowProps.className]
                         .filter(Boolean)
                         .join(" ")}
                       data-selected={isSelected ? "true" : undefined}
                       data-expanded={isExpanded || undefined}
                       data-clickable={onRowClick ? "true" : undefined}
-                      onClick={onRowClick ? () => onRowClick(row) : customRowProps.onClick}
+                      aria-rowindex={ariaGrid ? ri + 2 : undefined}
+                      aria-selected={
+                        ariaGrid && selectMode ? isSelected : undefined
+                      }
+                      onClick={
+                        onRowClick
+                          ? (e) => {
+                              if (
+                                selectMode === "range" &&
+                                (e.shiftKey || e.metaKey || e.ctrlKey)
+                              ) {
+                                toggleRow(rowId, { rangeAnchor: e.shiftKey });
+                                return;
+                              }
+                              onRowClick(row);
+                            }
+                          : customRowProps.onClick
+                      }
                     >
                       {expandable && (
-                        <td className="rtbl-td rtbl-td--expand">
+                        <td
+                          className="rtbl-td rtbl-td--expand"
+                          aria-colindex={ariaGrid ? 1 : undefined}
+                        >
                           <button
                             type="button"
                             className="rtbl-expand-btn"
@@ -519,24 +799,47 @@ function TableStyledInner<T extends Record<string, unknown>>(
                           </button>
                         </td>
                       )}
-                      {selectable && (
-                        <td className="rtbl-td rtbl-td--check">
+                      {selectMode && (
+                        <td
+                          className="rtbl-td rtbl-td--check"
+                          aria-colindex={
+                            ariaGrid ? (expandable ? 2 : 1) : undefined
+                          }
+                          onClick={(e) => e.stopPropagation()}
+                        >
                           <input
-                            type="checkbox"
+                            type={selectMode === "single" ? "radio" : "checkbox"}
                             className="rtbl-checkbox"
+                            name={
+                              selectMode === "single"
+                                ? `rtbl-select-${filterId}`
+                                : undefined
+                            }
                             checked={isSelected}
                             onChange={() => toggleRow(rowId)}
+                            onClick={(e) => {
+                              if (selectMode === "range" && e.shiftKey) {
+                                toggleRow(rowId, { rangeAnchor: true });
+                              }
+                            }}
                             aria-label={`Select row ${rowId}`}
                           />
                         </td>
                       )}
-                      {columns.map((col: ColumnDef<T>) => {
-                        const customCellProps = getCellProps ? getCellProps(row, col) : {};
+                      {visibleColumns.map((col: ColumnDef<T>, ci) => {
+                        const customCellProps = getCellProps
+                          ? getCellProps(row, col)
+                          : {};
+                        const isFocusedCell =
+                          ariaGrid && focused.r === ri && focused.c === ci;
                         return (
                           <td
                             key={col.key}
                             {...customCellProps}
-                            className={["rtbl-td", customCellProps.className]
+                            className={[
+                              "rtbl-td rtbl-td-data",
+                              customCellProps.className,
+                            ]
                               .filter(Boolean)
                               .join(" ")}
                             style={{
@@ -544,6 +847,22 @@ function TableStyledInner<T extends Record<string, unknown>>(
                               ...customCellProps.style,
                             }}
                             data-sticky={col.sticky ?? undefined}
+                            data-focused={isFocusedCell ? "true" : undefined}
+                            tabIndex={
+                              ariaGrid
+                                ? focused.r === ri && focused.c === ci
+                                  ? 0
+                                  : -1
+                                : undefined
+                            }
+                            aria-colindex={
+                              ariaGrid
+                                ? ci +
+                                  1 +
+                                  (selectMode ? 1 : 0) +
+                                  (expandable ? 1 : 0)
+                                : undefined
+                            }
                           >
                             {renderCell(col, row)}
                           </td>
@@ -568,8 +887,9 @@ function TableStyledInner<T extends Record<string, unknown>>(
           {showFooterRow && (
             <tfoot className="rtbl-tfoot">
               <tr className="rtbl-tr">
-                {selectable && <td className="rtbl-td rtbl-td--check" />}
-                {columns.map((col) => {
+                {expandable && <td className="rtbl-td rtbl-td--expand" />}
+                {selectMode && <td className="rtbl-td rtbl-td--check" />}
+                {visibleColumns.map((col) => {
                   const aggValue = aggregates[col.key];
                   let content: ReactNode = null;
                   if (typeof col.footer === "function") {

@@ -65,7 +65,26 @@ return (
         <tr><td>allowedTags</td><td>string[]</td><td>(safe set)</td><td>Tag whitelist used by both the on-change pass and paste sanitization. Defaults cover standard formatting tags (<code>p, br, strong, em, u, s, h1-h6, ol, ul, li, a, blockquote, code, pre</code>).</td></tr>
         <tr><td>sanitizePaste</td><td>boolean</td><td>true</td><td>Strip <code>style</code>, <code>class</code>, <code>on*</code> attributes and disallowed tags from pasted HTML. Blocks <code>javascript:</code> and <code>data:</code> URLs. Plain text paste preserves newlines as <code>&lt;br&gt;</code>.</td></tr>
         <tr><td>transformPaste</td><td>(html) =&gt; string</td><td>—</td><td>Run after <code>sanitizePaste</code>. Use for custom paste transforms (e.g. converting smart quotes).</td></tr>
+        <tr><td>shortcuts</td><td>boolean | ShortcutMap</td><td>true</td><td>Built-in keyboard shortcuts. Defaults: <code>Mod+B</code> bold, <code>Mod+I</code> italic, <code>Mod+U</code> underline, <code>Mod+K</code> link. Pass <code>false</code> to disable, or a partial map to override specific actions.</td></tr>
+        <tr><td>defaultLinkPrompt</td><td>"popover" | "prompt"</td><td>"popover"</td><td>Use the inline link popover (with new-tab toggle and Edit / Remove on existing links) or fall back to <code>window.prompt</code>.</td></tr>
+        <tr><td>renderLinkPrompt</td><td>(args) =&gt; ReactNode</td><td>—</td><td>Render-prop override for the link prompt UI.</td></tr>
+        <tr><td>bubbleMenu</td><td>boolean | object</td><td>false</td><td>Floating bubble menu over a non-empty selection. Default items: bold, italic, underline, link.</td></tr>
+        <tr><td>autoLink</td><td>boolean</td><td>false</td><td>Auto-wrap typed URLs in <code>&lt;a&gt;</code> after a space or newline.</td></tr>
+        <tr><td>autoLinkPattern</td><td>RegExp</td><td>http(s) URL</td><td>Override the pattern used by <code>autoLink</code>.</td></tr>
+        <tr><td>maxChars</td><td>number</td><td>—</td><td>Hard cap on plain-text characters. Inserts past the cap are blocked; deletes always pass.</td></tr>
+        <tr><td>maxWords</td><td>number</td><td>—</td><td>Hard cap on whitespace-separated words.</td></tr>
+        <tr><td>onMaxReached</td><td>(kind: "chars" | "words") =&gt; void</td><td>—</td><td>Fired when the cap blocks an insert.</td></tr>
+        <tr><td>label</td><td>ReactNode</td><td>—</td><td>Label rendered above the editor.</td></tr>
+        <tr><td>hint</td><td>ReactNode</td><td>—</td><td>Hint rendered below the editor.</td></tr>
+        <tr><td>error</td><td>ReactNode</td><td>—</td><td>Error message rendered below the editor; implies <code>invalid</code>.</td></tr>
+        <tr><td>invalid</td><td>boolean</td><td>false</td><td>Mark the editor invalid. Sets <code>data-invalid</code> + <code>aria-invalid</code>; uses <code>--rrt2-border-error</code>.</td></tr>
+        <tr><td>required</td><td>boolean</td><td>false</td><td>Adds an asterisk to the label and <code>aria-required</code>.</td></tr>
+        <tr><td>name</td><td>string</td><td>—</td><td>Renders a hidden <code>&lt;input&gt;</code> with the editor HTML for native <code>&lt;form&gt;</code> submission.</td></tr>
+        <tr><td>id</td><td>string</td><td>auto</td><td>id for the editor; wires up the label.</td></tr>
       </tbody></table>
+    </div>
+    <div class="pkg-section"><H2>What's new in 0.3.0</H2>
+      <p>This release adds editor features expected in modern WYSIWYG: keyboard shortcuts (<code>Mod+B/I/U/K</code>), an inline link popover with new-tab toggle and Edit / Remove on existing links, an opt-in floating <code>bubbleMenu</code> on selections, opt-in <code>autoLink</code> for typed URLs, hard <code>maxChars</code> / <code>maxWords</code> caps, and full form-input parity (<code>label</code>, <code>hint</code>, <code>error</code>, <code>invalid</code>, <code>required</code>, <code>name</code>). All additive — existing props and defaults are unchanged.</p>
     </div>
   </PackagePageShell>
 </DocLayout>

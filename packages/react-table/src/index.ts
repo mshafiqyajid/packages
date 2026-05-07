@@ -1,9 +1,12 @@
-export { useTable } from "./useTable";
+export { useTable, exportTableCSV, exportTableJSON } from "./useTable";
 export type {
   ColumnDef,
   DefaultSort,
   SortDir,
+  SortBy,
   Aggregator,
+  SelectableMode,
   UseTableOptions,
   UseTableResult,
+  ExportTableOptions,
 } from "./useTable";

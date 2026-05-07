@@ -4,4 +4,5 @@ export type {
   RichTextSize,
   RichTextTone,
   ToolbarItem,
+  LinkPromptArgs,
 } from "./RichTextStyled";

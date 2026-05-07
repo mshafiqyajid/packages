@@ -3,12 +3,16 @@ import type { ReactNode } from "react";
 
 export type SortDir = "asc" | "desc";
 
+export type SortBy = { key: string; dir: SortDir };
+
 export type Aggregator =
   | "sum"
   | "avg"
   | "min"
   | "max"
   | "count";
+
+export type SelectableMode = "single" | "multi" | "range";
 
 export interface ColumnDef<T extends Record<string, unknown>> {
   key: keyof T & string;
@@ -30,6 +34,10 @@ export interface ColumnDef<T extends Record<string, unknown>> {
   minWidth?: number;
   /** Maximum width in px when resizing. Default: 800. */
   maxWidth?: number;
+  /** Always hide the column from the rendered table. Cannot be toggled. */
+  hidden?: boolean;
+  /** Initial visibility (uncontrolled) for the column-visibility menu. */
+  defaultHidden?: boolean;
 }
 
 export interface DefaultSort {
@@ -41,11 +49,19 @@ export interface UseTableOptions<T extends Record<string, unknown>> {
   data: T[];
   columns: ColumnDef<T>[];
   pageSize?: number;
-  defaultSort?: DefaultSort;
-  selectable?: boolean;
+  defaultSort?: DefaultSort | SortBy[];
+  /** Allow more than one column to be sorted at once. Default: false. */
+  multiSort?: boolean;
+  /** Fired whenever the sorts array changes. */
+  onSortChange?: (sorts: SortBy[]) => void;
+  selectable?: boolean | SelectableMode;
   onSort?: (key: string, dir: SortDir) => void;
   onFilter?: (value: string) => void;
   onSelect?: (selectedIds: string[]) => void;
+  /** Controlled selection ids. */
+  selectedIds?: string[];
+  /** Fired with the next selection. Mirrors `onSelect` but conventional. */
+  onSelectChange?: (ids: string[]) => void;
   rowKey?: (row: T) => string;
   page?: number;
   onPageChange?: (page: number) => void;
@@ -62,6 +78,10 @@ export interface UseTableOptions<T extends Record<string, unknown>> {
   onExpandedRowsChange?: (ids: string[]) => void;
   /** Initial per-column widths in px (uncontrolled). */
   defaultColumnWidths?: Record<string, number>;
+  /** Controlled column visibility map (`true` shown, `false` hidden). */
+  columnVisibility?: Record<string, boolean>;
+  /** Fired whenever the visibility map changes. */
+  onColumnVisibilityChange?: (vis: Record<string, boolean>) => void;
 }
 
 export interface UseTableResult<T extends Record<string, unknown>> {
@@ -69,12 +89,14 @@ export interface UseTableResult<T extends Record<string, unknown>> {
   filteredRows: T[];
   sortKey: string | null;
   sortDir: SortDir;
-  toggleSort: (key: string) => void;
+  /** Active sort entries. Mirrors `sortKey`/`sortDir` for single-sort consumers. */
+  sorts: SortBy[];
+  toggleSort: (key: string, opts?: { append?: boolean }) => void;
   page: number;
   pageCount: number;
   setPage: (page: number) => void;
   selectedRows: string[];
-  toggleRow: (id: string) => void;
+  toggleRow: (id: string, opts?: { rangeAnchor?: boolean }) => void;
   toggleAll: () => void;
   allSelected: boolean;
   filterValue: string;
@@ -88,14 +110,21 @@ export interface UseTableResult<T extends Record<string, unknown>> {
   toggleRowExpansion: (id: string) => void;
   columnWidths: Record<string, number>;
   setColumnWidth: (key: string, width: number) => void;
+  /** Columns currently rendered, with `hidden` / visibility map applied. */
+  visibleColumns: ColumnDef<T>[];
+  /** Map of `key -> shown?` (defaults true for any key not present). */
+  columnVisibility: Record<string, boolean>;
+  toggleColumnVisibility: (key: string) => void;
 }
 
 interface PersistedState {
   sortKey: string | null;
   sortDir: SortDir;
+  sorts: SortBy[];
   filterValue: string;
   columnFilters: Record<string, string>;
   page: number;
+  columnVisibility: Record<string, boolean>;
 }
 
 function defaultGetRowId<T extends Record<string, unknown>>(row: T, index: number): string {
@@ -160,6 +189,18 @@ function savePersisted(
   }
 }
 
+function normalizeMode(selectable: boolean | SelectableMode | undefined): SelectableMode | null {
+  if (!selectable) return null;
+  if (selectable === true) return "multi";
+  return selectable;
+}
+
+function toSortsArray(input: DefaultSort | SortBy[] | undefined): SortBy[] {
+  if (!input) return [];
+  if (Array.isArray(input)) return input;
+  return [{ key: input.key, dir: input.dir }];
+}
+
 export function useTable<T extends Record<string, unknown>>(
   options: UseTableOptions<T>,
 ): UseTableResult<T> {
@@ -168,10 +209,14 @@ export function useTable<T extends Record<string, unknown>>(
     columns,
     pageSize = 10,
     defaultSort,
+    multiSort = false,
+    onSortChange,
     selectable = false,
     onSort,
     onFilter,
     onSelect,
+    selectedIds: controlledSelectedIds,
+    onSelectChange,
     rowKey,
     page: controlledPage,
     onPageChange,
@@ -185,7 +230,11 @@ export function useTable<T extends Record<string, unknown>>(
     expandedRowIds: controlledExpanded,
     onExpandedRowsChange,
     defaultColumnWidths,
+    columnVisibility: controlledVisibility,
+    onColumnVisibilityChange,
   } = options;
+
+  const selectMode = normalizeMode(selectable);
 
   const resolvedStorage =
     storage ?? (typeof window !== "undefined" ? window.localStorage : undefined);
@@ -204,44 +253,157 @@ export function useTable<T extends Record<string, unknown>>(
     [rowKey],
   );
 
-  const [sortKey, setSortKey] = useState<string | null>(
-    initialPersisted.sortKey ?? defaultSort?.key ?? null,
+  // ---- Sorts -------------------------------------------------------------
+  const initialSorts: SortBy[] = useMemo(() => {
+    if (initialPersisted.sorts && initialPersisted.sorts.length > 0) {
+      return initialPersisted.sorts;
+    }
+    if (initialPersisted.sortKey) {
+      return [
+        {
+          key: initialPersisted.sortKey,
+          dir: (initialPersisted.sortDir ?? "asc") as SortDir,
+        },
+      ];
+    }
+    return toSortsArray(defaultSort);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const [sorts, setSortsState] = useState<SortBy[]>(initialSorts);
+
+  const setSorts = useCallback(
+    (next: SortBy[]) => {
+      setSortsState(next);
+      onSortChange?.(next);
+      // Back-compat: emit single-sort callback for the head entry.
+      const head = next[0];
+      if (head) onSort?.(head.key, head.dir);
+    },
+    [onSort, onSortChange],
   );
-  const [sortDir, setSortDir] = useState<SortDir>(
-    initialPersisted.sortDir ?? defaultSort?.dir ?? "asc",
-  );
+
   const [internalPage, setInternalPage] = useState(initialPersisted.page ?? 1);
-  const [selectedRows, setSelectedRows] = useState<string[]>([]);
+  const [internalSelectedRows, setInternalSelectedRows] = useState<string[]>(
+    controlledSelectedIds ?? [],
+  );
+  const selectedRows = controlledSelectedIds ?? internalSelectedRows;
+  const rangeAnchorRef = useRef<string | null>(null);
   const [filterValue, setFilterValueState] = useState(initialPersisted.filterValue ?? "");
   const [columnFilters, setColumnFilters] = useState<Record<string, string>>(
     initialPersisted.columnFilters ?? {},
   );
 
+  // ---- Column visibility -------------------------------------------------
+  const isVisibilityControlled = controlledVisibility !== undefined;
+  const initialVisibility = useMemo<Record<string, boolean>>(() => {
+    const fromPersisted = initialPersisted.columnVisibility ?? {};
+    const out: Record<string, boolean> = { ...fromPersisted };
+    for (const col of columns) {
+      if (out[col.key] === undefined) {
+        out[col.key] = !(col.defaultHidden ?? false);
+      }
+    }
+    return out;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const [internalVisibility, setInternalVisibility] = useState<Record<string, boolean>>(
+    initialVisibility,
+  );
+  const columnVisibility = isVisibilityControlled
+    ? (controlledVisibility as Record<string, boolean>)
+    : internalVisibility;
+
+  const setVisibility = useCallback(
+    (next: Record<string, boolean>) => {
+      if (!isVisibilityControlled) setInternalVisibility(next);
+      onColumnVisibilityChange?.(next);
+    },
+    [isVisibilityControlled, onColumnVisibilityChange],
+  );
+
+  const toggleColumnVisibility = useCallback(
+    (key: string) => {
+      const current = columnVisibility[key] ?? true;
+      setVisibility({ ...columnVisibility, [key]: !current });
+    },
+    [columnVisibility, setVisibility],
+  );
+
+  const visibleColumns = useMemo(
+    () =>
+      columns.filter((c) => {
+        if (c.hidden) return false;
+        const v = columnVisibility[c.key];
+        return v === undefined ? true : v;
+      }),
+    [columns, columnVisibility],
+  );
+
   const isControlledPage = controlledPage !== undefined;
   const page = isControlledPage ? controlledPage : internalPage;
+
+  const headSort = sorts[0] ?? null;
+  const sortKey = headSort?.key ?? null;
+  const sortDir: SortDir = headSort?.dir ?? "asc";
 
   useEffect(() => {
     savePersisted(resolvedStorage, storageKey, {
       sortKey,
       sortDir,
+      sorts,
       filterValue,
       columnFilters,
       page,
+      columnVisibility,
     });
-  }, [sortKey, sortDir, filterValue, columnFilters, page, resolvedStorage, storageKey]);
+  }, [
+    sortKey,
+    sortDir,
+    sorts,
+    filterValue,
+    columnFilters,
+    page,
+    columnVisibility,
+    resolvedStorage,
+    storageKey,
+  ]);
 
   const toggleSort = useCallback(
-    (key: string) => {
-      setSortKey((prev) => {
-        const newDir: SortDir = prev === key && sortDir === "asc" ? "desc" : "asc";
-        setSortDir(newDir);
-        if (!isControlledPage) setInternalPage(1);
-        else onPageChange?.(1);
-        onSort?.(key, newDir);
-        return key;
-      });
+    (key: string, opts?: { append?: boolean }) => {
+      const append = !!opts?.append && multiSort;
+      const existingIdx = sorts.findIndex((s) => s.key === key);
+      let next: SortBy[];
+
+      if (append) {
+        if (existingIdx === -1) {
+          next = [...sorts, { key, dir: "asc" }];
+        } else {
+          const existing = sorts[existingIdx]!;
+          if (existing.dir === "asc") {
+            next = sorts.map((s, i) =>
+              i === existingIdx ? { key: s.key, dir: "desc" as SortDir } : s,
+            );
+          } else {
+            // desc -> remove
+            next = sorts.filter((_, i) => i !== existingIdx);
+          }
+        }
+      } else {
+        // Single-sort behavior (preserves pre-0.4 semantics):
+        // same key + asc -> desc; otherwise -> asc on the new key.
+        const head = sorts[0];
+        if (head && head.key === key && head.dir === "asc") {
+          next = [{ key, dir: "desc" }];
+        } else {
+          next = [{ key, dir: "asc" }];
+        }
+      }
+      setSorts(next);
+      if (!isControlledPage) setInternalPage(1);
+      else onPageChange?.(1);
     },
-    [sortDir, onSort, isControlledPage, onPageChange],
+    [sorts, multiSort, setSorts, isControlledPage, onPageChange],
   );
 
   const setFilterValue = useCallback(
@@ -309,23 +471,30 @@ export function useTable<T extends Record<string, unknown>>(
   }, [data, filterValue, stringColumns, columnFilters, columns, manualFiltering]);
 
   const sorted = useMemo(() => {
-    if (!sortKey || manualSorting) return filtered;
-    const col = columns.find((c) => c.key === sortKey);
-    if (col?.sortFn) {
-      return [...filtered].sort((a, b) => col.sortFn!(a, b, sortDir));
-    }
+    if (sorts.length === 0 || manualSorting) return filtered;
+    const colByKey = new Map(columns.map((c) => [c.key as string, c] as const));
     return [...filtered].sort((a, b) => {
-      const av = col ? readAccessor(col, a) : a[sortKey];
-      const bv = col ? readAccessor(col, b) : b[sortKey];
-      let cmp = 0;
-      if (typeof av === "number" && typeof bv === "number") {
-        cmp = av - bv;
-      } else {
-        cmp = String(av ?? "").localeCompare(String(bv ?? ""));
+      for (const s of sorts) {
+        const col = colByKey.get(s.key);
+        let cmp = 0;
+        if (col?.sortFn) {
+          cmp = col.sortFn(a, b, s.dir);
+          if (cmp !== 0) return cmp;
+          continue;
+        }
+        const av = col ? readAccessor(col, a) : (a as Record<string, unknown>)[s.key];
+        const bv = col ? readAccessor(col, b) : (b as Record<string, unknown>)[s.key];
+        if (typeof av === "number" && typeof bv === "number") {
+          cmp = av - bv;
+        } else {
+          cmp = String(av ?? "").localeCompare(String(bv ?? ""));
+        }
+        if (s.dir === "desc") cmp = -cmp;
+        if (cmp !== 0) return cmp;
       }
-      return sortDir === "asc" ? cmp : -cmp;
+      return 0;
     });
-  }, [filtered, sortKey, sortDir, columns, manualSorting]);
+  }, [filtered, sorts, columns, manualSorting]);
 
   const totalRows = manualPagination
     ? totalCount ?? filtered.length
@@ -355,29 +524,55 @@ export function useTable<T extends Record<string, unknown>>(
   );
 
   const allSelected =
-    selectable && pageRowIds.length > 0 && pageRowIds.every((id) => selectedRows.includes(id));
+    selectMode === "multi" || selectMode === "range"
+      ? pageRowIds.length > 0 && pageRowIds.every((id) => selectedRows.includes(id))
+      : false;
+
+  const commitSelection = useCallback(
+    (next: string[]) => {
+      if (controlledSelectedIds === undefined) setInternalSelectedRows(next);
+      onSelect?.(next);
+      onSelectChange?.(next);
+    },
+    [controlledSelectedIds, onSelect, onSelectChange],
+  );
 
   const toggleRow = useCallback(
-    (id: string) => {
-      setSelectedRows((prev) => {
-        const next = prev.includes(id) ? prev.filter((r) => r !== id) : [...prev, id];
-        onSelect?.(next);
-        return next;
-      });
+    (id: string, opts?: { rangeAnchor?: boolean }) => {
+      if (selectMode === "single") {
+        const isAlready = selectedRows.length === 1 && selectedRows[0] === id;
+        commitSelection(isAlready ? [] : [id]);
+        rangeAnchorRef.current = id;
+        return;
+      }
+      if (selectMode === "range" && opts?.rangeAnchor && rangeAnchorRef.current) {
+        const startIdx = pageRowIds.indexOf(rangeAnchorRef.current);
+        const endIdx = pageRowIds.indexOf(id);
+        if (startIdx !== -1 && endIdx !== -1) {
+          const [a, b] = startIdx < endIdx ? [startIdx, endIdx] : [endIdx, startIdx];
+          const span = pageRowIds.slice(a, b + 1);
+          const merged = Array.from(new Set([...selectedRows, ...span]));
+          commitSelection(merged);
+          return;
+        }
+      }
+      const next = selectedRows.includes(id)
+        ? selectedRows.filter((r) => r !== id)
+        : [...selectedRows, id];
+      commitSelection(next);
+      rangeAnchorRef.current = id;
     },
-    [onSelect],
+    [selectMode, selectedRows, pageRowIds, commitSelection],
   );
 
   const toggleAll = useCallback(() => {
-    setSelectedRows((prev) => {
-      const allChecked = pageRowIds.every((id) => prev.includes(id));
-      const next = allChecked
-        ? prev.filter((id) => !pageRowIds.includes(id))
-        : [...new Set([...prev, ...pageRowIds])];
-      onSelect?.(next);
-      return next;
-    });
-  }, [pageRowIds, onSelect]);
+    if (selectMode !== "multi" && selectMode !== "range") return;
+    const allChecked = pageRowIds.every((id) => selectedRows.includes(id));
+    const next = allChecked
+      ? selectedRows.filter((id) => !pageRowIds.includes(id))
+      : Array.from(new Set([...selectedRows, ...pageRowIds]));
+    commitSelection(next);
+  }, [selectMode, pageRowIds, selectedRows, commitSelection]);
 
   // ---- Expansion state ---------------------------------------------------
   const isExpansionControlled = controlledExpanded !== undefined;
@@ -425,6 +620,7 @@ export function useTable<T extends Record<string, unknown>>(
     filteredRows: sorted,
     sortKey,
     sortDir,
+    sorts,
     toggleSort,
     page: clampedPage,
     pageCount,
@@ -444,5 +640,78 @@ export function useTable<T extends Record<string, unknown>>(
     toggleRowExpansion,
     columnWidths,
     setColumnWidth,
+    visibleColumns,
+    columnVisibility,
+    toggleColumnVisibility,
   };
+}
+
+// ---------------------------------------------------------------------------
+// Export helpers
+// ---------------------------------------------------------------------------
+
+export interface ExportTableOptions<T extends Record<string, unknown>> {
+  rows: T[];
+  columns: ColumnDef<T>[];
+  filename?: string;
+  /** When true and in browser, trigger a Blob download. */
+  download?: boolean;
+}
+
+function readExportValue<T extends Record<string, unknown>>(
+  col: ColumnDef<T>,
+  row: T,
+): unknown {
+  return col.accessor ? col.accessor(row) : row[col.key];
+}
+
+function escapeCsv(value: unknown): string {
+  if (value === null || value === undefined) return "";
+  const str = typeof value === "string" ? value : String(value);
+  if (/[",\n\r]/.test(str)) {
+    return `"${str.replace(/"/g, '""')}"`;
+  }
+  return str;
+}
+
+function triggerBrowserDownload(content: string, mime: string, filename: string): void {
+  if (typeof document === "undefined" || typeof URL === "undefined") return;
+  const blob = new Blob([content], { type: mime });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+export function exportTableCSV<T extends Record<string, unknown>>(
+  opts: ExportTableOptions<T>,
+): string {
+  const { rows, columns, filename = "table.csv", download = false } = opts;
+  const cols = columns.filter((c) => !c.hidden);
+  const header = cols.map((c) => escapeCsv(c.header)).join(",");
+  const lines = rows.map((row) =>
+    cols.map((c) => escapeCsv(readExportValue(c, row))).join(","),
+  );
+  const csv = [header, ...lines].join("\n");
+  if (download) triggerBrowserDownload(csv, "text/csv;charset=utf-8", filename);
+  return csv;
+}
+
+export function exportTableJSON<T extends Record<string, unknown>>(
+  opts: ExportTableOptions<T>,
+): string {
+  const { rows, columns, filename = "table.json", download = false } = opts;
+  const cols = columns.filter((c) => !c.hidden);
+  const payload = rows.map((row) => {
+    const out: Record<string, unknown> = {};
+    for (const c of cols) out[c.key] = readExportValue(c, row);
+    return out;
+  });
+  const json = JSON.stringify(payload, null, 2);
+  if (download) triggerBrowserDownload(json, "application/json;charset=utf-8", filename);
+  return json;
 }

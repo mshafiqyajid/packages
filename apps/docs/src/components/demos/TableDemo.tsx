@@ -25,7 +25,7 @@ const DATA: Person[] = [
 
 const COLUMNS: ColumnDef<Person>[] = [
   { key: "name",   header: "Name",   sortable: true, resizable: true, footer: "Total" },
-  { key: "role",   header: "Role",   filterable: true, resizable: true },
+  { key: "role",   header: "Role",   sortable: true, filterable: true, resizable: true },
   { key: "status", header: "Status", filterable: true },
   { key: "joined", header: "Joined", sortable: true   },
   {
@@ -45,48 +45,69 @@ export default function TableDemo() {
       importLine={`import { TableStyled } from "@mshafiqyajid/react-table/styled";\nimport "@mshafiqyajid/react-table/styles.css";`}
       props={[
         { name: "tone",               control: { type: "segmented", options: ["neutral","primary"] as const }, defaultValue: "neutral", omitWhen: "neutral" },
+        { name: "selectable",         control: { type: "segmented", options: ["off","single","multi","range"] as const }, defaultValue: "off", omitWhen: "off" },
         { name: "striped",            control: { type: "toggle" }, defaultValue: false, omitWhen: false },
         { name: "bordered",           control: { type: "toggle" }, defaultValue: false, omitWhen: false },
         { name: "hoverable",          control: { type: "toggle" }, defaultValue: true,  omitWhen: true },
         { name: "showFooter",         control: { type: "toggle" }, defaultValue: true,  omitWhen: false },
         { name: "showDensityToggle",  control: { type: "toggle" }, defaultValue: true,  omitWhen: false },
+        { name: "showColumnMenu",     control: { type: "toggle" }, defaultValue: true,  omitWhen: false },
+        { name: "exportable",         control: { type: "toggle" }, defaultValue: true,  omitWhen: false },
+        { name: "multiSort",          control: { type: "toggle" }, defaultValue: false, omitWhen: false },
+        { name: "ariaGrid",           control: { type: "toggle" }, defaultValue: false, omitWhen: false },
         { name: "highlightMatches",   control: { type: "toggle" }, defaultValue: true,  omitWhen: false },
         { name: "loading",            control: { type: "toggle" }, defaultValue: false, omitWhen: false },
         { name: "expandableRows",     label: "expandable rows",    control: { type: "toggle" }, defaultValue: false, omitWhen: false },
       ]}
       staticProps={{ data: "{DATA}", columns: "{COLUMNS}" }}
-      render={(v) => (
-        <TableStyled
-          key={String(v.expandableRows)}
-          data={DATA}
-          columns={COLUMNS}
-          tone={v.tone as "neutral" | "primary"}
-          striped={v.striped as boolean}
-          bordered={v.bordered as boolean}
-          hoverable={v.hoverable as boolean}
-          loading={v.loading as boolean}
-          showFooter={v.showFooter as boolean}
-          showDensityToggle={v.showDensityToggle as boolean}
-          highlightMatches={v.highlightMatches as boolean}
-          expandable={
-            v.expandableRows
-              ? {
-                  renderExpanded: (row) => (
-                    <div style={{ display: "flex", gap: "1.5rem", fontSize: "0.85rem" }}>
-                      <span><strong>Joined:</strong> {row.joined}</span>
-                      <span><strong>Role:</strong> {row.role}</span>
-                      <span><strong>Status:</strong> {row.status}</span>
-                      <span><strong>Salary:</strong> ${row.salary.toLocaleString()}</span>
-                    </div>
-                  ),
-                }
-              : undefined
-          }
-          pageSize={4}
-          pageSizeOptions={[4, 6, 8]}
-          stickyHeader
-        />
-      )}
+      render={(v) => {
+        const selectableValue = v.selectable as string;
+        // 0.4.0 widens this to `boolean | "single" | "multi" | "range"`.
+        // The cast keeps the demo compiling against the published 0.3.0 dist
+        // and continues to work once the new types ship.
+        const selectable =
+          (selectableValue === "off" ? false :
+          selectableValue === "single" ? "single" :
+          selectableValue === "range" ? "range" :
+          "multi") as unknown as boolean;
+        return (
+          <TableStyled
+            key={`${String(v.expandableRows)}-${String(v.ariaGrid)}-${selectableValue}`}
+            data={DATA}
+            columns={COLUMNS}
+            tone={v.tone as "neutral" | "primary"}
+            striped={v.striped as boolean}
+            bordered={v.bordered as boolean}
+            hoverable={v.hoverable as boolean}
+            loading={v.loading as boolean}
+            showFooter={v.showFooter as boolean}
+            showDensityToggle={v.showDensityToggle as boolean}
+            {...({ showColumnMenu: v.showColumnMenu as boolean } as object)}
+            {...({ exportable: v.exportable as boolean } as object)}
+            {...({ multiSort: v.multiSort as boolean } as object)}
+            {...({ ariaGrid: v.ariaGrid as boolean, ariaLabel: "Employees" } as object)}
+            highlightMatches={v.highlightMatches as boolean}
+            selectable={selectable}
+            expandable={
+              v.expandableRows
+                ? {
+                    renderExpanded: (row) => (
+                      <div style={{ display: "flex", gap: "1.5rem", fontSize: "0.85rem" }}>
+                        <span><strong>Joined:</strong> {row.joined}</span>
+                        <span><strong>Role:</strong> {row.role}</span>
+                        <span><strong>Status:</strong> {row.status}</span>
+                        <span><strong>Salary:</strong> ${row.salary.toLocaleString()}</span>
+                      </div>
+                    ),
+                  }
+                : undefined
+            }
+            pageSize={4}
+            pageSizeOptions={[4, 6, 8]}
+            stickyHeader
+          />
+        );
+      }}
     />
   );
 }

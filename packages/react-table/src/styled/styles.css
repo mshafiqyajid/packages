@@ -37,6 +37,13 @@
   --rtbl-footer-fg: #18181b;
   --rtbl-density-active-bg: #e4e4e7;
   --rtbl-density-active-fg: #18181b;
+  --rtbl-menu-bg: #ffffff;
+  --rtbl-menu-fg: #18181b;
+  --rtbl-menu-border: #e4e4e7;
+  --rtbl-menu-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  --rtbl-focus-ring: rgba(99, 102, 241, 0.35);
+  --rtbl-sort-index-bg: rgba(99, 102, 241, 0.15);
+  --rtbl-sort-index-fg: #4338ca;
 }
 
 /* ============================================================================
@@ -621,6 +628,115 @@
   .rtbl-expand-chevron,
   .rtbl-expand-btn,
   .rtbl-resize-handle {
+    transition: none;
+  }
+}
+
+/* ============================================================================
+ * 0.4.0 — column menu, export buttons, multi-sort, ARIA grid focus
+ * ============================================================================ */
+
+/* Column visibility menu */
+.rtbl-col-menu {
+  position: relative;
+  display: inline-block;
+}
+.rtbl-col-menu-btn,
+.rtbl-export-btn {
+  appearance: none;
+  border: 1px solid var(--rtbl-input-border);
+  background: var(--rtbl-input-bg);
+  color: var(--rtbl-input-fg);
+  border-radius: 6px;
+  padding: 0.3rem 0.65rem;
+  font-size: 0.8em;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease;
+}
+.rtbl-col-menu-btn:hover,
+.rtbl-export-btn:hover {
+  border-color: var(--rtbl-primary);
+  background: color-mix(in srgb, var(--rtbl-primary) 8%, var(--rtbl-input-bg));
+}
+.rtbl-col-menu-popup {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  min-width: 180px;
+  z-index: 5;
+  background: var(--rtbl-menu-bg);
+  color: var(--rtbl-menu-fg);
+  border: 1px solid var(--rtbl-menu-border);
+  border-radius: 8px;
+  box-shadow: var(--rtbl-menu-shadow);
+  padding: 0.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+.rtbl-col-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.45rem;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.85em;
+  transition: background 120ms ease;
+}
+.rtbl-col-menu-item:hover {
+  background: var(--rtbl-stripe-bg);
+}
+
+.rtbl-export {
+  display: inline-flex;
+  gap: 0.3rem;
+}
+
+/* Multi-sort index badge */
+.rtbl-sort-index {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 0.2rem;
+  min-width: 1em;
+  padding: 0 0.25em;
+  font-size: 0.75em;
+  font-weight: 600;
+  border-radius: 999px;
+  background: var(--rtbl-sort-index-bg);
+  color: var(--rtbl-sort-index-fg);
+  line-height: 1.4;
+}
+
+/* ARIA grid focused cell */
+.rtbl-td-data[data-focused="true"] {
+  outline: 2px solid var(--rtbl-primary);
+  outline-offset: -2px;
+  box-shadow: inset 0 0 0 2px var(--rtbl-focus-ring);
+}
+.rtbl-td-data:focus,
+.rtbl-td-data:focus-visible {
+  outline: 2px solid var(--rtbl-primary);
+  outline-offset: -2px;
+}
+
+/* Dark-mode tokens for the new surfaces */
+[data-theme="dark"] .rtbl-root {
+  --rtbl-menu-bg: #27272a;
+  --rtbl-menu-fg: #fafafa;
+  --rtbl-menu-border: #3f3f46;
+  --rtbl-menu-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  --rtbl-focus-ring: rgba(129, 140, 248, 0.45);
+  --rtbl-sort-index-bg: rgba(129, 140, 248, 0.22);
+  --rtbl-sort-index-fg: #c7d2fe;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rtbl-col-menu-btn,
+  .rtbl-export-btn,
+  .rtbl-col-menu-item {
     transition: none;
   }
 }
