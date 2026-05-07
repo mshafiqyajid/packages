@@ -10,6 +10,14 @@ Headless table hook and styled component for React. Sortable, filterable, pagina
 npm install @mshafiqyajid/react-table
 ```
 
+## What's new in 0.5.0 (next)
+
+All additive — every prior API is unchanged.
+
+- **`groupBy` row grouping.** `groupBy?: keyof T & string` groups rows by column value; each group gets a collapsible sticky header row with a row count badge. Pair with `groupExpanded` (controlled) + `onGroupExpandedChange`, or let it manage state internally. The hook returns `groups: GroupEntry<T>[]`, `groupExpanded`, and `toggleGroupExpanded`. New CSS classes `.rtbl-row--group-header`, `.rtbl-td--group-header`, `.rtbl-group-toggle`, `.rtbl-group-count`; CSS variable `--rtbl-group-header-bg`.
+- **Inline cell editing.** `ColumnDef.editable?: boolean` enables double-click / Enter / F2 to edit in place. `ColumnDef.editor` accepts a custom render factory. `onCellEdit?: (rowId, colKey, value) => void | Promise<void>` on `TableStyled` receives every commit; async variants set `data-pending="true"` on the cell. New CSS classes `.rtbl-cell-editable`, `.rtbl-cell-editor`.
+- **Bulk action toolbar.** `bulkActions?: Array<{ label, icon?, onClick, tone? }>` — when ≥1 row is selected a contextual bar appears above the table with a count badge and action buttons. `tone: "danger"` applies `.rtbl-bulk-btn--danger`. New CSS classes `.rtbl-bulk-bar`, `.rtbl-bulk-count`, `.rtbl-bulk-btn`, `.rtbl-bulk-btn--danger`; tokens `--rtbl-bulk-bar-bg`, `--rtbl-bulk-bar-border`, `--rtbl-bulk-bar-fg`. Reduced-motion and dark-mode variants included.
+
 ## What's new in 0.4.0
 
 All additive — every prior API is unchanged.

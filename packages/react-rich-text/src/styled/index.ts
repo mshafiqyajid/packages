@@ -5,4 +5,5 @@ export type {
   RichTextTone,
   ToolbarItem,
   LinkPromptArgs,
+  RenderToolbarArgs,
 } from "./RichTextStyled";

@@ -17,7 +17,7 @@ import {
   exportTableJSON,
   useTable,
 } from "../useTable";
-import type { ColumnDef, SelectableMode, UseTableOptions } from "../useTable";
+import type { ColumnDef, SelectableMode, UseTableOptions, GroupEntry } from "../useTable";
 
 export type TableSize = "sm" | "md" | "lg";
 export type TableTone = "neutral" | "primary";
@@ -82,6 +82,13 @@ export interface TableStyledProps<T extends Record<string, unknown>>
   ariaGrid?: boolean;
   ariaLabel?: string;
   ariaLabelledBy?: string;
+  /** Bulk actions rendered above the table when ≥1 row is selected. */
+  bulkActions?: Array<{
+    label: string;
+    icon?: ReactNode;
+    onClick: (selectedRows: T[]) => void;
+    tone?: "neutral" | "danger";
+  }>;
 }
 
 const SKELETON_ROWS = 5;
@@ -314,6 +321,7 @@ function TableStyledInner<T extends Record<string, unknown>>(
     ariaGrid = false,
     ariaLabel,
     ariaLabelledBy,
+    bulkActions,
   } = props;
 
   const filterId = useId();
@@ -358,6 +366,9 @@ function TableStyledInner<T extends Record<string, unknown>>(
     visibleColumns,
     columnVisibility,
     toggleColumnVisibility,
+    groups,
+    groupExpanded,
+    toggleGroupExpanded,
   } = useTable<T>({
     data,
     columns,
@@ -386,9 +397,51 @@ function TableStyledInner<T extends Record<string, unknown>>(
     defaultColumnWidths,
     columnVisibility: controlledVisibility,
     onColumnVisibilityChange,
+    groupBy: props.groupBy,
+    groupExpanded: props.groupExpanded,
+    onGroupExpandedChange: props.onGroupExpandedChange,
+    onCellEdit: props.onCellEdit,
   });
 
   const pageRowIds = rows.map((row, i) => getRowId(row, (page - 1) * pageSize + i));
+
+  // ---- Inline cell editing -----------------------------------------------
+  const [editingCell, setEditingCell] = useState<{ rowId: string; colKey: string } | null>(null);
+  const [editingValue, setEditingValue] = useState<string>("");
+  const [pendingCells, setPendingCells] = useState<Set<string>>(new Set());
+
+  const startEdit = (rowId: string, colKey: string, current: unknown) => {
+    setEditingCell({ rowId, colKey });
+    setEditingValue(String(current ?? ""));
+  };
+
+  const commitEdit = useCallback(
+    async (rowId: string, colKey: string, value: unknown) => {
+      const pendingKey = `${rowId}:${colKey}`;
+      const onCellEdit = props.onCellEdit;
+      if (!onCellEdit) {
+        setEditingCell(null);
+        return;
+      }
+      const result = onCellEdit(rowId, colKey, value);
+      if (result instanceof Promise) {
+        setPendingCells((prev) => new Set(prev).add(pendingKey));
+        try {
+          await result;
+        } finally {
+          setPendingCells((prev) => {
+            const next = new Set(prev);
+            next.delete(pendingKey);
+            return next;
+          });
+        }
+      }
+      setEditingCell(null);
+    },
+    [props.onCellEdit],
+  );
+
+  const cancelEdit = () => setEditingCell(null);
 
   // Resolve selection mode for rendering decisions.
   const selectMode: SelectableMode | null = selectable
@@ -500,9 +553,65 @@ function TableStyledInner<T extends Record<string, unknown>>(
     [ariaGrid, focused, focusCell, visibleColumns.length, rows, onRowClick],
   );
 
-  const renderCell = (col: ColumnDef<T>, row: T): ReactNode => {
-    if (col.render) return col.render(row);
+  const renderCell = (col: ColumnDef<T>, row: T, rowId: string): ReactNode => {
     const raw = col.accessor ? col.accessor(row) : row[col.key];
+    const pendingKey = `${rowId}:${col.key}`;
+    const isPending = pendingCells.has(pendingKey);
+    const isEditing = editingCell?.rowId === rowId && editingCell?.colKey === col.key;
+
+    if (col.editable && isEditing) {
+      if (col.editor) {
+        return col.editor(
+          row,
+          raw,
+          (next) => { void commitEdit(rowId, col.key, next); },
+          cancelEdit,
+        );
+      }
+      return (
+        <input
+          className="rtbl-cell-editor"
+          autoFocus
+          value={editingValue}
+          onChange={(e) => setEditingValue(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") { void commitEdit(rowId, col.key, editingValue); }
+            if (e.key === "Escape") cancelEdit();
+          }}
+          onBlur={() => { void commitEdit(rowId, col.key, editingValue); }}
+        />
+      );
+    }
+
+    if (col.editable) {
+      return (
+        <span
+          className="rtbl-cell-editable"
+          data-pending={isPending ? "true" : undefined}
+          onDoubleClick={() => startEdit(rowId, col.key, raw)}
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === "F2") startEdit(rowId, col.key, raw);
+          }}
+        >
+          {col.render ? col.render(row) : (() => {
+            const text = String(raw ?? "");
+            if (highlightMatches && filterValue.trim()) {
+              const colFilter = columnFilters[col.key];
+              const query = colFilter && colFilter.trim() ? colFilter : filterValue;
+              return highlight(text, query);
+            }
+            if (highlightMatches) {
+              const colFilter = columnFilters[col.key];
+              if (colFilter && colFilter.trim()) return highlight(text, colFilter);
+            }
+            return text;
+          })()}
+        </span>
+      );
+    }
+
+    if (col.render) return col.render(row);
     const text = String(raw ?? "");
     if (highlightMatches && filterValue.trim()) {
       const colFilter = columnFilters[col.key];
@@ -584,6 +693,29 @@ function TableStyledInner<T extends Record<string, unknown>>(
         )}
         {toolbar}
       </div>
+
+      {bulkActions && bulkActions.length > 0 && selectedRows.length > 0 && (
+        <div className="rtbl-bulk-bar" role="toolbar" aria-label="Bulk actions">
+          <span className="rtbl-bulk-count">{selectedRows.length} selected</span>
+          {bulkActions.map((action, i) => {
+            const selectedData = rows.filter((_row, ri) => selectedRows.includes(pageRowIds[ri] ?? String(ri)));
+            return (
+              <button
+                key={i}
+                type="button"
+                className={[
+                  "rtbl-bulk-btn",
+                  action.tone === "danger" ? "rtbl-bulk-btn--danger" : "",
+                ].filter(Boolean).join(" ")}
+                onClick={() => action.onClick(selectedData)}
+              >
+                {action.icon && <span className="rtbl-bulk-btn-icon" aria-hidden="true">{action.icon}</span>}
+                {action.label}
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       <div className="rtbl-scroll-wrap">
         <table
@@ -744,6 +876,92 @@ function TableStyledInner<T extends Record<string, unknown>>(
                   {renderEmpty ? renderEmpty() : emptyText}
                 </td>
               </tr>
+            ) : props.groupBy && groups.length > 0 ? (
+              groups.flatMap((group: GroupEntry<T>) => {
+                const isGroupOpen = groupExpanded[group.key] !== false;
+                const groupHeaderRow = (
+                  <tr key={`group-${group.key}`} className="rtbl-tr rtbl-row--group-header">
+                    <td colSpan={skeletonCols} className="rtbl-td rtbl-td--group-header">
+                      <button
+                        type="button"
+                        className="rtbl-group-toggle"
+                        aria-expanded={isGroupOpen}
+                        onClick={() => toggleGroupExpanded(group.key)}
+                      >
+                        <ExpandChevron open={isGroupOpen} />
+                        {group.key}
+                        <span className="rtbl-group-count">({group.rows.length})</span>
+                      </button>
+                    </td>
+                  </tr>
+                );
+                if (!isGroupOpen) return [groupHeaderRow];
+                return [
+                  groupHeaderRow,
+                  ...group.rows.map((row, ri) => {
+                    const rowId = getRowId(row, ri);
+                    const isSelected = !!selectMode && selectedRows.includes(rowId);
+                    const isExpanded = expandable ? isRowExpanded(rowId) : false;
+                    const customRowProps = getRowProps ? getRowProps(row, ri) : {};
+                    return (
+                      <React.Fragment key={rowId}>
+                        <tr
+                          {...customRowProps}
+                          className={["rtbl-tr rtbl-tr-data", customRowProps.className].filter(Boolean).join(" ")}
+                          data-selected={isSelected ? "true" : undefined}
+                          data-expanded={isExpanded || undefined}
+                          data-clickable={onRowClick ? "true" : undefined}
+                          onClick={onRowClick ? () => onRowClick(row) : customRowProps.onClick}
+                        >
+                          {expandable && (
+                            <td className="rtbl-td rtbl-td--expand">
+                              <button
+                                type="button"
+                                className="rtbl-expand-btn"
+                                aria-expanded={isExpanded}
+                                aria-controls={`rtbl-expanded-${rowId}`}
+                                aria-label={isExpanded ? "Collapse row" : "Expand row"}
+                                onClick={(e) => { e.stopPropagation(); toggleRowExpansion(rowId); }}
+                              >
+                                <ExpandChevron open={isExpanded} />
+                              </button>
+                            </td>
+                          )}
+                          {selectMode && (
+                            <td className="rtbl-td rtbl-td--check" onClick={(e) => e.stopPropagation()}>
+                              <input
+                                type={selectMode === "single" ? "radio" : "checkbox"}
+                                className="rtbl-checkbox"
+                                checked={isSelected}
+                                onChange={() => toggleRow(rowId)}
+                                aria-label={`Select row ${rowId}`}
+                              />
+                            </td>
+                          )}
+                          {visibleColumns.map((col: ColumnDef<T>) => (
+                            <td
+                              key={col.key}
+                              className="rtbl-td rtbl-td-data"
+                              style={col.align ? { textAlign: col.align } : undefined}
+                              data-sticky={col.sticky ?? undefined}
+                              data-pending={pendingCells.has(`${rowId}:${col.key}`) ? "true" : undefined}
+                            >
+                              {renderCell(col, row, rowId)}
+                            </td>
+                          ))}
+                        </tr>
+                        {expandable && isExpanded && (
+                          <tr id={`rtbl-expanded-${rowId}`} className="rtbl-tr rtbl-tr--expanded">
+                            <td className="rtbl-td rtbl-td--expanded-content" colSpan={skeletonCols}>
+                              {expandable.renderExpanded(row)}
+                            </td>
+                          </tr>
+                        )}
+                      </React.Fragment>
+                    );
+                  }),
+                ];
+              })
             ) : (
               rows.map((row, ri) => {
                 const rowId = pageRowIds[ri] ?? String(ri);
@@ -864,7 +1082,7 @@ function TableStyledInner<T extends Record<string, unknown>>(
                                 : undefined
                             }
                           >
-                            {renderCell(col, row)}
+                            {renderCell(col, row, rowId)}
                           </td>
                         );
                       })}

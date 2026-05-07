@@ -6,6 +6,17 @@ Headless rich text hook and styled component for React. Zero dependencies, conte
 
 Zero dependencies. Fully typed. ESM + CJS.
 
+## What's new in 0.4.0 (next)
+
+All additive — existing props, defaults, and CSS class names are unchanged.
+
+- **Undo/redo** — `"undo"` and `"redo"` added to `ToolbarItem`. Default keyboard shortcuts `Mod+Z` / `Mod+Shift+Z` are wired out-of-the-box. Add them to the toolbar via `toolbarItems={["undo","redo",...]}`.
+- **`renderToolbar` slot** — `renderToolbar?: (args: RenderToolbarArgs) => ReactNode` replaces the built-in toolbar when set. Receives `execCommand`, `queryCommandState`, all format flags, the current `html`, and `disabled`.
+- **`renderFooter` slot** — `renderFooter?: (counts: { words: number; chars: number }) => ReactNode` replaces the word-count footer row when set.
+- **`code` toolbar item** — `"code"` added to `ToolbarItem`. Wraps/unwraps the selection in `<code class="rrt2-inline-code">` (monospace, subtle background).
+- **`placeholderEachLine` prop** — shows a placeholder on every empty `<p>` / `<div>` block via `:empty::before` CSS.
+- **`onSelectionChange` callback** — `onSelectionChange?: (sel: { range: Range | null; text: string }) => void` fires on every selection change inside the editor. The hook also now returns `getSelection: () => { range: Range | null; text: string }`. JSDOM-safe.
+
 ## What's new in 0.3.0
 
 - **Keyboard shortcuts** — `Mod+B`, `Mod+I`, `Mod+U`, `Mod+K` (link) by default. Pass `shortcuts={false}` to disable, or a partial map to override individual actions.

@@ -49,6 +49,8 @@ export interface UseRichTextOptions {
   onShortcut?: (action: ShortcutAction, event: KeyboardEvent<HTMLDivElement>) => void;
   /** Resolved shortcut map. The styled component sets defaults; consumers usually pass via the styled `shortcuts` prop. */
   shortcuts?: ShortcutMap | false;
+  /** Fired on every selection change inside the editor. JSDOM-safe. */
+  onSelectionChange?: (sel: { range: Range | null; text: string }) => void;
 }
 
 export interface UseRichTextResult {
@@ -79,6 +81,8 @@ export interface UseRichTextResult {
   chars: number;
   /** Whitespace-separated word count. */
   words: number;
+  /** Returns the current selection inside the editor. JSDOM-safe. */
+  getSelection: () => { range: Range | null; text: string };
 }
 
 const DEFAULT_ALLOWED_TAGS = [
@@ -206,6 +210,16 @@ function matchShortcutAny(
   return arr.some((s) => matchShortcut(s, e, isMac));
 }
 
+function getEditorSelection(editorRef: RefObject<HTMLDivElement>): { range: Range | null; text: string } {
+  if (typeof document === "undefined" || typeof window === "undefined") return { range: null, text: "" };
+  const sel = window.getSelection();
+  if (!sel || sel.rangeCount === 0) return { range: null, text: "" };
+  const range = sel.getRangeAt(0);
+  const editor = editorRef.current;
+  if (editor && !editor.contains(range.commonAncestorContainer)) return { range: null, text: "" };
+  return { range: range.cloneRange(), text: sel.toString() };
+}
+
 export function useRichText({
   value,
   defaultValue = "",
@@ -224,6 +238,7 @@ export function useRichText({
   autoLinkPattern = DEFAULT_AUTO_LINK_PATTERN,
   onShortcut,
   shortcuts,
+  onSelectionChange,
 }: UseRichTextOptions = {}): UseRichTextResult {
   const editorRef = useRef<HTMLDivElement>(null);
   const isControlled = value !== undefined;
@@ -246,7 +261,11 @@ export function useRichText({
     } catch {
       // queryCommandState can throw in some environments
     }
-  }, []);
+    if (onSelectionChange) {
+      const sel = getEditorSelection(editorRef);
+      onSelectionChange(sel);
+    }
+  }, [onSelectionChange]);
 
   const handleChange = useCallback(() => {
     if (!editorRef.current) return;
@@ -415,7 +434,7 @@ export function useRichText({
       if (disabled || readOnly) return;
       if (shortcuts === false) return;
       if (!shortcuts) return;
-      const isMac = typeof navigator !== "undefined" && /Mac|iPhone|iPad|iPod/.test(navigator.platform || navigator.userAgent || "");
+      const isMac = typeof navigator !== "undefined" && /Mac|iPhone|iPad|iPod/.test(navigator.userAgent);
       const evLike = {
         key: e.key,
         metaKey: e.metaKey,
@@ -483,6 +502,11 @@ export function useRichText({
     "aria-readonly": readOnly || undefined,
   };
 
+  const getSelection = useCallback(
+    () => getEditorSelection(editorRef),
+    [],
+  );
+
   return {
     editorProps,
     execCommand,
@@ -494,6 +518,7 @@ export function useRichText({
     html,
     chars: counts.chars,
     words: counts.words,
+    getSelection,
   };
 }
 

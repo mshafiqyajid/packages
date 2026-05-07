@@ -58,6 +58,9 @@ export default function TableDemo() {
         { name: "highlightMatches",   control: { type: "toggle" }, defaultValue: true,  omitWhen: false },
         { name: "loading",            control: { type: "toggle" }, defaultValue: false, omitWhen: false },
         { name: "expandableRows",     label: "expandable rows",    control: { type: "toggle" }, defaultValue: false, omitWhen: false },
+        { name: "groupByRole",        label: "groupBy role",        control: { type: "toggle" }, defaultValue: false, omitWhen: false },
+        { name: "bulkActions",        label: "bulk actions bar",    control: { type: "toggle" }, defaultValue: false, omitWhen: false },
+        { name: "editableName",       label: "editable name col",   control: { type: "toggle" }, defaultValue: false, omitWhen: false },
       ]}
       staticProps={{ data: "{DATA}", columns: "{COLUMNS}" }}
       render={(v) => {
@@ -70,11 +73,31 @@ export default function TableDemo() {
           selectableValue === "single" ? "single" :
           selectableValue === "range" ? "range" :
           "multi") as unknown as boolean;
+
+        const editableNameCols: ColumnDef<Person>[] = v.editableName
+          ? COLUMNS.map((c) =>
+              c.key === "name" ? { ...c, editable: true } as ColumnDef<Person> : c,
+            )
+          : COLUMNS;
+
+        const wave5Props = {
+          groupBy: v.groupByRole ? "role" : undefined,
+          bulkActions: v.bulkActions
+            ? [
+                { label: "Export selected", onClick: () => {} },
+                { label: "Remove", onClick: () => {}, tone: "danger" as const },
+              ]
+            : undefined,
+          onCellEdit: v.editableName
+            ? (_rowId: string, _colKey: string, _value: unknown) => {}
+            : undefined,
+        };
+
         return (
           <TableStyled
-            key={`${String(v.expandableRows)}-${String(v.ariaGrid)}-${selectableValue}`}
+            key={`${String(v.expandableRows)}-${String(v.ariaGrid)}-${selectableValue}-${String(v.groupByRole)}-${String(v.editableName)}`}
             data={DATA}
-            columns={COLUMNS}
+            columns={editableNameCols}
             tone={v.tone as "neutral" | "primary"}
             striped={v.striped as boolean}
             bordered={v.bordered as boolean}
@@ -86,6 +109,7 @@ export default function TableDemo() {
             {...({ exportable: v.exportable as boolean } as object)}
             {...({ multiSort: v.multiSort as boolean } as object)}
             {...({ ariaGrid: v.ariaGrid as boolean, ariaLabel: "Employees" } as object)}
+            {...(wave5Props as object)}
             highlightMatches={v.highlightMatches as boolean}
             selectable={selectable}
             expandable={

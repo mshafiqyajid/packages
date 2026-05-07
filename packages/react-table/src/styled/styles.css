@@ -740,3 +740,184 @@
     transition: none;
   }
 }
+
+/* ============================================================================
+ * Group-by row headers
+ * ========================================================================== */
+:root {
+  --rtbl-group-header-bg: #f0f0f4;
+}
+
+[data-theme="dark"] .rtbl-root {
+  --rtbl-group-header-bg: #2a2a2f;
+}
+
+.rtbl-row--group-header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.rtbl-td--group-header {
+  background: var(--rtbl-group-header-bg);
+  font-weight: 600;
+  font-size: 0.82em;
+  letter-spacing: 0.02em;
+  padding: 0.3rem 0.9rem;
+  border-bottom: 1px solid var(--rtbl-border);
+}
+
+.rtbl-group-toggle {
+  appearance: none;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font: inherit;
+  font-weight: 600;
+  color: inherit;
+  padding: 0;
+}
+
+.rtbl-group-count {
+  font-weight: 400;
+  opacity: 0.6;
+  font-size: 0.9em;
+}
+
+/* ============================================================================
+ * Inline cell editing
+ * ========================================================================== */
+.rtbl-cell-editable {
+  display: block;
+  width: 100%;
+  cursor: text;
+  border-radius: 3px;
+  transition: background 120ms ease;
+}
+
+.rtbl-cell-editable:hover,
+.rtbl-cell-editable:focus {
+  background: color-mix(in srgb, var(--rtbl-primary) 8%, transparent);
+  outline: none;
+}
+
+.rtbl-cell-editable[data-pending="true"] {
+  opacity: 0.6;
+}
+
+.rtbl-td[data-pending="true"] {
+  opacity: 0.7;
+}
+
+.rtbl-cell-editor {
+  width: 100%;
+  padding: 0.2rem 0.4rem;
+  font: inherit;
+  font-size: inherit;
+  border: 1px solid var(--rtbl-input-focus);
+  border-radius: 4px;
+  background: var(--rtbl-input-bg);
+  color: var(--rtbl-input-fg);
+  outline: none;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--rtbl-input-focus) 20%, transparent);
+}
+
+[data-theme="dark"] .rtbl-cell-editor {
+  background: var(--rtbl-input-bg);
+  color: var(--rtbl-input-fg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rtbl-cell-editable {
+    transition: none;
+  }
+}
+
+/* ============================================================================
+ * Bulk action toolbar
+ * ========================================================================== */
+:root {
+  --rtbl-bulk-bar-bg: #eef2ff;
+  --rtbl-bulk-bar-border: #c7d2fe;
+  --rtbl-bulk-bar-fg: #312e81;
+  --rtbl-bulk-btn-danger-fg: #b91c1c;
+  --rtbl-bulk-btn-danger-bg: #fee2e2;
+}
+
+[data-theme="dark"] .rtbl-root {
+  --rtbl-bulk-bar-bg: #1e1b4b;
+  --rtbl-bulk-bar-border: #3730a3;
+  --rtbl-bulk-bar-fg: #c7d2fe;
+  --rtbl-bulk-btn-danger-fg: #fca5a5;
+  --rtbl-bulk-btn-danger-bg: rgba(239, 68, 68, 0.15);
+}
+
+.rtbl-bulk-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.75rem;
+  background: var(--rtbl-bulk-bar-bg);
+  border: 1px solid var(--rtbl-bulk-bar-border);
+  border-radius: 6px;
+  color: var(--rtbl-bulk-bar-fg);
+  font-size: 0.85em;
+  animation: rtbl-bulk-in 150ms ease-out;
+}
+
+@keyframes rtbl-bulk-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.rtbl-bulk-count {
+  font-weight: 600;
+  margin-right: 0.25rem;
+}
+
+.rtbl-bulk-btn {
+  appearance: none;
+  border: 1px solid var(--rtbl-bulk-bar-border);
+  background: transparent;
+  color: var(--rtbl-bulk-bar-fg);
+  border-radius: 5px;
+  padding: 0.25rem 0.65rem;
+  font: inherit;
+  font-size: 0.85em;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  transition: background 120ms ease;
+}
+
+.rtbl-bulk-btn:hover {
+  background: color-mix(in srgb, var(--rtbl-bulk-bar-border) 35%, transparent);
+}
+
+.rtbl-bulk-btn--danger {
+  color: var(--rtbl-bulk-btn-danger-fg);
+  border-color: color-mix(in srgb, var(--rtbl-bulk-btn-danger-fg) 40%, transparent);
+}
+
+.rtbl-bulk-btn--danger:hover {
+  background: var(--rtbl-bulk-btn-danger-bg);
+}
+
+.rtbl-bulk-btn-icon {
+  display: inline-flex;
+  align-items: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rtbl-bulk-bar {
+    animation: none;
+  }
+  .rtbl-bulk-btn {
+    transition: none;
+  }
+}

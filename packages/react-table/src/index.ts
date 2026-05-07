@@ -9,4 +9,5 @@ export type {
   UseTableOptions,
   UseTableResult,
   ExportTableOptions,
+  GroupEntry,
 } from "./useTable";

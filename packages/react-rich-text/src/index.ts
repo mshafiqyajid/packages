@@ -5,3 +5,12 @@ export type {
   ShortcutAction,
   ShortcutMap,
 } from "./useRichText";
+export { RichTextStyled } from "./styled";
+export type {
+  RichTextStyledProps,
+  RichTextSize,
+  RichTextTone,
+  ToolbarItem,
+  LinkPromptArgs,
+  RenderToolbarArgs,
+} from "./styled";

@@ -38,6 +38,10 @@ export interface ColumnDef<T extends Record<string, unknown>> {
   hidden?: boolean;
   /** Initial visibility (uncontrolled) for the column-visibility menu. */
   defaultHidden?: boolean;
+  /** Enables inline editing for this column. Default editor is an inline `<input>`. */
+  editable?: boolean;
+  /** Custom editor factory. Receives row, current value, commit and cancel callbacks. */
+  editor?: (row: T, value: unknown, onCommit: (next: unknown) => void, onCancel: () => void) => ReactNode;
 }
 
 export interface DefaultSort {
@@ -82,6 +86,20 @@ export interface UseTableOptions<T extends Record<string, unknown>> {
   columnVisibility?: Record<string, boolean>;
   /** Fired whenever the visibility map changes. */
   onColumnVisibilityChange?: (vis: Record<string, boolean>) => void;
+  /** Group rows by this column key. Each distinct value becomes a group header. */
+  groupBy?: keyof T & string;
+  /** Controlled map of group-key -> expanded. */
+  groupExpanded?: Record<string, boolean>;
+  /** Fired when a group is expanded or collapsed. */
+  onGroupExpandedChange?: (state: Record<string, boolean>) => void;
+  /** Callback for cell edits. Return a Promise for async edits. */
+  onCellEdit?: (rowId: string, columnKey: string, value: unknown) => void | Promise<void>;
+}
+
+export interface GroupEntry<T> {
+  key: string;
+  rows: T[];
+  aggregate?: Record<string, unknown>;
 }
 
 export interface UseTableResult<T extends Record<string, unknown>> {
@@ -115,6 +133,12 @@ export interface UseTableResult<T extends Record<string, unknown>> {
   /** Map of `key -> shown?` (defaults true for any key not present). */
   columnVisibility: Record<string, boolean>;
   toggleColumnVisibility: (key: string) => void;
+  /** When `groupBy` is set, the grouped structure for rendering. Empty otherwise. */
+  groups: GroupEntry<T>[];
+  /** Map of group-key -> expanded. */
+  groupExpanded: Record<string, boolean>;
+  /** Toggle a group's expanded state. */
+  toggleGroupExpanded: (key: string) => void;
 }
 
 interface PersistedState {
@@ -232,6 +256,9 @@ export function useTable<T extends Record<string, unknown>>(
     defaultColumnWidths,
     columnVisibility: controlledVisibility,
     onColumnVisibilityChange,
+    groupBy,
+    groupExpanded: controlledGroupExpanded,
+    onGroupExpandedChange,
   } = options;
 
   const selectMode = normalizeMode(selectable);
@@ -615,6 +642,51 @@ export function useTable<T extends Record<string, unknown>>(
     setColumnWidths((prev) => ({ ...prev, [key]: width }));
   }, []);
 
+  // ---- Group-by ----------------------------------------------------------
+  const isGroupControlled = controlledGroupExpanded !== undefined;
+  const [internalGroupExpanded, setInternalGroupExpanded] = useState<Record<string, boolean>>({});
+  const groupExpanded: Record<string, boolean> = isGroupControlled
+    ? (controlledGroupExpanded as Record<string, boolean>)
+    : internalGroupExpanded;
+
+  const setGroupExpanded = useCallback(
+    (next: Record<string, boolean>) => {
+      if (!isGroupControlled) setInternalGroupExpanded(next);
+      onGroupExpandedChange?.(next);
+    },
+    [isGroupControlled, onGroupExpandedChange],
+  );
+
+  const toggleGroupExpanded = useCallback(
+    (key: string) => {
+      const current = groupExpanded[key] ?? true;
+      setGroupExpanded({ ...groupExpanded, [key]: !current });
+    },
+    [groupExpanded, setGroupExpanded],
+  );
+
+  const groups = useMemo<GroupEntry<T>[]>(() => {
+    if (!groupBy) return [];
+    const map = new Map<string, T[]>();
+    for (const row of sorted) {
+      const k = String(row[groupBy] ?? "");
+      const bucket = map.get(k);
+      if (bucket) bucket.push(row);
+      else map.set(k, [row]);
+    }
+    const colByKey = new Map(columns.map((c) => [c.key as string, c] as const));
+    return Array.from(map.entries()).map(([key, groupRows]) => {
+      const agg: Record<string, unknown> = {};
+      for (const col of columns) {
+        if (col.aggregate !== undefined) {
+          agg[col.key] = computeAggregate(col, groupRows);
+        }
+      }
+      return { key, rows: groupRows, aggregate: Object.keys(agg).length > 0 ? agg : undefined };
+      void colByKey;
+    });
+  }, [groupBy, sorted, columns]);
+
   return {
     rows,
     filteredRows: sorted,
@@ -643,6 +715,9 @@ export function useTable<T extends Record<string, unknown>>(
     visibleColumns,
     columnVisibility,
     toggleColumnVisibility,
+    groups,
+    groupExpanded,
+    toggleGroupExpanded,
   };
 }
 

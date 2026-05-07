@@ -22,6 +22,9 @@ interface DemoProps {
   name: string;
   maxChars: number;
   maxWords: number;
+  placeholderEachLine: string;
+  showUndoRedo: boolean;
+  showCodeItem: boolean;
 }
 
 function RichTextWrapper(p: DemoProps) {
@@ -29,6 +32,10 @@ function RichTextWrapper(p: DemoProps) {
   // 0.3.0 adds shortcuts/defaultLinkPrompt/bubbleMenu/autoLink/form-input parity.
   // Spread-cast keeps the demo compiling against the published 0.2.1 dist and
   // continues to work once the new types ship.
+  const extraItems: string[] = [];
+  if (p.showUndoRedo) { extraItems.push("undo", "redo"); }
+  if (p.showCodeItem) { extraItems.push("code"); }
+
   const newProps = {
     shortcuts: p.shortcuts,
     defaultLinkPrompt: p.defaultLinkPrompt as "popover" | "prompt",
@@ -42,6 +49,10 @@ function RichTextWrapper(p: DemoProps) {
     name: p.name || undefined,
     maxChars: p.maxChars > 0 ? p.maxChars : undefined,
     maxWords: p.maxWords > 0 ? p.maxWords : undefined,
+    placeholderEachLine: p.placeholderEachLine || undefined,
+    toolbarItems: extraItems.length > 0
+      ? [...extraItems, "bold", "italic", "underline", "strikethrough", "h1", "h2", "ul", "ol", "blockquote", "link", "clear"] as ("bold" | "italic" | "underline" | "strikethrough" | "h1" | "h2" | "ul" | "ol" | "blockquote" | "link" | "clear" | "code" | "undo" | "redo")[]
+      : undefined,
   };
   return (
     <div style={{ width: "100%", maxWidth: 560 }}>
@@ -84,8 +95,11 @@ export default function RichTextDemo() {
         { name: "hint",              control: { type: "text", placeholder: "Markdown supported" },                   defaultValue: "",        omitWhen: "" },
         { name: "error",             control: { type: "text", placeholder: "Required" },                             defaultValue: "",        omitWhen: "" },
         { name: "name",              control: { type: "text", placeholder: "form field name" },                      defaultValue: "",        omitWhen: "" },
-        { name: "maxChars",          control: { type: "number", min: 0, max: 1000, step: 50 },                       defaultValue: 0,         omitWhen: 0 },
-        { name: "maxWords",          control: { type: "number", min: 0, max: 500, step: 10 },                        defaultValue: 0,         omitWhen: 0 },
+        { name: "maxChars",           control: { type: "number", min: 0, max: 1000, step: 50 },                       defaultValue: 0,         omitWhen: 0 },
+        { name: "maxWords",           control: { type: "number", min: 0, max: 500, step: 10 },                        defaultValue: 0,         omitWhen: 0 },
+        { name: "placeholderEachLine", control: { type: "text", placeholder: "Type here…" },                          defaultValue: "",        omitWhen: "" },
+        { name: "showUndoRedo",       label: "undo/redo items",  control: { type: "toggle" },                         defaultValue: false,     omitWhen: false },
+        { name: "showCodeItem",       label: "code toolbar item", control: { type: "toggle" },                        defaultValue: false,     omitWhen: false },
       ]}
       staticProps={{ value: "{value}", onChange: "{setValue}" }}
       render={(v) => (
@@ -109,6 +123,9 @@ export default function RichTextDemo() {
           name={v.name as string}
           maxChars={v.maxChars as number}
           maxWords={v.maxWords as number}
+          placeholderEachLine={v.placeholderEachLine as string}
+          showUndoRedo={v.showUndoRedo as boolean}
+          showCodeItem={v.showCodeItem as boolean}
         />
       )}
     />

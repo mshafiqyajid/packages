@@ -554,6 +554,57 @@
 }
 
 /* ============================================================================
+ * Inline code
+ * ========================================================================== */
+.rrt2-inline-code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.88em;
+  background: color-mix(in srgb, var(--rrt2-border) 40%, transparent);
+  border-radius: 3px;
+  padding: 0.1em 0.3em;
+}
+
+[data-theme="dark"] .rrt2-inline-code {
+  background: color-mix(in srgb, var(--rrt2-border) 50%, transparent);
+}
+
+/* ============================================================================
+ * Per-line placeholder (placeholderEachLine)
+ * ========================================================================== */
+.rrt2-editor-wrap[data-placeholder-each-line] .rrt2-editor p:empty::before,
+.rrt2-editor-wrap[data-placeholder-each-line] .rrt2-editor div:empty::before {
+  content: attr(data-placeholder-each-line);
+  color: var(--rrt2-placeholder-fg);
+  pointer-events: none;
+  /* The attribute is on the wrap; use the CSS custom property set inline */
+}
+
+.rrt2-editor[data-each-line-placeholder] p:empty::before,
+.rrt2-editor[data-each-line-placeholder] div:empty::before {
+  content: attr(data-each-line-placeholder);
+  color: var(--rrt2-placeholder-fg);
+  pointer-events: none;
+}
+
+/* Simpler approach: the wrap carries a custom property read by the editor's ::before */
+.rrt2-editor-wrap[data-placeholder-each-line] .rrt2-editor p:empty::before {
+  content: var(--rrt2-each-line-placeholder, "");
+  color: var(--rrt2-placeholder-fg);
+  pointer-events: none;
+  float: left;
+  height: 0;
+}
+
+/* ============================================================================
+ * Toolbar undo/redo and code buttons
+ * ========================================================================== */
+.rrt2-toolbar__btn[data-cmd="code"] {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.75rem;
+  letter-spacing: -0.02em;
+}
+
+/* ============================================================================
  * Reduced motion
  * ========================================================================== */
 @media (prefers-reduced-motion: reduce) {

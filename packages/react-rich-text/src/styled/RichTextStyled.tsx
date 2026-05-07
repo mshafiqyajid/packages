@@ -31,7 +31,10 @@ export type ToolbarItem =
   | "ol"
   | "blockquote"
   | "link"
-  | "clear";
+  | "clear"
+  | "code"
+  | "undo"
+  | "redo";
 
 const DEFAULT_TOOLBAR_ITEMS: ToolbarItem[] = [
   "bold",
@@ -48,7 +51,9 @@ const DEFAULT_TOOLBAR_ITEMS: ToolbarItem[] = [
 ];
 
 const TOOLBAR_GROUPS: ToolbarItem[][] = [
+  ["undo", "redo"],
   ["bold", "italic", "underline", "strikethrough"],
+  ["code"],
   ["h1", "h2"],
   ["ul", "ol", "blockquote"],
   ["link", "clear"],
@@ -72,6 +77,9 @@ const TOOLBAR_LABELS: Record<ToolbarItem, string> = {
   blockquote: "Blockquote",
   link: "Link",
   clear: "Clear formatting",
+  code: "Inline code",
+  undo: "Undo",
+  redo: "Redo",
 };
 
 function ToolbarIcon({ item }: { item: ToolbarItem }) {
@@ -98,6 +106,12 @@ function ToolbarIcon({ item }: { item: ToolbarItem }) {
       return <span aria-hidden="true">&#128279;</span>;
     case "clear":
       return <span aria-hidden="true">&#10005;</span>;
+    case "code":
+      return <span aria-hidden="true" style={{ fontFamily: "monospace", fontSize: "0.9em" }}>&lt;/&gt;</span>;
+    case "undo":
+      return <span aria-hidden="true">&#8630;</span>;
+    case "redo":
+      return <span aria-hidden="true">&#8631;</span>;
   }
 }
 
@@ -129,6 +143,8 @@ const DEFAULT_SHORTCUTS: ShortcutMap = {
   italic: "Mod+I",
   underline: "Mod+U",
   link: "Mod+K",
+  undo: "Mod+Z",
+  redo: "Mod+Shift+Z",
 };
 
 export interface LinkPromptArgs {
@@ -139,10 +155,23 @@ export interface LinkPromptArgs {
   onCancel: () => void;
 }
 
+export interface RenderToolbarArgs {
+  execCommand: (cmd: string, value?: string) => void;
+  queryCommandState: (cmd: string) => boolean;
+  isBold: boolean;
+  isItalic: boolean;
+  isUnderline: boolean;
+  isStrikethrough: boolean;
+  html: string;
+  disabled: boolean;
+}
+
 export interface RichTextStyledProps extends Omit<UseRichTextOptions, "shortcuts"> {
   size?: RichTextSize;
   tone?: RichTextTone;
   placeholder?: string;
+  /** When set, show this placeholder on every empty `<p>` block. Uses `:empty::before` CSS trick. */
+  placeholderEachLine?: string;
   minHeight?: string;
   maxHeight?: string;
   showToolbar?: boolean;
@@ -159,6 +188,10 @@ export interface RichTextStyledProps extends Omit<UseRichTextOptions, "shortcuts
   renderLinkPrompt?: (args: LinkPromptArgs) => ReactNode;
   /** Floating bubble menu on non-empty selection. Default `false`. */
   bubbleMenu?: boolean | { items?: ToolbarItem[]; offset?: number };
+  /** Replaces the built-in toolbar when set. */
+  renderToolbar?: (args: RenderToolbarArgs) => ReactNode;
+  /** Replaces the word-count footer row when set. */
+  renderFooter?: (counts: { words: number; chars: number }) => ReactNode;
 
   // Form-input parity
   /** Hidden-input name so the editor participates in `<form>` submissions. */
@@ -230,6 +263,7 @@ export const RichTextStyled = forwardRef<HTMLDivElement, RichTextStyledProps>(
       size = "md",
       tone = "neutral",
       placeholder,
+      placeholderEachLine,
       minHeight = "120px",
       maxHeight,
       showToolbar = true,
@@ -242,6 +276,8 @@ export const RichTextStyled = forwardRef<HTMLDivElement, RichTextStyledProps>(
       defaultLinkPrompt = "popover",
       renderLinkPrompt,
       bubbleMenu = false,
+      renderToolbar,
+      renderFooter,
       name,
       id: idProp,
       required = false,
@@ -305,6 +341,7 @@ export const RichTextStyled = forwardRef<HTMLDivElement, RichTextStyledProps>(
     const {
       editorProps,
       execCommand,
+      queryCommandState,
       isBold,
       isItalic,
       isUnderline,
@@ -448,6 +485,15 @@ export const RichTextStyled = forwardRef<HTMLDivElement, RichTextStyledProps>(
           case "clear":
             execCommand("removeFormat");
             break;
+          case "code":
+            execCommand("insertHTML", wrapSelectionInCode());
+            break;
+          case "undo":
+            execCommand("undo");
+            break;
+          case "redo":
+            execCommand("redo");
+            break;
         }
       },
       // openLinkPrompt is stable per render
@@ -551,6 +597,18 @@ export const RichTextStyled = forwardRef<HTMLDivElement, RichTextStyledProps>(
           className="rrt2-shell"
         >
           {showToolbar && (
+            renderToolbar ? (
+              renderToolbar({
+                execCommand,
+                queryCommandState,
+                isBold,
+                isItalic,
+                isUnderline,
+                isStrikethrough,
+                html,
+                disabled: !!disabled,
+              })
+            ) : (
             <div className="rrt2-toolbar" role="toolbar" aria-label="Text formatting">
               {activeGroups.map((group, groupIndex) => (
                 <span key={groupIndex} className="rrt2-toolbar__group">
@@ -571,6 +629,7 @@ export const RichTextStyled = forwardRef<HTMLDivElement, RichTextStyledProps>(
                         ]
                           .filter(Boolean)
                           .join(" ")}
+                        data-cmd={item}
                         data-active={active ? "true" : undefined}
                         aria-label={TOOLBAR_LABELS[item]}
                         aria-pressed={active}
@@ -587,8 +646,14 @@ export const RichTextStyled = forwardRef<HTMLDivElement, RichTextStyledProps>(
                 </span>
               ))}
             </div>
+            )
           )}
-          <div className="rrt2-editor-wrap" data-placeholder={placeholder}>
+          <div
+            className="rrt2-editor-wrap"
+            data-placeholder={placeholder}
+            data-placeholder-each-line={placeholderEachLine || undefined}
+            style={placeholderEachLine ? ({ "--rrt2-each-line-placeholder": `"${placeholderEachLine}"` } as React.CSSProperties) : undefined}
+          >
             <div
               {...editorProps}
               id={editorId}
@@ -606,11 +671,13 @@ export const RichTextStyled = forwardRef<HTMLDivElement, RichTextStyledProps>(
               spellCheck={spellCheck ?? true}
             />
           </div>
-          {showWordCount && (
+          {renderFooter ? (
+            renderFooter({ words: finalCounts.words, chars: finalCounts.chars })
+          ) : showWordCount ? (
             <div className="rrt2-wordcount" aria-live="polite">
               {finalCounts.words} words · {finalCounts.chars} chars
             </div>
-          )}
+          ) : null}
         </div>
         {(hint || error) && (
           <span
@@ -692,4 +759,15 @@ function cssEscape(value: string): string {
     return CSS.escape(value);
   }
   return value.replace(/["\\]/g, "\\$&");
+}
+
+function wrapSelectionInCode(): string {
+  if (typeof window === "undefined") return "<code class=\"rrt2-inline-code\"></code>";
+  const sel = window.getSelection();
+  if (!sel || sel.rangeCount === 0 || sel.isCollapsed) {
+    return "<code class=\"rrt2-inline-code\"></code>";
+  }
+  const text = sel.toString();
+  const escaped = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  return `<code class="rrt2-inline-code">${escaped}</code>`;
 }
