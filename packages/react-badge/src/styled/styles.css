@@ -429,11 +429,74 @@
 }
 
 /* ============================================================================
+ * BadgeAnchor
+ * ========================================================================== */
+.rbadge-anchor {
+  position: relative;
+  display: inline-flex;
+}
+
+.rbadge-anchor__badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  transform: translate(50%, -50%);
+  line-height: 0;
+}
+
+/* ============================================================================
+ * Pop-on-mount animation
+ * ========================================================================== */
+@keyframes rbadge-pop {
+  0%   { transform: scale(0); }
+  70%  { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+.rbadge-badge[data-mounted="true"] {
+  animation: rbadge-pop 220ms ease both;
+}
+
+/* ============================================================================
+ * Count flip animation
+ * ========================================================================== */
+@keyframes rbadge-flip-in-up {
+  from { opacity: 0; transform: translateY(40%); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes rbadge-flip-in-down {
+  from { opacity: 0; transform: translateY(-40%); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.rbadge-count {
+  overflow: hidden;
+}
+
+.rbadge-count[data-dir="up"] {
+  animation: rbadge-flip-in-up 220ms ease both;
+}
+
+.rbadge-count[data-dir="down"] {
+  animation: rbadge-flip-in-down 220ms ease both;
+}
+
+/* ============================================================================
  * Reduced motion
  * ========================================================================== */
 @media (prefers-reduced-motion: reduce) {
   .rbadge-badge,
   .rbadge-dismiss {
     transition: none;
+  }
+
+  .rbadge-badge[data-mounted="true"] {
+    animation: none;
+  }
+
+  .rbadge-count[data-dir="up"],
+  .rbadge-count[data-dir="down"] {
+    animation: none;
   }
 }

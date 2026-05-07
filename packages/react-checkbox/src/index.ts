@@ -4,3 +4,9 @@ export type {
   UseCheckboxResult,
   CheckboxState,
 } from "./useCheckbox";
+
+export { useCheckboxTree } from "./useCheckboxTree";
+export type {
+  CheckboxTreeNode,
+  UseCheckboxTreeReturn,
+} from "./useCheckboxTree";

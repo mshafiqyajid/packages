@@ -8,6 +8,15 @@ import {
   type WheelEvent,
 } from "react";
 
+export interface RepeatOptions {
+  /** Delay in ms before repeat starts. Default 500. */
+  initialDelay?: number;
+  /** Interval in ms between repeat fires. Default 80. */
+  interval?: number;
+  /** Multiplier applied to interval each repeat (< 1 = accelerate). Default 0.9. */
+  accel?: number;
+}
+
 export interface UseNumberInputOptions {
   value?: number;
   defaultValue?: number;
@@ -17,12 +26,16 @@ export interface UseNumberInputOptions {
   step?: number;
   /** Step used for Shift+Arrow / PageUp / PageDown. Default: step * 10. */
   bigStep?: number;
+  /** Alias for bigStep — step used for Shift+Arrow / PageUp / PageDown. Default: step * 10. */
+  largeStep?: number;
   precision?: number;
   disabled?: boolean;
   readOnly?: boolean;
   clampOnBlur?: boolean;
   /** Allow mouse-wheel to change the value when the input is focused. Default true. */
   wheelEnabled?: boolean;
+  /** Hold-to-repeat configuration for stepper buttons. */
+  repeat?: RepeatOptions;
 }
 
 export interface UseNumberInputResult {
@@ -42,6 +55,9 @@ export interface UseNumberInputResult {
   };
   incrementProps: {
     onClick: () => void;
+    onPointerDown: () => void;
+    onPointerUp: () => void;
+    onPointerLeave: () => void;
     onMouseDown: () => void;
     onMouseUp: () => void;
     onMouseLeave: () => void;
@@ -53,6 +69,9 @@ export interface UseNumberInputResult {
   };
   decrementProps: {
     onClick: () => void;
+    onPointerDown: () => void;
+    onPointerUp: () => void;
+    onPointerLeave: () => void;
     onMouseDown: () => void;
     onMouseUp: () => void;
     onMouseLeave: () => void;
@@ -67,6 +86,8 @@ export interface UseNumberInputResult {
   decrement: () => void;
   clampedValue: number | undefined;
   handleBlur: () => void;
+  /** Direction of the last stepper action. "up" | "down" | null. */
+  stepDir: "up" | "down" | null;
 }
 
 function clamp(value: number, min?: number, max?: number): number {
@@ -91,8 +112,9 @@ function inferPrecisionOf(s: number): number {
   return dot === -1 ? 0 : str.length - dot - 1;
 }
 
-const HOLD_INITIAL_DELAY = 300;
-const HOLD_REPEAT_INTERVAL = 50;
+const DEFAULT_REPEAT_INITIAL_DELAY = 500;
+const DEFAULT_REPEAT_INTERVAL = 80;
+const DEFAULT_REPEAT_ACCEL = 0.9;
 
 export function useNumberInput({
   value: controlledValue,
@@ -102,14 +124,20 @@ export function useNumberInput({
   max,
   step = 1,
   bigStep,
+  largeStep,
   precision,
   disabled = false,
   readOnly = false,
   clampOnBlur = true,
   wheelEnabled = true,
+  repeat,
 }: UseNumberInputOptions = {}): UseNumberInputResult {
   const isControlled = controlledValue !== undefined;
-  const resolvedBigStep = bigStep ?? step * 10;
+  const resolvedBigStep = largeStep ?? bigStep ?? step * 10;
+
+  const repeatInitialDelay = repeat?.initialDelay ?? DEFAULT_REPEAT_INITIAL_DELAY;
+  const repeatInterval = repeat?.interval ?? DEFAULT_REPEAT_INTERVAL;
+  const repeatAccel = repeat?.accel ?? DEFAULT_REPEAT_ACCEL;
 
   const [internalValue, setInternalValue] = useState<number | undefined>(
     defaultValue,
@@ -121,6 +149,7 @@ export function useNumberInput({
     return toFixed(initial, p);
   });
   const [isFocused, setIsFocused] = useState(false);
+  const [stepDir, setStepDir] = useState<"up" | "down" | null>(null);
 
   const currentValue = isControlled ? controlledValue : internalValue;
   const resolvedPrecision = precision ?? inferPrecisionOf(step);
@@ -146,12 +175,20 @@ export function useNumberInput({
     [disabled, readOnly, currentValue, min, commit],
   );
 
-  const increment = useCallback(() => stepBy(step), [stepBy, step]);
-  const decrement = useCallback(() => stepBy(-step), [stepBy, step]);
+  const increment = useCallback(() => {
+    setStepDir("up");
+    stepBy(step);
+  }, [stepBy, step]);
 
-  // Hold-to-repeat on stepper buttons
+  const decrement = useCallback(() => {
+    setStepDir("down");
+    stepBy(-step);
+  }, [stepBy, step]);
+
+  // Hold-to-repeat on stepper buttons with acceleration
   const holdTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const holdIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const holdIntervalRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const currentIntervalRef = useRef<number>(repeatInterval);
 
   const stopHold = useCallback(() => {
     if (holdTimerRef.current) {
@@ -159,22 +196,38 @@ export function useNumberInput({
       holdTimerRef.current = null;
     }
     if (holdIntervalRef.current) {
-      clearInterval(holdIntervalRef.current);
+      clearTimeout(holdIntervalRef.current);
       holdIntervalRef.current = null;
     }
-  }, []);
+    currentIntervalRef.current = repeatInterval;
+  }, [repeatInterval]);
+
+  const scheduleRepeat = useCallback(
+    (direction: 1 | -1, dir: "up" | "down") => {
+      const fire = () => {
+        setStepDir(dir);
+        stepBy(direction * step);
+        currentIntervalRef.current = Math.max(
+          16,
+          currentIntervalRef.current * repeatAccel,
+        );
+        holdIntervalRef.current = setTimeout(fire, currentIntervalRef.current);
+      };
+      holdTimerRef.current = setTimeout(() => {
+        fire();
+      }, repeatInitialDelay);
+    },
+    [step, stepBy, repeatInitialDelay, repeatAccel],
+  );
 
   const startHold = useCallback(
     (direction: 1 | -1) => {
       if (disabled || readOnly) return;
       stopHold();
-      holdTimerRef.current = setTimeout(() => {
-        holdIntervalRef.current = setInterval(() => {
-          stepBy(direction * step);
-        }, HOLD_REPEAT_INTERVAL);
-      }, HOLD_INITIAL_DELAY);
+      const dir = direction === 1 ? "up" : "down";
+      scheduleRepeat(direction, dir);
     },
-    [disabled, readOnly, step, stepBy, stopHold],
+    [disabled, readOnly, stopHold, scheduleRepeat],
   );
 
   useEffect(() => () => stopHold(), [stopHold]);
@@ -209,15 +262,21 @@ export function useNumberInput({
     (e: KeyboardEvent<HTMLInputElement>) => {
       if (e.key === "ArrowUp") {
         e.preventDefault();
-        stepBy(e.shiftKey ? resolvedBigStep : step);
+        const delta = e.shiftKey ? resolvedBigStep : step;
+        setStepDir("up");
+        stepBy(delta);
       } else if (e.key === "ArrowDown") {
         e.preventDefault();
-        stepBy(e.shiftKey ? -resolvedBigStep : -step);
+        const delta = e.shiftKey ? resolvedBigStep : step;
+        setStepDir("down");
+        stepBy(-delta);
       } else if (e.key === "PageUp") {
         e.preventDefault();
+        setStepDir("up");
         stepBy(resolvedBigStep);
       } else if (e.key === "PageDown") {
         e.preventDefault();
+        setStepDir("down");
         stepBy(-resolvedBigStep);
       } else if (e.key === "Home" && min !== undefined) {
         e.preventDefault();
@@ -234,13 +293,13 @@ export function useNumberInput({
     (e: WheelEvent<HTMLInputElement>) => {
       if (disabled || readOnly) return;
       if (!wheelEnabled) return;
-      // Only respond to wheel when the input is actually focused — prevents
-      // the page from being scrolled into a number input.
       if (!isFocused) return;
       e.preventDefault();
       if (e.deltaY < 0) {
+        setStepDir("up");
         stepBy(e.shiftKey ? resolvedBigStep : step);
       } else {
+        setStepDir("down");
         stepBy(e.shiftKey ? -resolvedBigStep : -step);
       }
     },
@@ -265,8 +324,15 @@ export function useNumberInput({
   const atMax =
     clampedValue !== undefined && max !== undefined && clampedValue >= max;
 
-  // The aria-valuenow should reflect the clamped (committed) value
   const inputMode: "decimal" | "numeric" = resolvedPrecision > 0 ? "decimal" : "numeric";
+
+  const stopHoldProps = {
+    onPointerUp: stopHold,
+    onPointerLeave: stopHold,
+    onMouseUp: stopHold,
+    onMouseLeave: stopHold,
+    onTouchEnd: stopHold,
+  };
 
   return {
     inputProps: {
@@ -285,22 +351,20 @@ export function useNumberInput({
     },
     incrementProps: {
       onClick: increment,
+      onPointerDown: () => startHold(1),
       onMouseDown: () => startHold(1),
-      onMouseUp: stopHold,
-      onMouseLeave: stopHold,
       onTouchStart: () => startHold(1),
-      onTouchEnd: stopHold,
+      ...stopHoldProps,
       disabled: disabled || (atMax ?? false),
       "aria-label": "Increment",
       tabIndex: -1,
     },
     decrementProps: {
       onClick: decrement,
+      onPointerDown: () => startHold(-1),
       onMouseDown: () => startHold(-1),
-      onMouseUp: stopHold,
-      onMouseLeave: stopHold,
       onTouchStart: () => startHold(-1),
-      onTouchEnd: stopHold,
+      ...stopHoldProps,
       disabled: disabled || (atMin ?? false),
       "aria-label": "Decrement",
       tabIndex: -1,
@@ -310,5 +374,6 @@ export function useNumberInput({
     decrement,
     clampedValue,
     handleBlur,
+    stepDir,
   };
 }

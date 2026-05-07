@@ -1,5 +1,6 @@
 import { forwardRef, useId, type CSSProperties, type ReactNode } from "react";
 import { useCheckbox, type CheckboxState } from "../useCheckbox";
+import { useCheckboxGroupContext } from "./CheckboxGroup";
 
 export type CheckboxSize = "sm" | "md" | "lg";
 export type CheckboxTone = "neutral" | "primary" | "success" | "danger";
@@ -9,6 +10,8 @@ export interface CheckboxStyledProps {
   defaultChecked?: CheckboxState;
   onChange?: (checked: boolean) => void;
   disabled?: boolean;
+  /** Value used when this checkbox lives inside a CheckboxGroup. */
+  value?: string;
   size?: CheckboxSize;
   tone?: CheckboxTone;
   label?: ReactNode;
@@ -21,6 +24,8 @@ export interface CheckboxStyledProps {
   card?: boolean;
   /** Append a red asterisk to the label. */
   required?: boolean;
+  invalid?: boolean;
+  name?: string;
   className?: string;
   style?: CSSProperties;
 }
@@ -28,10 +33,11 @@ export interface CheckboxStyledProps {
 export const CheckboxStyled = forwardRef<HTMLButtonElement, CheckboxStyledProps>(
   function CheckboxStyled(
     {
-      checked,
+      checked: checkedProp,
       defaultChecked,
-      onChange,
-      disabled = false,
+      onChange: onChangeProp,
+      disabled: disabledProp = false,
+      value,
       size = "md",
       tone = "primary",
       label,
@@ -40,6 +46,8 @@ export const CheckboxStyled = forwardRef<HTMLButtonElement, CheckboxStyledProps>
       labelPosition = "right",
       card = false,
       required = false,
+      invalid: invalidProp = false,
+      name: nameProp,
       className,
       style,
     },
@@ -48,14 +56,32 @@ export const CheckboxStyled = forwardRef<HTMLButtonElement, CheckboxStyledProps>
     const labelId = useId();
     const descId = useId();
     const errId = useId();
+
+    const groupCtx = useCheckboxGroupContext();
+
+    const disabled = disabledProp || (groupCtx?.groupDisabled ?? false);
+    const groupInvalid = groupCtx?.groupInvalid ?? false;
+
+    const isGroupMember = groupCtx !== null && value !== undefined;
+
+    const groupChecked: CheckboxState | undefined = isGroupMember
+      ? groupCtx!.values.includes(value!)
+      : undefined;
+
+    const resolvedChecked = isGroupMember ? groupChecked : checkedProp;
+    const resolvedOnChange = isGroupMember
+      ? () => groupCtx!.toggleValue(value!)
+      : onChangeProp;
+
     const { checkboxProps, isChecked, isIndeterminate, toggle } = useCheckbox({
-      checked,
-      defaultChecked,
-      onChange,
+      checked: resolvedChecked,
+      defaultChecked: isGroupMember ? undefined : defaultChecked,
+      onChange: resolvedOnChange,
       disabled,
     });
 
-    const effectiveTone: CheckboxTone = error ? "danger" : tone;
+    const effectiveInvalid = invalidProp || groupInvalid || !!error;
+    const effectiveTone: CheckboxTone = effectiveInvalid ? "danger" : tone;
     const rootClass = ["rchk-root", className].filter(Boolean).join(" ");
 
     const handleCardClick = (e: React.MouseEvent) => {
@@ -103,16 +129,23 @@ export const CheckboxStyled = forwardRef<HTMLButtonElement, CheckboxStyledProps>
             aria-labelledby={label ? labelId : undefined}
             aria-describedby={ariaDescribedBy}
             aria-required={required || undefined}
-            aria-invalid={error ? true : undefined}
+            aria-invalid={effectiveInvalid || undefined}
             type="button"
           >
             {isIndeterminate ? (
               <svg className="rchk-icon" viewBox="0 0 12 12" aria-hidden="true">
-                <path d="M2.5 6h7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                <path
+                  className="rchk-indet-path"
+                  d="M2.5 6h7"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
               </svg>
             ) : (
               <svg className="rchk-icon" viewBox="0 0 12 12" aria-hidden="true">
                 <path
+                  className="rchk-check-path"
                   d="M2.5 6.5l2.3 2.3L9.5 3.5"
                   stroke="currentColor"
                   strokeWidth="2"

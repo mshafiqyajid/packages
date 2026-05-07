@@ -4,6 +4,8 @@ export type {
   ModalSize,
   ModalVariant,
   ModalTransition,
+  ConfirmTone,
+  MobileVariant,
 } from "./ModalStyled";
 export { confirm, modal } from "./confirm";
 export type { ConfirmOptions } from "./confirm";

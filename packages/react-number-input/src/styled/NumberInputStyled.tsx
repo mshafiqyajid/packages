@@ -1,4 +1,14 @@
-import { forwardRef, useId, useRef, useCallback, type ChangeEvent, type FocusEventHandler } from "react";
+import {
+  forwardRef,
+  useId,
+  useRef,
+  useCallback,
+  useEffect,
+  useState,
+  type ChangeEvent,
+  type FocusEventHandler,
+  type PointerEvent as ReactPointerEvent,
+} from "react";
 import { useNumberInput, type UseNumberInputOptions } from "../useNumberInput";
 
 export type NumberInputSize = "sm" | "md" | "lg";
@@ -27,6 +37,15 @@ export interface NumberInputStyledProps extends UseNumberInputOptions {
   suffix?: string;
   onBlur?: FocusEventHandler<HTMLInputElement>;
   onFocus?: FocusEventHandler<HTMLInputElement>;
+  /**
+   * When true the label becomes a drag handle: drag left to decrease, right
+   * to increase by `step` per `scrubPixels` pixels.
+   */
+  scrubable?: boolean;
+  /**
+   * Pixels of horizontal drag needed to change by one `step`. Default 4.
+   */
+  scrubPixels?: number;
 }
 
 function formatValue(
@@ -89,6 +108,8 @@ export const NumberInputStyled = forwardRef<
     min,
     max,
     step = 1,
+    bigStep,
+    largeStep,
     precision,
     disabled = false,
     readOnly = false,
@@ -98,6 +119,9 @@ export const NumberInputStyled = forwardRef<
     suffix,
     onBlur: onBlurProp,
     onFocus: onFocusProp,
+    repeat,
+    scrubable = false,
+    scrubPixels = 4,
   },
   ref,
 ) {
@@ -112,6 +136,9 @@ export const NumberInputStyled = forwardRef<
     decrementProps,
     clampedValue,
     handleBlur: hookHandleBlur,
+    stepDir,
+    increment,
+    decrement,
   } = useNumberInput({
     value,
     defaultValue,
@@ -119,10 +146,13 @@ export const NumberInputStyled = forwardRef<
     min,
     max,
     step,
+    bigStep,
+    largeStep,
     precision,
     disabled,
     readOnly,
     clampOnBlur,
+    repeat,
   });
 
   const isFormatted = format !== "decimal";
@@ -159,6 +189,68 @@ export const NumberInputStyled = forwardRef<
   const isInvalid = hasError || invalidProp === true;
   const activeTone = isInvalid ? "danger" : tone;
 
+  // Digit scroll animation direction — reset after animation plays
+  const [animDir, setAnimDir] = useState<"up" | "down" | null>(null);
+  const animTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (stepDir === null) return;
+    if (animTimerRef.current) clearTimeout(animTimerRef.current);
+    setAnimDir(stepDir);
+    animTimerRef.current = setTimeout(() => setAnimDir(null), 200);
+    return () => {
+      if (animTimerRef.current) clearTimeout(animTimerRef.current);
+    };
+  }, [stepDir, clampedValue]);
+
+  // Scrub — horizontal pointer drag on the label
+  const scrubAccumRef = useRef<number>(0);
+  const scrubActiveRef = useRef<boolean>(false);
+
+  const handleLabelPointerDown = useCallback(
+    (e: ReactPointerEvent<HTMLLabelElement>) => {
+      if (!scrubable || disabled || readOnly) return;
+      e.preventDefault();
+      scrubAccumRef.current = 0;
+      scrubActiveRef.current = true;
+      const el = e.currentTarget as HTMLLabelElement;
+      if (typeof el.setPointerCapture === "function") {
+        el.setPointerCapture(e.pointerId);
+      }
+    },
+    [scrubable, disabled, readOnly],
+  );
+
+  const handleLabelPointerMove = useCallback(
+    (e: ReactPointerEvent<HTMLLabelElement>) => {
+      if (!scrubActiveRef.current) return;
+      scrubAccumRef.current += e.movementX;
+      const steps = Math.trunc(scrubAccumRef.current / scrubPixels);
+      if (steps !== 0) {
+        scrubAccumRef.current -= steps * scrubPixels;
+        if (steps > 0) {
+          for (let i = 0; i < steps; i++) increment();
+        } else {
+          for (let i = 0; i < -steps; i++) decrement();
+        }
+      }
+    },
+    [scrubPixels, increment, decrement],
+  );
+
+  const handleLabelPointerUp = useCallback(
+    (e: ReactPointerEvent<HTMLLabelElement>) => {
+      if (!scrubActiveRef.current) return;
+      scrubActiveRef.current = false;
+      scrubAccumRef.current = 0;
+      const el = e.currentTarget as HTMLLabelElement;
+      if (typeof el.releasePointerCapture === "function") {
+        el.releasePointerCapture(e.pointerId);
+      }
+    },
+    [],
+  );
+
   return (
     <div
       className={[
@@ -178,12 +270,19 @@ export const NumberInputStyled = forwardRef<
       data-invalid={isInvalid ? "true" : undefined}
     >
       {label && (
-        <label htmlFor={inputId} className="rni-label">
+        <label
+          htmlFor={inputId}
+          className={["rni-label", scrubable ? "rni-label--scrubable" : ""].filter(Boolean).join(" ")}
+          onPointerDown={scrubable ? handleLabelPointerDown : undefined}
+          onPointerMove={scrubable ? handleLabelPointerMove : undefined}
+          onPointerUp={scrubable ? handleLabelPointerUp : undefined}
+          onPointerCancel={scrubable ? handleLabelPointerUp : undefined}
+        >
           {label}
         </label>
       )}
 
-      <div className="rni-control">
+      <div className="rni-control" data-dir={animDir ?? undefined}>
         {showStepper !== false && (
           <button
             type="button"

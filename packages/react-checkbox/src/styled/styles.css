@@ -169,6 +169,7 @@
   height: 80%;
   opacity: 0;
   transform: scale(0.6);
+  overflow: visible;
   transition:
     opacity var(--rchk-duration-fast) var(--rchk-ease),
     transform var(--rchk-duration) var(--rchk-ease-spring);
@@ -179,12 +180,69 @@
   transform: scale(1);
 }
 
+/* Checkmark draw animation */
+.rchk-icon path.rchk-check-path {
+  stroke-dasharray: 14;
+  stroke-dashoffset: 14;
+  transition: stroke-dashoffset var(--rchk-duration) ease-out;
+}
+.rchk-box[data-checked="true"] .rchk-icon path.rchk-check-path {
+  stroke-dashoffset: 0;
+}
+
+/* Indeterminate bar draw animation */
+.rchk-icon path.rchk-indet-path {
+  stroke-dasharray: 8;
+  stroke-dashoffset: 8;
+  transition: stroke-dashoffset var(--rchk-duration) ease-out;
+}
+.rchk-box[data-indeterminate="true"] .rchk-icon path.rchk-indet-path {
+  stroke-dashoffset: 0;
+}
+
 /* ── Label ─────────────────────────────────────────────────── */
 .rchk-label {
   font-size: 0.875rem;
   line-height: 1.4;
   user-select: none;
   cursor: pointer;
+}
+
+/* ── CheckboxGroup ─────────────────────────────────────────── */
+:root {
+  --rchk-group-gap: 0.6rem;
+}
+
+.rchk-group {
+  border: none;
+  margin: 0;
+  padding: 0;
+  display: inline-flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.rchk-group-legend {
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.4;
+  margin-bottom: 0.3rem;
+  padding: 0;
+}
+[data-theme="dark"] .rchk-group-legend { color: #fafafa; }
+.rchk-group-hint {
+  font-size: 0.78rem;
+  color: var(--rchk-fg-muted, #71717a);
+  line-height: 1.4;
+  margin-bottom: 0.2rem;
+}
+[data-theme="dark"] .rchk-group-hint { color: #a1a1aa; }
+.rchk-group-items {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rchk-group-gap);
+}
+.rchk-group-error {
+  padding-left: 0;
 }
 
 /* ── Reduced motion ────────────────────────────────────────── */
@@ -194,4 +252,6 @@
   .rchk-root[data-card="true"] { transition: none; }
   .rchk-box:active:not([data-disabled="true"]) { transform: none; }
   .rchk-error { animation: none; }
+  .rchk-icon path.rchk-check-path,
+  .rchk-icon path.rchk-indet-path { transition: none; }
 }

@@ -5,3 +5,6 @@ export type {
   BadgeSize,
   BadgeTone,
 } from "./BadgeStyled";
+
+export { BadgeAnchor } from "./BadgeAnchor";
+export type { BadgeAnchorProps, BadgeAnchorOffset } from "./BadgeAnchor";

@@ -86,6 +86,86 @@ Pass an `error` message to flip tone to danger and render a message under the ro
 | `required` | `boolean` | `false` | Append a red asterisk to the label |
 | `disabled` | `boolean` | `false` | Disable |
 
+## What's new in 0.4.0
+
+### CheckboxGroup
+
+Group multiple checkboxes into a controlled or uncontrolled fieldset. Each child `CheckboxStyled` with a `value` prop automatically participates in the group's selection array.
+
+```tsx
+import { CheckboxGroup, CheckboxStyled } from "@mshafiqyajid/react-checkbox/styled";
+import "@mshafiqyajid/react-checkbox/styles.css";
+
+function NotificationPrefs() {
+  const [values, setValues] = useState(["email"]);
+  return (
+    <CheckboxGroup
+      label="Notify me about…"
+      hint="Choose the updates you want to receive."
+      value={values}
+      onChange={setValues}
+    >
+      <CheckboxStyled value="email" label="Email updates" />
+      <CheckboxStyled value="sms" label="SMS alerts" />
+      <CheckboxStyled value="push" label="Push notifications" />
+    </CheckboxGroup>
+  );
+}
+```
+
+**CheckboxGroup props**
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `name` | `string` | — | Shared name for child inputs |
+| `value` | `string[]` | — | Controlled selection |
+| `defaultValue` | `string[]` | `[]` | Uncontrolled initial selection |
+| `onChange` | `(values: string[]) => void` | — | Called on every toggle |
+| `disabled` | `boolean` | `false` | Disable all child checkboxes |
+| `label` | `ReactNode` | — | Fieldset legend |
+| `hint` | `ReactNode` | — | Helper text below legend |
+| `error` | `ReactNode` | — | Error message below items |
+| `invalid` | `boolean` | `false` | Mark all children invalid |
+| `required` | `boolean` | `false` | Append a red asterisk to the legend |
+
+### useCheckboxTree
+
+Manages a tree of checkboxes where parent state is derived from children. A parent is `indeterminate` when some (not all) of its leaf descendants are checked; it is checked only when all are checked.
+
+```tsx
+import { useCheckboxTree } from "@mshafiqyajid/react-checkbox";
+import { CheckboxStyled } from "@mshafiqyajid/react-checkbox/styled";
+
+const nodes = [
+  {
+    id: "fruits",
+    label: "Fruits",
+    children: [
+      { id: "apple", label: "Apple" },
+      { id: "banana", label: "Banana" },
+    ],
+  },
+];
+
+function TreeExample() {
+  const { getCheckboxProps, toggleAll } = useCheckboxTree(nodes);
+  return (
+    <div>
+      <button onClick={toggleAll}>Toggle all</button>
+      <CheckboxStyled label="Fruits" {...getCheckboxProps("fruits")} />
+      <div style={{ paddingLeft: 24 }}>
+        <CheckboxStyled label="Apple" {...getCheckboxProps("apple")} />
+        <CheckboxStyled label="Banana" {...getCheckboxProps("banana")} />
+      </div>
+    </div>
+  );
+}
+```
+
+### Animated SVG checkmark draw
+
+The checkmark path now draws via `stroke-dashoffset` over 180 ms ease-out when a checkbox is checked. The indeterminate bar morphs in similarly. Both honour `prefers-reduced-motion`.
+
 ## License
 
 MIT

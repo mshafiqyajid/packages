@@ -1,4 +1,12 @@
-import { forwardRef, useState, useCallback, type CSSProperties, type ReactNode } from "react";
+import {
+  forwardRef,
+  useState,
+  useCallback,
+  useEffect,
+  useRef,
+  type CSSProperties,
+  type ReactNode,
+} from "react";
 
 export type BadgeVariant = "solid" | "subtle" | "outline";
 export type BadgeSize = "sm" | "md" | "lg";
@@ -60,11 +68,43 @@ export const BadgeStyled = forwardRef<HTMLSpanElement, BadgeStyledProps>(
     ref,
   ) {
     const [isDismissed, setIsDismissed] = useState(false);
+    const [mounted, setMounted] = useState(false);
+    const prevCountRef = useRef<number | undefined>(count);
+    const [flipDir, setFlipDir] = useState<"up" | "down" | undefined>(
+      undefined,
+    );
+    const [displayCount, setDisplayCount] = useState(count);
+    const flipKeyRef = useRef(0);
+    const [flipKey, setFlipKey] = useState(0);
+
+    useEffect(() => {
+      setMounted(true);
+    }, []);
+
+    useEffect(() => {
+      if (count === undefined) {
+        prevCountRef.current = count;
+        setDisplayCount(count);
+        return;
+      }
+      const prev = prevCountRef.current;
+      if (prev === undefined) {
+        prevCountRef.current = count;
+        setDisplayCount(count);
+        return;
+      }
+      if (count === prev) return;
+      const dir = count > prev ? "up" : "down";
+      setFlipDir(dir);
+      flipKeyRef.current += 1;
+      setFlipKey(flipKeyRef.current);
+      setDisplayCount(count);
+      prevCountRef.current = count;
+    }, [count]);
 
     const hasContent = !!children || !!icon || dot;
     const isZero = count === 0;
-    const shouldHide =
-      hideOnZero && isZero && !showZero && !hasContent;
+    const shouldHide = hideOnZero && isZero && !showZero && !hasContent;
     if (shouldHide) return null;
 
     const handleDismiss = useCallback(() => {
@@ -84,6 +124,18 @@ export const BadgeStyled = forwardRef<HTMLSpanElement, BadgeStyledProps>(
 
     if (isDismissed) return null;
 
+    const shownCount =
+      displayCount !== undefined
+        ? maxCount !== undefined && displayCount > maxCount
+          ? `${maxCount}+`
+          : displayCount
+        : undefined;
+
+    const countAriaLabel =
+      displayCount !== undefined
+        ? `${maxCount !== undefined && displayCount > maxCount ? `${maxCount}+` : displayCount} items`
+        : undefined;
+
     return (
       <span
         ref={ref}
@@ -95,19 +147,33 @@ export const BadgeStyled = forwardRef<HTMLSpanElement, BadgeStyledProps>(
         data-tone={tone}
         data-shape={shape}
         data-uppercase={uppercase ? "true" : undefined}
+        data-mounted={mounted ? "true" : undefined}
       >
         {dot && (
           <span className="rbadge-dot-wrap" aria-hidden="true">
-            <span className="rbadge-dot" data-pulse={pulse ? "true" : undefined} />
+            <span
+              className="rbadge-dot"
+              data-pulse={pulse ? "true" : undefined}
+            />
           </span>
         )}
-        {icon && <span className="rbadge-icon" aria-hidden="true">{icon}</span>}
+        {icon && (
+          <span className="rbadge-icon" aria-hidden="true">
+            {icon}
+          </span>
+        )}
         {children && <span className="rbadge-label">{children}</span>}
-        {count !== undefined && !(hideOnZero && count === 0 && !showZero) && (
-          <span className="rbadge-count" aria-label={`${maxCount !== undefined && count > maxCount ? `${maxCount}+` : count} items`}>
-            {maxCount !== undefined && count > maxCount ? `${maxCount}+` : count}
-          </span>
-        )}
+        {displayCount !== undefined &&
+          !(hideOnZero && displayCount === 0 && !showZero) && (
+            <span
+              key={flipKey}
+              className="rbadge-count"
+              aria-label={countAriaLabel}
+              data-dir={flipDir}
+            >
+              {shownCount}
+            </span>
+          )}
         {dismissible && (
           <span
             role="button"

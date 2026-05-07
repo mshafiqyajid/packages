@@ -25,7 +25,9 @@
   --racc-focus-ring: #6366f1;
   --racc-radius: 8px;
   --racc-duration: 220ms;
-  --racc-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --racc-ease-open: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --racc-ease-close: cubic-bezier(0.4, 0, 1, 1);
+  --racc-chevron-ease: cubic-bezier(0.34, 1.56, 0.64, 1);
 
   --racc-trigger-px: 1rem;
   --racc-trigger-py: 0.875rem;
@@ -42,6 +44,17 @@
   background: var(--racc-bg);
   overflow: hidden;
   font-family: inherit;
+}
+
+/* ============================================================================
+ * Nested accordion isolation — inner .racc-root resets its own stacking context
+ * so grid-rows animation on inner panels doesn't inherit outer panel's overflow.
+ * ========================================================================== */
+.racc-panel-inner > .racc-root {
+  border: 1px solid var(--racc-border);
+  border-radius: var(--racc-radius);
+  margin: 0.5rem 0;
+  overflow: hidden;
 }
 
 /* ============================================================================
@@ -73,8 +86,8 @@
   cursor: pointer;
   box-sizing: border-box;
   transition:
-    background-color var(--racc-duration) var(--racc-ease),
-    color var(--racc-duration) var(--racc-ease);
+    background-color var(--racc-duration) var(--racc-ease-open),
+    color var(--racc-duration) var(--racc-ease-open);
 }
 
 .racc-trigger:hover {
@@ -96,7 +109,7 @@
 }
 
 /* ============================================================================
- * Chevron icon
+ * Chevron icon — spring easing on open, fast ease-in on close
  * ========================================================================== */
 .racc-chevron {
   display: inline-flex;
@@ -105,25 +118,33 @@
   flex-shrink: 0;
   margin-left: 0.5rem;
   color: var(--racc-trigger-fg-muted);
-  transition: transform var(--racc-duration) var(--racc-ease);
+  transition: transform var(--racc-duration) var(--racc-chevron-ease);
 }
 
 .racc-item[data-open="true"] .racc-chevron {
   transform: rotate(180deg);
+  transition: transform var(--racc-duration) var(--racc-chevron-ease);
+}
+
+.racc-item:not([data-open="true"]) .racc-chevron {
+  transform: rotate(0deg);
+  transition: transform var(--racc-duration) var(--racc-ease-close);
 }
 
 /* ============================================================================
- * Panel — grid-template-rows animation
+ * Panel — grid-template-rows animation with asymmetric easing
+ * Open: spring. Close: faster ease-in.
  * ========================================================================== */
 .racc-panel {
   display: grid;
   grid-template-rows: 0fr;
-  transition: grid-template-rows var(--racc-duration) var(--racc-ease);
+  transition: grid-template-rows var(--racc-duration) var(--racc-ease-close);
   background: var(--racc-panel-bg);
 }
 
 .racc-panel[data-open="true"] {
   grid-template-rows: 1fr;
+  transition: grid-template-rows var(--racc-duration) var(--racc-ease-open);
 }
 
 .racc-panel-inner {
@@ -159,6 +180,63 @@
   --racc-panel-py: 1.125rem;
   --racc-panel-font-size: 1.0625rem;
   --racc-radius: 10px;
+}
+
+/* ============================================================================
+ * Variants
+ * ========================================================================== */
+
+/* "bordered" is the default — no extra rules needed */
+
+/* "separated" — each item is a standalone card with gap */
+.racc-root[data-variant="separated"] {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  gap: 0.5rem;
+  overflow: visible;
+}
+
+.racc-root[data-variant="separated"] .racc-item {
+  border: 1px solid var(--racc-border);
+  border-radius: var(--racc-radius);
+  overflow: hidden;
+  background: var(--racc-bg);
+}
+
+.racc-root[data-variant="separated"] .racc-item:last-child {
+  border-bottom: 1px solid var(--racc-border);
+}
+
+/* "flush" — no borders, no radius; integrates inside a card */
+.racc-root[data-variant="flush"] {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+}
+
+.racc-root[data-variant="flush"] .racc-item {
+  border-bottom: 1px solid var(--racc-border);
+}
+
+.racc-root[data-variant="flush"] .racc-item:last-child {
+  border-bottom: none;
+}
+
+.racc-root[data-variant="flush"] .racc-trigger {
+  background: transparent;
+}
+
+.racc-root[data-variant="flush"] .racc-trigger:hover {
+  background: var(--racc-trigger-bg-hover);
+}
+
+.racc-root[data-variant="flush"] .racc-item[data-open="true"] .racc-trigger {
+  background: transparent;
+}
+
+.racc-root[data-variant="flush"] .racc-panel {
+  background: transparent;
 }
 
 /* ============================================================================
@@ -209,7 +287,7 @@
 }
 
 /* ============================================================================
- * Reduced motion
+ * Reduced motion — collapses all transitions to instant
  * ========================================================================== */
 @media (prefers-reduced-motion: reduce) {
   .racc-panel,

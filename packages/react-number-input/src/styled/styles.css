@@ -66,6 +66,11 @@
   line-height: 1.4;
 }
 
+.rni-label--scrubable {
+  cursor: ew-resize;
+  user-select: none;
+}
+
 /* ============================================================================
  * Control row (decrement / input / increment)
  * ========================================================================== */
@@ -304,11 +309,37 @@
 
 
 /* ============================================================================
+ * Digit scroll animation (data-dir on .rni-control)
+ * ========================================================================== */
+@keyframes rni-digit-up-in {
+  from { transform: translateY(40%); opacity: 0; }
+  to   { transform: translateY(0);   opacity: 1; }
+}
+
+@keyframes rni-digit-down-in {
+  from { transform: translateY(-40%); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+.rni-control[data-dir="up"] .rni-input {
+  animation: rni-digit-up-in 160ms var(--rni-ease) both;
+}
+
+.rni-control[data-dir="down"] .rni-input {
+  animation: rni-digit-down-in 160ms var(--rni-ease) both;
+}
+
+/* ============================================================================
  * Reduced motion
  * ========================================================================== */
 @media (prefers-reduced-motion: reduce) {
   .rni-control,
   .rni-btn {
     transition: none;
+  }
+
+  .rni-control[data-dir="up"] .rni-input,
+  .rni-control[data-dir="down"] .rni-input {
+    animation: none;
   }
 }

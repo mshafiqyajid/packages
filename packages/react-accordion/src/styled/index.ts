@@ -4,4 +4,6 @@ export type {
   AccordionItem,
   AccordionSize,
   AccordionTone,
+  AccordionVariant,
+  AccordionImperative,
 } from "./AccordionStyled";

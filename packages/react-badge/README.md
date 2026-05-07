@@ -66,6 +66,35 @@ function App() {
 
 `hideOnZero` renders nothing when `count === 0` and there is no other content (handy for unread counters). `showZero` overrides it.
 
+## BadgeAnchor
+
+`BadgeAnchor` wraps any child element and pins a `BadgeStyled` in the top-right corner.
+
+```tsx
+import { BadgeAnchor, BadgeStyled } from "@mshafiqyajid/react-badge/styled";
+import "@mshafiqyajid/react-badge/styles.css";
+
+function App() {
+  return (
+    <BadgeAnchor badge={<BadgeStyled count={3} tone="danger" variant="solid" />}>
+      <button>Inbox</button>
+    </BadgeAnchor>
+  );
+}
+```
+
+| Prop | Type | Default |
+|---|---|---|
+| `badge` | `ReactNode` | — |
+| `offset` | `{ x?: number; y?: number }` | `{ x: -6, y: -6 }` |
+| `className` | `string` | — |
+
+## What's new in 0.4.0
+
+- **`BadgeAnchor`** component — pins any badge to a child element's top-right corner.
+- **Count flip animation** — digits animate in/out (up or down direction) when `count` changes. 220ms ease, respects `prefers-reduced-motion`.
+- **Pop on mount** — badges with content play a spring-scale bounce on first render. Respects `prefers-reduced-motion`.
+
 ## License
 
 MIT

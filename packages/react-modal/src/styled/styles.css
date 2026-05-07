@@ -30,31 +30,37 @@
   padding: 1rem;
   background: var(--rmod-overlay-bg);
 
-  /* Backdrop blur — default md */
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  /* Backdrop: fades in with blur transition from 0 → 4px */
+  backdrop-filter: blur(0px);
+  -webkit-backdrop-filter: blur(0px);
 
   opacity: 0;
   transition: opacity var(--rmod-duration) var(--rmod-ease),
-              backdrop-filter var(--rmod-duration) var(--rmod-ease);
+              backdrop-filter var(--rmod-duration) var(--rmod-ease),
+              -webkit-backdrop-filter var(--rmod-duration) var(--rmod-ease);
   pointer-events: none;
 }
 
 .rmod-overlay--visible {
   opacity: 1;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   pointer-events: auto;
 }
 
-/* Blur variants */
-.rmod-overlay[data-blur="none"]  { backdrop-filter: none; -webkit-backdrop-filter: none; }
-.rmod-overlay[data-blur="sm"]    { backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
-.rmod-overlay[data-blur="md"]    { backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
-.rmod-overlay[data-blur="lg"]    { backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+/* Blur variants — applied when visible; base is blur(0) for all */
+.rmod-overlay[data-blur="none"].rmod-overlay--visible  { backdrop-filter: none; -webkit-backdrop-filter: none; }
+.rmod-overlay[data-blur="sm"].rmod-overlay--visible    { backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+.rmod-overlay[data-blur="md"].rmod-overlay--visible    { backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+.rmod-overlay[data-blur="lg"].rmod-overlay--visible    { backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
 
 /* Drawer alignment */
 .rmod-overlay[data-variant="drawer-left"]   { justify-content: flex-start; padding: 0; }
 .rmod-overlay[data-variant="drawer-right"]  { justify-content: flex-end;   padding: 0; }
 .rmod-overlay[data-variant="drawer-bottom"] { align-items: flex-end;        padding: 0; }
+
+/* Sheet alignment (mobile-only, set via JS) */
+.rmod-overlay[data-variant="sheet"] { align-items: flex-end; padding: 0; }
 
 /* ============================================================================
  * Panel — base (dialog only)
@@ -72,17 +78,17 @@
   outline: none;
 }
 
-/* Dialog enter/exit */
+/* Dialog enter/exit — fades + scales up from 0.96 */
 .rmod-panel[data-variant="dialog"] {
   opacity: 0;
-  transform: scale(0.94) translateY(8px);
+  transform: scale(0.96);
   transition:
     opacity var(--rmod-duration) var(--rmod-ease),
     transform var(--rmod-duration) var(--rmod-ease-spring);
 }
 .rmod-panel[data-variant="dialog"].rmod-panel--visible {
   opacity: 1;
-  transform: scale(1) translateY(0);
+  transform: scale(1);
 }
 
 /* Panel sizes */
@@ -358,5 +364,52 @@
   .rmod-panel[data-variant="dialog"][data-transition] {
     transition: opacity 100ms linear;
     transform: none !important;
+  }
+}
+
+/* ============================================================================
+ * 0.4.0 additions — bottom-sheet (mobileVariant="sheet")
+ * ============================================================================ */
+
+/* Sheet panel — slides up from bottom, sticks to bottom edge */
+.rmod-panel[data-variant="sheet"] {
+  width: 100%;
+  max-width: 100%;
+  max-height: 90vh;
+  border-radius: var(--rmod-radius) var(--rmod-radius) 0 0;
+  opacity: 1;
+  transform: translateY(100%);
+  transition: transform var(--rmod-duration) var(--rmod-ease-spring);
+  touch-action: none;
+}
+
+.rmod-panel[data-variant="sheet"].rmod-panel--visible {
+  transform: translateY(0);
+}
+
+/* Drag handle bar */
+.rmod-sheet-handle {
+  width: 36px;
+  height: 4px;
+  background: var(--rmod-border);
+  border-radius: 2px;
+  margin: 0.625rem auto 0;
+  flex-shrink: 0;
+}
+
+/* While dragging — disable transition so tracking feels immediate */
+.rmod-panel[data-variant="sheet"][data-swiping="true"] {
+  transition: none;
+  cursor: grabbing;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rmod-overlay,
+  .rmod-panel {
+    transition-duration: 0ms !important;
+  }
+  .rmod-overlay {
+    backdrop-filter: blur(4px) !important;
+    -webkit-backdrop-filter: blur(4px) !important;
   }
 }

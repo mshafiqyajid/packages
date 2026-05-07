@@ -102,6 +102,13 @@ Set `data-theme="dark"` on any ancestor element — no `prefers-color-scheme` qu
 
 MIT
 
+## What's new in 0.4.0
+
+- **`mobileVariant="sheet"`** — on viewports ≤ 640 px the modal renders as a bottom-sheet instead of a centred dialog. The panel slides up from the bottom with a drag handle bar at the top. Drag down > 40 % of panel height (or with high velocity) to dismiss. Respects `prefers-reduced-motion`. Desktop rendering is unchanged.
+- **`confirmVariant="confirm"` shorthand** — renders a pre-wired footer without needing a custom `footer` prop. Use `confirmLabel`, `cancelLabel`, `onConfirm`, `onCancel`, and `confirmTone: "neutral" | "danger"` to configure it.
+- **Async `preventClose`** — the guard can now return a `Promise<boolean>`. Resolving `true` cancels the close, enabling unsaved-changes checks or server-side validation.
+- **[motion] Backdrop blur transition** — the overlay now transitions `backdrop-filter` from `blur(0)` to the target blur value on open/close (not just opacity). Dialog content enters by scaling from 0.96 to 1. Bottom-sheet uses `cubic-bezier(0.34, 1.56, 0.64, 1)` spring physics for snap-back on partial drags. All transitions respect `prefers-reduced-motion`.
+
 ## What's new in 0.3.0
 
 - **Stacked modals** — depth-aware z-index + behind-scale-down effect. Open a second modal and the first scales/translates back automatically.

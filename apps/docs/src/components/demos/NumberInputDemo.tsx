@@ -11,6 +11,9 @@ function NumberInputWrapper({
   showStepper,
   step,
   bigStep,
+  repeat,
+  scrubable,
+  largeStep,
 }: {
   size: string;
   tone: string;
@@ -19,6 +22,9 @@ function NumberInputWrapper({
   showStepper: boolean;
   step: number;
   bigStep: number;
+  repeat: boolean;
+  scrubable: boolean;
+  largeStep: number;
 }) {
   const [value, setValue] = useState<number | undefined>(42);
   return (
@@ -32,10 +38,16 @@ function NumberInputWrapper({
       showStepper={showStepper}
       step={step}
       bigStep={bigStep > 0 ? bigStep : undefined}
+      {...({ largeStep: largeStep > 0 ? largeStep : undefined } as object)}
       label="Amount"
-      hint="Hold +/− to repeat. Shift+arrows or PageUp/PageDown for big step."
+      hint={
+        scrubable
+          ? "Drag the label left/right to scrub. Hold +/− to repeat."
+          : "Hold +/− to repeat. Shift+arrows or PageUp/PageDown for large step."
+      }
       style={{ width: "100%", maxWidth: 280 } as React.CSSProperties}
       disabled={disabled}
+      {...({ repeat: repeat ? { initialDelay: 500, interval: 80, accel: 0.9 } : undefined, scrubable: scrubable } as object)}
     />
   );
 }
@@ -51,7 +63,10 @@ export default function NumberInputDemo() {
         { name: "format",      control: { type: "segmented", options: ["decimal","currency","percent"] as const },              defaultValue: "decimal", omitWhen: "decimal" },
         { name: "step",        control: { type: "slider", min: 1, max: 50, step: 1 },                                           defaultValue: 1,         omitWhen: 1 },
         { name: "bigStep",     control: { type: "slider", min: 0, max: 100, step: 1 },                                          defaultValue: 0,         omitWhen: 0 },
+        { name: "largeStep",   control: { type: "slider", min: 0, max: 200, step: 1 },                                          defaultValue: 0,         omitWhen: 0 },
         { name: "showStepper", control: { type: "toggle" },                                                                     defaultValue: true,      omitWhen: true },
+        { name: "repeat",      control: { type: "toggle" },                                                                     defaultValue: true,      omitWhen: true },
+        { name: "scrubable",   control: { type: "toggle" },                                                                     defaultValue: false,     omitWhen: false },
         { name: "disabled",    control: { type: "toggle" },                                                                     defaultValue: false,     omitWhen: false },
       ]}
       staticProps={{ value: "{value}", onChange: "{setValue}" }}
@@ -65,6 +80,9 @@ export default function NumberInputDemo() {
           showStepper={v.showStepper as boolean}
           step={v.step as number}
           bigStep={v.bigStep as number}
+          repeat={v.repeat as boolean}
+          scrubable={v.scrubable as boolean}
+          largeStep={v.largeStep as number}
         />
       )}
     />
