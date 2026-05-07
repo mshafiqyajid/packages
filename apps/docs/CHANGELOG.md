@@ -1,5 +1,26 @@
 # @mshafiqyajid/docs
 
+## 0.0.21
+
+### Patch Changes
+
+- Updated dependencies [26a5f07]
+- Updated dependencies [26a5f07]
+- Updated dependencies [26a5f07]
+- Updated dependencies [26a5f07]
+- Updated dependencies [26a5f07]
+- Updated dependencies [26a5f07]
+- Updated dependencies [f4e9d2f]
+- Updated dependencies [26a5f07]
+  - @mshafiqyajid/react-dropdown-menu@0.4.0
+  - @mshafiqyajid/react-otp-input@1.2.0
+  - @mshafiqyajid/react-progress@0.4.0
+  - @mshafiqyajid/react-select@0.4.0
+  - @mshafiqyajid/react-switch@0.3.0
+  - @mshafiqyajid/react-tag-input@1.3.0
+  - @mshafiqyajid/react-timeline@1.2.0
+  - @mshafiqyajid/react-toast@0.4.0
+
 ## 0.0.20
 
 ### Patch Changes
