@@ -2,6 +2,8 @@ import { useState } from "react";
 import PropPlayground from "../PropPlayground";
 import { BadgeStyled, BadgeAnchor } from "@mshafiqyajid/react-badge/styled";
 import "@mshafiqyajid/react-badge/styles.css";
+import { ButtonStyled } from "@mshafiqyajid/react-button/styled";
+import "@mshafiqyajid/react-button/styles.css";
 
 function AnimatedCountDemo() {
   const [count, setCount] = useState(3);
@@ -9,30 +11,13 @@ function AnimatedCountDemo() {
     <div style={{ display: "flex", flexDirection: "column", gap: "1rem", alignItems: "flex-start" }}>
       <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
         <BadgeStyled count={count} tone="danger" variant="solid" />
-        <button
-          onClick={() => setCount((c) => c + 1)}
-          style={{ padding: "0.25rem 0.75rem", borderRadius: 6, border: "1px solid #d4d4d8", cursor: "pointer", fontSize: "0.85rem" }}
-        >
-          +1
-        </button>
-        <button
-          onClick={() => setCount((c) => Math.max(0, c - 1))}
-          style={{ padding: "0.25rem 0.75rem", borderRadius: 6, border: "1px solid #d4d4d8", cursor: "pointer", fontSize: "0.85rem" }}
-        >
-          -1
-        </button>
-        <button
-          onClick={() => setCount(0)}
-          style={{ padding: "0.25rem 0.75rem", borderRadius: 6, border: "1px solid #d4d4d8", cursor: "pointer", fontSize: "0.85rem" }}
-        >
-          Reset
-        </button>
+        <ButtonStyled variant="outline" tone="neutral" size="sm" onClick={() => setCount((c) => c + 1)}>+1</ButtonStyled>
+        <ButtonStyled variant="outline" tone="neutral" size="sm" onClick={() => setCount((c) => Math.max(0, c - 1))}>-1</ButtonStyled>
+        <ButtonStyled variant="outline" tone="neutral" size="sm" onClick={() => setCount(0)}>Reset</ButtonStyled>
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: "1.5rem" }}>
         <BadgeAnchor badge={<BadgeStyled count={count} tone="danger" variant="solid" size="sm" />}>
-          <button style={{ padding: "0.5rem 1rem", borderRadius: 8, border: "1px solid #d4d4d8", cursor: "pointer", fontSize: "0.9rem" }}>
-            Inbox
-          </button>
+          <ButtonStyled variant="outline" tone="neutral">Inbox</ButtonStyled>
         </BadgeAnchor>
       </div>
     </div>

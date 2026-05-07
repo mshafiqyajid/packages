@@ -3,6 +3,8 @@ import PropPlayground from "../PropPlayground";
 import { OTPInputStyled } from "@mshafiqyajid/react-otp-input/styled";
 import { useOTPResend } from "@mshafiqyajid/react-otp-input";
 import "@mshafiqyajid/react-otp-input/styles.css";
+import { ButtonStyled } from "@mshafiqyajid/react-button/styled";
+import "@mshafiqyajid/react-button/styles.css";
 
 function ResendDemo() {
   const [log, setLog] = useState<string[]>([]);
@@ -21,27 +23,17 @@ function ResendDemo() {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem", alignItems: "flex-start" }}>
       <OTPInputStyled length={6} label="Verification code" hint="Enter the code from your email" />
-      <button
-        type="button"
+      <ButtonStyled
+        variant="outline"
+        tone="neutral"
+        size="sm"
         onClick={resend}
         disabled={!canResend}
-        style={{
-          fontSize: "0.875rem",
-          padding: "0.35rem 0.9rem",
-          borderRadius: 6,
-          border: "1px solid #e4e4e7",
-          background: canResend ? "#fff" : "#f4f4f5",
-          color: canResend ? "#18181b" : "#71717a",
-          cursor: canResend ? "pointer" : "not-allowed",
-          transition: "all 150ms",
-        }}
+        loading={isPending}
+        loadingText="Sending…"
       >
-        {isPending
-          ? "Sending…"
-          : secondsLeft > 0
-          ? `Resend code (${secondsLeft}s)`
-          : "Resend code"}
-      </button>
+        {secondsLeft > 0 ? `Resend code (${secondsLeft}s)` : "Resend code"}
+      </ButtonStyled>
       {log.length > 0 && (
         <ul style={{ margin: 0, paddingLeft: "1rem", fontSize: "0.8rem", color: "#71717a" }}>
           {log.map((entry, i) => (

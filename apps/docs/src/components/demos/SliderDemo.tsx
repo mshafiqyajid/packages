@@ -3,6 +3,8 @@ import PropPlayground from "../PropPlayground";
 import { SliderStyled } from "@mshafiqyajid/react-slider/styled";
 import type { SliderValue } from "@mshafiqyajid/react-slider";
 import "@mshafiqyajid/react-slider/styles.css";
+import { CheckboxStyled } from "@mshafiqyajid/react-checkbox/styled";
+import "@mshafiqyajid/react-checkbox/styles.css";
 
 const LABELLED_MARKS = [
   { value: 0,   label: "0%" },
@@ -143,14 +145,12 @@ export default function SliderDemo() {
       <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
         <p style={{ fontSize: "0.85rem", fontWeight: 600, margin: 0 }}>Multi-thumb — 3 independent thumbs</p>
         <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", fontSize: "0.82rem" }}>
-          <label style={{ display: "flex", gap: "0.4rem", alignItems: "center", cursor: "pointer" }}>
-            <input
-              type="checkbox"
-              checked={snapToMarks}
-              onChange={(e) => setSnapToMarks(e.target.checked)}
-            />
-            snapToMarks
-          </label>
+          <CheckboxStyled
+            checked={snapToMarks}
+            onChange={setSnapToMarks}
+            label="snapToMarks"
+            size="sm"
+          />
         </div>
         <MultiThumbWrapper snapToMarks={snapToMarks} />
       </div>
