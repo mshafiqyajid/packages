@@ -405,6 +405,31 @@ export const BarChart = forwardRef<HTMLDivElement, BarChartProps>(
                   ].filter(Boolean).join(" ")}
                   style={{ ...(animated ? { animationDelay: `${i * 0.04}s` } : {}), cursor: onClick ? "pointer" : undefined }}
                   onClick={onClick ? () => onClick(bar.dataPoint, i) : undefined}
+                  onMouseEnter={
+                    tooltip
+                      ? (e) => {
+                          const rootEl = e.currentTarget.closest(".rchart-root") as HTMLElement | null;
+                          if (!rootEl) return;
+                          const rootRect = rootEl.getBoundingClientRect();
+                          const svgEl = e.currentTarget.closest("svg") as SVGSVGElement | null;
+                          if (!svgEl) return;
+                          const svgRect = svgEl.getBoundingClientRect();
+                          const scaleX = svgRect.width / (svgEl.viewBox.baseVal.width || svgRect.width);
+                          const scaleY = svgRect.height / (svgEl.viewBox.baseVal.height || svgRect.height);
+                          setTooltipState({
+                            x: svgRect.left - rootRect.left + dotX * scaleX,
+                            y: svgRect.top - rootRect.top + dotY * scaleY,
+                            label: bar.label,
+                            value: bar.value,
+                            series: bar.seriesName,
+                            color: bar.color,
+                            point: bar.dataPoint,
+                            index: i,
+                          });
+                        }
+                      : undefined
+                  }
+                  onMouseLeave={tooltip ? () => setTooltipState(null) : undefined}
                 >
                   <line
                     x1={stemX1}

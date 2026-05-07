@@ -424,7 +424,7 @@ export const LineChart = forwardRef<HTMLDivElement, LineChartProps>(
                           const elRect = e.currentTarget.getBoundingClientRect();
                           setTooltipState({
                             x: elRect.left - rootRect.left + elRect.width / 2,
-                            y: elRect.top - rootRect.top,
+                            y: elRect.top - rootRect.top + elRect.height / 2,
                             label: dp.label,
                             value: dp.value,
                             color: dotColor,
@@ -476,7 +476,7 @@ export const LineChart = forwardRef<HTMLDivElement, LineChartProps>(
                             const elRect = e.currentTarget.getBoundingClientRect();
                             setTooltipState({
                               x: elRect.left - rootRect.left + elRect.width / 2,
-                              y: elRect.top - rootRect.top,
+                              y: elRect.top - rootRect.top + elRect.height / 2,
                               label: d.label,
                               value: val,
                               series: s.name,
