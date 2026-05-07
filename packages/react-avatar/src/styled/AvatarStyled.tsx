@@ -19,6 +19,11 @@ export interface AvatarStyledProps extends Omit<React.HTMLAttributes<HTMLSpanEle
   autoColor?: boolean;
   /** Show a shimmering skeleton instead of the fallback while the image loads. */
   showLoading?: boolean;
+  /**
+   * CSS `object-position` value for the avatar image — useful when the face
+   * is off-center. E.g. `"top"`, `"30% 20%"`. Defaults to `"center"`.
+   */
+  imagePosition?: string;
   onClick?: () => void;
 }
 
@@ -47,6 +52,7 @@ export const AvatarStyled = forwardRef<HTMLSpanElement, AvatarStyledProps>(
       color,
       autoColor = false,
       showLoading = false,
+      imagePosition,
       onClick,
       className,
       style,
@@ -100,7 +106,12 @@ export const AvatarStyled = forwardRef<HTMLSpanElement, AvatarStyledProps>(
           )}
           {/* Image renders on top; fades in once loaded */}
           {src && (
-            <img {...imgProps} className="rav-img" data-status={loadStatus} />
+            <img
+              {...imgProps}
+              className="rav-img"
+              data-status={loadStatus}
+              style={imagePosition ? { objectPosition: imagePosition } : undefined}
+            />
           )}
         </span>
 

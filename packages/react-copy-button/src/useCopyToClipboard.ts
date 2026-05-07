@@ -4,8 +4,18 @@ export type CopySource = string | (() => string | Promise<string>);
 
 export interface UseCopyToClipboardOptions {
   resetAfter?: number;
+  /**
+   * Alias for `resetAfter` — how long the "copied" state persists (ms).
+   * When both are provided, `resetAfter` takes precedence.
+   */
+  timeout?: number;
   onCopy?: (text: string) => void;
   onError?: (error: Error) => void;
+  /**
+   * Transform the resolved text before it is written to the clipboard.
+   * Useful for trimming, encoding, or wrapping the value.
+   */
+  transform?: (text: string) => string | Promise<string>;
 }
 
 export interface UseCopyToClipboardResult {
@@ -59,7 +69,8 @@ async function writeToClipboard(text: string): Promise<void> {
 export function useCopyToClipboard(
   options: UseCopyToClipboardOptions = {},
 ): UseCopyToClipboardResult {
-  const { resetAfter = 2000, onCopy, onError } = options;
+  const { resetAfter, timeout, onCopy, onError, transform } = options;
+  const effectiveResetAfter = resetAfter ?? timeout ?? 2000;
 
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<Error | null>(null);
@@ -89,7 +100,8 @@ export function useCopyToClipboard(
   const copy = useCallback(
     async (source: CopySource): Promise<boolean> => {
       try {
-        const text = await resolveSource(source);
+        const resolved = await resolveSource(source);
+        const text = transform ? await transform(resolved) : resolved;
         await writeToClipboard(text);
         if (!mountedRef.current) return true;
 
@@ -97,12 +109,12 @@ export function useCopyToClipboard(
         setCopied(true);
         onCopy?.(text);
 
-        if (resetAfter > 0) {
+        if (effectiveResetAfter > 0) {
           if (timeoutRef.current !== null) clearTimeout(timeoutRef.current);
           timeoutRef.current = setTimeout(() => {
             if (mountedRef.current) setCopied(false);
             timeoutRef.current = null;
-          }, resetAfter);
+          }, effectiveResetAfter);
         }
         return true;
       } catch (rawError) {
@@ -116,7 +128,7 @@ export function useCopyToClipboard(
         return false;
       }
     },
-    [resetAfter, onCopy, onError],
+    [effectiveResetAfter, onCopy, onError, transform],
   );
 
   return { copy, copied, error, reset };

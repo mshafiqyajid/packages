@@ -8,13 +8,14 @@ export default function CopyButtonDemo() {
       componentName="CopyButtonStyled"
       importLine={`import { CopyButtonStyled } from "@mshafiqyajid/react-copy-button/styled";\nimport "@mshafiqyajid/react-copy-button/styles.css";`}
       props={[
-        { name: "variant", control: { type: "segmented", options: ["solid","outline","ghost","subtle"] as const }, defaultValue: "solid", omitWhen: "solid" },
-        { name: "size",    control: { type: "segmented", options: ["sm","md","lg","icon"] as const }, defaultValue: "md", omitWhen: "md" },
-        { name: "tone",    control: { type: "segmented", options: ["neutral","primary","success","danger"] as const }, defaultValue: "primary", omitWhen: "neutral" },
-        { name: "label",   control: { type: "text", placeholder: "Copy" }, defaultValue: "Copy", omitWhen: "Copy" },
-        { name: "copiedLabel", control: { type: "text", placeholder: "Copied" }, defaultValue: "Copied", omitWhen: "Copied" },
-        { name: "errorLabel",  control: { type: "text", placeholder: "Failed" }, defaultValue: "", omitWhen: "" },
-        { name: "fullWidth", control: { type: "toggle" }, defaultValue: false, omitWhen: false },
+        { name: "variant",     control: { type: "segmented", options: ["solid","outline","ghost","subtle"] as const }, defaultValue: "solid",   omitWhen: "solid" },
+        { name: "size",        control: { type: "segmented", options: ["sm","md","lg","icon"] as const },              defaultValue: "md",      omitWhen: "md" },
+        { name: "tone",        control: { type: "segmented", options: ["neutral","primary","success","danger"] as const }, defaultValue: "primary", omitWhen: "neutral" },
+        { name: "label",       control: { type: "text", placeholder: "Copy" },                                         defaultValue: "Copy",    omitWhen: "Copy" },
+        { name: "copiedLabel", control: { type: "text", placeholder: "Copied" },                                       defaultValue: "Copied",  omitWhen: "Copied" },
+        { name: "errorLabel",  control: { type: "text", placeholder: "Failed" },                                       defaultValue: "",        omitWhen: "" },
+        { name: "timeout",     control: { type: "slider", min: 500, max: 5000, step: 500 },                            defaultValue: 2000,      omitWhen: 2000 },
+        { name: "fullWidth",   control: { type: "toggle" },                                                            defaultValue: false,     omitWhen: false },
       ]}
       staticProps={{ text: '"Hello world"' }}
       render={(v) => (
@@ -27,6 +28,7 @@ export default function CopyButtonDemo() {
           copiedLabel={v.size === "icon" ? "" : (v.copiedLabel as string)}
           errorLabel={v.size === "icon" ? undefined : ((v.errorLabel as string) || undefined)}
           fullWidth={v.fullWidth as boolean}
+          {...({ timeout: v.timeout as number } as object)}
           aria-label={v.size === "icon" ? "Copy" : undefined}
         />
       )}

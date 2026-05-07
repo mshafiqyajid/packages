@@ -8,12 +8,13 @@ export default function AvatarDemo() {
       componentName="AvatarStyled"
       importLine={`import { AvatarStyled } from "@mshafiqyajid/react-avatar/styled";\nimport "@mshafiqyajid/react-avatar/styles.css";`}
       props={[
-        { name: "size",   control: { type: "segmented", options: ["xs","sm","md","lg","xl"] as const },                        defaultValue: "md",      omitWhen: "md" },
-        { name: "shape",  control: { type: "segmented", options: ["circle","square"] as const },                               defaultValue: "circle",  omitWhen: "circle" },
-        { name: "status", control: { type: "segmented", options: ["none","online","offline","busy","away"] as const },         defaultValue: "none",    omitWhen: "none" },
-        { name: "border",     control: { type: "toggle" },                                                                        defaultValue: false,     omitWhen: false },
-        { name: "autoColor",  control: { type: "toggle" },                                                                        defaultValue: false,     omitWhen: false },
-        { name: "showLoading", control: { type: "toggle" },                                                                       defaultValue: false,     omitWhen: false },
+        { name: "size",          control: { type: "segmented", options: ["xs","sm","md","lg","xl"] as const },                  defaultValue: "md",      omitWhen: "md" },
+        { name: "shape",         control: { type: "segmented", options: ["circle","square"] as const },                         defaultValue: "circle",  omitWhen: "circle" },
+        { name: "status",        control: { type: "segmented", options: ["none","online","offline","busy","away"] as const },   defaultValue: "none",    omitWhen: "none" },
+        { name: "border",        control: { type: "toggle" },                                                                    defaultValue: false,     omitWhen: false },
+        { name: "autoColor",     control: { type: "toggle" },                                                                    defaultValue: false,     omitWhen: false },
+        { name: "showLoading",   control: { type: "toggle" },                                                                    defaultValue: false,     omitWhen: false },
+        { name: "imagePosition", control: { type: "text", placeholder: "center" },                                               defaultValue: "",        omitWhen: "" },
       ]}
       staticProps={{ name: '"Shafiq Yajid"' }}
       render={(v) => (
@@ -23,8 +24,7 @@ export default function AvatarDemo() {
           shape={v.shape as "circle"|"square"}
           status={v.status === "none" ? undefined : v.status as "online"|"offline"|"busy"|"away"}
           border={v.border as boolean}
-          autoColor={v.autoColor as boolean}
-          showLoading={v.showLoading as boolean}
+          {...({ autoColor: v.autoColor as boolean, showLoading: v.showLoading as boolean, imagePosition: (v.imagePosition as string) || undefined } as object)}
         />
       )}
     />

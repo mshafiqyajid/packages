@@ -168,18 +168,22 @@ Without `data-rcb-theme`, the component follows `prefers-color-scheme`.
 | `tooltip`        | `ReactNode`                                     | —           | Tooltip on hover/focus.                                                    |
 | `announceOnCopy` | `boolean \| string`                             | `true`      | Screen-reader announcement. Pass a string to customize.                    |
 | `resetAfter`     | `number` (ms)                                   | `2000`      | Time before `copied` flips back. Set `0` to disable.                       |
-| `onCopy`         | `(text: string) => void`                        | —           | Called after a successful copy.                                            |
+| `timeout`        | `number` (ms)                                   | —           | Alias for `resetAfter`. `resetAfter` wins when both are set.               |
+| `onCopy`         | `(text: string) => void`                        | —           | Called after a successful copy (receives the transformed text).             |
 | `onError`        | `(error: Error) => void`                        | —           | Called on copy failure.                                                    |
+| `transform`      | `(text: string) => string \| Promise<string>`   | —           | Transform the resolved text before clipboard write.                         |
 
 Also accepts all standard `<button>` HTML attributes (className, style, disabled, aria-*, etc.).
 
 ### `useCopyToClipboard(options?)`
 
-| Option       | Type                     | Default | Description                                          |
-| ------------ | ------------------------ | ------- | ---------------------------------------------------- |
-| `resetAfter` | `number` (ms)            | `2000`  | Time before `copied` flips back. `0` disables.       |
-| `onCopy`     | `(text: string) => void` | —       | Called after a successful copy with the text.        |
-| `onError`    | `(error: Error) => void` | —       | Called on copy failure.                              |
+| Option       | Type                                   | Default | Description                                                           |
+| ------------ | -------------------------------------- | ------- | --------------------------------------------------------------------- |
+| `resetAfter` | `number` (ms)                          | `2000`  | Time before `copied` flips back. `0` disables.                        |
+| `timeout`    | `number` (ms)                          | —       | Alias for `resetAfter`. `resetAfter` takes precedence when both set.  |
+| `onCopy`     | `(text: string) => void`               | —       | Called after a successful copy with the **transformed** text.         |
+| `onError`    | `(error: Error) => void`               | —       | Called on copy failure.                                               |
+| `transform`  | `(text: string) => string \| Promise<string>` | — | Mutate the resolved text before it reaches the clipboard. Runs after `text` resolves. |
 
 Returns:
 
@@ -239,6 +243,11 @@ The styled component automatically:
 - Disables animations under `prefers-reduced-motion: reduce`
 - Announces copies to screen readers via a polite live region
 - Forwards `ref` to the underlying `<button>`
+
+## What's new in 0.3.0
+
+- **`timeout` option** — human-friendly alias for `resetAfter` on both the hook and all components. When both are provided, `resetAfter` takes precedence.
+- **`transform` option** — mutate the resolved text before it is written to the clipboard. Sync or async. `onCopy` receives the transformed result.
 
 ## Browser support
 

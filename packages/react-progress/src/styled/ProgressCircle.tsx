@@ -1,4 +1,4 @@
-import { forwardRef, type SVGAttributes } from "react";
+import { forwardRef, type ReactNode, type SVGAttributes } from "react";
 import { useProgress } from "../useProgress";
 
 export type ProgressCircleSize = "sm" | "md" | "lg";
@@ -18,6 +18,10 @@ export interface ProgressCircleProps extends Omit<SVGAttributes<SVGSVGElement>, 
   tone?: ProgressCircleTone;
   showValue?: boolean;
   strokeWidth?: number;
+  /** Accessible label; also rendered as a caption below the circle when set. */
+  label?: ReactNode;
+  /** Customize the value display. Receives percent (0-100) and the raw value. */
+  formatValue?: (percent: number, value: number | undefined) => ReactNode;
 }
 
 export const ProgressCircle = forwardRef<SVGSVGElement, ProgressCircleProps>(
@@ -30,6 +34,8 @@ export const ProgressCircle = forwardRef<SVGSVGElement, ProgressCircleProps>(
       tone = "neutral",
       showValue = false,
       strokeWidth,
+      label,
+      formatValue,
       className,
       ...rest
     },
@@ -46,11 +52,17 @@ export const ProgressCircle = forwardRef<SVGSVGElement, ProgressCircleProps>(
 
     const sizeAttr = typeof size === "string" ? size : undefined;
 
-    return (
+    const renderedValue =
+      formatValue && !isIndeterminate
+        ? formatValue(percent, value)
+        : `${percent}%`;
+
+    const svg = (
       <svg
         ref={ref}
         {...progressProps}
         {...rest}
+        aria-label={typeof label === "string" ? label : progressProps["aria-label" as never]}
         className={["rprog-circle", className].filter(Boolean).join(" ")}
         data-size={sizeAttr}
         data-tone={tone}
@@ -88,10 +100,21 @@ export const ProgressCircle = forwardRef<SVGSVGElement, ProgressCircleProps>(
             textAnchor="middle"
             dominantBaseline="central"
           >
-            {percent}%
+            {renderedValue}
           </text>
         )}
       </svg>
     );
+
+    if (label) {
+      return (
+        <span className="rprog-circle-wrap">
+          {svg}
+          <span className="rprog-circle-label">{label}</span>
+        </span>
+      );
+    }
+
+    return svg;
   },
 );

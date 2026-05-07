@@ -52,12 +52,39 @@ function App() {
 }
 ```
 
-## ProgressBar props (additions)
+## ProgressBar props
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `segments` | `number` | — | When set, renders the bar as N discrete segments (`data-filled` lands on filled cells) |
-| `formatValue` | `(percent, value) => ReactNode` | — | Custom renderer when `showValue` is on |
+| `value` | `number` | — | Current progress value |
+| `min` / `max` | `number` | `0` / `100` | Range |
+| `size` | `"sm" \| "md" \| "lg"` | `"md"` | Bar height |
+| `tone` | `"neutral" \| "primary" \| "success" \| "warning" \| "danger"` | `"neutral"` | Fill color |
+| `label` | `string` | — | Accessible label displayed above the bar |
+| `showValue` | `boolean` | `false` | Render the value text next to the label |
+| `animateValue` | `boolean` | `true` | Smoothly count the displayed number when `value` changes. Disabled automatically under `prefers-reduced-motion`. |
+| `formatValue` | `(percent, value) => ReactNode` | — | Customize the value display; replaces the animated counter |
+| `animated` | `boolean` | `false` | Diagonal stripe animation on the fill |
+| `rounded` | `boolean` | `true` | Rounded track and fill |
+| `segments` | `number` | — | Render N discrete segment cells instead of a continuous fill |
+
+## ProgressCircle props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `value` | `number` | — | Current progress value |
+| `size` | `"sm" \| "md" \| "lg" \| number` | `"md"` | Diameter in pixels or named size |
+| `tone` | `"neutral" \| "primary" \| "success" \| "warning" \| "danger"` | `"neutral"` | Stroke color |
+| `showValue` | `boolean` | `false` | Render percentage inside the ring |
+| `formatValue` | `(percent, value) => ReactNode` | — | Customize the text inside the ring |
+| `label` | `ReactNode` | — | Caption rendered below the ring; also used as `aria-label` |
+| `strokeWidth` | `number` | auto | Override the ring stroke width |
+
+## What's new in 0.3.0
+
+- **`animateValue` on `ProgressBar`** — the displayed percentage counts up/down smoothly using `requestAnimationFrame` with a cubic ease-out. Automatically disabled under `prefers-reduced-motion`.
+- **`formatValue` on `ProgressCircle`** — customize the text drawn inside the ring (mirrors the existing `ProgressBar` prop).
+- **`label` on `ProgressCircle`** — when set, the SVG is wrapped in a flex column container with a caption below the ring, and the string is also forwarded as `aria-label`.
 
 ## License
 

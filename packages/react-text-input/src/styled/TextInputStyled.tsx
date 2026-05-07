@@ -97,8 +97,8 @@ export const TextInputStyled = forwardRef<HTMLInputElement, TextInputStyledProps
     });
 
     const effectiveTone: TextInputTone = error ? "danger" : success ? "success" : tone;
-    const rootClass = ["rti-root", className].filter(Boolean).join(" ");
-    const wrapClass = ["rti-wrap", inputClassName].filter(Boolean).join(" ");
+    const rootClass = ["rtxt-root", className].filter(Boolean).join(" ");
+    const wrapClass = ["rtxt-wrap", inputClassName].filter(Boolean).join(" ");
     const wantsCounter = showCount === true || (showCount !== false && typeof maxLength === "number");
     const length = current.length;
 
@@ -111,13 +111,13 @@ export const TextInputStyled = forwardRef<HTMLInputElement, TextInputStyledProps
         data-block={block ? "true" : undefined}
       >
         {label && (
-          <label className="rti-label" id={labelId} htmlFor={(rest as { id?: string }).id}>
+          <label className="rtxt-label" id={labelId} htmlFor={(rest as { id?: string }).id}>
             {label}
-            {required && <span className="rti-required" aria-hidden="true"> *</span>}
+            {required && <span className="rtxt-required" aria-hidden="true"> *</span>}
           </label>
         )}
         <span className={wrapClass}>
-          {prefix && <span className="rti-affix rti-affix--prefix">{prefix}</span>}
+          {prefix && <span className="rtxt-affix rtxt-affix--prefix">{prefix}</span>}
           <input
             {...rest}
             {...inputProps}
@@ -127,11 +127,11 @@ export const TextInputStyled = forwardRef<HTMLInputElement, TextInputStyledProps
             aria-describedby={error ? errId : hint ? hintId : undefined}
             aria-required={required || undefined}
             aria-invalid={error ? true : undefined}
-            className="rti-input"
+            className="rtxt-input"
           />
-          {loading && <span className="rti-spinner" aria-hidden="true" />}
+          {loading && <span className="rtxt-spinner" aria-hidden="true" />}
           {success && !loading && (
-            <span className="rti-check" aria-hidden="true">
+            <span className="rtxt-check" aria-hidden="true">
               <svg viewBox="0 0 12 12" width="12" height="12">
                 <path d="M2.5 6.5l2.3 2.3L9.5 3.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
               </svg>
@@ -140,7 +140,7 @@ export const TextInputStyled = forwardRef<HTMLInputElement, TextInputStyledProps
           {clearable && !isEmpty && !disabled && !readOnly && !loading && (
             <button
               type="button"
-              className="rti-clear"
+              className="rtxt-clear"
               aria-label="Clear"
               onClick={clear}
               tabIndex={-1}
@@ -153,7 +153,7 @@ export const TextInputStyled = forwardRef<HTMLInputElement, TextInputStyledProps
           {type === "password" && passwordToggle && !disabled && (
             <button
               type="button"
-              className="rti-reveal"
+              className="rtxt-reveal"
               aria-label={reveal ? "Hide password" : "Show password"}
               aria-pressed={reveal}
               onClick={() => setReveal((r) => !r)}
@@ -173,20 +173,20 @@ export const TextInputStyled = forwardRef<HTMLInputElement, TextInputStyledProps
               )}
             </button>
           )}
-          {suffix && <span className="rti-affix rti-affix--suffix">{suffix}</span>}
+          {suffix && <span className="rtxt-affix rtxt-affix--suffix">{suffix}</span>}
         </span>
-        <span className="rti-meta">
+        <span className="rtxt-meta">
           {(hint || error) && (
             <span
               id={error ? errId : hintId}
-              className={error ? "rti-message rti-message--error" : "rti-message"}
+              className={error ? "rtxt-message rtxt-message--error" : "rtxt-message"}
               role={error ? "alert" : undefined}
             >
               {error ?? hint}
             </span>
           )}
           {wantsCounter && (
-            <span className="rti-count" aria-live="polite">
+            <span className="rtxt-count" aria-live="polite">
               {length}{typeof maxLength === "number" ? ` / ${maxLength}` : ""}
             </span>
           )}

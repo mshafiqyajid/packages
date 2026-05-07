@@ -1,5 +1,51 @@
-import { forwardRef, type HTMLAttributes, type ReactNode } from "react";
+import { forwardRef, type HTMLAttributes, type ReactNode, useEffect, useRef, useState } from "react";
 import { useProgress } from "../useProgress";
+
+function useAnimatedNumber(target: number, duration = 300): number {
+  const [displayed, setDisplayed] = useState(target);
+  const rafRef = useRef<number | null>(null);
+  const startRef = useRef<number | null>(null);
+  const fromRef = useRef(target);
+
+  useEffect(() => {
+    const prefersReduced =
+      typeof window !== "undefined" &&
+      typeof window.matchMedia === "function" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (prefersReduced) {
+      setDisplayed(target);
+      return;
+    }
+
+    const from = fromRef.current;
+    if (from === target) return;
+
+    if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+    startRef.current = null;
+
+    function tick(now: number) {
+      if (startRef.current === null) startRef.current = now;
+      const elapsed = now - startRef.current;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setDisplayed(Math.round(from + (target - from) * eased));
+      if (progress < 1) {
+        rafRef.current = requestAnimationFrame(tick);
+      } else {
+        fromRef.current = target;
+        rafRef.current = null;
+      }
+    }
+
+    rafRef.current = requestAnimationFrame(tick);
+    return () => {
+      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+    };
+  }, [target, duration]);
+
+  return displayed;
+}
 
 export type ProgressBarSize = "sm" | "md" | "lg";
 export type ProgressBarTone = "neutral" | "primary" | "success" | "warning" | "danger";
@@ -18,6 +64,12 @@ export interface ProgressBarProps extends Omit<HTMLAttributes<HTMLDivElement>, "
   segments?: number;
   /** Customize the value display. Receives percent (0-100) and the raw value. */
   formatValue?: (percent: number, value: number | undefined) => ReactNode;
+  /**
+   * Smoothly animate the displayed number when `value` changes.
+   * Default: `true`. Set to `false` to disable. Ignored when `formatValue` is provided
+   * or `prefers-reduced-motion` is active.
+   */
+  animateValue?: boolean;
 }
 
 export const ProgressBar = forwardRef<HTMLDivElement, ProgressBarProps>(
@@ -34,6 +86,7 @@ export const ProgressBar = forwardRef<HTMLDivElement, ProgressBarProps>(
       rounded = true,
       segments,
       formatValue,
+      animateValue = true,
       className,
       ...rest
     },
@@ -41,10 +94,17 @@ export const ProgressBar = forwardRef<HTMLDivElement, ProgressBarProps>(
   ) {
     const { progressProps, percent, isIndeterminate } = useProgress({ value, min, max });
 
+    const displayedPercent = useAnimatedNumber(
+      isIndeterminate ? 0 : percent,
+      300,
+    );
+
     const renderedValue =
       formatValue && !isIndeterminate
         ? formatValue(percent, value)
-        : `${percent}%`;
+        : animateValue
+          ? `${displayedPercent}%`
+          : `${percent}%`;
 
     const filledSegments =
       segments && !isIndeterminate

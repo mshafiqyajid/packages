@@ -82,12 +82,43 @@ function App() {
 {/* Renders a skeleton overlay while the image is loading. */}
 ```
 
-## Props (additions)
+## Image focal-point (imagePosition)
+
+Profile photos are often off-center. `imagePosition` maps directly to the CSS `object-position` property so you can shift the framing without re-uploading.
+
+```tsx
+<AvatarStyled
+  src="/photo.jpg"
+  name="Jane Doe"
+  imagePosition="top"
+/>
+
+<AvatarStyled
+  src="/photo.jpg"
+  name="Bob"
+  imagePosition="30% 20%"
+/>
+```
+
+## AvatarStyled props
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `autoColor` | `boolean` | `false` | Pick a deterministic background from a 10-color palette by hashing `name`. Overridden by `color`. |
-| `showLoading` | `boolean` | `false` | Render a skeleton overlay while the image is loading. Pairs with `src`. |
+| `src` | `string` | — | Image URL |
+| `name` | `string` | — | Used to derive initials and as `alt` text |
+| `size` | `"xs" \| "sm" \| "md" \| "lg" \| "xl"` | `"md"` | Avatar diameter |
+| `shape` | `"circle" \| "square"` | `"circle"` | Border-radius shape |
+| `status` | `"online" \| "offline" \| "busy" \| "away"` | — | Presence dot |
+| `fallback` | `ReactNode` | — | Custom element shown when image is unavailable |
+| `border` | `boolean` | `false` | White ring around the avatar |
+| `color` | `string` | — | Explicit background color |
+| `autoColor` | `boolean` | `false` | Deterministic background from `name` hash. Overridden by `color`. |
+| `showLoading` | `boolean` | `false` | Skeleton shimmer while image loads |
+| `imagePosition` | `string` | `"center"` | CSS `object-position` for the image — shift the focal point without re-uploading |
+
+## What's new in 0.3.0
+
+- **`imagePosition` prop** — forwards a CSS `object-position` value to the `<img>` element so off-center portraits are framed correctly inside the avatar clip.
 
 ## License
 
