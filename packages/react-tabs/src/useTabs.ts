@@ -2,6 +2,7 @@ import {
   type HTMLAttributes,
   type KeyboardEvent,
   useCallback,
+  useId,
   useMemo,
   useRef,
   useState,
@@ -63,13 +64,8 @@ export interface UseTabsResult {
 const tabId = (listId: string, value: string) => `${listId}-tab-${value}`;
 const panelId = (listId: string, value: string) => `${listId}-panel-${value}`;
 
-let counter = 0;
 function useStableId() {
-  const ref = useRef<string | null>(null);
-  if (ref.current === null) {
-    ref.current = `rtabs-${++counter}`;
-  }
-  return ref.current;
+  return useId().replace(/:/g, "");
 }
 
 export function useTabs(opts: UseTabsOptions = {}): UseTabsResult {
