@@ -1,5 +1,11 @@
 # @mshafiqyajid/react-tabs
 
+## 0.4.1
+
+### Patch Changes
+
+- 0ef56ca: fix(tabs): replace module-level counter with React useId() for SSR-stable aria IDs
+
 ## 0.4.0
 
 ### Minor Changes
