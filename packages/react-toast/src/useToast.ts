@@ -1,7 +1,13 @@
 import { useCallback, useEffect, useSyncExternalStore } from "react";
-import { toastStore, type ToastItem, type ToastOptions } from "./store";
+import {
+  toastStore,
+  getToastStore,
+  type ToastItem,
+  type ToastOptions,
+  type ToastUpdatePartial,
+} from "./store";
 
-export type { ToastItem, ToastOptions, ToastType } from "./store";
+export type { ToastItem, ToastOptions, ToastType, ToastUpdatePartial } from "./store";
 
 export interface ToastPromiseMessages<T> {
   loading: string;
@@ -18,6 +24,10 @@ export interface ToastFn {
   loading(message: string, options?: Omit<ToastOptions, "type">): string;
   promise<T>(promise: Promise<T>, messages: ToastPromiseMessages<T>): string;
   dismiss(id?: string): void;
+  /** Update an existing toast in place without closing/reopening it. */
+  update(id: string, partial: ToastUpdatePartial): void;
+  /** Route toasts to a named channel, matching a <Toaster channel="..."> */
+  channel(name: string): Omit<ToastFn, "channel">;
 }
 
 function resolveMessage<T>(
@@ -27,47 +37,43 @@ function resolveMessage<T>(
   return typeof template === "function" ? template(value) : template;
 }
 
-function buildToastFn(): ToastFn {
+function buildToastFn(store = toastStore): ToastFn {
   const fn = (message: string, options?: ToastOptions): string =>
-    toastStore.add(message, options);
+    store.add(message, options);
 
   fn.success = (message: string, options?: Omit<ToastOptions, "type">) =>
-    toastStore.add(message, { ...options, type: "success" });
+    store.add(message, { ...options, type: "success" });
 
   fn.error = (message: string, options?: Omit<ToastOptions, "type">) =>
-    toastStore.add(message, { ...options, type: "error" });
+    store.add(message, { ...options, type: "error" });
 
   fn.warning = (message: string, options?: Omit<ToastOptions, "type">) =>
-    toastStore.add(message, { ...options, type: "warning" });
+    store.add(message, { ...options, type: "warning" });
 
   fn.info = (message: string, options?: Omit<ToastOptions, "type">) =>
-    toastStore.add(message, { ...options, type: "info" });
+    store.add(message, { ...options, type: "info" });
 
   fn.loading = (message: string, options?: Omit<ToastOptions, "type">) =>
-    toastStore.add(message, { ...options, type: "loading" });
+    store.add(message, { ...options, type: "loading" });
 
   fn.promise = <T,>(
     promise: Promise<T>,
     messages: ToastPromiseMessages<T>,
   ): string => {
-    const id = toastStore.add(messages.loading, { type: "loading" });
+    const id = store.add(messages.loading, { type: "loading" });
     promise.then(
       (value) => {
-        toastStore.update(id, {
+        store.update(id, {
           type: "success",
           message: resolveMessage(messages.success, value),
           duration: 4000,
-          createdAt: Date.now(),
-          loading: false,
         });
       },
       (err) => {
-        toastStore.update(id, {
+        store.update(id, {
           type: "error",
           message: resolveMessage(messages.error, err),
           duration: 6000,
-          createdAt: Date.now(),
-          loading: false,
         });
       },
     );
@@ -75,8 +81,16 @@ function buildToastFn(): ToastFn {
   };
 
   fn.dismiss = (id?: string) => {
-    if (id === undefined) toastStore.dismissAll();
-    else toastStore.dismiss(id);
+    if (id === undefined) store.dismissAll();
+    else store.dismiss(id);
+  };
+
+  fn.update = (id: string, partial: ToastUpdatePartial) => {
+    store.update(id, partial);
+  };
+
+  fn.channel = (name: string): Omit<ToastFn, "channel"> => {
+    return buildToastFn(getToastStore(name)) as Omit<ToastFn, "channel">;
   };
 
   return fn as ToastFn;
@@ -98,20 +112,22 @@ export function useToast(): {
   return { toast: _toastFn, dismiss, dismissAll };
 }
 
-export function useToasts(): ToastItem[] {
+export function useToasts(channel = "default"): ToastItem[] {
+  const store = getToastStore(channel);
   return useSyncExternalStore(
-    toastStore.subscribe.bind(toastStore),
-    toastStore.getSnapshot.bind(toastStore),
+    store.subscribe.bind(store),
+    store.getSnapshot.bind(store),
     () => [],
   );
 }
 
-export function useToastStore() {
-  const toasts = useToasts();
+export function useToastStore(channel = "default") {
+  const store = getToastStore(channel);
+  const toasts = useToasts(channel);
 
   useEffect(() => {
-    return toastStore.subscribe(() => {});
-  }, []);
+    return store.subscribe(() => {});
+  }, [store]);
 
-  return { toasts, store: toastStore };
+  return { toasts, store };
 }

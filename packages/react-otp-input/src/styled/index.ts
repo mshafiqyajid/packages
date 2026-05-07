@@ -4,4 +4,5 @@ export type {
   OTPVariant,
   OTPSize,
   OTPTone,
+  OTPMaskMode,
 } from "./OTPInputStyled";

@@ -1,8 +1,18 @@
+import { useState } from "react";
 import PropPlayground from "../PropPlayground";
-import { ProgressBar, ProgressCircle } from "@mshafiqyajid/react-progress/styled";
+import { ProgressBar, ProgressCircle, ProgressCircleStack } from "@mshafiqyajid/react-progress/styled";
 import "@mshafiqyajid/react-progress/styles.css";
 
+const SECTIONS_DEMO = [
+  { value: 40, tone: "primary"  as const, label: "Design" },
+  { value: 30, tone: "success"  as const, label: "Dev" },
+  { value: 20, tone: "warning"  as const, label: "QA" },
+  { value: 10, tone: "danger"   as const, label: "Ops" },
+];
+
 export default function ProgressDemo() {
+  const [bufferOn, setBufferOn] = useState(false);
+
   return (
     <>
       <PropPlayground
@@ -33,6 +43,33 @@ export default function ProgressDemo() {
         )}
       />
 
+      {/* sections demo */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 8, maxWidth: 400 }}>
+        <span style={{ fontSize: "0.8rem", fontWeight: 500 }}>sections — proportional coloured segments</span>
+        <ProgressBar sections={SECTIONS_DEMO} size="lg" rounded />
+      </div>
+
+      {/* bufferValue demo */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 8, maxWidth: 400 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <span style={{ fontSize: "0.8rem", fontWeight: 500 }}>bufferValue — ghost buffered track</span>
+          <button
+            onClick={() => setBufferOn((b) => !b)}
+            style={{ fontSize: "0.75rem", padding: "2px 8px", cursor: "pointer" }}
+          >
+            {bufferOn ? "hide buffer" : "show buffer"}
+          </button>
+        </div>
+        <ProgressBar
+          value={40}
+          bufferValue={bufferOn ? 75 : undefined}
+          tone="primary"
+          size="md"
+          rounded
+          style={{ width: "100%" }}
+        />
+      </div>
+
       <PropPlayground
         componentName="ProgressCircle"
         importLine={`import { ProgressCircle } from "@mshafiqyajid/react-progress/styled";\nimport "@mshafiqyajid/react-progress/styles.css";`}
@@ -53,6 +90,20 @@ export default function ProgressDemo() {
           />
         )}
       />
+
+      {/* ProgressCircleStack demo */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 12, alignItems: "flex-start" }}>
+        <span style={{ fontSize: "0.8rem", fontWeight: 500 }}>ProgressCircleStack — concentric activity rings</span>
+        <ProgressCircleStack
+          size={140}
+          gap={8}
+          rings={[
+            { value: 82, tone: "danger",  label: "Move" },
+            { value: 64, tone: "success", label: "Exercise" },
+            { value: 47, tone: "primary", label: "Stand" },
+          ]}
+        />
+      </div>
     </>
   );
 }

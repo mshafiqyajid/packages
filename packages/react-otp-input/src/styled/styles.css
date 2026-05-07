@@ -82,8 +82,11 @@
   font-size: 0.78rem;
   color: var(--rotp-error-fg);
   font-weight: 500;
-  animation: rotp-error-shake 320ms var(--rotp-ease);
 }
+
+/* ============================================================================
+ * Keyframes
+ * ========================================================================== */
 
 @keyframes rotp-error-shake {
   0%, 100% { transform: translateX(0); }
@@ -91,6 +94,30 @@
   40% { transform: translateX(3px); }
   60% { transform: translateX(-2px); }
   80% { transform: translateX(2px); }
+}
+
+@keyframes rotp-focus-pulse {
+  0%, 100% { box-shadow: 0 0 0 3px var(--rotp-ring); }
+  50% { box-shadow: 0 0 0 5px color-mix(in srgb, var(--rotp-ring) 50%, transparent); }
+}
+
+@keyframes rotp-fill-bounce {
+  0%   { transform: scale(0); }
+  60%  { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+@keyframes rotp-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-4px); }
+  40% { transform: translateX(4px); }
+  60% { transform: translateX(-3px); }
+  80% { transform: translateX(3px); }
+}
+
+@keyframes rotp-underline-pulse {
+  0%, 100% { box-shadow: 0 1px 0 0 var(--rotp-border-active); }
+  50% { box-shadow: 0 2px 0 0 var(--rotp-border-active), 0 0 12px var(--rotp-ring); }
 }
 
 /* ============================================================================
@@ -130,20 +157,9 @@
   animation: rotp-focus-pulse 2.4s ease-in-out infinite;
 }
 
-@keyframes rotp-focus-pulse {
-  0%, 100% { box-shadow: 0 0 0 3px var(--rotp-ring); }
-  50% { box-shadow: 0 0 0 5px color-mix(in srgb, var(--rotp-ring) 50%, transparent); }
-}
-
 .rotp-slot[data-filled="true"] {
   border-color: var(--rotp-border-filled);
-  animation: rotp-fill-pop 220ms var(--rotp-ease-spring);
-}
-
-@keyframes rotp-fill-pop {
-  0%   { transform: scale(1); }
-  40%  { transform: scale(1.08); }
-  100% { transform: scale(1); }
+  animation: rotp-fill-bounce 220ms var(--rotp-ease-spring) both;
 }
 
 .rotp-slot:disabled {
@@ -153,6 +169,29 @@
 
 .rotp-slot::selection {
   background: color-mix(in srgb, var(--rotp-border-active) 22%, transparent);
+}
+
+/* Masked cell — letter-spacing collapses the bullet to a dot */
+.rotp-cell--masked {
+  letter-spacing: 0;
+  color: var(--rotp-fg-muted);
+}
+
+/* Error shake — applied on all slots when group is invalid */
+.rotp-group[data-invalid="true"] .rotp-slot {
+  border-color: var(--rotp-error-border);
+  animation: rotp-shake 320ms var(--rotp-ease) both;
+}
+
+.rotp-group[data-invalid="true"] .rotp-slot:focus-visible {
+  border-color: var(--rotp-error-border);
+  box-shadow: 0 0 0 3px var(--rotp-error-ring);
+  animation: rotp-shake 320ms var(--rotp-ease) both;
+}
+
+/* Error text */
+.rotp-error {
+  animation: rotp-error-shake 320ms var(--rotp-ease);
 }
 
 /* ============================================================================
@@ -175,11 +214,6 @@
   border-bottom-color: var(--rotp-border-active);
   box-shadow: 0 1px 0 0 var(--rotp-border-active);
   animation: rotp-underline-pulse 2.4s ease-in-out infinite;
-}
-
-@keyframes rotp-underline-pulse {
-  0%, 100% { box-shadow: 0 1px 0 0 var(--rotp-border-active); }
-  50% { box-shadow: 0 2px 0 0 var(--rotp-border-active), 0 0 12px var(--rotp-ring); }
 }
 
 .rotp-group[data-variant="underline"] .rotp-slot[data-filled="true"] {
@@ -208,16 +242,6 @@
   --rotp-slot-font-size: var(--rotp-slot-font-size-lg);
   --rotp-gap: var(--rotp-gap-lg);
   --rotp-radius: var(--rotp-radius-lg);
-}
-
-/* Invalid state — driven by aria-invalid / data-invalid */
-.rotp-group[data-invalid="true"] .rotp-slot {
-  border-color: var(--rotp-error-border);
-}
-
-.rotp-group[data-invalid="true"] .rotp-slot:focus-visible {
-  border-color: var(--rotp-error-border);
-  box-shadow: 0 0 0 3px var(--rotp-error-ring);
 }
 
 /* ============================================================================

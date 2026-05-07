@@ -24,6 +24,7 @@
   --rti-tag-radius: 4px;
   --rti-duration: 150ms;
   --rti-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --rti-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 
   /* Wrapper */
   --rti-wrapper-bg: #ffffff;
@@ -220,6 +221,32 @@
   white-space: nowrap;
   border: 1.5px solid transparent;
   flex-shrink: 0;
+  transform-origin: center;
+  transition:
+    transform 200ms var(--rti-spring),
+    opacity 200ms var(--rti-ease);
+}
+
+/* Tag add animation — scale in 0 → 1.08 → 1 */
+@keyframes rti-tag-add {
+  0%   { transform: scale(0);    opacity: 0; }
+  70%  { transform: scale(1.08); opacity: 1; }
+  100% { transform: scale(1);    opacity: 1; }
+}
+
+/* Tag remove animation — scale + fade out */
+@keyframes rti-tag-remove {
+  0%   { transform: scale(1); opacity: 1; }
+  100% { transform: scale(0); opacity: 0; }
+}
+
+.rti-tag[data-adding="true"] {
+  animation: rti-tag-add 280ms var(--rti-spring) both;
+}
+
+.rti-tag[data-removing="true"] {
+  animation: rti-tag-remove 180ms var(--rti-ease) both;
+  pointer-events: none;
 }
 
 .rti-root[data-size="sm"] .rti-tag {
@@ -330,6 +357,62 @@
 }
 
 /* ============================================================================
+ * Sortable / reorderable tags (drag-to-reorder)
+ * ========================================================================== */
+.rti-tag[data-sortable="true"] {
+  cursor: grab;
+}
+
+.rti-tag[data-sortable="true"]:active,
+.rti-tag--dragging {
+  cursor: grabbing;
+  opacity: 0.6;
+}
+
+.rti-tag--drop-target,
+.rti-tag[data-drag-over="true"] {
+  outline: 2px solid var(--rti-wrapper-border-focus);
+  outline-offset: 1px;
+  transform: translateX(3px);
+  transition: transform 180ms var(--rti-spring);
+}
+
+/* Drop animation — spring settle on released tag */
+@keyframes rti-drop-settle {
+  0%   { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
+.rti-tag[data-drag-over="false"],
+.rti-tag:not([data-drag-over="true"]) {
+  transition:
+    transform 220ms var(--rti-spring),
+    opacity 200ms var(--rti-ease);
+}
+
+/* ============================================================================
+ * Edit-in-place
+ * ========================================================================== */
+.rti-tag--editing {
+  outline: 2px solid var(--rti-wrapper-border-focus);
+  outline-offset: 1px;
+  cursor: text;
+}
+
+.rti-tag-edit-input {
+  background: transparent;
+  border: none;
+  outline: none;
+  padding: 0;
+  font-size: inherit;
+  font-weight: inherit;
+  color: inherit;
+  line-height: inherit;
+  font-family: inherit;
+  min-width: 24px;
+}
+
+/* ============================================================================
  * Hint & Error
  * ========================================================================== */
 .rti-hint {
@@ -361,7 +444,9 @@
 }
 
 .rti-dropdown-item {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   padding: 0.4rem 0.75rem;
   font-size: 0.875rem;
   color: var(--rti-color);
@@ -377,6 +462,34 @@
 .rti-dropdown-item[data-active="true"] {
   background: var(--rti-dropdown-item-active-bg);
   color: var(--rti-dropdown-item-active-color);
+}
+
+/* Loading spinner */
+@keyframes rti-spin {
+  to { transform: rotate(360deg); }
+}
+
+.rti-spinner {
+  display: inline-block;
+  width: 0.85em;
+  height: 0.85em;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: rti-spin 600ms linear infinite;
+  flex-shrink: 0;
+  opacity: 0.6;
+}
+
+.rti-dropdown-loading {
+  cursor: default;
+  font-style: italic;
+  opacity: 0.7;
+}
+
+.rti-dropdown-error {
+  cursor: default;
+  color: var(--rti-error-color);
 }
 
 /* ============================================================================
@@ -466,30 +579,27 @@
   color: #fca5a5;
 }
 
-
 /* ============================================================================
- * Sortable tags (drag-to-reorder)
- * ========================================================================== */
-.rti-tag[data-sortable="true"] {
-  cursor: grab;
-}
-
-.rti-tag[data-sortable="true"]:active {
-  cursor: grabbing;
-}
-
-.rti-tag[data-drag-over="true"] {
-  outline: 2px solid var(--rti-wrapper-border-focus);
-  outline-offset: 1px;
-}
-
-/* ============================================================================
- * Reduced motion
+ * Reduced motion — disable all animations / transitions
  * ========================================================================== */
 @media (prefers-reduced-motion: reduce) {
   .rti-wrapper,
+  .rti-tag,
   .rti-tag-remove,
   .rti-dropdown-item {
     transition: none;
+    animation: none;
+  }
+
+  .rti-tag[data-adding="true"],
+  .rti-tag[data-removing="true"],
+  .rti-tag--drop-target {
+    animation: none;
+    transform: none;
+    opacity: 1;
+  }
+
+  .rti-spinner {
+    animation: rti-spin 600ms linear infinite;
   }
 }

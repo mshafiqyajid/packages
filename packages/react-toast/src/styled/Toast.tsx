@@ -15,23 +15,41 @@ export function Toast({ toast, onDismiss, isBottom, paused }: ToastProps) {
   const [exiting, setExiting] = useState(false);
   const [swipeX, setSwipeX] = useState(0);
   const [hovered, setHovered] = useState(false);
+  const [contentKey, setContentKey] = useState(0);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const startXRef = useRef<number | null>(null);
   const remainingRef = useRef<number>(toast.duration);
   const startTimeRef = useRef<number>(Date.now());
+  const prevMessageRef = useRef(toast.message);
+  const prevTitleRef = useRef(toast.title);
+  const prevTypeRef = useRef(toast.type);
 
   const isPaused = paused || hovered;
   const swipeEnabled = toast.dismissibleSwipe !== false;
+  const isPersistent = toast.duration === 0 || toast.duration === Infinity;
+
+  useEffect(() => {
+    if (
+      toast.message !== prevMessageRef.current ||
+      toast.title !== prevTitleRef.current ||
+      toast.type !== prevTypeRef.current
+    ) {
+      prevMessageRef.current = toast.message;
+      prevTitleRef.current = toast.title;
+      prevTypeRef.current = toast.type;
+      setContentKey((k) => k + 1);
+    }
+  }, [toast.message, toast.title, toast.type]);
 
   const startTimer = useCallback(
     (duration: number) => {
-      if (duration === Infinity || duration <= 0) return;
+      if (isPersistent || duration <= 0) return;
       if (timerRef.current) clearTimeout(timerRef.current);
       startTimeRef.current = Date.now();
       remainingRef.current = duration;
       timerRef.current = setTimeout(() => setExiting(true), duration);
     },
-    [],
+    [isPersistent],
   );
 
   const stopTimer = useCallback(() => {
@@ -42,9 +60,8 @@ export function Toast({ toast, onDismiss, isBottom, paused }: ToastProps) {
     }
   }, []);
 
-  // Initial start + react to pause toggling
   useEffect(() => {
-    if (toast.duration === Infinity) return;
+    if (isPersistent) return;
     if (isPaused) {
       stopTimer();
     } else {
@@ -53,16 +70,15 @@ export function Toast({ toast, onDismiss, isBottom, paused }: ToastProps) {
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [isPaused, toast.duration, startTimer, stopTimer]);
+  }, [isPaused, toast.duration, startTimer, stopTimer, isPersistent]);
 
-  // After exit animation completes, remove from store
   useEffect(() => {
     if (!exiting) return;
     const t = setTimeout(() => onDismiss(toast.id), 320);
     return () => clearTimeout(t);
   }, [exiting, toast.id, onDismiss]);
 
-  const durationMs = toast.duration === Infinity ? 0 : toast.duration;
+  const durationMs = isPersistent ? 0 : toast.duration;
   const opacity = swipeX === 0 ? 1 : Math.max(0, 1 - Math.abs(swipeX) / 200);
 
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -85,6 +101,8 @@ export function Toast({ toast, onDismiss, isBottom, paused }: ToastProps) {
     }
     startXRef.current = null;
   };
+
+  const showProgressRing = toast.showProgress && durationMs > 0 && !toast.undo;
 
   return (
     <div
@@ -110,7 +128,7 @@ export function Toast({ toast, onDismiss, isBottom, paused }: ToastProps) {
     >
       <span className="rtoast-icon" aria-hidden="true">{iconFor(toast.type)}</span>
 
-      <div className="rtoast-body">
+      <div className="rtoast-body rtoast-body--fade" key={contentKey}>
         {toast.title && <span className="rtoast-title">{toast.title}</span>}
         <span className="rtoast-message">{toast.message}</span>
         {toast.action && (
@@ -158,6 +176,30 @@ export function Toast({ toast, onDismiss, isBottom, paused }: ToastProps) {
           </button>
         )}
 
+        {showProgressRing && (
+          <svg
+            viewBox="0 0 32 32"
+            width="24"
+            height="24"
+            className="rtoast-ring"
+            aria-hidden="true"
+          >
+            <circle cx="16" cy="16" r="13" className="rtoast-ring-bg" />
+            <circle
+              cx="16"
+              cy="16"
+              r="13"
+              className="rtoast-ring-fill"
+              style={
+                {
+                  animationDuration: `${durationMs}ms`,
+                  animationPlayState: isPaused ? "paused" : "running",
+                } as React.CSSProperties
+              }
+            />
+          </svg>
+        )}
+
         <button
           type="button"
           className="rtoast-close"
@@ -170,8 +212,7 @@ export function Toast({ toast, onDismiss, isBottom, paused }: ToastProps) {
         </button>
       </div>
 
-      {/* Progress bar driven by CSS animation — no RAF/state needed */}
-      {durationMs > 0 && !toast.undo && (
+      {durationMs > 0 && !toast.undo && !showProgressRing && (
         <div
           className="rtoast-progress"
           style={

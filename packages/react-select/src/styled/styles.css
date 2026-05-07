@@ -524,13 +524,101 @@
 }
 
 /* ============================================================================
+ * Grouped items
+ * ========================================================================== */
+.rsel-group {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.rsel-group-label {
+  position: sticky;
+  top: 0;
+  padding: 0.3rem 0.5rem 0.15rem;
+  font-size: 0.75em;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--rsel-fg-muted);
+  background: var(--rsel-bg);
+  z-index: 1;
+  user-select: none;
+}
+
+.rsel-group-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* ============================================================================
+ * Spinner (async loading)
+ * ========================================================================== */
+@keyframes rsel-spin {
+  to { transform: rotate(360deg); }
+}
+
+.rsel-spinner {
+  display: inline-block;
+  width: 0.875em;
+  height: 0.875em;
+  border: 2px solid var(--rsel-border);
+  border-top-color: var(--rsel-border-focus);
+  border-radius: 50%;
+  animation: rsel-spin 600ms linear infinite;
+  flex-shrink: 0;
+  margin-right: 0.35em;
+  vertical-align: middle;
+}
+
+/* ============================================================================
+ * Item slide-fade-in on open (staggered)
+ * ========================================================================== */
+@keyframes rsel-item-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.rsel-dropdown[data-open="true"] .rsel-item {
+  animation: rsel-item-in 160ms var(--rsel-ease) both;
+}
+
+.rsel-dropdown[data-open="true"] .rsel-item:nth-child(1)  { animation-delay:   0ms; }
+.rsel-dropdown[data-open="true"] .rsel-item:nth-child(2)  { animation-delay:  20ms; }
+.rsel-dropdown[data-open="true"] .rsel-item:nth-child(3)  { animation-delay:  40ms; }
+.rsel-dropdown[data-open="true"] .rsel-item:nth-child(4)  { animation-delay:  60ms; }
+.rsel-dropdown[data-open="true"] .rsel-item:nth-child(5)  { animation-delay:  80ms; }
+.rsel-dropdown[data-open="true"] .rsel-item:nth-child(n+6) { animation-delay: 100ms; }
+
+/* ============================================================================
+ * Chip scale-in
+ * ========================================================================== */
+@keyframes rsel-chip-in {
+  from { transform: scale(0.8); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+
+.rsel-chip[data-entering="true"] {
+  animation: rsel-chip-in 180ms var(--rsel-ease) both;
+}
+
+/* ============================================================================
  * Reduced motion
  * ========================================================================== */
 @media (prefers-reduced-motion: reduce) {
   .rsel-trigger,
   .rsel-dropdown,
   .rsel-item,
-  .rsel-arrow-icon {
+  .rsel-arrow-icon,
+  .rsel-chip,
+  .rsel-spinner {
     transition-duration: 0ms !important;
     animation: none !important;
   }

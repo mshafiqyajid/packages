@@ -75,7 +75,7 @@ function RichTextWrapper(p: DemoProps) {
 
 export default function RichTextDemo() {
   return (
-    <PropPlayground
+    <PropPlayground layout="stacked"
       componentName="RichTextStyled"
       importLine={`import { RichTextStyled } from "@mshafiqyajid/react-rich-text/styled";\nimport "@mshafiqyajid/react-rich-text/styles.css";`}
       props={[

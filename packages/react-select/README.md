@@ -90,14 +90,16 @@ function App() {
 | `onChange` | `(value) => void` | — | Change handler |
 | `multiple` | `boolean` | `false` | Allow multiple selections |
 | `searchable` | `boolean` | `false` | Enable type-to-search |
+| `loadOptions` | `(query: string) => Promise<SelectItem[]>` | — | Async loader (debounced, cancellable) |
+| `debounceMs` | `number` | `300` | Debounce delay before `loadOptions` fires |
 
-Returns `{ triggerProps, listboxProps, getItemProps, isOpen, searchValue, setSearchValue, filteredItems, selectedItems }`.
+Returns `{ triggerProps, listboxProps, getItemProps, isOpen, searchValue, setSearchValue, filteredItems, selectedItems, isLoading, loadError }`.
 
 ### `<SelectStyled>`
 
 | Prop | Type | Default | Description |
 |---|---|---|---|
-| `items` | `SelectItem[]` | — | Options |
+| `items` | `SelectItemOrGroup[]` | — | Flat items or grouped items |
 | `value` | `string \| string[]` | — | Controlled value |
 | `onChange` | `(value) => void` | — | Change handler |
 | `placeholder` | `string` | `"Select…"` | Placeholder text |
@@ -112,6 +114,10 @@ Returns `{ triggerProps, listboxProps, getItemProps, isOpen, searchValue, setSea
 | `collisionPadding` | `number` | `8` | Viewport edge margin used by flip |
 | `flip` | `boolean` | `true` | Auto-flip when there's no room |
 | `strategy` | `"absolute" \| "fixed"` | `"absolute"` | Positioning strategy |
+| `style` | `React.CSSProperties` | — | Inline styles on the root element |
+| `renderItem` | `(item, { selected, active }) => ReactNode` | — | Custom option content |
+| `renderEmpty` | `() => ReactNode` | — | Custom empty state |
+| `renderTrigger` | `(selected, open) => ReactNode` | — | Custom trigger content |
 
 `data-placement="top" | "bottom"` lands on the dropdown so consumers can flip arrow direction or radius. Listbox width still tracks the trigger — left/right placements aren't applicable.
 
@@ -152,6 +158,73 @@ Dark mode uses `[data-theme="dark"]` on an ancestor element — not `@media (pre
 ```
 
 The hook debounces on `searchValue`, cancels stale requests via `AbortController`, and exposes `isLoading: boolean` + `loadError: Error | null`. Listbox lands `aria-busy="true"` while in flight.
+
+## What's new in 0.4.0
+
+### Grouped items
+
+Pass a `SelectGroup[]` to `items` to render sticky group labels above each group:
+
+```tsx
+import { SelectStyled } from "@mshafiqyajid/react-select/styled";
+import type { SelectGroup } from "@mshafiqyajid/react-select";
+
+const groupedItems: SelectGroup[] = [
+  {
+    group: "Frontend",
+    items: [
+      { value: "react", label: "React" },
+      { value: "vue",   label: "Vue" },
+    ],
+  },
+  {
+    group: "Backend",
+    items: [
+      { value: "express", label: "Express" },
+    ],
+  },
+];
+
+<SelectStyled items={groupedItems} value={value} onChange={setValue} searchable />
+```
+
+CSS classes: `rsel-group`, `rsel-group-label` (sticky). Groups and flat items must not be mixed in the same array.
+
+### Render props
+
+| Prop | Signature | Description |
+|---|---|---|
+| `renderItem` | `(item, { selected, active }) => ReactNode` | Replace option content. The `<li>`, keyboard, and selection logic stay managed. |
+| `renderEmpty` | `() => ReactNode` | Replace the "No results" message. |
+| `renderTrigger` | `(selected, open) => ReactNode` | Replace the trigger button's inner content. |
+
+```tsx
+<SelectStyled
+  items={items}
+  value={value}
+  onChange={setValue}
+  renderItem={(item, { selected }) => (
+    <span>
+      {selected ? "✓" : "○"} {item.label}
+    </span>
+  )}
+  renderEmpty={() => <span>Nothing found 🔍</span>}
+  renderTrigger={(sel, open) => (
+    <span>{Array.isArray(sel) ? `${sel.length} selected` : sel?.label ?? "Pick one"}</span>
+  )}
+/>
+```
+
+### Motion
+
+- List items slide-fade in on open with a CSS stagger (`animation-delay` per nth-child).
+- Selected chips scale in via `@keyframes rsel-chip-in`.
+- The async loading spinner rotates via `@keyframes rsel-spin`.
+- All animations are disabled under `prefers-reduced-motion`.
+
+### `style` prop
+
+`SelectStyledProps` now accepts `style?: React.CSSProperties` so you can set width inline without a wrapper element.
 
 ## License
 

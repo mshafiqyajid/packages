@@ -1,5 +1,7 @@
 import {
   forwardRef,
+  useEffect,
+  useRef,
   useImperativeHandle,
   type ReactNode,
   type CSSProperties,
@@ -97,6 +99,18 @@ export interface TimelineStyledProps<TData = unknown> {
   expansionMode?: "single" | "multiple";
   /** Animate items in on mount (CSS-driven, respects prefers-reduced-motion). */
   animate?: boolean;
+  /**
+   * Fill the connector line proportionally. 0–100. Uses `::after` on `.rtl-connector`
+   * elements and animates on change. CSS var `--rtl-progress-color` overrides the fill color.
+   */
+  progress?: number;
+  /**
+   * When true, each item starts invisible and fades/slides in via IntersectionObserver
+   * as it enters the viewport. Items stagger by index × 80 ms.
+   * Graceful fallback: if IntersectionObserver is unavailable, all items show immediately.
+   * Respects `prefers-reduced-motion`.
+   */
+  animateOnMount?: boolean;
   /** Click handler for non-disabled items (fires alongside expand toggle). */
   onItemClick?: (item: TimelineItem<TData>) => void;
   /** Called when the sentinel after the last item enters the viewport. */
@@ -184,6 +198,8 @@ function TimelineStyledImpl<TData>(
     onExpandedChange,
     expansionMode = "multiple",
     animate = false,
+    progress,
+    animateOnMount = false,
     onItemClick,
     onLoadMore,
     renderItem,
@@ -217,6 +233,42 @@ function TimelineStyledImpl<TData>(
     }),
     [tl],
   );
+
+  const animatedItemsRef = useRef<Map<string, HTMLLIElement>>(new Map());
+
+  useEffect(() => {
+    if (!animateOnMount) return;
+    if (typeof IntersectionObserver === "undefined") {
+      animatedItemsRef.current.forEach((node) => {
+        node.setAttribute("data-aom-visible", "true");
+      });
+      return;
+    }
+    const prefersReduced =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (prefersReduced) {
+      animatedItemsRef.current.forEach((node) => {
+        node.setAttribute("data-aom-visible", "true");
+      });
+      return;
+    }
+
+    const nodes = Array.from(animatedItemsRef.current.entries());
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            (entry.target as HTMLElement).setAttribute("data-aom-visible", "true");
+            observer.unobserve(entry.target);
+          }
+        }
+      },
+      { threshold: 0.1 },
+    );
+    nodes.forEach(([, node]) => observer.observe(node));
+    return () => observer.disconnect();
+  }, [animateOnMount]);
 
   const rootProps = tl.getRootProps();
 
@@ -261,14 +313,27 @@ function TimelineStyledImpl<TData>(
     const liStyle: CSSProperties = {
       ...itemPropsResult.style,
       ["--rtl-stagger-index" as string]: idx.toString(),
+      ...(animateOnMount && { ["--rtl-aom-delay" as string]: `${idx * 80}ms` }),
     };
+
+    const aomRef = animateOnMount
+      ? (node: HTMLLIElement | null) => {
+          if (node) animatedItemsRef.current.set(item.id, node);
+          else animatedItemsRef.current.delete(item.id);
+        }
+      : undefined;
 
     if (renderItem) {
       return (
         <li
           {...itemPropsResult}
+          ref={(node) => {
+            (itemPropsResult.ref as (n: HTMLLIElement | null) => void)(node);
+            aomRef?.(node);
+          }}
           key={item.id}
           className="rtl-item"
+          data-aom={animateOnMount || undefined}
           onClick={onItemClick ? handleClick : itemPropsResult.onClick}
           onKeyDown={handleKeyDown}
           style={liStyle}
@@ -294,8 +359,13 @@ function TimelineStyledImpl<TData>(
     return (
       <li
         {...itemPropsResult}
+        ref={(node) => {
+          (itemPropsResult.ref as (n: HTMLLIElement | null) => void)(node);
+          aomRef?.(node);
+        }}
         key={item.id}
         className="rtl-item"
+        data-aom={animateOnMount || undefined}
         onClick={onItemClick ? handleClick : itemPropsResult.onClick}
         onKeyDown={handleKeyDown}
         style={liStyle}
@@ -385,6 +455,11 @@ function TimelineStyledImpl<TData>(
       data-spacing={spacing}
       data-animate={animate || undefined}
       className={["rtl-timeline", className].filter(Boolean).join(" ")}
+      style={
+        progress != null
+          ? ({ ["--rtl-progress" as string]: `${Math.min(100, Math.max(0, progress))}%` } as CSSProperties)
+          : undefined
+      }
     >
       {tl.groups.map((group) => {
         const renderedItems = group.items.map((item) =>

@@ -50,6 +50,12 @@ function useAnimatedNumber(target: number, duration = 300): number {
 export type ProgressBarSize = "sm" | "md" | "lg";
 export type ProgressBarTone = "neutral" | "primary" | "success" | "warning" | "danger";
 
+export interface ProgressSectionItem {
+  value: number;
+  tone?: ProgressBarTone;
+  label?: string;
+}
+
 export interface ProgressBarProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
   value?: number;
   min?: number;
@@ -62,6 +68,17 @@ export interface ProgressBarProps extends Omit<HTMLAttributes<HTMLDivElement>, "
   rounded?: boolean;
   /** Render the bar as N discrete segments instead of a continuous fill. */
   segments?: number;
+  /**
+   * Render the bar as coloured proportional sections.
+   * When set, `value` is ignored. Each item fills proportionally to
+   * its `value` relative to `max`.
+   */
+  sections?: ProgressSectionItem[];
+  /**
+   * Ghost fill behind the active fill — buffered-range pattern.
+   * CSS class `rprog-buffer`.
+   */
+  bufferValue?: number;
   /** Customize the value display. Receives percent (0-100) and the raw value. */
   formatValue?: (percent: number, value: number | undefined) => ReactNode;
   /**
@@ -85,6 +102,8 @@ export const ProgressBar = forwardRef<HTMLDivElement, ProgressBarProps>(
       animated = false,
       rounded = true,
       segments,
+      sections,
+      bufferValue,
       formatValue,
       animateValue = true,
       className,
@@ -111,6 +130,16 @@ export const ProgressBar = forwardRef<HTMLDivElement, ProgressBarProps>(
         ? Math.round((percent / 100) * segments)
         : 0;
 
+    const hasSections = Array.isArray(sections) && sections.length > 0;
+    const bufferPercent =
+      !hasSections && bufferValue !== undefined
+        ? Math.min(100, Math.max(0, Math.round(((Math.min(Math.max(bufferValue, min), max) - min) / (max - min)) * 100)))
+        : undefined;
+
+    const totalSectionValue = hasSections
+      ? sections!.reduce((sum, s) => sum + s.value, 0)
+      : 0;
+
     return (
       <div
         ref={ref}
@@ -119,11 +148,12 @@ export const ProgressBar = forwardRef<HTMLDivElement, ProgressBarProps>(
         data-tone={tone}
         data-rounded={rounded ? "true" : undefined}
         data-segmented={segments ? "true" : undefined}
+        data-sections={hasSections ? "true" : undefined}
       >
         {(label || showValue) && (
           <div className="rprog-bar-header">
             {label && <span className="rprog-bar-label">{label}</span>}
-            {showValue && !isIndeterminate && (
+            {showValue && !isIndeterminate && !hasSections && (
               <span className="rprog-bar-value">{renderedValue}</span>
             )}
           </div>
@@ -134,7 +164,27 @@ export const ProgressBar = forwardRef<HTMLDivElement, ProgressBarProps>(
           aria-label={label}
           className="rprog-bar-track"
         >
-          {segments && segments > 0 ? (
+          {hasSections ? (
+            sections!.map((section, i) => {
+              const widthPct = totalSectionValue > 0
+                ? (section.value / totalSectionValue) * 100
+                : 0;
+              return (
+                <div
+                  key={i}
+                  className="rprog-segment"
+                  data-tone={section.tone ?? tone}
+                  aria-label={section.label}
+                  style={{
+                    width: `${widthPct}%`,
+                    animationDelay: `${i * 80}ms`,
+                  }}
+                >
+                  <div className="rprog-segment-fill" />
+                </div>
+              );
+            })
+          ) : segments && segments > 0 ? (
             Array.from({ length: segments }, (_, i) => (
               <span
                 key={i}
@@ -145,12 +195,21 @@ export const ProgressBar = forwardRef<HTMLDivElement, ProgressBarProps>(
               />
             ))
           ) : (
-            <div
-              className="rprog-bar-fill"
-              data-indeterminate={isIndeterminate ? "true" : undefined}
-              data-animated={animated ? "true" : undefined}
-              style={isIndeterminate ? undefined : { width: `${percent}%` }}
-            />
+            <>
+              {bufferPercent !== undefined && (
+                <div
+                  className="rprog-buffer"
+                  aria-hidden="true"
+                  style={{ width: `${bufferPercent}%` }}
+                />
+              )}
+              <div
+                className="rprog-bar-fill"
+                data-indeterminate={isIndeterminate ? "true" : undefined}
+                data-animated={animated ? "true" : undefined}
+                style={isIndeterminate ? undefined : { width: `${percent}%` }}
+              />
+            </>
           )}
         </div>
       </div>

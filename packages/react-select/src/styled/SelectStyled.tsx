@@ -8,10 +8,11 @@ import {
   type CSSProperties,
   type KeyboardEvent,
   type ChangeEvent,
+  type ReactNode,
 } from "react";
 import { createPortal } from "react-dom";
-import { useSelect } from "../useSelect";
-import type { SelectItem } from "../useSelect";
+import { useSelect, isSelectGroup } from "../useSelect";
+import type { SelectItem, SelectGroup, SelectItemOrGroup } from "../useSelect";
 
 export type SelectSize = "sm" | "md" | "lg";
 export type SelectTone = "neutral" | "primary" | "success" | "danger";
@@ -19,7 +20,11 @@ export type SelectPlacement = "auto" | "top" | "bottom";
 export type SelectStrategy = "absolute" | "fixed";
 
 export interface SelectStyledProps {
-  items: SelectItem[];
+  /**
+   * Flat array of items, or an array that mixes `SelectItem` and `SelectGroup`.
+   * Groups must not be mixed with flat items in the same array — use one shape.
+   */
+  items: SelectItemOrGroup[];
   value: string | string[];
   onChange: (value: string | string[]) => void;
   placeholder?: string;
@@ -40,6 +45,7 @@ export interface SelectStyledProps {
   disabled?: boolean;
   clearable?: boolean;
   className?: string;
+  style?: React.CSSProperties;
   /** "auto" picks bottom unless there isn't room. Default: "auto" */
   placement?: SelectPlacement;
   /** Gap in px between trigger and listbox. Default: 4 */
@@ -50,6 +56,18 @@ export interface SelectStyledProps {
   flip?: boolean;
   /** "absolute" or "fixed". Default: "absolute" */
   strategy?: SelectStrategy;
+  /** Replace the option content (li shell and keyboard logic stay managed). */
+  renderItem?: (
+    item: SelectItem,
+    state: { selected: boolean; active: boolean },
+  ) => ReactNode;
+  /** Replace the "No results" message. */
+  renderEmpty?: () => ReactNode;
+  /** Replace the trigger button content (not the button itself). */
+  renderTrigger?: (
+    selected: SelectItem | SelectItem[] | null,
+    open: boolean,
+  ) => ReactNode;
 }
 
 interface DropdownStyleOpts {
@@ -101,10 +119,26 @@ function computeDropdownStyle({
   };
 }
 
+function flattenItems(itemsOrGroups: SelectItemOrGroup[]): SelectItem[] {
+  const flat: SelectItem[] = [];
+  for (const entry of itemsOrGroups) {
+    if (isSelectGroup(entry)) {
+      flat.push(...entry.items);
+    } else {
+      flat.push(entry);
+    }
+  }
+  return flat;
+}
+
+function isGroupedArray(itemsOrGroups: SelectItemOrGroup[]): itemsOrGroups is SelectGroup[] {
+  return itemsOrGroups.length > 0 && isSelectGroup(itemsOrGroups[0]!);
+}
+
 export const SelectStyled = forwardRef<HTMLDivElement, SelectStyledProps>(
   function SelectStyled(
     {
-      items,
+      items: itemsProp,
       value,
       onChange,
       placeholder = "Select…",
@@ -120,11 +154,15 @@ export const SelectStyled = forwardRef<HTMLDivElement, SelectStyledProps>(
       disabled = false,
       clearable = false,
       className,
+      style,
       placement = "auto",
       offset = 4,
       collisionPadding = 8,
       flip = true,
       strategy = "absolute",
+      renderItem,
+      renderEmpty,
+      renderTrigger,
     },
     ref,
   ) {
@@ -146,8 +184,10 @@ export const SelectStyled = forwardRef<HTMLDivElement, SelectStyledProps>(
       setMounted(true);
     }, []);
 
+    const flatItems = flattenItems(itemsProp);
+
     const select = useSelect({
-      items,
+      items: flatItems,
       value,
       onChange,
       multiple,
@@ -175,7 +215,6 @@ export const SelectStyled = forwardRef<HTMLDivElement, SelectStyledProps>(
 
     useEffect(() => {
       if (!select.isOpen) return;
-      // Position after paint so dropdown has real height
       requestAnimationFrame(() => updatePosition());
     }, [select.isOpen, updatePosition]);
 
@@ -190,7 +229,6 @@ export const SelectStyled = forwardRef<HTMLDivElement, SelectStyledProps>(
       };
     }, [select.isOpen, updatePosition]);
 
-    // Focus search input when dropdown opens
     useEffect(() => {
       if (select.isOpen && searchable) {
         requestAnimationFrame(() => searchRef.current?.focus());
@@ -209,7 +247,6 @@ export const SelectStyled = forwardRef<HTMLDivElement, SelectStyledProps>(
       (e: KeyboardEvent<HTMLInputElement>) => {
         if (e.key === "Escape") {
           e.preventDefault();
-          // Delegate to trigger close logic
           select.triggerProps.onKeyDown(
             e as unknown as KeyboardEvent<HTMLButtonElement>,
           );
@@ -233,9 +270,125 @@ export const SelectStyled = forwardRef<HTMLDivElement, SelectStyledProps>(
 
     const triggerLabel = (() => {
       if (!hasValue) return null;
-      if (multiple) return null; // chips rendered below
+      if (multiple) return null;
       return select.selectedItems[0]?.label ?? null;
     })();
+
+    const triggerContent = (() => {
+      if (renderTrigger) {
+        const sel = multiple
+          ? select.selectedItems
+          : select.selectedItems[0] ?? null;
+        return renderTrigger(sel, select.isOpen);
+      }
+      if (multiple && hasValue) {
+        return (
+          <span className="rsel-chips">
+            {select.selectedItems.map((item) => (
+              <span key={item.value} className="rsel-chip" data-entering="true">
+                <span className="rsel-chip-label">{item.label}</span>
+                <button
+                  type="button"
+                  className="rsel-chip-remove"
+                  aria-label={`Remove ${item.label}`}
+                  tabIndex={-1}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const next = selectedValues.filter((v) => v !== item.value);
+                    onChange(next);
+                  }}
+                >
+                  ×
+                </button>
+              </span>
+            ))}
+          </span>
+        );
+      }
+      if (triggerLabel) return <span className="rsel-value">{triggerLabel}</span>;
+      return <span className="rsel-placeholder">{placeholder}</span>;
+    })();
+
+    const grouped = !loadOptions && isGroupedArray(itemsProp);
+
+    const renderListContent = () => {
+      if (select.isLoading) {
+        return (
+          <li className="rsel-empty rsel-loading" role="option" aria-disabled="true">
+            <span className="rsel-spinner" aria-hidden="true" />
+            {loadingText}
+          </li>
+        );
+      }
+      if (select.loadError) {
+        return (
+          <li className="rsel-empty rsel-error" role="option" aria-disabled="true">
+            {errorText}
+          </li>
+        );
+      }
+      if (select.filteredItems.length === 0) {
+        return (
+          <li className="rsel-empty" role="option" aria-disabled="true">
+            {renderEmpty ? renderEmpty() : emptyText}
+          </li>
+        );
+      }
+
+      if (grouped) {
+        const groups = itemsProp as SelectGroup[];
+        const activeSearch = searchable && select.searchValue;
+        return groups.map((grp) => {
+          const grpItems = activeSearch
+            ? grp.items.filter((item) =>
+                item.label.toLowerCase().includes(select.searchValue.toLowerCase()),
+              )
+            : grp.items;
+          if (grpItems.length === 0) return null;
+          return (
+            <li key={grp.group} className="rsel-group" role="presentation">
+              <div className="rsel-group-label" aria-label={grp.group}>
+                {grp.group}
+              </div>
+              <ul role="group" aria-label={grp.group} className="rsel-group-list">
+                {grpItems.map((item) => renderListItem(item))}
+              </ul>
+            </li>
+          );
+        });
+      }
+
+      return select.filteredItems.map((item) => renderListItem(item));
+    };
+
+    const renderListItem = (item: SelectItem) => {
+      const itemProps = select.getItemProps(item);
+      const isSelected = itemProps["aria-selected"];
+      const isActive = itemProps["data-focused"];
+      return (
+        <li
+          key={item.value}
+          {...itemProps}
+          className="rsel-item"
+          data-selected={isSelected ? "true" : undefined}
+          data-disabled={item.disabled ? "true" : undefined}
+          data-focused={isActive ? "true" : undefined}
+        >
+          {renderItem ? (
+            renderItem(item, { selected: isSelected, active: isActive })
+          ) : (
+            <>
+              {multiple && (
+                <span className="rsel-item-check" aria-hidden="true">
+                  {isSelected ? "✓" : ""}
+                </span>
+              )}
+              <span className="rsel-item-label">{item.label}</span>
+            </>
+          )}
+        </li>
+      );
+    };
 
     return (
       <div
@@ -246,6 +399,7 @@ export const SelectStyled = forwardRef<HTMLDivElement, SelectStyledProps>(
             (ref as React.MutableRefObject<HTMLDivElement | null>).current = el;
         }}
         className={["rsel-root", className].filter(Boolean).join(" ")}
+        style={style}
         data-size={size}
         data-tone={tone}
         data-open={select.isOpen ? "true" : undefined}
@@ -259,34 +413,7 @@ export const SelectStyled = forwardRef<HTMLDivElement, SelectStyledProps>(
           type="button"
         >
           <span className="rsel-trigger-content">
-            {multiple && hasValue ? (
-              <span className="rsel-chips">
-                {select.selectedItems.map((item) => (
-                  <span key={item.value} className="rsel-chip">
-                    <span className="rsel-chip-label">{item.label}</span>
-                    <button
-                      type="button"
-                      className="rsel-chip-remove"
-                      aria-label={`Remove ${item.label}`}
-                      tabIndex={-1}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        const next = selectedValues.filter(
-                          (v) => v !== item.value,
-                        );
-                        onChange(next);
-                      }}
-                    >
-                      ×
-                    </button>
-                  </span>
-                ))}
-              </span>
-            ) : triggerLabel ? (
-              <span className="rsel-value">{triggerLabel}</span>
-            ) : (
-              <span className="rsel-placeholder">{placeholder}</span>
-            )}
+            {triggerContent}
           </span>
           <span className="rsel-actions">
             {clearable && hasValue && (
@@ -355,40 +482,7 @@ export const SelectStyled = forwardRef<HTMLDivElement, SelectStyledProps>(
                 className="rsel-listbox"
                 aria-busy={select.isLoading || undefined}
               >
-                {select.isLoading ? (
-                  <li className="rsel-empty rsel-loading" role="option" aria-disabled="true">
-                    {loadingText}
-                  </li>
-                ) : select.loadError ? (
-                  <li className="rsel-empty rsel-error" role="option" aria-disabled="true">
-                    {errorText}
-                  </li>
-                ) : select.filteredItems.length === 0 ? (
-                  <li className="rsel-empty" role="option" aria-disabled="true">
-                    {emptyText}
-                  </li>
-                ) : (
-                  select.filteredItems.map((item) => {
-                    const itemProps = select.getItemProps(item);
-                    return (
-                      <li
-                        key={item.value}
-                        {...itemProps}
-                        className="rsel-item"
-                        data-selected={itemProps["aria-selected"] ? "true" : undefined}
-                        data-disabled={item.disabled ? "true" : undefined}
-                        data-focused={itemProps["data-focused"] ? "true" : undefined}
-                      >
-                        {multiple && (
-                          <span className="rsel-item-check" aria-hidden="true">
-                            {itemProps["aria-selected"] ? "✓" : ""}
-                          </span>
-                        )}
-                        <span className="rsel-item-label">{item.label}</span>
-                      </li>
-                    );
-                  })
-                )}
+                {renderListContent()}
               </ul>
             </div>,
             document.body,

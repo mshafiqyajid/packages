@@ -12,7 +12,7 @@ const ASYNC_POOL = [
   "grace", "heidi", "ivan", "julia", "kevin", "linda",
 ];
 
-function mockLoadOptions(query: string): Promise<string[]> {
+function mockLoadSuggestions(query: string): Promise<string[]> {
   return new Promise((resolve) => {
     setTimeout(() => {
       const q = query.trim().toLowerCase();
@@ -21,7 +21,6 @@ function mockLoadOptions(query: string): Promise<string[]> {
   });
 }
 
-// Hash-based color picker for `colorize`. Same string → same color.
 function colorFromTag(tag: string): string {
   let h = 0;
   for (let i = 0; i < tag.length; i++) h = (h * 31 + tag.charCodeAt(i)) | 0;
@@ -30,11 +29,11 @@ function colorFromTag(tag: string): string {
 }
 
 function TagInputWrapper({
-  size, tone, tagVariant, disabled, sortable, lowercase, backspaceEditsLastTag,
+  size, tone, tagVariant, disabled, reorderable, lowercase, backspaceEditsLastTag,
   asyncOptions, colorize, withActions,
 }: {
   size: string; tone: string; tagVariant: string;
-  disabled: boolean; sortable: boolean; lowercase: boolean; backspaceEditsLastTag: boolean;
+  disabled: boolean; reorderable: boolean; lowercase: boolean; backspaceEditsLastTag: boolean;
   asyncOptions: boolean; colorize: boolean; withActions: boolean;
 }) {
   const [tags, setTags] = useState<string[]>(["React", "TypeScript"]);
@@ -43,7 +42,7 @@ function TagInputWrapper({
       value={tags}
       onChange={setTags}
       suggestions={asyncOptions ? [] : SUGGESTIONS}
-      loadOptions={asyncOptions ? mockLoadOptions : undefined}
+      loadSuggestions={asyncOptions ? mockLoadSuggestions : undefined}
       colorize={colorize ? colorFromTag : undefined}
       tagActions={
         withActions
@@ -63,14 +62,16 @@ function TagInputWrapper({
       size={size as "sm" | "md" | "lg"}
       tone={tone as "neutral" | "primary" | "success" | "danger"}
       tagVariant={tagVariant as "solid" | "subtle" | "outline"}
-      sortable={sortable}
+      reorderable={reorderable}
       transform={lowercase ? (t: string) => t.toLowerCase() : undefined}
       backspaceEditsLastTag={backspaceEditsLastTag}
       label="Tags"
       placeholder={asyncOptions ? "Type to search…" : "Add a tag — try pasting `a, b, c`"}
       hint={
         asyncOptions
-          ? "Async loadOptions: 500ms latency, 12-name pool."
+          ? "Async loadSuggestions: 500ms latency, 12-name pool."
+          : reorderable
+          ? "Drag tags to reorder. Double-click any tag to edit in-place."
           : "Paste multiple tags split by comma / newline / tab / semicolon."
       }
       disabled={disabled}
@@ -89,10 +90,10 @@ export default function TagInputDemo() {
         { name: "tone",                  control: { type: "segmented", options: ["neutral","primary","success","danger"] as const }, defaultValue: "neutral", omitWhen: "neutral" },
         { name: "tagVariant",            control: { type: "segmented", options: ["solid","subtle","outline"] as const },             defaultValue: "solid",   omitWhen: "solid" },
         { name: "disabled",              control: { type: "toggle" }, defaultValue: false, omitWhen: false },
-        { name: "sortable",              control: { type: "toggle" }, defaultValue: false, omitWhen: false },
+        { name: "reorderable",           control: { type: "toggle" }, defaultValue: false, omitWhen: false },
         { name: "lowercase",             control: { type: "toggle" }, defaultValue: false, omitWhen: false },
         { name: "backspaceEditsLastTag", control: { type: "toggle" }, defaultValue: false, omitWhen: false },
-        { name: "asyncOptions",          label: "loadOptions (mock)", control: { type: "toggle" }, defaultValue: false, omitWhen: false },
+        { name: "asyncOptions",          label: "loadSuggestions (mock async)", control: { type: "toggle" }, defaultValue: false, omitWhen: false },
         { name: "colorize",              label: "colorize per tag",   control: { type: "toggle" }, defaultValue: false, omitWhen: false },
         { name: "withActions",           label: "tagActions slot",    control: { type: "toggle" }, defaultValue: false, omitWhen: false },
       ]}
@@ -104,7 +105,7 @@ export default function TagInputDemo() {
           tone={v.tone as string}
           tagVariant={v.tagVariant as string}
           disabled={v.disabled as boolean}
-          sortable={v.sortable as boolean}
+          reorderable={v.reorderable as boolean}
           lowercase={v.lowercase as boolean}
           backspaceEditsLastTag={v.backspaceEditsLastTag as boolean}
           asyncOptions={v.asyncOptions as boolean}

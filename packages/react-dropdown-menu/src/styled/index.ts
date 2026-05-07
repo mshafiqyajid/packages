@@ -6,5 +6,6 @@ export type {
   DropdownMenuAlign,
   DropdownMenuStrategy,
   DropdownMenuSize,
+  DropdownMenuItemKind,
   DropdownMenuItem,
 } from "./DropdownMenuStyled";

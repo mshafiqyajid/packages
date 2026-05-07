@@ -9,3 +9,6 @@ export type {
 
 export { OTPInput } from "./OTPInput";
 export type { OTPInputProps, OTPInputRenderProps } from "./OTPInput";
+
+export { useOTPResend } from "./useOTPResend";
+export type { UseOTPResendOptions, UseOTPResendResult } from "./useOTPResend";

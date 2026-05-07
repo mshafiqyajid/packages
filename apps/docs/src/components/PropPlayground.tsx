@@ -35,6 +35,12 @@ export interface PropPlaygroundProps {
   /** Static props to always include in the code output. Pass raw JSX values
    *  (e.g. `value: "{value}"` or `text: '"Hello world"'`). */
   staticProps?: Record<string, string>;
+  /**
+   * `"side-by-side"` (default) — preview on the left, controls on the right.
+   * `"stacked"` — preview takes full width on top, controls collapse into a
+   * toggleable panel below. Best for wide components (rich-text, table, kanban).
+   */
+  layout?: "side-by-side" | "stacked";
 }
 
 // ============================================================================
@@ -150,6 +156,7 @@ export default function PropPlayground({
   props,
   render,
   staticProps,
+  layout = "side-by-side",
 }: PropPlaygroundProps) {
   const initial = useMemo(() => {
     const o: Record<string, string | number | boolean> = {};
@@ -159,6 +166,7 @@ export default function PropPlayground({
 
   const [values, setValues] = useState(initial);
   const [copied, setCopied] = useState(false);
+  const [controlsOpen, setControlsOpen] = useState(false);
 
   const set = useCallback(
     (name: string, value: string | number | boolean) => {
@@ -185,9 +193,11 @@ export default function PropPlayground({
     setTimeout(() => setCopied(false), 1800);
   };
 
+  const isStacked = layout === "stacked";
+
   return (
-    <div className="pp">
-      {/* Top: preview + controls */}
+    <div className="pp" data-layout={layout}>
+      {/* Top: preview (+ controls if side-by-side) */}
       <div className="pp__top">
 
         {/* Live preview */}
@@ -195,8 +205,8 @@ export default function PropPlayground({
           {render(values)}
         </div>
 
-        {/* Controls */}
-        <div className="pp__controls">
+        {/* Controls — always rendered in side-by-side; toggled in stacked */}
+        <div className={`pp__controls${isStacked && !controlsOpen ? " pp__controls--hidden" : ""}`}>
           <div className="pp__controls-header">
             <span>Props</span>
             <button
@@ -276,6 +286,31 @@ export default function PropPlayground({
         </div>
       </div>
 
+      {/* Stacked layout: toggle bar for controls */}
+      {isStacked && (
+        <div className="pp__stacked-bar">
+          <button
+            type="button"
+            className="pp__stacked-toggle"
+            onClick={() => setControlsOpen((o) => !o)}
+            aria-expanded={controlsOpen}
+          >
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M1 3h10M3 6h6M5 9h2" />
+            </svg>
+            Props
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="pp__stacked-chevron" data-open={controlsOpen ? "true" : undefined}>
+              <path d="M2 3.5l3 3 3-3" />
+            </svg>
+          </button>
+          {isDirty && (
+            <button type="button" className="pp__reset pp__reset--inline" onClick={reset}>
+              Reset
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Bottom: code block */}
       <div className="pp__code-wrap">
         <div className="pp__code-header">
@@ -301,6 +336,7 @@ export default function PropPlayground({
           overflow: clip;
           background: var(--bg-elevated);
         }
+        /* ── side-by-side (default) ── */
         .pp__top {
           display: grid;
           grid-template-columns: 1fr 1fr;
@@ -322,6 +358,70 @@ export default function PropPlayground({
         @media (max-width: 860px) {
           .pp__preview { border-right: none; border-bottom: 1px solid var(--border); }
         }
+
+        /* ── stacked layout ── */
+        .pp[data-layout="stacked"] .pp__top {
+          grid-template-columns: 1fr;
+          min-height: 0;
+        }
+        .pp[data-layout="stacked"] .pp__preview {
+          border-right: none;
+          border-bottom: 1px solid var(--border);
+          align-items: flex-start;
+          justify-content: flex-start;
+          min-height: 280px;
+          padding: 1.5rem;
+        }
+        .pp[data-layout="stacked"] .pp__controls {
+          border-top: none;
+        }
+        .pp__controls--hidden {
+          display: none;
+        }
+        /* Stacked toggle bar */
+        .pp__stacked-bar {
+          display: none;
+        }
+        .pp[data-layout="stacked"] .pp__stacked-bar {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          padding: 0.45rem 1rem;
+          border-bottom: 1px solid var(--border);
+          background: var(--bg-subtle);
+        }
+        .pp__stacked-toggle {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.4rem;
+          font-size: 0.78rem;
+          font-weight: 500;
+          color: var(--fg-muted);
+          background: transparent;
+          border: none;
+          cursor: pointer;
+          padding: 0.2rem 0.4rem;
+          border-radius: 4px;
+          transition: color 140ms ease, background 140ms ease;
+        }
+        .pp__stacked-toggle:hover { color: var(--fg); background: var(--bg-elevated); }
+        .pp__stacked-chevron {
+          transition: transform 200ms cubic-bezier(0.32, 0.72, 0, 1);
+        }
+        .pp__stacked-chevron[data-open="true"] { transform: rotate(180deg); }
+        .pp__reset--inline {
+          margin-left: auto;
+          font-size: 0.72rem;
+          font-weight: 500;
+          color: var(--fg-subtle);
+          background: transparent;
+          border: 1px solid var(--border);
+          border-radius: 4px;
+          padding: 2px 8px;
+          cursor: pointer;
+          transition: color 140ms ease, border-color 140ms ease;
+        }
+        .pp__reset--inline:hover { color: var(--fg); border-color: var(--border-strong); }
         @media (max-width: 480px) {
           .pp__preview { padding: 1.25rem 0.85rem; }
           .pp__controls-body { padding: 0.65rem 0.85rem; gap: 0.7rem; }

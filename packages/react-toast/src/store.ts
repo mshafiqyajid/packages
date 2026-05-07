@@ -22,9 +22,13 @@ export interface ToastItem {
   undoLabel?: string;
   /** When true, the toast can be dismissed by swiping (touch only). Default: true. */
   dismissibleSwipe?: boolean;
+  /** When true AND duration > 0, renders a circular SVG progress ring. */
+  showProgress?: boolean;
   createdAt: number;
   /** True when the toast is showing a pending state (set by toast.promise). */
   loading?: boolean;
+  /** Channel this toast belongs to. Default: "default". */
+  channel: string;
 }
 
 export interface ToastOptions {
@@ -36,81 +40,126 @@ export interface ToastOptions {
   undo?: () => void;
   undoLabel?: string;
   dismissibleSwipe?: boolean;
+  /** When true AND duration > 0, renders a circular SVG progress ring. */
+  showProgress?: boolean;
   /** Pre-supplied id; useful for updating an existing toast. */
   id?: string;
+  /** Channel to send the toast to. Default: "default". */
+  channel?: string;
 }
+
+/** Partial update applied by toast.update(). Accepts any subset of ToastOptions fields. */
+export type ToastUpdatePartial = Pick<
+  ToastOptions,
+  "type" | "title" | "duration" | "action" | "showProgress"
+> & { message?: string };
 
 type Listener = (toasts: ToastItem[]) => void;
 
-let _toasts: ToastItem[] = [];
-const _listeners = new Set<Listener>();
-let _counter = 0;
+const _stores = new Map<string, { toasts: ToastItem[]; listeners: Set<Listener> }>();
 
-function notify() {
-  const snapshot = [..._toasts];
-  _listeners.forEach((fn) => fn(snapshot));
+function getChannelStore(channel: string) {
+  if (!_stores.has(channel)) {
+    _stores.set(channel, { toasts: [], listeners: new Set() });
+  }
+  return _stores.get(channel)!;
 }
 
-export const toastStore = {
-  getSnapshot(): ToastItem[] { return _toasts; },
+let _counter = 0;
 
-  subscribe(listener: Listener): () => void {
-    _listeners.add(listener);
-    return () => _listeners.delete(listener);
-  },
+function notifyChannel(channel: string) {
+  const store = _stores.get(channel);
+  if (!store) return;
+  const snapshot = [...store.toasts];
+  store.listeners.forEach((fn) => fn(snapshot));
+}
 
-  add(message: string, options: ToastOptions = {}): string {
-    const id = options.id ?? `toast-${++_counter}-${Date.now()}`;
-    const type = options.type ?? "neutral";
-    const item: ToastItem = {
-      id,
-      message,
-      title: options.title,
-      type,
-      duration: options.duration ?? (type === "loading" ? Infinity : 4000),
-      action: options.action,
-      undo: options.undo,
-      undoLabel: options.undoLabel,
-      dismissibleSwipe: options.dismissibleSwipe,
-      createdAt: Date.now(),
-      loading: type === "loading",
-    };
-    const existing = _toasts.findIndex((t) => t.id === id);
-    if (existing !== -1) {
-      _toasts = _toasts.map((t, i) => (i === existing ? item : t));
-    } else {
-      _toasts = [..._toasts, item];
-    }
-    notify();
-    return id;
-  },
+function makeChannelStore(channel: string) {
+  return {
+    getSnapshot(): ToastItem[] {
+      return getChannelStore(channel).toasts;
+    },
 
-  update(id: string, partial: Partial<ToastItem>): void {
-    let changed = false;
-    _toasts = _toasts.map((t) => {
-      if (t.id !== id) return t;
-      changed = true;
-      const merged: ToastItem = { ...t, ...partial };
-      if (partial.type !== undefined && partial.loading === undefined) {
-        merged.loading = partial.type === "loading";
+    subscribe(listener: Listener): () => void {
+      const store = getChannelStore(channel);
+      store.listeners.add(listener);
+      return () => store.listeners.delete(listener);
+    },
+
+    add(message: string, options: ToastOptions = {}): string {
+      const id = options.id ?? `toast-${++_counter}-${Date.now()}`;
+      const type = options.type ?? "neutral";
+      const item: ToastItem = {
+        id,
+        message,
+        title: options.title,
+        type,
+        duration: options.duration ?? (type === "loading" ? Infinity : 4000),
+        action: options.action,
+        undo: options.undo,
+        undoLabel: options.undoLabel,
+        dismissibleSwipe: options.dismissibleSwipe,
+        showProgress: options.showProgress,
+        createdAt: Date.now(),
+        loading: type === "loading",
+        channel,
+      };
+      const store = getChannelStore(channel);
+      const existing = store.toasts.findIndex((t) => t.id === id);
+      if (existing !== -1) {
+        store.toasts = store.toasts.map((t, i) => (i === existing ? item : t));
+      } else {
+        store.toasts = [...store.toasts, item];
       }
-      return merged;
-    });
-    if (changed) notify();
-  },
+      notifyChannel(channel);
+      return id;
+    },
 
-  dismiss(id: string): void {
-    _toasts = _toasts.filter((t) => t.id !== id);
-    notify();
-  },
+    update(id: string, partial: ToastUpdatePartial): void {
+      const store = getChannelStore(channel);
+      let changed = false;
+      store.toasts = store.toasts.map((t) => {
+        if (t.id !== id) return t;
+        changed = true;
+        const merged: ToastItem = {
+          ...t,
+          ...(partial.message !== undefined ? { message: partial.message } : {}),
+          ...(partial.title !== undefined ? { title: partial.title } : {}),
+          ...(partial.type !== undefined ? { type: partial.type } : {}),
+          ...(partial.duration !== undefined ? { duration: partial.duration, createdAt: Date.now() } : {}),
+          ...(partial.action !== undefined ? { action: partial.action } : {}),
+          ...(partial.showProgress !== undefined ? { showProgress: partial.showProgress } : {}),
+        };
+        if (partial.type !== undefined) {
+          merged.loading = partial.type === "loading";
+        }
+        return merged;
+      });
+      if (changed) notifyChannel(channel);
+    },
 
-  dismissAll(): void {
-    _toasts = [];
-    notify();
-  },
+    dismiss(id: string): void {
+      const store = getChannelStore(channel);
+      store.toasts = store.toasts.filter((t) => t.id !== id);
+      notifyChannel(channel);
+    },
 
-  setToasts(toasts: ToastItem[]): void {
-    _toasts = toasts;
-    notify();
-  },
-};
+    dismissAll(): void {
+      const store = getChannelStore(channel);
+      store.toasts = [];
+      notifyChannel(channel);
+    },
+
+    setToasts(toasts: ToastItem[]): void {
+      const store = getChannelStore(channel);
+      store.toasts = toasts;
+      notifyChannel(channel);
+    },
+  };
+}
+
+export const toastStore = makeChannelStore("default");
+
+export function getToastStore(channel: string) {
+  return makeChannelStore(channel);
+}

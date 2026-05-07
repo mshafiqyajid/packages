@@ -14,6 +14,17 @@ export interface SelectItem {
   disabled?: boolean;
 }
 
+export interface SelectGroup {
+  group: string;
+  items: SelectItem[];
+}
+
+export type SelectItemOrGroup = SelectItem | SelectGroup;
+
+export function isSelectGroup(item: SelectItemOrGroup): item is SelectGroup {
+  return "group" in item && "items" in item;
+}
+
 export interface UseSelectOptions {
   items: SelectItem[];
   value: string | string[];

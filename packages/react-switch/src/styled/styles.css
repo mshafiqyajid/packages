@@ -9,6 +9,7 @@
   /* Track */
   --rsw-track-bg-off: #d4d4d8;
   --rsw-track-bg-on:  #18181b;
+  --rsw-track-bg-pending: #a1a1aa;
   --rsw-track-radius: 9999px;
   --rsw-duration: 200ms;
   --rsw-ease: cubic-bezier(0.4, 0, 0.2, 1);
@@ -42,6 +43,14 @@
   --rsw-spinner-size: 0.625rem;
   --rsw-spinner-color: rgba(0, 0, 0, 0.4);
   --rsw-spinner-duration: 700ms;
+
+  /* Track labels */
+  --rsw-track-label-size-sm: 0.5rem;
+  --rsw-track-label-size-md: 0.625rem;
+  --rsw-track-label-size-lg: 0.75rem;
+
+  /* Thumb icon */
+  --rsw-thumb-icon-duration: 180ms;
 }
 
 /* ============================================================================
@@ -79,6 +88,11 @@
 /* Checked state — track */
 .rsw-track[data-checked="true"] {
   background: var(--rsw-track-bg-on);
+}
+
+/* Pending state — grey crossfade */
+.rsw-track[data-pending="true"] {
+  background: var(--rsw-track-bg-pending);
 }
 
 /* Disabled state */
@@ -205,6 +219,97 @@
 }
 
 /* ============================================================================
+ * Track labels — on/off text inside the track
+ * ========================================================================== */
+.rsw-track-label {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  font-weight: 600;
+  pointer-events: none;
+  transition: opacity var(--rsw-duration) var(--rsw-ease);
+  user-select: none;
+}
+
+.rsw-track[data-size="sm"] .rsw-track-label {
+  font-size: var(--rsw-track-label-size-sm);
+}
+
+.rsw-track[data-size="md"] .rsw-track-label {
+  font-size: var(--rsw-track-label-size-md);
+}
+
+.rsw-track[data-size="lg"] .rsw-track-label {
+  font-size: var(--rsw-track-label-size-lg);
+}
+
+/* "on" label sits on the left half (revealed when checked) */
+.rsw-track-label--on {
+  left: 0.3em;
+  opacity: 0;
+}
+
+.rsw-track[data-checked="true"] .rsw-track-label--on {
+  opacity: 1;
+}
+
+/* "off" label sits on the right half (revealed when unchecked) */
+.rsw-track-label--off {
+  right: 0.3em;
+  opacity: 1;
+}
+
+.rsw-track[data-checked="true"] .rsw-track-label--off {
+  opacity: 0;
+}
+
+/* Both labels hidden during pending to avoid visual noise */
+.rsw-track[data-pending="true"] .rsw-track-label {
+  opacity: 0;
+}
+
+/* ============================================================================
+ * Thumb icon — cross-fades between on/off icons
+ * ========================================================================== */
+.rsw-thumb-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.rsw-thumb-icon__on,
+.rsw-thumb-icon__off {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity var(--rsw-thumb-icon-duration) ease;
+}
+
+/* Off state: show off icon, hide on icon */
+.rsw-thumb-icon__on {
+  opacity: 0;
+}
+
+.rsw-thumb-icon__off {
+  opacity: 1;
+}
+
+/* On state: show on icon, hide off icon */
+.rsw-track[data-checked="true"] .rsw-thumb-icon__on {
+  opacity: 1;
+}
+
+.rsw-track[data-checked="true"] .rsw-thumb-icon__off {
+  opacity: 0;
+}
+
+/* ============================================================================
  * Loading spinner inside thumb
  * ========================================================================== */
 .rsw-spinner {
@@ -229,6 +334,7 @@
 [data-theme="dark"] {
   --rsw-track-bg-off: #3f3f46;
   --rsw-track-bg-on:  #fafafa;
+  --rsw-track-bg-pending: #71717a;
   --rsw-thumb-bg: #18181b;
   --rsw-focus-ring: 0 0 0 3px rgba(250, 250, 250, 0.3);
   --rsw-spinner-color: rgba(255, 255, 255, 0.4);
@@ -251,7 +357,10 @@
  * ========================================================================== */
 @media (prefers-reduced-motion: reduce) {
   .rsw-track,
-  .rsw-thumb {
+  .rsw-thumb,
+  .rsw-track-label,
+  .rsw-thumb-icon__on,
+  .rsw-thumb-icon__off {
     transition: none;
   }
 

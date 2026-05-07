@@ -7,6 +7,7 @@ import {
   useCallback,
   type MouseEvent,
   type ReactNode,
+  type KeyboardEvent as ReactKeyboardEvent,
 } from "react";
 import { createPortal } from "react-dom";
 import { useTagInput, type UseTagInputOptions } from "../useTagInput";
@@ -33,7 +34,10 @@ export interface TagInputStyledProps extends UseTagInputOptions {
   name?: string;
   autoFocus?: boolean;
   renderTag?: (tag: string, index: number, onRemove: () => void) => ReactNode;
+  /** @deprecated Use `reorderable` instead. */
   sortable?: boolean;
+  /** When true, tags are draggable and can be reordered. Fires `onChange` on drop. */
+  reorderable?: boolean;
   /** Derive a CSS color from each tag (e.g. category-based or hash-based) and apply as the chip background. */
   colorize?: (tag: string) => string;
   /** Render extra actions inside each tag chip (rename, link, etc). */
@@ -42,6 +46,11 @@ export interface TagInputStyledProps extends UseTagInputOptions {
   onReorder?: (tags: string[]) => void;
   /** Text rendered while async `loadOptions` is in flight. Default: "Loading…" */
   loadingText?: ReactNode;
+  /**
+   * Async suggestions loader. When set, replaces the static `suggestions` filter.
+   * Debounced (default 300 ms), cancellable via AbortController.
+   */
+  loadSuggestions?: (query: string) => Promise<string[]>;
 }
 
 export const TagInputStyled = forwardRef<HTMLDivElement, TagInputStyledProps>(
@@ -78,11 +87,13 @@ export const TagInputStyled = forwardRef<HTMLDivElement, TagInputStyledProps>(
       autoFocus,
       renderTag,
       sortable = false,
+      reorderable = false,
       colorize,
       tagActions,
       onReorder,
       loadingText = "Loading…",
       loadOptions,
+      loadSuggestions,
       debounceMs,
       spreadsheetPaste,
     },
@@ -94,6 +105,10 @@ export const TagInputStyled = forwardRef<HTMLDivElement, TagInputStyledProps>(
     const labelId = `${id}-label`;
     const listboxId = `${id}-listbox`;
     const hintId = `${id}-hint`;
+
+    // `loadSuggestions` is the new API; `loadOptions` is the existing one.
+    // Prefer loadSuggestions when both are supplied.
+    const resolvedLoadOptions = loadSuggestions ?? loadOptions;
 
     const {
       tags,
@@ -119,13 +134,97 @@ export const TagInputStyled = forwardRef<HTMLDivElement, TagInputStyledProps>(
       onTagAdd,
       onTagRemove,
       caseSensitive,
-      loadOptions,
+      loadOptions: resolvedLoadOptions,
       debounceMs,
       spreadsheetPaste,
     });
 
+    // Drag-to-reorder state (`reorderable` or legacy `sortable`)
+    const isDraggable = reorderable || sortable;
     const [dragIndex, setDragIndex] = useState<number | null>(null);
     const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+
+    // Edit-in-place state
+    const [editingIndex, setEditingIndex] = useState<number | null>(null);
+    const [editingValue, setEditingValue] = useState<string>("");
+    const editInputRef = useRef<HTMLInputElement>(null);
+
+    // Tag add/remove animation tracking
+    const [addingIndex, setAddingIndex] = useState<number | null>(null);
+    const [removingIndex, setRemovingIndex] = useState<number | null>(null);
+    const prevTagsLengthRef = useRef(tags.length);
+
+    useEffect(() => {
+      const prevLen = prevTagsLengthRef.current;
+      if (tags.length > prevLen) {
+        setAddingIndex(tags.length - 1);
+        const t = setTimeout(() => setAddingIndex(null), 320);
+        return () => clearTimeout(t);
+      }
+      prevTagsLengthRef.current = tags.length;
+    }, [tags.length]);
+
+    // Focus edit input when editing starts
+    useEffect(() => {
+      if (editingIndex !== null) {
+        editInputRef.current?.focus();
+        editInputRef.current?.select();
+      }
+    }, [editingIndex]);
+
+    const commitEdit = useCallback(
+      (index: number, newValue: string) => {
+        const trimmed = newValue.trim();
+        if (trimmed && trimmed !== tags[index]) {
+          const next = [...tags];
+          next[index] = trimmed;
+          onChange?.(next);
+        }
+        setEditingIndex(null);
+        setEditingValue("");
+      },
+      [tags, onChange],
+    );
+
+    const handleEditKeyDown = useCallback(
+      (e: ReactKeyboardEvent<HTMLInputElement>, index: number) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          commitEdit(index, editingValue);
+        } else if (e.key === "Escape") {
+          setEditingIndex(null);
+          setEditingValue("");
+        }
+      },
+      [commitEdit, editingValue],
+    );
+
+    const handleDoubleClick = useCallback(
+      (tag: string, index: number) => {
+        if (disabled || readOnly) return;
+        setEditingIndex(index);
+        setEditingValue(tag);
+      },
+      [disabled, readOnly],
+    );
+
+    const handleDrop = useCallback(
+      (e: React.DragEvent, targetIndex: number) => {
+        e.preventDefault();
+        setDragOverIndex(null);
+        if (dragIndex === null || dragIndex === targetIndex) {
+          setDragIndex(null);
+          return;
+        }
+        const next = [...tags];
+        const [moved] = next.splice(dragIndex, 1);
+        if (moved !== undefined) next.splice(targetIndex, 0, moved);
+        onChange?.(next);
+        onReorder?.(next);
+        setDragIndex(null);
+      },
+      [dragIndex, tags, onChange, onReorder],
+    );
 
     const inputRef = useRef<HTMLInputElement>(null);
     const wrapperRef = useRef<HTMLDivElement>(null);
@@ -151,7 +250,6 @@ export const TagInputStyled = forwardRef<HTMLDivElement, TagInputStyledProps>(
       });
     }, []);
 
-    // Dropdown visible when there are suggestions OR an async load is in flight / errored.
     const showDropdown =
       filteredSuggestions.length > 0 || isLoading || loadError !== null;
 
@@ -184,6 +282,116 @@ export const TagInputStyled = forwardRef<HTMLDivElement, TagInputStyledProps>(
     const displayError = errorProp ?? validationError;
     const isInvalid = Boolean(displayError) || invalidProp === true;
 
+    const renderTagChip = (tag: string, i: number) => {
+      const onRemove = () => {
+        setRemovingIndex(i);
+        setTimeout(() => {
+          removeTag(i);
+          setRemovingIndex(null);
+        }, 200);
+      };
+
+      const isAdding = addingIndex === i;
+      const isRemoving = removingIndex === i;
+      const isEditing = editingIndex === i;
+
+      const dragProps = isDraggable
+        ? {
+            draggable: true as const,
+            onDragStart: () => setDragIndex(i),
+            onDragOver: (e: React.DragEvent) => {
+              e.preventDefault();
+              setDragOverIndex(i);
+            },
+            onDragLeave: () => setDragOverIndex(null),
+            onDrop: (e: React.DragEvent) => handleDrop(e, i),
+          }
+        : {};
+
+      const dataAttrs: Record<string, string | undefined> = {
+        "data-variant": tagVariant,
+        "data-tone": resolvedTagTone,
+        "data-colorized": colorize ? "true" : undefined,
+        "data-sortable": isDraggable ? "true" : undefined,
+        "data-drag-over": dragOverIndex === i ? "true" : undefined,
+        "data-dragging": dragIndex === i ? "true" : undefined,
+        "data-adding": isAdding ? "true" : undefined,
+        "data-removing": isRemoving ? "true" : undefined,
+        "data-editing": isEditing ? "true" : undefined,
+      };
+
+      if (renderTag) {
+        return (
+          <span
+            key={i}
+            {...dataAttrs}
+            {...dragProps}
+          >
+            {renderTag(tag, i, onRemove)}
+          </span>
+        );
+      }
+
+      const colorStyle = colorize
+        ? ({ background: colorize(tag) } as React.CSSProperties)
+        : undefined;
+
+      return (
+        <span
+          key={i}
+          className={[
+            "rti-tag",
+            isDraggable && dragIndex === i ? "rti-tag--dragging" : "",
+            dragOverIndex === i ? "rti-tag--drop-target" : "",
+            isEditing ? "rti-tag--editing" : "",
+          ]
+            .filter(Boolean)
+            .join(" ")}
+          {...dataAttrs}
+          style={colorStyle}
+          {...dragProps}
+          onDoubleClick={() => handleDoubleClick(tag, i)}
+        >
+          {isEditing ? (
+            <input
+              ref={editInputRef}
+              className="rti-tag-edit-input"
+              value={editingValue}
+              onChange={(e) => setEditingValue(e.target.value)}
+              onKeyDown={(e) => handleEditKeyDown(e, i)}
+              onBlur={() => commitEdit(i, editingValue)}
+              onClick={(e) => e.stopPropagation()}
+              size={Math.max(3, editingValue.length + 1)}
+            />
+          ) : (
+            <span className="rti-tag-label">{tag}</span>
+          )}
+          {tagActions && (
+            <span
+              className="rti-tag-actions"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {tagActions(tag, i)}
+            </span>
+          )}
+          {!disabled && !isEditing && (
+            <button
+              type="button"
+              className="rti-tag-remove"
+              aria-label={`Remove ${tag}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                onRemove();
+              }}
+              tabIndex={-1}
+            >
+              ×
+            </button>
+          )}
+        </span>
+      );
+    };
+
     return (
       <div
         ref={ref}
@@ -213,85 +421,7 @@ export const TagInputStyled = forwardRef<HTMLDivElement, TagInputStyledProps>(
           onClick={handleWrapperClick}
           role="none"
         >
-          {tags.map((tag, i) => {
-            const onRemove = () => removeTag(i);
-
-            if (renderTag) {
-              return (
-                <span
-                  key={i}
-                  draggable={sortable}
-                  data-sortable={sortable ? "true" : undefined}
-                  data-drag-over={dragOverIndex === i ? "true" : undefined}
-                  onDragStart={sortable ? () => setDragIndex(i) : undefined}
-                  onDragOver={sortable ? (e) => { e.preventDefault(); setDragOverIndex(i); } : undefined}
-                  onDragLeave={sortable ? () => setDragOverIndex(null) : undefined}
-                  onDrop={sortable ? (e) => {
-                    e.preventDefault();
-                    setDragOverIndex(null);
-                    if (dragIndex === null || dragIndex === i) { setDragIndex(null); return; }
-                    const next = [...tags];
-                    const [moved] = next.splice(dragIndex, 1);
-                    if (moved !== undefined) next.splice(i, 0, moved);
-                    onChange?.(next);
-                    setDragIndex(null);
-                  } : undefined}
-                >
-                  {renderTag(tag, i, onRemove)}
-                </span>
-              );
-            }
-
-            const colorStyle = colorize ? ({ background: colorize(tag) } as React.CSSProperties) : undefined;
-            return (
-              <span
-                key={i}
-                className="rti-tag"
-                data-variant={tagVariant}
-                data-tone={resolvedTagTone}
-                data-colorized={colorize ? "true" : undefined}
-                style={colorStyle}
-                draggable={sortable}
-                data-sortable={sortable ? "true" : undefined}
-                data-drag-over={dragOverIndex === i ? "true" : undefined}
-                onDragStart={sortable ? () => setDragIndex(i) : undefined}
-                onDragOver={sortable ? (e) => { e.preventDefault(); setDragOverIndex(i); } : undefined}
-                onDragLeave={sortable ? () => setDragOverIndex(null) : undefined}
-                onDrop={sortable ? (e) => {
-                  e.preventDefault();
-                  setDragOverIndex(null);
-                  if (dragIndex === null || dragIndex === i) { setDragIndex(null); return; }
-                  const next = [...tags];
-                  const [moved] = next.splice(dragIndex, 1);
-                  if (moved !== undefined) next.splice(i, 0, moved);
-                  onChange?.(next);
-                  onReorder?.(next);
-                  setDragIndex(null);
-                } : undefined}
-              >
-                <span className="rti-tag-label">{tag}</span>
-                {tagActions && (
-                  <span className="rti-tag-actions" onClick={(e) => e.stopPropagation()}>
-                    {tagActions(tag, i)}
-                  </span>
-                )}
-                {!disabled && (
-                  <button
-                    type="button"
-                    className="rti-tag-remove"
-                    aria-label={`Remove ${tag}`}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onRemove();
-                    }}
-                    tabIndex={-1}
-                  >
-                    ×
-                  </button>
-                )}
-              </span>
-            );
-          })}
+          {tags.map((tag, i) => renderTagChip(tag, i))}
 
           <input
             {...inputProps}
@@ -313,7 +443,6 @@ export const TagInputStyled = forwardRef<HTMLDivElement, TagInputStyledProps>(
           />
         </div>
 
-        {/* Hidden inputs for native form submission — one per tag, all sharing `name`. */}
         {name &&
           tags.map((tag, i) => (
             <input
@@ -355,12 +484,19 @@ export const TagInputStyled = forwardRef<HTMLDivElement, TagInputStyledProps>(
               }}
             >
               {isLoading && filteredSuggestions.length === 0 && (
-                <li className="rti-dropdown-item rti-dropdown-loading" aria-disabled="true">
+                <li
+                  className="rti-dropdown-item rti-dropdown-loading"
+                  aria-disabled="true"
+                >
+                  <span className="rti-spinner" aria-hidden="true" />
                   {loadingText}
                 </li>
               )}
               {loadError && filteredSuggestions.length === 0 && (
-                <li className="rti-dropdown-item rti-dropdown-error" aria-disabled="true">
+                <li
+                  className="rti-dropdown-item rti-dropdown-error"
+                  aria-disabled="true"
+                >
                   {loadError.message}
                 </li>
               )}

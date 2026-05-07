@@ -1,2 +1,8 @@
-export { useSelect } from "./useSelect";
-export type { SelectItem, UseSelectOptions, UseSelectResult } from "./useSelect";
+export { useSelect, isSelectGroup } from "./useSelect";
+export type {
+  SelectItem,
+  SelectGroup,
+  SelectItemOrGroup,
+  UseSelectOptions,
+  UseSelectResult,
+} from "./useSelect";

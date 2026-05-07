@@ -40,7 +40,7 @@ const COLUMNS: ColumnDef<Person>[] = [
 
 export default function TableDemo() {
   return (
-    <PropPlayground
+    <PropPlayground layout="stacked"
       componentName="TableStyled"
       importLine={`import { TableStyled } from "@mshafiqyajid/react-table/styled";\nimport "@mshafiqyajid/react-table/styles.css";`}
       props={[

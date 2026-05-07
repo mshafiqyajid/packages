@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState, type CSSProperties } from "react";
 import { createPortal } from "react-dom";
-import { toastStore, type ToastItem } from "../store";
+import { getToastStore, type ToastItem } from "../store";
 import { useToasts } from "../useToast";
 import { Toast } from "./Toast";
 
@@ -29,6 +29,9 @@ export interface ToastProviderProps {
    *  `style={{ marginTop: 80 }}` to clear a sticky header. Translate transforms
    *  used by the centred positions are preserved. */
   style?: CSSProperties;
+  /** Channel name. Only toasts dispatched on this channel will appear here.
+   *  Default: "default" (matches toasts with no channel specified). */
+  channel?: string;
 }
 
 const POSITIONS: ToastPosition[] = [
@@ -53,6 +56,7 @@ export function ToastProvider({
   positionStorageKey,
   className,
   style,
+  channel = "default",
 }: ToastProviderProps) {
   const [mounted, setMounted] = useState(false);
   const [hoveringRegion, setHoveringRegion] = useState(false);
@@ -63,14 +67,13 @@ export function ToastProvider({
       ? (saved as ToastPosition)
       : positionProp);
   });
-  const allToasts = useToasts();
+  const allToasts = useToasts(channel);
+  const store = getToastStore(channel);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Apply default duration to newly added toasts that used the store default (4000)
-  // and enforce maxToasts cap by trimming the oldest
   useEffect(() => {
     const capped =
       allToasts.length > maxToasts ? allToasts.slice(-maxToasts) : allToasts;
@@ -84,21 +87,19 @@ export function ToastProvider({
       withDuration.some((t, i) => t.id !== allToasts[i]?.id || t.duration !== allToasts[i]?.duration);
 
     if (changed) {
-      toastStore.setToasts(withDuration);
+      store.setToasts(withDuration);
     }
-  }, [allToasts, maxToasts, duration]);
+  }, [allToasts, maxToasts, duration, store]);
 
   const isBottom = position.startsWith("bottom");
 
-  // For bottom positions newest is last in DOM (visually on top via column-reverse)
-  // For top positions newest is first in DOM (visually on top)
   const orderedToasts: ToastItem[] = isBottom
     ? [...allToasts]
     : [...allToasts].reverse();
 
   const handleDismiss = useCallback((id: string) => {
-    toastStore.dismiss(id);
-  }, []);
+    store.dismiss(id);
+  }, [store]);
 
   if (!mounted) return null;
 

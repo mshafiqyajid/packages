@@ -67,6 +67,8 @@ function App() {
 | `animated` | `boolean` | `false` | Diagonal stripe animation on the fill |
 | `rounded` | `boolean` | `true` | Rounded track and fill |
 | `segments` | `number` | — | Render N discrete segment cells instead of a continuous fill |
+| `sections` | `Array<{ value; tone?; label? }>` | — | Proportional coloured sections; when set, `value` is ignored |
+| `bufferValue` | `number` | — | Ghost fill behind the active fill (buffered-range pattern) |
 
 ## ProgressCircle props
 
@@ -79,6 +81,20 @@ function App() {
 | `formatValue` | `(percent, value) => ReactNode` | — | Customize the text inside the ring |
 | `label` | `ReactNode` | — | Caption rendered below the ring; also used as `aria-label` |
 | `strokeWidth` | `number` | auto | Override the ring stroke width |
+
+## ProgressCircleStack props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `rings` | `Array<{ value; tone?; label? }>` | — | 2–4 concentric rings |
+| `size` | `number` | `120` | Outer diameter in pixels |
+| `gap` | `number` | `6` | Spacing between rings in pixels |
+
+## What's new in 0.4.0
+
+- **`sections` on `ProgressBar`** — divide the bar into coloured proportional segments via `sections?: Array<{ value: number; tone?: ProgressTone; label?: string }>`. Each segment fills proportionally to its `value` relative to the sum of all values. Segments animate in sequentially on mount (staggered left-to-right). Non-breaking: absent = existing single-fill behaviour.
+- **`bufferValue` on `ProgressBar`** — render a translucent ghost fill behind the active fill (video-player buffered-range pattern). Pass `bufferValue={n}` alongside `value`. CSS class `rprog-buffer`, variable `--rprog-buffer-bg`. Transitions at a slower speed to feel "buffered". Non-breaking.
+- **`ProgressCircleStack` component** — concentric activity rings (Apple Watch style). Props: `rings: Array<{ value: number; tone?: ProgressTone; label?: string }>` (2–4 rings), `size?` (default 120), `gap?` (px between rings, default 6). CSS class `rprog-stack`. Rings animate in with increasing delay per ring. Respects `prefers-reduced-motion`.
 
 ## What's new in 0.3.0
 

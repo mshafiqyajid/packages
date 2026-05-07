@@ -5,4 +5,5 @@ export type {
   ToastOptions,
   ToastType,
   ToastPromiseMessages,
+  ToastUpdatePartial,
 } from "./useToast";

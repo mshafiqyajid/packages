@@ -6,3 +6,5 @@ export type {
   SelectPlacement,
   SelectStrategy,
 } from "./SelectStyled";
+export type { SelectItem, SelectGroup, SelectItemOrGroup } from "../useSelect";
+export { isSelectGroup } from "../useSelect";

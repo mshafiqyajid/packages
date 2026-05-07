@@ -63,6 +63,19 @@ toast.promise(saveProfile(), {
   error:   (err)  => `Failed: ${(err as Error).message}`,
 });
 
+// Update an existing toast in-place (no close/reopen)
+const id = toast.loading("Uploading…");
+toast.update(id, { message: "Upload complete!", type: "success" });
+
+// Channel routing — only appears in <ToastProvider channel="notifications">
+toast.channel("notifications").success("New message received");
+
+// Persistent toast (no auto-dismiss)
+toast("This stays until dismissed", { duration: 0 });
+
+// Progress ring
+toast("Doing work…", { duration: 6000, showProgress: true });
+
 // Dismiss
 dismiss(id);
 dismissAll();
@@ -93,9 +106,11 @@ Pass as the second argument to `toast(message, options)`:
 |--------|------|---------|-------------|
 | `type` | `"neutral" \| "success" \| "error" \| "warning" \| "info" \| "loading"` | `"neutral"` | Visual variant |
 | `title` | `string` | — | Bold heading rendered above the message |
-| `duration` | `number` (ms) | `4000` | Auto-dismiss timeout. `0` disables auto-dismiss. |
+| `duration` | `number` (ms) | `4000` | Auto-dismiss timeout. `0` or `Infinity` keeps the toast open forever. |
 | `action` | `{ label, onClick }` | — | Action button rendered in the toast |
 | `id` | `string` | — | Pre-supplied id, useful for updating an existing toast |
+| `showProgress` | `boolean` | — | When `true` and `duration > 0`, shows a circular SVG countdown ring instead of the flat bar. |
+| `channel` | `string` | `"default"` | Route to a specific `<ToastProvider channel="...">`. |
 
 Example with title + action:
 
@@ -117,6 +132,7 @@ Place once near the root of your app. Renders toasts into a `document.body` port
 | `position` | `"top-left" \| "top-center" \| "top-right" \| "bottom-left" \| "bottom-center" \| "bottom-right"` | `"bottom-right"` |
 | `maxToasts` | `number` | `5` |
 | `duration` | `number` (ms) | `4000` |
+| `channel` | `string` | `"default"` | Only renders toasts dispatched to this channel. |
 
 ## Dark mode
 
@@ -129,6 +145,13 @@ Set `data-theme="dark"` on any ancestor element:
 ## License
 
 MIT
+
+## What's new in 0.4.0
+
+- **`toast.update(id, partial)`** — update an existing toast in-place without closing it. Pass any subset of `{ message, type, title, duration, action, showProgress }`. The body fades in briefly on change. Ideal for "Uploading… → Upload complete!" patterns. Every `toast.*` call returns the id.
+- **Persistent toasts** — `duration: 0` (or `Infinity`) keeps a toast open forever; no auto-dismiss. Existing `toast.loading()` already uses `Infinity`.
+- **Progress ring** — set `showProgress: true` on any toast with `duration > 0` to show a circular SVG countdown ring (`rtoast-ring` CSS class) in place of the flat progress bar.
+- **Channel routing** — `<ToastProvider channel="notifications" />` renders only toasts sent to that channel. Use `toast.channel("notifications").success("…")` to target it. Default channel is `"default"` — existing code without a channel is unchanged.
 
 ## What's new in 0.3.0
 

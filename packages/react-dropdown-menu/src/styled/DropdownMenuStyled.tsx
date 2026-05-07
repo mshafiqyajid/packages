@@ -21,6 +21,7 @@ export type DropdownMenuPlacement =
   | `${DropdownMenuSide}-end`;
 export type DropdownMenuSize = "sm" | "md" | "lg";
 export type DropdownMenuStrategy = "absolute" | "fixed";
+export type DropdownMenuItemKind = "item" | "checkbox" | "radio";
 
 export interface DropdownMenuItem {
   label?: string;
@@ -30,12 +31,20 @@ export interface DropdownMenuItem {
   divider?: boolean;
   /** Nested submenu items. When set, the row becomes a parent (chevron, hover-flyout, →/← keyboard nav). */
   items?: DropdownMenuItem[];
+  /** Item kind: "item" (default), "checkbox", or "radio". */
+  kind?: DropdownMenuItemKind;
+  /** Checked state for checkbox/radio items. */
+  checked?: boolean;
+  /** Radio group name. Items sharing a group get a role="group" wrapper. */
+  group?: string;
+  /** Keyboard shortcut label, e.g. "⌘K". Pure display — no hotkey wiring. */
+  shortcut?: string;
 }
 
 export interface DropdownMenuStyledProps {
   /** The trigger element — any ReactElement (button, icon, etc.) */
   trigger: ReactElement;
-  items: DropdownMenuItem[];
+  items?: DropdownMenuItem[];
   placement?: DropdownMenuPlacement;
   size?: DropdownMenuSize;
   className?: string;
@@ -49,6 +58,12 @@ export interface DropdownMenuStyledProps {
   shift?: boolean;
   /** "absolute" or "fixed" positioning. Default: "absolute" */
   strategy?: DropdownMenuStrategy;
+  /** Async loader. When set, fires on open. `items` prop is ignored until loaded. */
+  loadItems?: () => Promise<DropdownMenuItem[]>;
+  /** Text shown in the loading spinner row. Default: "Loading…" */
+  loadingText?: string;
+  /** Text shown when loadItems rejects. Default: "Failed to load" */
+  errorText?: string;
 }
 
 function parsePlacement(p: DropdownMenuPlacement): {
@@ -91,6 +106,59 @@ function SubmenuChevron() {
       aria-hidden="true"
     >
       <path d="M3.5 2L6.5 5L3.5 8" />
+    </svg>
+  );
+}
+
+function CheckIcon() {
+  return (
+    <svg
+      className="rdrop-item-indicator"
+      width="12"
+      height="12"
+      viewBox="0 0 12 12"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M2 6l3 3 5-5" />
+    </svg>
+  );
+}
+
+function RadioDot() {
+  return (
+    <svg
+      className="rdrop-item-indicator"
+      width="12"
+      height="12"
+      viewBox="0 0 12 12"
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      <circle cx="6" cy="6" r="3" />
+    </svg>
+  );
+}
+
+function SpinnerIcon() {
+  return (
+    <svg
+      className="rdrop-spinner"
+      width="14"
+      height="14"
+      viewBox="0 0 14 14"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      aria-hidden="true"
+    >
+      <circle cx="7" cy="7" r="5" strokeOpacity="0.25" />
+      <path d="M7 2a5 5 0 0 1 5 5" />
     </svg>
   );
 }
@@ -213,9 +281,6 @@ function SubMenu({
       trigger: parentRef.current.getBoundingClientRect(),
       floating: subRef.current.getBoundingClientRect(),
       placement: "right-start",
-      // Same offset as the parent menu's default — keeps a small gap
-      // between the parent edge and the submenu so they read as
-      // distinct surfaces.
       offset: 4,
       collisionPadding,
       flip,
@@ -265,7 +330,6 @@ function SubMenu({
     [visibleItems, activeIndex, onCloseAll, onCloseSelf],
   );
 
-  // Auto-focus the submenu so keyboard nav works
   useEffect(() => {
     requestAnimationFrame(() => subRef.current?.focus());
   }, []);
@@ -317,11 +381,66 @@ function SubMenu({
   );
 }
 
+// ---------------------------------------------------------------------------
+// Helpers for rendering checkbox / radio items
+// ---------------------------------------------------------------------------
+
+function itemRole(kind: DropdownMenuItemKind | undefined): "menuitem" | "menuitemcheckbox" | "menuitemradio" {
+  if (kind === "checkbox") return "menuitemcheckbox";
+  if (kind === "radio") return "menuitemradio";
+  return "menuitem";
+}
+
+function itemClassName(kind: DropdownMenuItemKind | undefined, extraClasses: string[]): string {
+  const base = "rdrop-item";
+  const kindClass = kind === "checkbox" ? "rdrop-item-check" : kind === "radio" ? "rdrop-item-radio" : "";
+  return [base, kindClass, ...extraClasses].filter(Boolean).join(" ");
+}
+
+// ---------------------------------------------------------------------------
+// Groups radio items with a role="group" wrapper
+// ---------------------------------------------------------------------------
+
+type GroupedItemsEntry =
+  | { type: "item"; item: DropdownMenuItem; rawIndex: number }
+  | { type: "divider"; rawIndex: number }
+  | { type: "group"; groupName: string; items: Array<{ item: DropdownMenuItem; rawIndex: number }> };
+
+function groupItems(items: DropdownMenuItem[]): GroupedItemsEntry[] {
+  const result: GroupedItemsEntry[] = [];
+  let i = 0;
+  while (i < items.length) {
+    const item = items[i]!;
+    if (item.divider) {
+      result.push({ type: "divider", rawIndex: i });
+      i++;
+      continue;
+    }
+    if (item.kind === "radio" && item.group) {
+      const groupName = item.group;
+      const groupEntries: Array<{ item: DropdownMenuItem; rawIndex: number }> = [];
+      while (i < items.length && items[i]!.kind === "radio" && items[i]!.group === groupName) {
+        groupEntries.push({ item: items[i]!, rawIndex: i });
+        i++;
+      }
+      result.push({ type: "group", groupName, items: groupEntries });
+    } else {
+      result.push({ type: "item", item, rawIndex: i });
+      i++;
+    }
+  }
+  return result;
+}
+
+// ---------------------------------------------------------------------------
+// Main styled component
+// ---------------------------------------------------------------------------
+
 export const DropdownMenuStyled = forwardRef<HTMLElement, DropdownMenuStyledProps>(
   function DropdownMenuStyled(
     {
       trigger,
-      items,
+      items: itemsProp = [],
       placement = "bottom-start",
       size = "md",
       className,
@@ -330,6 +449,9 @@ export const DropdownMenuStyled = forwardRef<HTMLElement, DropdownMenuStyledProp
       flip = true,
       shift = true,
       strategy = "absolute",
+      loadItems,
+      loadingText = "Loading…",
+      errorText = "Failed to load",
     },
     ref,
   ) {
@@ -344,18 +466,23 @@ export const DropdownMenuStyled = forwardRef<HTMLElement, DropdownMenuStyledProp
     const [coords, setCoords] = useState<{ top: number; left: number }>({ top: -9999, left: -9999 });
     const [mounted, setMounted] = useState(false);
 
+    // Async loadItems state
+    const [loadedItems, setLoadedItems] = useState<DropdownMenuItem[] | null>(null);
+    const [loadState, setLoadState] = useState<"idle" | "loading" | "error">("idle");
+
     const triggerRef = useRef<HTMLElement>(null);
     const menuRef = useRef<HTMLUListElement>(null);
     const exitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     useEffect(() => { setMounted(true); }, []);
 
+    const items = loadItems ? (loadedItems ?? []) : itemsProp;
     const visibleItems = items.filter((item) => !item.divider);
 
     const open = useCallback(() => {
       if (exitTimerRef.current) { clearTimeout(exitTimerRef.current); exitTimerRef.current = null; }
       setRendered(true);
-      setIsOpen(false); // reset first
+      setIsOpen(false);
       setActiveIndex(0);
       requestAnimationFrame(() => requestAnimationFrame(() => setIsOpen(true)));
     }, []);
@@ -367,6 +494,33 @@ export const DropdownMenuStyled = forwardRef<HTMLElement, DropdownMenuStyledProp
       exitTimerRef.current = setTimeout(() => setRendered(false), 150);
       triggerRef.current?.focus();
     }, []);
+
+    // Fire loadItems once per open session
+    useEffect(() => {
+      if (!isOpen || !loadItems) return;
+      if (loadedItems !== null) return; // already fetched this session
+      setLoadState("loading");
+      let cancelled = false;
+      loadItems()
+        .then((result) => {
+          if (!cancelled) {
+            setLoadedItems(result);
+            setLoadState("idle");
+          }
+        })
+        .catch(() => {
+          if (!cancelled) setLoadState("error");
+        });
+      return () => { cancelled = true; };
+    }, [isOpen, loadItems, loadedItems]);
+
+    // Reset loaded items when menu closes (one fetch per open session)
+    useEffect(() => {
+      if (!isOpen && loadItems) {
+        setLoadedItems(null);
+        setLoadState("idle");
+      }
+    }, [isOpen, loadItems]);
 
     const updateCoords = useCallback(() => {
       if (!triggerRef.current || !menuRef.current) return;
@@ -411,21 +565,19 @@ export const DropdownMenuStyled = forwardRef<HTMLElement, DropdownMenuStyledProp
 
     const handleTriggerKeyDown = useCallback((e: React.KeyboardEvent) => {
       if (e.key === "Enter" || e.key === " ") { e.preventDefault(); isOpen ? close() : open(); }
-      else if (e.key === "ArrowDown") { e.preventDefault(); isOpen ? setActiveIndex((i) => (i + 1) % visibleItems.length) : open(); }
-      else if (e.key === "ArrowUp") { e.preventDefault(); isOpen ? setActiveIndex((i) => (i - 1 + visibleItems.length) % visibleItems.length) : open(); }
+      else if (e.key === "ArrowDown") { e.preventDefault(); isOpen ? setActiveIndex((i) => (i + 1) % Math.max(visibleItems.length, 1)) : open(); }
+      else if (e.key === "ArrowUp") { e.preventDefault(); isOpen ? setActiveIndex((i) => (i - 1 + Math.max(visibleItems.length, 1)) % Math.max(visibleItems.length, 1)) : open(); }
       else if (e.key === "Escape") { e.preventDefault(); close(); }
       else if (e.key === "Tab") close();
     }, [isOpen, visibleItems.length, open, close]);
 
     const handleMenuKeyDown = useCallback((e: React.KeyboardEvent<HTMLUListElement>) => {
-      // When a submenu is open, defer keyboard nav to it.
       if (openSubmenuIndex !== null) return;
-      if (e.key === "ArrowDown") { e.preventDefault(); setActiveIndex((i) => (i + 1) % visibleItems.length); }
-      else if (e.key === "ArrowUp") { e.preventDefault(); setActiveIndex((i) => (i - 1 + visibleItems.length) % visibleItems.length); }
+      if (e.key === "ArrowDown") { e.preventDefault(); setActiveIndex((i) => (i + 1) % Math.max(visibleItems.length, 1)); }
+      else if (e.key === "ArrowUp") { e.preventDefault(); setActiveIndex((i) => (i - 1 + Math.max(visibleItems.length, 1)) % Math.max(visibleItems.length, 1)); }
       else if (e.key === "Escape") { e.preventDefault(); close(); }
       else if (e.key === "Tab") close();
       else if (e.key === "ArrowRight") {
-        // Open submenu on the active item if it has children.
         const item = visibleItems[activeIndex];
         if (item && item.items && item.items.length > 0 && !item.disabled) {
           e.preventDefault();
@@ -436,7 +588,6 @@ export const DropdownMenuStyled = forwardRef<HTMLElement, DropdownMenuStyledProp
         e.preventDefault();
         const item = visibleItems[activeIndex];
         if (!item || item.disabled) return;
-        // If the item has children, open the submenu instead of firing.
         if (item.items && item.items.length > 0) {
           setOpenSubmenuIndex(activeIndex);
           return;
@@ -446,7 +597,6 @@ export const DropdownMenuStyled = forwardRef<HTMLElement, DropdownMenuStyledProp
       }
     }, [visibleItems, activeIndex, openSubmenuIndex, close]);
 
-    // Clone trigger to attach ref + aria + event handlers
     const triggerEl = isValidElement(trigger)
       ? cloneElement(trigger as ReactElement<Record<string, unknown>>, {
           ref: (el: HTMLElement | null) => {
@@ -474,7 +624,75 @@ export const DropdownMenuStyled = forwardRef<HTMLElement, DropdownMenuStyledProp
 
     const menuStyle: CSSProperties = { position: strategy, top: coords.top, left: coords.left, zIndex: 9999 };
 
-    let visibleIndex = -1;
+    // Build grouped structure for radio support
+    const grouped = groupItems(items);
+
+    // Track visible index across groups for activeIndex alignment
+    let visibleIndexCounter = -1;
+
+    function renderItem(item: DropdownMenuItem, rawIndex: number, extraTabIndex?: number): ReactNode {
+      visibleIndexCounter += 1;
+      const curIdx = visibleIndexCounter;
+      const isActive = activeIndex === curIdx;
+      const hasChildren = !!item.items && item.items.length > 0;
+      const isSubOpen = openSubmenuIndex === curIdx;
+      const kind = item.kind ?? "item";
+      const role = itemRole(kind);
+
+      return (
+        <li
+          key={rawIndex}
+          ref={(el) => { itemRefs.current[curIdx] = el; }}
+          role={role}
+          tabIndex={extraTabIndex !== undefined ? extraTabIndex : (isActive ? 0 : -1)}
+          className={itemClassName(kind, [hasChildren ? "rdrop-item--has-submenu" : ""])}
+          data-active={isActive ? "true" : undefined}
+          data-disabled={item.disabled ? "true" : undefined}
+          data-submenu-open={isSubOpen ? "true" : undefined}
+          aria-checked={kind !== "item" ? (item.checked ?? false) : undefined}
+          aria-haspopup={hasChildren ? "menu" : undefined}
+          aria-expanded={hasChildren ? isSubOpen : undefined}
+          aria-disabled={item.disabled}
+          onMouseEnter={() => {
+            setActiveIndex(curIdx);
+            if (hasChildren && !item.disabled) setOpenSubmenuIndex(curIdx);
+            else setOpenSubmenuIndex(null);
+          }}
+          onClick={(e) => {
+            if (item.disabled) return;
+            if (hasChildren) {
+              e.stopPropagation();
+              setOpenSubmenuIndex(curIdx);
+              return;
+            }
+            item.onClick?.();
+            close();
+          }}
+        >
+          <span className="rdrop-item-indicator-slot" aria-hidden="true">
+            {kind === "checkbox" && item.checked && <CheckIcon />}
+            {kind === "radio" && item.checked && <RadioDot />}
+          </span>
+          {item.icon && <span className="rdrop-item-icon" aria-hidden="true">{item.icon}</span>}
+          <span className="rdrop-item-label">{item.label}</span>
+          {item.shortcut && <kbd className="rdrop-kbd">{item.shortcut}</kbd>}
+          {hasChildren && <SubmenuChevron />}
+          {hasChildren && isSubOpen && (
+            <SubMenu
+              parentRef={{ current: itemRefs.current[curIdx] ?? null }}
+              items={item.items!}
+              size={size}
+              collisionPadding={collisionPadding}
+              flip={flip}
+              shift={shift}
+              strategy={strategy}
+              onCloseAll={close}
+              onCloseSelf={() => setOpenSubmenuIndex(null)}
+            />
+          )}
+        </li>
+      );
+    }
 
     return (
       <span className={["rdrop-root", className].filter(Boolean).join(" ")}>
@@ -492,63 +710,31 @@ export const DropdownMenuStyled = forwardRef<HTMLElement, DropdownMenuStyledProp
             style={menuStyle}
             onKeyDown={handleMenuKeyDown}
           >
-            {items.map((item, rawIndex) => {
-              if (item.divider) {
-                return <li key={rawIndex} role="separator" className="rdrop-divider" aria-hidden="true" />;
+            {loadState === "loading" && (
+              <li className="rdrop-loading" role="presentation" aria-live="polite">
+                <SpinnerIcon />
+                <span>{loadingText}</span>
+              </li>
+            )}
+            {loadState === "error" && (
+              <li className="rdrop-error" role="presentation" aria-live="assertive">
+                {errorText}
+              </li>
+            )}
+            {loadState === "idle" && grouped.map((entry) => {
+              if (entry.type === "divider") {
+                return <li key={entry.rawIndex} role="separator" className="rdrop-divider" aria-hidden="true" />;
               }
-              visibleIndex += 1;
-              const curIdx = visibleIndex;
-              const isActive = activeIndex === curIdx;
-              const hasChildren = !!item.items && item.items.length > 0;
-              const isSubOpen = openSubmenuIndex === curIdx;
-              return (
-                <li
-                  key={rawIndex}
-                  ref={(el) => { itemRefs.current[curIdx] = el; }}
-                  role="menuitem"
-                  tabIndex={isActive ? 0 : -1}
-                  className={["rdrop-item", hasChildren ? "rdrop-item--has-submenu" : ""].filter(Boolean).join(" ")}
-                  data-active={isActive ? "true" : undefined}
-                  data-disabled={item.disabled ? "true" : undefined}
-                  data-submenu-open={isSubOpen ? "true" : undefined}
-                  aria-haspopup={hasChildren ? "menu" : undefined}
-                  aria-expanded={hasChildren ? isSubOpen : undefined}
-                  aria-disabled={item.disabled}
-                  onMouseEnter={() => {
-                    setActiveIndex(curIdx);
-                    if (hasChildren && !item.disabled) setOpenSubmenuIndex(curIdx);
-                    else setOpenSubmenuIndex(null);
-                  }}
-                  onClick={(e) => {
-                    if (item.disabled) return;
-                    if (hasChildren) {
-                      // Open the submenu instead of firing.
-                      e.stopPropagation();
-                      setOpenSubmenuIndex(curIdx);
-                      return;
-                    }
-                    item.onClick?.();
-                    close();
-                  }}
-                >
-                  {item.icon && <span className="rdrop-item-icon" aria-hidden="true">{item.icon}</span>}
-                  <span className="rdrop-item-label">{item.label}</span>
-                  {hasChildren && <SubmenuChevron />}
-                  {hasChildren && isSubOpen && (
-                    <SubMenu
-                      parentRef={{ current: itemRefs.current[curIdx] ?? null }}
-                      items={item.items!}
-                      size={size}
-                      collisionPadding={collisionPadding}
-                      flip={flip}
-                      shift={shift}
-                      strategy={strategy}
-                      onCloseAll={close}
-                      onCloseSelf={() => setOpenSubmenuIndex(null)}
-                    />
-                  )}
-                </li>
-              );
+              if (entry.type === "group") {
+                return (
+                  <li key={entry.groupName} role="presentation">
+                    <ul role="group" aria-label={entry.groupName} className="rdrop-radio-group">
+                      {entry.items.map(({ item, rawIndex }) => renderItem(item, rawIndex))}
+                    </ul>
+                  </li>
+                );
+              }
+              return renderItem(entry.item, entry.rawIndex);
             })}
           </ul>,
           document.body,

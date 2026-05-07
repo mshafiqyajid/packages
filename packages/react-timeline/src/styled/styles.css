@@ -698,3 +698,86 @@
   .rtl-toggle       { transition: none; }
   .rtl-dot[data-pending="true"] .rtl-spinner { animation: none; }
 }
+
+/* ============================================================================
+ * 1.2.0 additions: horizontal scroll-snap, progress fill, animateOnMount
+ * ========================================================================== */
+
+/* ---- Horizontal scroll-snap ---------------------------------------------- */
+.rtl-timeline[data-orientation="horizontal"] {
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+.rtl-timeline[data-orientation="horizontal"] .rtl-item {
+  scroll-snap-align: start;
+}
+
+/* ---- Progress fill on connector via ::after ------------------------------ */
+:root {
+  --rtl-progress-color: var(--rtl-color-active, #6366f1);
+  --rtl-progress: 0%;
+}
+
+.rtl-connector {
+  position: relative;
+}
+
+.rtl-timeline[style*="--rtl-progress"] .rtl-item:first-child .rtl-connector::after,
+.rtl-timeline[style*="--rtl-progress"] .rtl-item:first-of-type .rtl-connector::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--rtl-progress-color);
+  pointer-events: none;
+}
+
+.rtl-timeline[data-orientation="vertical"][style*="--rtl-progress"] .rtl-item:first-child .rtl-connector::after {
+  height: var(--rtl-progress, 0%);
+  width: 100%;
+  top: 0;
+  left: 0;
+  transition: height 500ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.rtl-timeline[data-orientation="horizontal"][style*="--rtl-progress"] .rtl-item:first-child .rtl-connector::after {
+  width: var(--rtl-progress, 0%);
+  height: 100%;
+  top: 0;
+  left: 0;
+  transition: width 500ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+[data-theme="dark"] {
+  --rtl-progress-color: var(--rtl-color-active, #818cf8);
+}
+
+/* ---- animateOnMount (IntersectionObserver-driven) ------------------------ */
+.rtl-item[data-aom] {
+  opacity: 0;
+  transform: translateY(20px);
+  transition:
+    opacity  400ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 400ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--rtl-aom-delay, 0ms);
+}
+
+.rtl-item[data-aom][data-aom-visible="true"] {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rtl-item[data-aom] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .rtl-timeline[data-orientation="vertical"][style*="--rtl-progress"] .rtl-item:first-child .rtl-connector::after {
+    transition: none;
+  }
+  .rtl-timeline[data-orientation="horizontal"][style*="--rtl-progress"] .rtl-item:first-child .rtl-connector::after {
+    transition: none;
+  }
+}

@@ -106,6 +106,60 @@ Parent rows render a chevron and a hover/click-driven flyout. Keyboard: `→` op
 
 MIT
 
+## What's new in 0.4.0
+
+### Checkbox and radio items
+
+```tsx
+<DropdownMenuStyled
+  trigger={<button>Options</button>}
+  items={[
+    { label: "Bold",   kind: "checkbox", checked: true,  onClick: toggle },
+    { label: "Italic", kind: "checkbox", checked: false, onClick: toggle },
+    { divider: true },
+    { label: "Small",  kind: "radio", group: "Size", checked: false, onClick: () => setSize("sm") },
+    { label: "Medium", kind: "radio", group: "Size", checked: true,  onClick: () => setSize("md") },
+    { label: "Large",  kind: "radio", group: "Size", checked: false, onClick: () => setSize("lg") },
+  ]}
+/>
+```
+
+- `kind?: "item" | "checkbox" | "radio"` — default `"item"`.
+- Checkbox: `role="menuitemcheckbox"`, checkmark when `checked`.
+- Radio: `role="menuitemradio"`, dot when `checked`. Items sharing a `group` string get a `<div role="group" aria-label={group}>` wrapper.
+- CSS classes: `rdrop-item-check` (checkbox rows), `rdrop-item-radio` (radio rows), `rdrop-item-indicator` (the SVG icon).
+
+### Keyboard shortcut display
+
+```tsx
+{ label: "Save", shortcut: "⌘S", onClick: save }
+```
+
+Renders a right-aligned `<kbd class="rdrop-kbd">` in the item row. Pure display — no hotkey wiring.
+
+### Async `loadItems`
+
+```tsx
+<DropdownMenuStyled
+  trigger={<button>Actions</button>}
+  loadItems={async () => {
+    const res = await fetch("/api/actions");
+    return res.json();
+  }}
+  loadingText="Loading…"
+  errorText="Failed to load"
+/>
+```
+
+- Fires once per open session (resets when menu closes).
+- Shows a spinner row while pending (`rdrop-loading` class).
+- Shows `errorText` row on rejection (`rdrop-error` class).
+
+### Motion
+
+- Submenu slides in from the side with `translate3d` and 160ms ease (left vs. right direction-aware).
+- `prefers-reduced-motion` disables all transitions and animations.
+
 ## What's new in 0.3.0
 
 - **Nested submenus** — `DropdownMenuItem` accepts `items?: DropdownMenuItem[]`. Parent rows render a chevron and a hover/click flyout. → opens the submenu, ← returns, Enter/Space activates. Submenus inherit `size` / `collisionPadding` / `flip` / `shift` / `strategy` from the parent menu.

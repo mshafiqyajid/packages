@@ -1,17 +1,25 @@
-import { type ReactNode, forwardRef, useId, useState } from "react";
+import { type ReactNode, forwardRef, useId, useRef, useState } from "react";
 import { OTPInput, type OTPInputProps } from "../OTPInput";
 
 export type OTPVariant = "solid" | "outline" | "underline";
 export type OTPSize = "sm" | "md" | "lg";
 export type OTPTone = "neutral" | "primary" | "success" | "danger";
+export type OTPMaskMode = "always" | "after-blur" | "after-complete";
 
 export interface OTPInputStyledProps
   extends Omit<OTPInputProps, "renderSlot" | "children" | "inputProps"> {
   variant?: OTPVariant;
   size?: OTPSize;
   tone?: OTPTone;
-  /** Mask each character (like a password). Default: false. */
-  mask?: boolean;
+  /**
+   * Masking behaviour.
+   * - `true` / `false` — legacy boolean (always mask / never mask).
+   * - `"always"` — mask every filled cell at all times.
+   * - `"after-blur"` — mask once the whole group loses focus.
+   * - `"after-complete"` — mask once all cells are filled.
+   * Default: no masking.
+   */
+  mask?: boolean | OTPMaskMode;
   /** Visual character to show when masking. Default: "•". */
   maskChar?: string;
   /** Insert a separator after every N slots (e.g. 3 → "123-456"). */
@@ -75,12 +83,26 @@ export const OTPInputStyled = forwardRef<HTMLDivElement, OTPInputStyledProps>(
     const errorId = `${baseId}-error`;
     const describedBy = error ? errorId : hint ? hintId : undefined;
 
-    // Mirror the live value so the hidden input stays in sync (works in both
-    // controlled and uncontrolled modes).
     const initialValue = rest.value ?? rest.defaultValue ?? "";
     const [liveValue, setLiveValue] = useState<string>(initialValue);
-
     const currentValue = rest.value !== undefined ? rest.value : liveValue;
+
+    const length = rest.length ?? 6;
+    const isComplete = currentValue.length === length;
+
+    // Track whether the whole group has focus for after-blur masking.
+    const [groupFocused, setGroupFocused] = useState(false);
+    const focusCountRef = useRef(0);
+
+    // Resolve mask mode to a boolean per-cell decision.
+    function shouldMaskCell(char: string): boolean {
+      if (!char) return false;
+      if (mask === false || mask === undefined) return false;
+      if (mask === true || mask === "always") return true;
+      if (mask === "after-complete") return isComplete;
+      if (mask === "after-blur") return !groupFocused;
+      return false;
+    }
 
     return (
       <div className={wrapperClassName} style={style} id={baseId} data-invalid={isInvalid ? "true" : undefined}>
@@ -106,7 +128,8 @@ export const OTPInputStyled = forwardRef<HTMLDivElement, OTPInputStyledProps>(
           aria-labelledby={label ? labelId : undefined}
           aria-describedby={describedBy}
           renderSlot={(slot) => {
-            const display = mask && slot.char !== "" ? maskChar : slot.char;
+            const masked = shouldMaskCell(slot.char);
+            const display = masked ? maskChar : slot.char;
             const showSeparator =
               groupSize !== undefined &&
               slot.index > 0 &&
@@ -116,10 +139,24 @@ export const OTPInputStyled = forwardRef<HTMLDivElement, OTPInputStyledProps>(
                 {showSeparator ? separator : null}
                 <input
                   {...slot.inputProps}
-                  className="rotp-slot"
+                  className={["rotp-slot", masked ? "rotp-cell--masked" : ""].filter(Boolean).join(" ")}
                   data-active={slot.isActive ? "true" : undefined}
                   data-filled={slot.char ? "true" : undefined}
                   value={display}
+                  onFocus={(e) => {
+                    focusCountRef.current += 1;
+                    setGroupFocused(true);
+                    slot.inputProps.onFocus?.(e);
+                  }}
+                  onBlur={(e) => {
+                    focusCountRef.current -= 1;
+                    // Use a microtask so the next input's onFocus fires first
+                    // before we decide the group lost focus.
+                    queueMicrotask(() => {
+                      if (focusCountRef.current === 0) setGroupFocused(false);
+                    });
+                    slot.inputProps.onBlur?.(e);
+                  }}
                 />
               </>
             );

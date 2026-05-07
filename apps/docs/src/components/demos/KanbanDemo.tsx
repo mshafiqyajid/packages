@@ -74,7 +74,7 @@ function KanbanWrapper({
 
 export default function KanbanDemo() {
   return (
-    <PropPlayground
+    <PropPlayground layout="stacked"
       componentName="KanbanStyled"
       importLine={`import { KanbanStyled } from "@mshafiqyajid/react-kanban/styled";\nimport "@mshafiqyajid/react-kanban/styles.css";`}
       props={[

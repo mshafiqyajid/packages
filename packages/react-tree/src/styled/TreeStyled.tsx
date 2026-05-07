@@ -177,7 +177,11 @@ export const TreeStyled = forwardRef<HTMLDivElement, TreeStyledProps>(
                       </span>
                     )}
                     {node.icon && <span className="rtree-icon" aria-hidden="true">{node.icon}</span>}
-                    <span className="rtree-label">
+                    <span
+                      className="rtree-label"
+                      onClick={hasChildren ? toggleProps.onClick : undefined}
+                      style={hasChildren ? { cursor: "pointer" } : undefined}
+                    >
                       {renderLabel
                         ? renderLabel(node, depth)
                         : highlightMatches

@@ -2,6 +2,14 @@
 
 **[Full docs →](https://docs.shafiqyajid.com/react/otp-input/)**
 
+## What's new in 1.2.0
+
+- **`mask` string modes** — `"always"`, `"after-blur"`, `"after-complete"` (legacy `boolean` still works).
+- **`useOTPResend` hook** — cooldown timer + async in-flight guard, exported from the root entry.
+- **Cell bounce** — each slot bounces on digit entry (`scale 0 → 1.1 → 1`).
+- **Error shake** — all slots shake when `data-invalid="true"` is set.
+- Both animations respect `prefers-reduced-motion`.
+
 A tiny, beautifully styled OTP / verification-code input for React. Comes in two flavors:
 
 - **Styled** — `<OTPInputStyled>` with variants, sizes, tones, animated focus ring, masking, and full a11y.
@@ -105,9 +113,40 @@ function Verify() {
 ### Masking (password-style)
 
 ```tsx
+{/* always masked */}
+<OTPInputStyled length={6} mask="always" />
+{/* mask once the group loses focus */}
+<OTPInputStyled length={6} mask="after-blur" />
+{/* mask once all slots are filled */}
+<OTPInputStyled length={6} mask="after-complete" />
+{/* legacy boolean still works */}
 <OTPInputStyled length={6} mask />
-{/* or with a custom char */}
-<OTPInputStyled length={6} mask maskChar="*" />
+{/* custom char */}
+<OTPInputStyled length={6} mask="always" maskChar="*" />
+```
+
+### Resend code with cooldown
+
+```tsx
+import { useOTPResend } from "@mshafiqyajid/react-otp-input";
+
+function Verify() {
+  const { resend, canResend, secondsLeft, isPending } = useOTPResend({
+    cooldownMs: 30_000, // default 30 s
+    onResend: async () => {
+      await sendCode();
+    },
+  });
+
+  return (
+    <>
+      <OTPInputStyled length={6} onComplete={verify} />
+      <button onClick={resend} disabled={!canResend}>
+        {isPending ? "Sending…" : secondsLeft > 0 ? `Resend (${secondsLeft}s)` : "Resend code"}
+      </button>
+    </>
+  );
+}
 ```
 
 ### Custom pattern (alphanumeric, regex, function)
@@ -180,7 +219,7 @@ Force a theme without `prefers-color-scheme`:
 | `variant`      | `"solid" \| "outline" \| "underline"`                | `"solid"`   | Visual style.                                                            |
 | `size`         | `"sm" \| "md" \| "lg"`                               | `"md"`      | Size.                                                                    |
 | `tone`         | `"neutral" \| "primary" \| "success" \| "danger"`    | `"neutral"` | Color theme. Auto-flips to `"danger"` when `error` is set.               |
-| `mask`         | `boolean`                                            | `false`     | Show `maskChar` instead of the typed character.                          |
+| `mask`         | `boolean \| "always" \| "after-blur" \| "after-complete"` | `false` | Mask filled cells. `"after-blur"` masks on group blur; `"after-complete"` masks when all slots filled. `true` equals `"always"`. |
 | `maskChar`     | `string`                                             | `"•"`       | Character to render when masking.                                        |
 | `groupSize`    | `number`                                             | —           | Insert a separator after every N slots (e.g. `3` → "123-456").           |
 | `separator`    | `ReactNode`                                          | dash        | Element to render as separator when `groupSize` is set.                  |
@@ -196,6 +235,26 @@ Returns `{ value, isComplete, slots, clear, setValue, focusSlot }`. Each `slot` 
 const { slots } = useOTP({ length: 6 });
 slots.map((s) => <input key={s.index} {...s.inputProps} />);
 ```
+
+### `useOTPResend(options)`
+
+```tsx
+import { useOTPResend } from "@mshafiqyajid/react-otp-input";
+```
+
+| Option       | Type                              | Default   | Description                                      |
+| ------------ | --------------------------------- | --------- | ------------------------------------------------ |
+| `onResend`   | `() => void \| Promise<void>`     | required  | Called when the user triggers a resend.          |
+| `cooldownMs` | `number`                          | `30000`   | Cooldown duration in ms after each resend.       |
+
+Returns:
+
+| Property      | Type      | Description                                               |
+| ------------- | --------- | --------------------------------------------------------- |
+| `resend`      | `() => void` | Trigger a resend. No-op during cooldown or in-flight.  |
+| `canResend`   | `boolean` | `true` when no cooldown is active and no request is in flight. |
+| `secondsLeft` | `number`  | Seconds remaining in the cooldown (0 when idle).          |
+| `isPending`   | `boolean` | `true` while the `onResend` promise is in flight.         |
 
 ### `<OTPInput>` (headless primitive)
 
@@ -227,7 +286,7 @@ Override on `.rotp-root`, on a wrapper class, or `:root`:
 
 The styled component automatically:
 
-- Switches palette under `prefers-color-scheme: dark`
+- Switches palette under `[data-theme="dark"]` on a parent element
 - Disables animations under `prefers-reduced-motion: reduce`
 - Forwards `ref` to the container `<div>`
 - Sets `inputMode="numeric"` for numeric patterns (better mobile keyboard)
