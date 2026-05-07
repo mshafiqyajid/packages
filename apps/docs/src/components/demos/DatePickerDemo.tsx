@@ -14,6 +14,8 @@ function DatePickerWrapper({
   showOutsideDays,
   fixedWeeks,
   inline,
+  showTime,
+  pagedBy,
 }: {
   mode: string;
   size: string;
@@ -25,6 +27,8 @@ function DatePickerWrapper({
   showOutsideDays: boolean;
   fixedWeeks: boolean;
   inline: boolean;
+  showTime: boolean;
+  pagedBy: string;
 }) {
   const [value, setValue] = useState<Date | [Date, Date] | null>(null);
   return (
@@ -41,6 +45,8 @@ function DatePickerWrapper({
       showOutsideDays={showOutsideDays}
       fixedWeeks={fixedWeeks}
       inline={inline}
+      showTime={showTime && mode === "single"}
+      pagedBy={pagedBy === "all" ? "all" : 1}
       placeholder={mode === "range" ? "Select date range" : "Select date"}
     />
   );
@@ -62,11 +68,13 @@ export default function DatePickerDemo() {
         { name: "fixedWeeks",      control: { type: "toggle" }, defaultValue: true,  omitWhen: true  },
         { name: "clearable",       control: { type: "toggle" }, defaultValue: false, omitWhen: false },
         { name: "disabled",        control: { type: "toggle" }, defaultValue: false, omitWhen: false },
+        { name: "showTime",        label: "show time (single)", control: { type: "toggle" }, defaultValue: false, omitWhen: false },
+        { name: "pagedBy",         control: { type: "segmented", options: ["1","all"] as const }, defaultValue: "1", omitWhen: "1" },
       ]}
       staticProps={{ value: "{value}", onChange: "{setValue}" }}
       render={(v) => (
         <DatePickerWrapper
-          key={`${String(v.mode)}-${String(v.inline)}`}
+          key={`${String(v.mode)}-${String(v.inline)}-${String(v.showTime)}`}
           mode={v.mode as string}
           size={v.size as string}
           tone={v.tone as string}
@@ -77,6 +85,8 @@ export default function DatePickerDemo() {
           showOutsideDays={v.showOutsideDays as boolean}
           fixedWeeks={v.fixedWeeks as boolean}
           inline={v.inline as boolean}
+          showTime={v.showTime as boolean}
+          pagedBy={v.pagedBy as string}
         />
       )}
     />

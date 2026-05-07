@@ -5,8 +5,8 @@ import H2 from "~/components/H2.astro";
 import CodeBlock from "~/components/CodeBlock.astro";
 import SliderDemo from "~/components/demos/SliderDemo";
 ---
-<DocLayout title="react-slider" description="Range slider with single and dual thumb, marks, value tooltip, and keyboard navigation." pkg="slider">
-  <PackagePageShell name="react-slider" description="Headless slider hook and styled component. Single and range (dual thumb) mode, marks, value tooltip, keyboard navigation, ARIA-compliant. Form-input contract: name + hidden inputs (range emits two), label / hint / error / invalid / required." size="~9 KB">
+<DocLayout title="react-slider" description="Range slider with single and dual thumb, marks, log scale, orientation, value tooltip, and keyboard navigation." pkg="slider">
+  <PackagePageShell name="react-slider" description="Headless slider hook and styled component. Single and range (dual thumb) mode, tick marks with snap, logarithmic scale, vertical orientation, value tooltip, label / hint / error / invalid / required, keyboard navigation, ARIA-compliant." size="~9 KB">
     <div class="pkg-section"><H2>Playground</H2><SliderDemo client:load /></div>
     <div class="pkg-section"><H2>Install</H2><CodeBlock lang="bash" code="npm install @mshafiqyajid/react-slider" /></div>
     <div class="pkg-section"><H2>Quick start</H2>
@@ -19,6 +19,46 @@ const [v, setV] = useState(40);
 // Range
 const [range, setRange] = useState<[number, number]>([20, 80]);
 <SliderStyled value={range} onChange={setRange} range />`} />
+    </div>
+
+    <div class="pkg-section"><H2>Marks and snap</H2>
+      <p>Pass <code>marks={`{true}`}</code> to derive ticks from <code>step</code>, an array of numbers, or an array of <code>{`{ value, label? }`}</code> objects. Add <code>snapToMarks</code> to snap the thumb on release.</p>
+      <CodeBlock lang="tsx" code={`// Ticks derived from step
+<SliderStyled min={0} max={100} step={25} marks />
+
+// Custom marks with labels
+<SliderStyled
+  min={0} max={100}
+  marks={[{ value: 0, label: "Low" }, { value: 50, label: "Mid" }, { value: 100, label: "High" }]}
+  snapToMarks
+/>`} />
+    </div>
+
+    <div class="pkg-section"><H2>Logarithmic scale</H2>
+      <CodeBlock lang="tsx" code={`<SliderStyled
+  min={1} max={1000}
+  scale="log"
+  scaleBase={10}
+  formatValue={(v) => \`\${v} Hz\`}
+  showValue
+/>`} />
+    </div>
+
+    <div class="pkg-section"><H2>Vertical orientation</H2>
+      <CodeBlock lang="tsx" code={`<SliderStyled orientation="vertical" style={{ height: 200 }} />`} />
+    </div>
+
+    <div class="pkg-section"><H2>Form field</H2>
+      <p>Include <code>label</code>, <code>hint</code>, <code>error</code>, <code>required</code>, and <code>name</code> to use as a proper form field. Range mode emits two hidden inputs: <code>name</code> and <code>name-end</code>.</p>
+      <CodeBlock lang="tsx" code={`<SliderStyled
+  name="price-range"
+  label="Price range"
+  hint="Set your budget"
+  required
+  range
+  value={range}
+  onChange={setRange}
+/>`} />
     </div>
     <div class="pkg-section"><H2>Headless</H2>
       <CodeBlock lang="tsx" code={`import { useSlider } from "@mshafiqyajid/react-slider";
@@ -44,17 +84,33 @@ return (
     <div class="pkg-section"><H2>API</H2>
       <table class="props-table"><thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
         <tr><td>value</td><td>number | [number, number]</td><td>—</td><td>Controlled value</td></tr>
-        <tr><td>defaultValue</td><td>number | [number, number]</td><td>min</td><td>Uncontrolled initial value</td></tr>
-        <tr><td>onChange</td><td>(v) =&gt; void</td><td>—</td><td>Called on change</td></tr>
+        <tr><td>defaultValue</td><td>number | [number, number]</td><td>min (range: [min, max])</td><td>Uncontrolled initial value</td></tr>
+        <tr><td>onChange</td><td>(v: SliderValue) =&gt; void</td><td>—</td><td>Called on every change</td></tr>
+        <tr><td>onCommit</td><td>(v: SliderValue) =&gt; void</td><td>—</td><td>Fires only on pointer release / keyboard commit, not on every step</td></tr>
         <tr><td>min</td><td>number</td><td>0</td><td>Minimum value</td></tr>
         <tr><td>max</td><td>number</td><td>100</td><td>Maximum value</td></tr>
         <tr><td>step</td><td>number</td><td>1</td><td>Step increment</td></tr>
         <tr><td>range</td><td>boolean</td><td>false</td><td>Dual thumb range mode</td></tr>
         <tr><td>size</td><td>"sm" | "md" | "lg"</td><td>"md"</td><td>Track height</td></tr>
         <tr><td>tone</td><td>"neutral" | "primary" | "success" | "danger"</td><td>"neutral"</td><td>Color</td></tr>
-        <tr><td>showValue</td><td>boolean</td><td>false</td><td>Show value tooltip on thumb</td></tr>
-        <tr><td>marks</td><td>boolean</td><td>false</td><td>Show tick marks</td></tr>
+        <tr><td>orientation</td><td>"horizontal" | "vertical"</td><td>"horizontal"</td><td>Slider orientation</td></tr>
+        <tr><td>showValue</td><td>boolean</td><td>false</td><td>Always show value bubble on thumb</td></tr>
+        <tr><td>showValueOnInteraction</td><td>boolean</td><td>—</td><td>Show value bubble only while thumb is hovered/active</td></tr>
+        <tr><td>formatValue</td><td>(v: number) =&gt; ReactNode</td><td>—</td><td>Format the number shown in the value bubble</td></tr>
+        <tr><td>marks</td><td>boolean | number[] | SliderMark[]</td><td>false</td><td>Tick marks. <code>true</code> derives from step; array sets custom positions with optional labels</td></tr>
+        <tr><td>snapToMarks</td><td>boolean</td><td>false</td><td>Snap thumb to nearest mark on drag release</td></tr>
+        <tr><td>scale</td><td>"linear" | "log"</td><td>"linear"</td><td>Map the track to a logarithmic scale</td></tr>
+        <tr><td>scaleBase</td><td>number</td><td>10</td><td>Base for the log scale</td></tr>
         <tr><td>disabled</td><td>boolean</td><td>false</td><td>Disable interaction</td></tr>
+        <tr><td>label</td><td>ReactNode</td><td>—</td><td>Label rendered above the slider</td></tr>
+        <tr><td>hint</td><td>ReactNode</td><td>—</td><td>Helper text below the slider</td></tr>
+        <tr><td>error</td><td>ReactNode</td><td>—</td><td>Error text — flips tone to danger, sets aria-invalid</td></tr>
+        <tr><td>invalid</td><td>boolean</td><td>false</td><td>Force invalid state without inline error text</td></tr>
+        <tr><td>required</td><td>boolean</td><td>—</td><td>Mark as required (hidden inputs inherit this)</td></tr>
+        <tr><td>name</td><td>string</td><td>—</td><td>Form name. Renders hidden input(s); range emits <code>name</code> and <code>name-end</code></td></tr>
+        <tr><td>id</td><td>string</td><td>—</td><td>Override the generated wrapper id</td></tr>
+        <tr><td>className</td><td>string</td><td>—</td><td>Extra class on the root element</td></tr>
+        <tr><td>style</td><td>CSSProperties</td><td>—</td><td>Inline style override</td></tr>
       </tbody></table>
     </div>
   </PackagePageShell>

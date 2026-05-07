@@ -12,8 +12,8 @@ const LABELLED_MARKS = [
   { value: 100, label: "100%" },
 ];
 
-function SliderWrapper({ size, tone, range, showValue, showValueOnInteraction, marks, labelledMarks, formatPercent, disabled, orientation }: {
-  size: string; tone: string; range: boolean; showValue: boolean; showValueOnInteraction: boolean; marks: boolean; labelledMarks: boolean; formatPercent: boolean; disabled: boolean; orientation: string;
+function SliderWrapper({ size, tone, range, showValue, showValueOnInteraction, marks, labelledMarks, formatPercent, disabled, orientation, label, hint, min, max, step }: {
+  size: string; tone: string; range: boolean; showValue: boolean; showValueOnInteraction: boolean; marks: boolean; labelledMarks: boolean; formatPercent: boolean; disabled: boolean; orientation: string; label: string; hint: string; min: number; max: number; step: number;
 }) {
   const [value, setValue] = useState<SliderValue>(range ? [20, 70] : 40);
   const [committed, setCommitted] = useState<SliderValue>(value);
@@ -35,6 +35,11 @@ function SliderWrapper({ size, tone, range, showValue, showValueOnInteraction, m
         marks={marksProp as boolean}
         orientation={orientation as "horizontal" | "vertical"}
         disabled={disabled}
+        label={label || undefined}
+        hint={hint || undefined}
+        min={min}
+        max={max}
+        step={step}
       />
       <span style={{ fontSize: "0.78rem", color: "var(--fg-muted)" }}>
         committed: {Array.isArray(committed) ? committed.join("–") : committed}
@@ -106,11 +111,16 @@ export default function SliderDemo() {
           { name: "marks",                control: { type: "toggle" },                                                                defaultValue: false,     omitWhen: false },
           { name: "labelledMarks",        label: "labelled marks",         control: { type: "toggle" },                              defaultValue: false,     omitWhen: false },
           { name: "disabled",             control: { type: "toggle" },                                                                defaultValue: false,     omitWhen: false },
+          { name: "label",                control: { type: "text", placeholder: "e.g. Volume" },                                    defaultValue: "",        omitWhen: "" },
+          { name: "hint",                 control: { type: "text", placeholder: "Helper text…" },                                   defaultValue: "",        omitWhen: "" },
+          { name: "min",                  control: { type: "number", min: -100, max: 0, step: 1 },                                   defaultValue: 0,         omitWhen: 0 },
+          { name: "max",                  control: { type: "number", min: 100, max: 1000, step: 1 },                                 defaultValue: 100,       omitWhen: 100 },
+          { name: "step",                 control: { type: "number", min: 1, max: 25, step: 1 },                                     defaultValue: 1,         omitWhen: 1 },
         ]}
         staticProps={{ value: "{value}", onChange: "{setValue}" }}
         render={(v) => (
           <SliderWrapper
-            key={`${v.range}-${v.orientation}-${v.labelledMarks}`}
+            key={`${v.range}-${v.orientation}-${v.labelledMarks}-${String(v.min)}-${String(v.max)}`}
             size={v.size as string}
             tone={v.tone as string}
             range={v.range as boolean}
@@ -121,6 +131,11 @@ export default function SliderDemo() {
             formatPercent={v.formatPercent as boolean}
             disabled={v.disabled as boolean}
             orientation={v.orientation as string}
+            label={v.label as string}
+            hint={v.hint as string}
+            min={v.min as number}
+            max={v.max as number}
+            step={v.step as number}
           />
         )}
       />

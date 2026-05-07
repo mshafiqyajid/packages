@@ -6,8 +6,8 @@ import CodeBlock from "~/components/CodeBlock.astro";
 import AccordionDemo from "~/components/demos/AccordionDemo";
 ---
 
-<DocLayout title="react-accordion" description="Accessible accordion with single/multiple mode, smooth height animation, and full keyboard navigation." pkg="accordion">
-  <PackagePageShell name="react-accordion" description="Headless accordion hook and styled component for React. Single or multiple open items, smooth CSS grid height animation, full keyboard navigation, ARIA-compliant." size="~8 KB">
+<DocLayout title="react-accordion" description="Accessible accordion with single/multiple mode, smooth height animation, controlled state, and full keyboard navigation." pkg="accordion">
+  <PackagePageShell name="react-accordion" description="Headless accordion hook and styled component for React. Single or multiple open items, smooth CSS grid height animation, controlled/uncontrolled state, variants, lazy mount, imperative API, full keyboard navigation, ARIA-compliant." size="~8 KB">
 
     <div class="pkg-section">
       <H2>Playground</H2>
@@ -39,9 +39,70 @@ const items = [
     </div>
 
     <div class="pkg-section">
+      <H2>Variants</H2>
+      <p>Three visual variants: <code>"bordered"</code> (default), <code>"separated"</code>, and <code>"flush"</code>.</p>
+      <CodeBlock lang="tsx" code={`<AccordionStyled items={items} variant="bordered" />
+<AccordionStyled items={items} variant="separated" />
+<AccordionStyled items={items} variant="flush" />`} />
+    </div>
+
+    <div class="pkg-section">
       <H2>Default open</H2>
       <CodeBlock lang="tsx" code={`<AccordionStyled items={items} defaultOpen={0} />
 <AccordionStyled items={items} type="multiple" defaultOpen={[0, 1]} />`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Controlled</H2>
+      <p>Use <code>value</code> + <code>onValueChange</code> for fully controlled state. In single mode <code>value</code> is <code>number | null</code>; in multiple mode it is <code>number[]</code>.</p>
+      <CodeBlock lang="tsx" code={`const [open, setOpen] = useState<number | null>(0);
+
+<AccordionStyled
+  items={items}
+  value={open}
+  onValueChange={(v) => setOpen(v as number | null)}
+/>`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Imperative API</H2>
+      <p>Attach <code>apiRef</code> to get an imperative handle with <code>expandAll</code>, <code>collapseAll</code>, <code>open(index)</code>, <code>close(index)</code>, and <code>toggle(index)</code>.</p>
+      <CodeBlock lang="tsx" code={`import { useRef } from "react";
+import type { AccordionImperative } from "@mshafiqyajid/react-accordion/styled";
+
+const api = useRef<AccordionImperative>(null);
+
+<AccordionStyled items={items} type="multiple" apiRef={api} />
+<button onClick={() => api.current?.expandAll()}>Expand all</button>
+<button onClick={() => api.current?.collapseAll()}>Collapse all</button>`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Per-item options</H2>
+      <p>Each item in the <code>items</code> array accepts optional keys:</p>
+      <CodeBlock lang="tsx" code={`const items = [
+  {
+    title: "Normal",
+    content: "Content",
+  },
+  {
+    title: "Disabled",
+    content: "Never opens",
+    disabled: true,
+  },
+  {
+    title: "Always mounted",
+    content: "Panel stays in DOM even when closed",
+    forceMount: true,
+  },
+  {
+    title: "Custom header",
+    content: "Content",
+    renderHeader: ({ isOpen, toggle }) => (
+      <span onClick={toggle}>{isOpen ? "▲" : "▼"} Custom</span>
+    ),
+  },
+];`} />
     </div>
 
     <div class="pkg-section">
@@ -63,16 +124,26 @@ const { getItemProps } = useAccordion({ items: ids, type: "single" });
     </div>
 
     <div class="pkg-section">
-      <H2>API</H2>
+      <H2>API — AccordionStyled</H2>
       <table class="props-table">
         <thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
         <tbody>
-          <tr><td>items</td><td>AccordionItem[]</td><td>—</td><td>Array of {`{ title, content }`}</td></tr>
-          <tr><td>type</td><td>"single" | "multiple"</td><td>"single"</td><td>Whether multiple items can be open</td></tr>
+          <tr><td>items</td><td>AccordionItem[]</td><td>—</td><td>Array of <code>{`{ title, content, disabled?, renderHeader?, forceMount? }`}</code></td></tr>
+          <tr><td>type</td><td>"single" | "multiple"</td><td>"single"</td><td>Whether multiple items can be open simultaneously</td></tr>
+          <tr><td>variant</td><td>"bordered" | "separated" | "flush"</td><td>"bordered"</td><td>Visual layout variant</td></tr>
           <tr><td>size</td><td>"sm" | "md" | "lg"</td><td>"md"</td><td>Size variant</td></tr>
-          <tr><td>tone</td><td>"neutral" | "primary"</td><td>"neutral"</td><td>Color tone</td></tr>
-          <tr><td>defaultOpen</td><td>number | number[]</td><td>—</td><td>Index/indices open on first render</td></tr>
+          <tr><td>tone</td><td>"neutral" | "primary" | "success" | "danger"</td><td>"neutral"</td><td>Color tone</td></tr>
+          <tr><td>defaultOpen</td><td>number | number[]</td><td>—</td><td>Index/indices open on first render (uncontrolled)</td></tr>
+          <tr><td>value</td><td>number | number[] | null</td><td>—</td><td>Controlled open state by index</td></tr>
+          <tr><td>onValueChange</td><td>(value: number | number[] | null) =&gt; void</td><td>—</td><td>Fires when the open set changes</td></tr>
+          <tr><td>onOpenChange</td><td>(index: number, isOpen: boolean) =&gt; void</td><td>—</td><td>Per-item open/close callback</td></tr>
+          <tr><td>collapsible</td><td>boolean</td><td>true</td><td>Single mode: allow re-clicking the open item to close it</td></tr>
           <tr><td>animated</td><td>boolean</td><td>true</td><td>Enable smooth height animation</td></tr>
+          <tr><td>lazy</td><td>boolean</td><td>false</td><td>Only mount panel children after first expand; stays mounted on collapse</td></tr>
+          <tr><td>disabled</td><td>boolean</td><td>false</td><td>Disable all items</td></tr>
+          <tr><td>apiRef</td><td>Ref&lt;AccordionImperative&gt;</td><td>—</td><td>Imperative handle: <code>expandAll</code>, <code>collapseAll</code>, <code>open(i)</code>, <code>close(i)</code>, <code>toggle(i)</code></td></tr>
+          <tr><td>className</td><td>string</td><td>—</td><td>Extra class on the root element</td></tr>
+          <tr><td>style</td><td>CSSProperties</td><td>—</td><td>Inline style override</td></tr>
         </tbody>
       </table>
     </div>

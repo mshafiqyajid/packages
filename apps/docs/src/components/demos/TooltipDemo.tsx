@@ -22,6 +22,7 @@ export default function TooltipDemo() {
           { name: "followCursor",   label: "followCursor",            control: { type: "toggle" },                       defaultValue: false,     omitWhen: false },
           { name: "withSlots",      label: "header + footer slots",   control: { type: "toggle" },                       defaultValue: false,     omitWhen: false },
           { name: "longPressDelay", control: { type: "slider", min: 0, max: 1500, step: 100 },                            defaultValue: 500,        omitWhen: 500 },
+          { name: "offset",         label: "offset (px)",     control: { type: "slider", min: 0, max: 24, step: 1 },      defaultValue: 8,          omitWhen: 8 },
         ]}
         staticProps={{ content: '"Copy to clipboard"' }}
         render={(v) => (
@@ -57,6 +58,7 @@ export default function TooltipDemo() {
             interactive={v.interactive as boolean}
             followCursor={v.followCursor as boolean}
             longPressDelay={v.longPressDelay as number}
+            offset={v.offset as number}
           >
             <ButtonStyled variant="outline" tone="neutral">Hover me</ButtonStyled>
           </TooltipStyled>

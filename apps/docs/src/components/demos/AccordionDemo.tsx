@@ -134,8 +134,10 @@ export default function AccordionDemo() {
         { name: "size",     control: { type: "segmented", options: ["sm","md","lg"] as const },       defaultValue: "md",       omitWhen: "md" },
         { name: "tone",     control: { type: "segmented", options: ["neutral","primary"] as const },  defaultValue: "neutral",  omitWhen: "neutral" },
         { name: "variant",  control: { type: "segmented", options: ["bordered","separated","flush"] as const }, defaultValue: "bordered", omitWhen: "bordered" },
-        { name: "animated", control: { type: "toggle" },                                              defaultValue: true,       omitWhen: true },
-        { name: "lazy",     control: { type: "toggle" },                                              defaultValue: false,      omitWhen: false },
+        { name: "animated",    control: { type: "toggle" },                                              defaultValue: true,       omitWhen: true },
+        { name: "lazy",        control: { type: "toggle" },                                              defaultValue: false,      omitWhen: false },
+        { name: "collapsible", control: { type: "toggle" },                                              defaultValue: true,       omitWhen: true },
+        { name: "disabled",    control: { type: "toggle" },                                              defaultValue: false,      omitWhen: false },
       ]}
       staticProps={{ items: "{items}" }}
       render={(v) => (
@@ -148,6 +150,8 @@ export default function AccordionDemo() {
             variant={v.variant as "bordered" | "separated" | "flush"}
             animated={v.animated as boolean}
             lazy={v.lazy as boolean}
+            collapsible={v.collapsible as boolean}
+            disabled={v.disabled as boolean}
           />
         </div>
       )}

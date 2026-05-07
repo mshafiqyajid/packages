@@ -39,11 +39,25 @@ return (
 );`} />
     </div>
 
+    <div class="pkg-section"><H2>CheckboxGroup</H2>
+      <p>Wrap multiple checkboxes in <code>CheckboxGroup</code> to manage them as a set. Each checkbox must have a <code>value</code> prop. The group tracks a <code>string[]</code> of checked values.</p>
+      <CodeBlock lang="tsx" code={`import { CheckboxGroup, CheckboxStyled } from "@mshafiqyajid/react-checkbox/styled";
+
+const [values, setValues] = useState<string[]>(["a"]);
+
+<CheckboxGroup value={values} onChange={setValues}>
+  <CheckboxStyled value="a" label="Option A" />
+  <CheckboxStyled value="b" label="Option B" />
+  <CheckboxStyled value="c" label="Option C" />
+</CheckboxGroup>`} />
+    </div>
+
     <div class="pkg-section"><H2>API</H2>
       <table class="props-table"><thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
         <tr><td>checked</td><td>boolean | "indeterminate"</td><td>—</td><td>Controlled state</td></tr>
         <tr><td>defaultChecked</td><td>boolean | "indeterminate"</td><td>false</td><td>Uncontrolled initial state</td></tr>
         <tr><td>onChange</td><td>(checked: boolean) =&gt; void</td><td>—</td><td>Always emits boolean</td></tr>
+        <tr><td>value</td><td>string</td><td>—</td><td>Value used when inside a <code>CheckboxGroup</code></td></tr>
         <tr><td>size</td><td>"sm" | "md" | "lg"</td><td>"md"</td><td>Size</td></tr>
         <tr><td>tone</td><td>"neutral" | "primary" | "success" | "danger"</td><td>"primary"</td><td>Color when checked</td></tr>
         <tr><td>label</td><td>ReactNode</td><td>—</td><td>Label</td></tr>
@@ -52,7 +66,11 @@ return (
         <tr><td>labelPosition</td><td>"left" | "right"</td><td>"right"</td><td>Label side</td></tr>
         <tr><td>card</td><td>boolean</td><td>false</td><td>Bordered card; whole row becomes clickable</td></tr>
         <tr><td>required</td><td>boolean</td><td>false</td><td>Append a red asterisk to the label</td></tr>
+        <tr><td>invalid</td><td>boolean</td><td>false</td><td>Force invalid (danger) state without inline error text</td></tr>
         <tr><td>disabled</td><td>boolean</td><td>false</td><td>Disable</td></tr>
+        <tr><td>name</td><td>string</td><td>—</td><td>Native form name attribute</td></tr>
+        <tr><td>className</td><td>string</td><td>—</td><td>Extra class on the root element</td></tr>
+        <tr><td>style</td><td>CSSProperties</td><td>—</td><td>Inline style override</td></tr>
       </tbody></table>
     </div>
   </PackagePageShell>

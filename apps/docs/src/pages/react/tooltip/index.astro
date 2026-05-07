@@ -8,13 +8,12 @@ import TooltipDemo from "~/components/demos/TooltipDemo";
 
 <DocLayout
   title="react-tooltip"
-  description="Accessible tooltip with smart flip positioning, animations, and full keyboard support."
+  description="Accessible tooltip with smart flip positioning, interactive mode, cursor-following, group navigation, and full keyboard support."
   pkg="tooltip"
 >
   <PackagePageShell
     name="react-tooltip"
-
-    description="Headless tooltip hook and styled component for React. Accessible, keyboard-friendly, full placement set with -start/-end alignment, flip + shift + offset + collisionPadding, SSR-safe, fully typed."
+    description="Headless tooltip hook and styled component for React. Accessible, keyboard-friendly, full placement set with -start/-end alignment, flip + shift + offset + collisionPadding, interactive mode, cursor-follow mode, touch long-press, group keyboard navigation, header/footer slots, SSR-safe, fully typed."
     size="~7 KB"
   >
     <div class="pkg-section">
@@ -76,8 +75,56 @@ export function App() {
 
     <div class="pkg-section">
       <H2>Delay</H2>
-      <p>Show delay defaults to <code>0</code> (instant). Increase for less sensitive triggers.</p>
-      <CodeBlock lang="tsx" code={`<TooltipStyled content="Appears after 500ms" delay={500}>...</TooltipStyled>`} />
+      <p>Show delay defaults to <code>0</code> (instant). Increase for less sensitive triggers. Wrap tooltips in <code>TooltipProvider</code> to set a shared delay and get instant switching between hovered tooltips.</p>
+      <CodeBlock lang="tsx" code={`<TooltipStyled content="Appears after 500ms" delay={500}>...</TooltipStyled>
+
+// Shared delay via provider
+import { TooltipProvider } from "@mshafiqyajid/react-tooltip/styled";
+<TooltipProvider delay={300}>
+  <TooltipStyled content="Fast switch">...</TooltipStyled>
+  <TooltipStyled content="Fast switch too">...</TooltipStyled>
+</TooltipProvider>`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Interactive tooltip</H2>
+      <p>Set <code>interactive</code> to keep the tooltip open while the cursor is over it (e.g. for clickable links inside the tooltip). A 50 ms bridge prevents accidental close on cursor transition.</p>
+      <CodeBlock lang="tsx" code={`<TooltipStyled
+  interactive
+  content={<a href="/docs">Read the docs</a>}
+>
+  <button>Help</button>
+</TooltipStyled>`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Cursor-following</H2>
+      <p>Set <code>followCursor</code> to anchor the tooltip to the cursor position instead of the trigger. Useful for data visualisation hover labels.</p>
+      <CodeBlock lang="tsx" code={`<TooltipStyled content="Position: hover" followCursor>
+  <div className="chart-area">...</div>
+</TooltipStyled>`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Header and footer</H2>
+      <CodeBlock lang="tsx" code={`<TooltipStyled
+  header={<strong>Keyboard shortcut</strong>}
+  content="Copies the selection to clipboard"
+  footer={<kbd>⌘ C</kbd>}
+>
+  <button>Copy</button>
+</TooltipStyled>`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Group navigation</H2>
+      <p>Tooltips sharing a <code>group</code> key are linked: pressing ↓/↑ on a focused trigger cycles to the next/previous group member. Useful for guided tours.</p>
+      <CodeBlock lang="tsx" code={`<TooltipStyled group="tour" content="Step 1: Click here first">
+  <button>Step 1</button>
+</TooltipStyled>
+<TooltipStyled group="tour" content="Step 2: Then click this">
+  <button>Step 2</button>
+</TooltipStyled>`} />
     </div>
 
     <div class="pkg-section">
@@ -131,14 +178,22 @@ function MyTooltip({ content, children }) {
           <tr><td>placement</td><td>top | bottom | left | right (each with optional -start / -end)</td><td>"top"</td><td>Preferred side and alignment</td></tr>
           <tr><td>size</td><td>"sm" | "md" | "lg"</td><td>"md"</td><td>Size of the tooltip bubble</td></tr>
           <tr><td>tone</td><td>"neutral" | "primary" | "success" | "danger"</td><td>"neutral"</td><td>Color tone</td></tr>
-          <tr><td>delay</td><td>number</td><td>0</td><td>Show delay in ms</td></tr>
+          <tr><td>delay</td><td>number</td><td>0</td><td>Show delay in ms (overridden by <code>TooltipProvider</code>)</td></tr>
           <tr><td>multiline</td><td>boolean</td><td>false</td><td>Allow content to wrap</td></tr>
           <tr><td>disabled</td><td>boolean</td><td>false</td><td>Disable the tooltip entirely</td></tr>
-          <tr><td>offset</td><td>number</td><td>8</td><td>Gap between trigger and tooltip</td></tr>
+          <tr><td>offset</td><td>number</td><td>8</td><td>Gap between trigger and tooltip in px</td></tr>
           <tr><td>collisionPadding</td><td>number</td><td>8</td><td>Viewport edge margin for flip / shift</td></tr>
           <tr><td>flip</td><td>boolean</td><td>true</td><td>Auto-flip to opposite side near edges</td></tr>
           <tr><td>shift</td><td>boolean</td><td>true</td><td>Push back into view along the cross-axis</td></tr>
           <tr><td>strategy</td><td>"absolute" | "fixed"</td><td>"absolute"</td><td>Positioning strategy</td></tr>
+          <tr><td>sticky</td><td>boolean</td><td>false</td><td>Keep tooltip open while cursor is over it (deprecated alias for <code>interactive</code>)</td></tr>
+          <tr><td>interactive</td><td>boolean</td><td>false</td><td>Keep tooltip open while cursor is over the tooltip body; enables pointer-events inside the tooltip</td></tr>
+          <tr><td>followCursor</td><td>boolean</td><td>false</td><td>Tooltip follows cursor position instead of anchoring to the trigger</td></tr>
+          <tr><td>header</td><td>ReactNode</td><td>—</td><td>Optional content rendered above the main <code>content</code></td></tr>
+          <tr><td>footer</td><td>ReactNode</td><td>—</td><td>Optional content rendered below the main <code>content</code></td></tr>
+          <tr><td>longPressDelay</td><td>number</td><td>500</td><td>Long-press delay in ms for touch trigger. Set <code>0</code> to disable touch</td></tr>
+          <tr><td>group</td><td>string</td><td>—</td><td>Group key linking tooltips for ↓/↑ keyboard cycling</td></tr>
+          <tr><td>groupId</td><td>string</td><td>—</td><td>Optional id within the group for ordering (falls back to DOM order)</td></tr>
         </tbody>
       </table>
     </div>

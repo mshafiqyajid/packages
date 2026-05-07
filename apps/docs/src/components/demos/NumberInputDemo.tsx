@@ -14,6 +14,12 @@ function NumberInputWrapper({
   repeat,
   scrubable,
   largeStep,
+  prefix,
+  suffix,
+  min,
+  max,
+  invalid,
+  required,
 }: {
   size: string;
   tone: string;
@@ -25,6 +31,12 @@ function NumberInputWrapper({
   repeat: boolean;
   scrubable: boolean;
   largeStep: number;
+  prefix: string;
+  suffix: string;
+  min: number;
+  max: number;
+  invalid: boolean;
+  required: boolean;
 }) {
   const [value, setValue] = useState<number | undefined>(42);
   return (
@@ -45,6 +57,12 @@ function NumberInputWrapper({
           ? "Drag the label left/right to scrub. Hold +/− to repeat."
           : "Hold +/− to repeat. Shift+arrows or PageUp/PageDown for large step."
       }
+      prefix={prefix || undefined}
+      suffix={suffix || undefined}
+      min={min !== 0 ? min : undefined}
+      max={max !== 0 ? max : undefined}
+      invalid={invalid || undefined}
+      required={required || undefined}
       style={{ width: "100%", maxWidth: 280 } as React.CSSProperties}
       disabled={disabled}
       {...({ repeat: repeat ? { initialDelay: 500, interval: 80, accel: 0.9 } : undefined, scrubable: scrubable } as object)}
@@ -68,6 +86,12 @@ export default function NumberInputDemo() {
         { name: "repeat",      control: { type: "toggle" },                                                                     defaultValue: true,      omitWhen: true },
         { name: "scrubable",   control: { type: "toggle" },                                                                     defaultValue: false,     omitWhen: false },
         { name: "disabled",    control: { type: "toggle" },                                                                     defaultValue: false,     omitWhen: false },
+        { name: "invalid",     control: { type: "toggle" },                                                                     defaultValue: false,     omitWhen: false },
+        { name: "required",    control: { type: "toggle" },                                                                     defaultValue: false,     omitWhen: false },
+        { name: "prefix",      control: { type: "text", placeholder: "e.g. $" },                                                defaultValue: "",        omitWhen: "" },
+        { name: "suffix",      control: { type: "text", placeholder: "e.g. kg" },                                               defaultValue: "",        omitWhen: "" },
+        { name: "min",         control: { type: "number", min: -1000, max: 0, step: 1 },                                         defaultValue: 0,         omitWhen: 0 },
+        { name: "max",         control: { type: "number", min: 0, max: 10000, step: 1 },                                         defaultValue: 0,         omitWhen: 0 },
       ]}
       staticProps={{ value: "{value}", onChange: "{setValue}" }}
       render={(v) => (
@@ -83,6 +107,12 @@ export default function NumberInputDemo() {
           repeat={v.repeat as boolean}
           scrubable={v.scrubable as boolean}
           largeStep={v.largeStep as number}
+          prefix={v.prefix as string}
+          suffix={v.suffix as string}
+          min={v.min as number}
+          max={v.max as number}
+          invalid={v.invalid as boolean}
+          required={v.required as boolean}
         />
       )}
     />

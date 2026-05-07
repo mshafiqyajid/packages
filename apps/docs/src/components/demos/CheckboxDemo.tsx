@@ -23,6 +23,8 @@ export default function CheckboxDemo() {
           { name: "required",      control: { type: "toggle" },                                                                          defaultValue: false,     omitWhen: false },
           { name: "indeterminate", control: { type: "toggle" },                                                                          defaultValue: false,     omitWhen: false },
           { name: "disabled",      control: { type: "toggle" },                                                                          defaultValue: false,     omitWhen: false },
+          { name: "invalid",       control: { type: "toggle" },                                                                          defaultValue: false,     omitWhen: false },
+          { name: "name",          control: { type: "text", placeholder: "form field name" },                                             defaultValue: "",        omitWhen: "" },
         ]}
         staticProps={{ checked: "{checked}", onChange: "{setChecked}", label: '"I agree to the terms"' }}
         render={(v) => (
@@ -38,6 +40,8 @@ export default function CheckboxDemo() {
             card={v.card as boolean}
             required={v.required as boolean}
             disabled={v.disabled as boolean}
+            invalid={v.invalid as boolean}
+            name={(v.name as string) || undefined}
           />
         )}
       />

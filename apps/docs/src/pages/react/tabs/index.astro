@@ -6,8 +6,8 @@ import CodeBlock from "~/components/CodeBlock.astro";
 import TabsDemo from "~/components/demos/TabsDemo";
 ---
 
-<DocLayout title="react-tabs" description="Accessible tabs with sliding indicator, three variants, controlled and uncontrolled modes." pkg="tabs">
-  <PackagePageShell name="react-tabs" description="Headless tabs hook and styled component for React. Line, solid, and pill variants with a ResizeObserver-driven sliding indicator. Controlled and uncontrolled, full keyboard navigation, ARIA-compliant." size="~9 KB">
+<DocLayout title="react-tabs" description="Accessible tabs with sliding indicator, closeable tabs, drag reordering, scrollable tab list, and three variants." pkg="tabs">
+  <PackagePageShell name="react-tabs" description="Headless tabs hook and styled component for React. Line, solid, and pill variants with a ResizeObserver-driven sliding indicator. Closeable tabs, drag-to-reorder, horizontal scrolling, lazy/force mount, typeahead navigation, controlled and uncontrolled, full keyboard navigation, ARIA-compliant." size="~9 KB">
 
     <div class="pkg-section">
       <H2>Playground</H2>
@@ -54,6 +54,49 @@ const tabs = [
     </div>
 
     <div class="pkg-section">
+      <H2>Closeable tabs</H2>
+      <p>Add <code>closable: true</code> (or the alias <code>closeable</code>) to a tab item to render a × button. Handle removals with <code>onTabClose</code> (or alias <code>onClose</code>).</p>
+      <CodeBlock lang="tsx" code={`const [tabs, setTabs] = useState([
+  { value: "a", label: "Tab A", content: <p>A</p>, closable: true },
+  { value: "b", label: "Tab B", content: <p>B</p>, closable: true },
+]);
+
+<TabsStyled
+  tabs={tabs}
+  onTabClose={(value) => setTabs((t) => t.filter((tab) => tab.value !== value))}
+/>`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Scrollable tab list</H2>
+      <p>Set <code>scrollable</code> to scroll the tab list horizontally instead of wrapping. Chevron buttons appear at the edges.</p>
+      <CodeBlock lang="tsx" code={`<TabsStyled tabs={manyTabs} scrollable />`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Drag reorder</H2>
+      <p>Set <code>sortable</code> to enable HTML5 drag-to-reorder. The <code>onReorder</code> callback receives the new values array. Use <code>reorderable</code> instead if you prefer <code>onReorder(fromIndex, toIndex)</code>.</p>
+      <CodeBlock lang="tsx" code={`const [tabs, setTabs] = useState(myTabs);
+
+<TabsStyled
+  tabs={tabs}
+  sortable
+  onReorder={(values) =>
+    setTabs((prev) => values.map((v) => prev.find((t) => t.value === v)!))
+  }
+/>`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Lazy / force mount</H2>
+      <CodeBlock lang="tsx" code={`// Only render panel content after first activation
+<TabsStyled tabs={tabs} lazyMount />
+
+// Always keep all panels in the DOM
+<TabsStyled tabs={tabs} forceMount />`} />
+    </div>
+
+    <div class="pkg-section">
       <H2>Headless</H2>
       <CodeBlock lang="tsx" code={`import { useTabs } from "@mshafiqyajid/react-tabs";
 
@@ -72,18 +115,34 @@ const { activeValue, getTabProps, getPanelProps } = useTabs({
 
     <div class="pkg-section">
       <H2>API</H2>
+      <p><strong>TabItem</strong> shape: <code>{`{ value, label, content, disabled?, closable?, closeable? }`}</code></p>
       <table class="props-table">
         <thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
         <tbody>
-          <tr><td>tabs</td><td>TabItem[]</td><td>—</td><td>Array of {`{ value, label, content, disabled? }`}</td></tr>
+          <tr><td>tabs</td><td>TabItem[]</td><td>—</td><td>Tab definitions (see shape above)</td></tr>
           <tr><td>variant</td><td>"line" | "solid" | "pill"</td><td>"line"</td><td>Visual style</td></tr>
           <tr><td>size</td><td>"sm" | "md" | "lg"</td><td>"md"</td><td>Size variant</td></tr>
-          <tr><td>tone</td><td>"neutral" | "primary"</td><td>"neutral"</td><td>Color tone</td></tr>
+          <tr><td>tone</td><td>"neutral" | "primary" | "success" | "danger"</td><td>"neutral"</td><td>Color tone</td></tr>
           <tr><td>defaultValue</td><td>string</td><td>first enabled</td><td>Initially active tab (uncontrolled)</td></tr>
           <tr><td>value</td><td>string</td><td>—</td><td>Controlled active tab</td></tr>
-          <tr><td>onChange</td><td>(value: string) =&gt; void</td><td>—</td><td>Called when active tab changes</td></tr>
+          <tr><td>onChange</td><td>(value: string, reason: TabsChangeReason) =&gt; void</td><td>—</td><td>Called when active tab changes. <code>reason</code> is <code>"click" | "keyboard" | "programmatic"</code></td></tr>
+          <tr><td>activation / activationMode</td><td>"automatic" | "manual"</td><td>"automatic"</td><td>Arrow keys move focus AND activate (auto) or only move focus (manual)</td></tr>
+          <tr><td>orientation</td><td>"horizontal" | "vertical"</td><td>"horizontal"</td><td>Affects keyboard nav direction</td></tr>
+          <tr><td>scrollable</td><td>boolean</td><td>false</td><td>Tab list scrolls horizontally with chevron buttons at edges</td></tr>
+          <tr><td>scrollActiveIntoView</td><td>boolean</td><td>true when scrollable</td><td>Auto-scroll active tab into view on activation</td></tr>
+          <tr><td>lazyMount</td><td>boolean</td><td>false</td><td>Only mount panel content after first activation</td></tr>
+          <tr><td>forceMount</td><td>boolean</td><td>false</td><td>Keep all panels mounted regardless of activation</td></tr>
+          <tr><td>onTabClose / onClose</td><td>(value: string) =&gt; void</td><td>—</td><td>Fires when the × button on a closable tab is clicked (aliases)</td></tr>
+          <tr><td>sortable</td><td>boolean</td><td>false</td><td>Enable drag reorder; <code>onReorder</code> receives the new values array</td></tr>
+          <tr><td>reorderable</td><td>boolean</td><td>false</td><td>Enable drag reorder; <code>onReorder</code> receives <code>(fromIndex, toIndex)</code></td></tr>
+          <tr><td>onReorder</td><td>(values: string[]) =&gt; void or (from: number, to: number) =&gt; void</td><td>—</td><td>Called after drag reorder (signature depends on <code>sortable</code> vs <code>reorderable</code>)</td></tr>
+          <tr><td>renderTab</td><td>(ctx: TabsRenderTabContext) =&gt; ReactNode</td><td>—</td><td>Custom tab button content; button shell and a11y attrs stay owned by the component</td></tr>
+          <tr><td>renderPanel</td><td>(ctx: TabsRenderPanelContext) =&gt; ReactNode</td><td>—</td><td>Custom panel rendering</td></tr>
+          <tr><td>className</td><td>string</td><td>—</td><td>Extra class on the root element</td></tr>
+          <tr><td>style</td><td>CSSProperties</td><td>—</td><td>Inline style override</td></tr>
         </tbody>
       </table>
+      <p class="pkg-note">Typeahead is built in: pressing a letter key while the tab list is focused jumps to the next tab whose string label starts with the typed buffer (600 ms reset).</p>
     </div>
   </PackagePageShell>
 </DocLayout>

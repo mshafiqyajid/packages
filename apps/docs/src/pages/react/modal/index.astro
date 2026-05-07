@@ -6,8 +6,8 @@ import CodeBlock from "~/components/CodeBlock.astro";
 import ModalDemo from "~/components/demos/ModalDemo";
 ---
 
-<DocLayout title="react-modal" description="Accessible modal dialog and drawer with focus trap, scroll lock, and smooth animations." pkg="modal">
-  <PackagePageShell name="react-modal" description="Headless modal hook and styled dialog/drawer for React. Focus trap, scroll lock, Escape to close, four drawer positions, four sizes, smooth enter/exit animations, ARIA-compliant." size="~11 KB">
+<DocLayout title="react-modal" description="Accessible modal dialog and drawer with focus trap, scroll lock, stacking, swipe-to-dismiss, and smooth animations." pkg="modal">
+  <PackagePageShell name="react-modal" description="Headless modal hook and styled dialog/drawer for React. Focus trap, scroll lock, Escape to close, four drawer positions, four sizes, smooth enter/exit animations, confirm variant, mobile sheet mode, swipe-to-dismiss, modal stacking with depth-aware z-index, async preventClose guard, ARIA-compliant." size="~11 KB">
 
     <div class="pkg-section">
       <H2>Playground</H2>
@@ -29,7 +29,7 @@ const [open, setOpen] = useState(false);
 <button onClick={() => setOpen(true)}>Open</button>
 
 <ModalStyled
-  isOpen={open}
+  open={open}
   onClose={() => setOpen(false)}
   title="Confirm action"
   footer={
@@ -45,12 +45,60 @@ const [open, setOpen] = useState(false);
 
     <div class="pkg-section">
       <H2>Drawer variants</H2>
-      <CodeBlock lang="tsx" code={`<ModalStyled variant="drawer-right" title="Settings" isOpen={open} onClose={close}>
+      <CodeBlock lang="tsx" code={`<ModalStyled variant="drawer-right" title="Settings" open={open} onClose={close}>
   <p>Drawer content</p>
 </ModalStyled>
 
-<ModalStyled variant="drawer-bottom" title="Options" isOpen={open} onClose={close}>
-  <p>Bottom sheet content</p>
+<ModalStyled variant="drawer-bottom" title="Options" open={open} onClose={close}>
+  <p>Bottom sheet (swipe-to-dismiss enabled automatically)</p>
+</ModalStyled>`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Confirm variant</H2>
+      <p>Set <code>confirmVariant="confirm"</code> for a pre-wired confirm/cancel footer. No need to pass <code>footer</code>.</p>
+      <CodeBlock lang="tsx" code={`<ModalStyled
+  open={open}
+  onClose={close}
+  title="Delete item"
+  confirmVariant="confirm"
+  confirmLabel="Delete"
+  confirmTone="danger"
+  onConfirm={() => { deleteItem(); close(); }}
+  onCancel={close}
+>
+  <p>This action cannot be undone.</p>
+</ModalStyled>`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Mobile sheet</H2>
+      <p>Set <code>mobileVariant="sheet"</code> to render as a bottom sheet on viewports ≤ 640 px. Drag-to-dismiss is enabled automatically. Desktop layout is unchanged.</p>
+      <CodeBlock lang="tsx" code={`<ModalStyled open={open} onClose={close} title="Options" mobileVariant="sheet">
+  <p>Drag down to dismiss on mobile.</p>
+</ModalStyled>`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Transition</H2>
+      <p>Choose the panel entrance animation. Only applies to <code>variant="dialog"</code>; drawers always slide. Default: <code>"fade"</code>.</p>
+      <CodeBlock lang="tsx" code={`<ModalStyled open={open} onClose={close} transition="zoom">...</ModalStyled>
+<ModalStyled open={open} onClose={close} transition="slide-up">...</ModalStyled>`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Async preventClose guard</H2>
+      <p><code>preventClose</code> receives the close reason and can return/resolve <code>true</code> to block the close.</p>
+      <CodeBlock lang="tsx" code={`<ModalStyled
+  open={open}
+  onClose={close}
+  preventClose={async (reason) => {
+    if (reason === "overlay") return true; // block overlay click
+    const dirty = await checkUnsavedChanges();
+    return dirty; // true = cancel the close
+  }}
+>
+  <p>Form with unsaved changes</p>
 </ModalStyled>`} />
     </div>
 
@@ -77,12 +125,15 @@ const { isOpen, open, close, modalProps, overlayProps } = useModal();
       <table class="props-table">
         <thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
         <tbody>
-          <tr><td>isOpen</td><td>boolean</td><td>—</td><td>Controls visibility</td></tr>
+          <tr><td>open</td><td>boolean</td><td>—</td><td>Controls visibility. Alias: <code>isOpen</code> (both accepted)</td></tr>
           <tr><td>onClose</td><td>() =&gt; void</td><td>—</td><td>Called when modal requests close</td></tr>
           <tr><td>title</td><td>ReactNode</td><td>—</td><td>Header title — omit to hide header entirely</td></tr>
-          <tr><td>footer</td><td>ReactNode</td><td>—</td><td>Footer content — omit to hide footer</td></tr>
+          <tr><td>description</td><td>ReactNode</td><td>—</td><td>Accessible description rendered below the title; linked via aria-describedby</td></tr>
+          <tr><td>footer</td><td>ReactNode</td><td>—</td><td>Footer content — omit to hide footer. Ignored when <code>confirmVariant="confirm"</code></td></tr>
           <tr><td>size</td><td>"sm" | "md" | "lg" | "full"</td><td>"md"</td><td>Dialog width / drawer width</td></tr>
           <tr><td>variant</td><td>"dialog" | "drawer-left" | "drawer-right" | "drawer-bottom"</td><td>"dialog"</td><td>Layout variant</td></tr>
+          <tr><td>mobileVariant</td><td>"default" | "sheet"</td><td>"default"</td><td>On viewports ≤ 640 px, render as a bottom sheet with drag-to-dismiss</td></tr>
+          <tr><td>transition</td><td>"fade" | "zoom" | "slide-up" | "slide-down"</td><td>"fade"</td><td>Panel entrance animation (dialog variant only; drawers always slide)</td></tr>
           <tr><td>blur</td><td>"none" | "sm" | "md" | "lg"</td><td>"md"</td><td>Backdrop blur intensity</td></tr>
           <tr><td>padding</td><td>"none" | "sm" | "md" | "lg"</td><td>"md"</td><td>Body padding</td></tr>
           <tr><td>scrollable</td><td>boolean</td><td>true</td><td>Allow body to scroll when content overflows</td></tr>
@@ -90,8 +141,25 @@ const { isOpen, open, close, modalProps, overlayProps } = useModal();
           <tr><td>closeOnOverlayClick</td><td>boolean</td><td>true</td><td>Close when clicking the backdrop</td></tr>
           <tr><td>closeOnEsc</td><td>boolean</td><td>true</td><td>Close on Escape key</td></tr>
           <tr><td>showCloseButton</td><td>boolean</td><td>true</td><td>Show the × button in the header</td></tr>
+          <tr><td>lockBodyScroll</td><td>boolean</td><td>true</td><td>Lock body scroll while open</td></tr>
+          <tr><td>swipeToDismiss</td><td>boolean</td><td>false†</td><td>Allow swipe-down-to-dismiss on touch devices. Defaults to <code>true</code> for <code>drawer-bottom</code></td></tr>
+          <tr><td>closeOnSubmit</td><td>boolean</td><td>false</td><td>Auto-close when a contained <code>&lt;form&gt;</code> submits (and default is not prevented)</td></tr>
+          <tr><td>preventClose</td><td>(reason: CloseReason) =&gt; boolean | Promise&lt;boolean&gt;</td><td>—</td><td>Return/resolve <code>true</code> to cancel the close</td></tr>
+          <tr><td>onAfterOpen</td><td>() =&gt; void</td><td>—</td><td>Fires after the open transition completes</td></tr>
+          <tr><td>onAfterClose</td><td>() =&gt; void</td><td>—</td><td>Fires after the close transition completes</td></tr>
+          <tr><td>initialFocusRef</td><td>RefObject&lt;HTMLElement&gt;</td><td>—</td><td>Element to focus when modal opens</td></tr>
+          <tr><td>finalFocusRef</td><td>RefObject&lt;HTMLElement&gt;</td><td>—</td><td>Element to focus when modal closes</td></tr>
+          <tr><td>container</td><td>HTMLElement | null</td><td>document.body</td><td>Override the portal container</td></tr>
+          <tr><td>confirmVariant</td><td>"default" | "confirm"</td><td>"default"</td><td>Set to <code>"confirm"</code> to render a pre-wired confirm/cancel footer</td></tr>
+          <tr><td>confirmLabel</td><td>ReactNode</td><td>"Confirm"</td><td>Confirm button label</td></tr>
+          <tr><td>cancelLabel</td><td>ReactNode</td><td>"Cancel"</td><td>Cancel button label</td></tr>
+          <tr><td>confirmTone</td><td>"neutral" | "danger"</td><td>"neutral"</td><td>Confirm button tone</td></tr>
+          <tr><td>onConfirm</td><td>() =&gt; void</td><td>—</td><td>Called when confirm button is clicked</td></tr>
+          <tr><td>onCancel</td><td>() =&gt; void</td><td>—</td><td>Called when cancel button is clicked</td></tr>
+          <tr><td>style</td><td>CSSProperties</td><td>—</td><td>Inline style override on the panel</td></tr>
         </tbody>
       </table>
+      <p class="pkg-note"><code>CloseReason</code> values: <code>"esc"</code> | <code>"overlay"</code> | <code>"close-button"</code> | <code>"programmatic"</code> | <code>"swipe"</code> | <code>"submit"</code>.</p>
     </div>
   </PackagePageShell>
 </DocLayout>

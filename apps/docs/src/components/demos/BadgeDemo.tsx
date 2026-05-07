@@ -61,6 +61,7 @@ export default function BadgeDemo() {
           { name: "count",       control: { type: "slider", min: 0, max: 200, step: 1 },                                                       defaultValue: 0,          omitWhen: 0 },
           { name: "maxCount",    control: { type: "slider", min: 9, max: 99, step: 1 },                                                        defaultValue: 99,         omitWhen: 99 },
           { name: "hideOnZero",  control: { type: "toggle" },                                                                                  defaultValue: false,      omitWhen: false },
+          { name: "showZero",    control: { type: "toggle" },                                                                                  defaultValue: false,      omitWhen: false },
         ]}
         render={(v) => (
           <BadgeStyled
@@ -75,6 +76,7 @@ export default function BadgeDemo() {
             count={v.count as number}
             maxCount={v.maxCount as number}
             hideOnZero={v.hideOnZero as boolean}
+            showZero={v.showZero as boolean}
           >
             New feature
           </BadgeStyled>

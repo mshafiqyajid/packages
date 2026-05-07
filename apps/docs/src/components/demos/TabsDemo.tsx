@@ -18,8 +18,8 @@ const manyTabs = [
   { value: "changelog",label: "Changelog",content: <p style={{ margin: 0, padding: "1rem 0", color: "var(--fg-muted)", fontSize: "0.875rem" }}>Changelog.</p> },
 ];
 
-function TabsWrapper({ variant, size, tone, scrollable, reorderable, closeable, activationMode }: {
-  variant: string; size: string; tone: string; scrollable: boolean; reorderable: boolean; closeable: boolean; activationMode: string;
+function TabsWrapper({ variant, size, tone, scrollable, reorderable, closeable, activationMode, orientation, lazyMount, forceMount }: {
+  variant: string; size: string; tone: string; scrollable: boolean; reorderable: boolean; closeable: boolean; activationMode: string; orientation: string; lazyMount: boolean; forceMount: boolean;
 }) {
   const initial = scrollable ? manyTabs : baseTabs;
   const [items, setItems] = useState(initial.map((t) => ({ ...t, closeable })));
@@ -27,7 +27,7 @@ function TabsWrapper({ variant, size, tone, scrollable, reorderable, closeable, 
   return (
     <div style={{ width: "100%", maxWidth: 480 }}>
       <TabsStyled
-        key={`${scrollable}-${closeable}-${reorderable}-${activationMode}`}
+        key={`${scrollable}-${closeable}-${reorderable}-${activationMode}-${orientation}`}
         tabs={items.map((t) => ({ ...t, closeable }))}
         variant={variant as "line" | "solid" | "pill"}
         size={size as "sm" | "md" | "lg"}
@@ -36,6 +36,9 @@ function TabsWrapper({ variant, size, tone, scrollable, reorderable, closeable, 
         scrollable={scrollable}
         reorderable={reorderable}
         activationMode={activationMode as "automatic" | "manual"}
+        orientation={orientation as "horizontal" | "vertical"}
+        lazyMount={lazyMount}
+        forceMount={forceMount}
         onClose={(value) => setItems((cur) => cur.filter((t) => t.value !== value))}
         onReorder={(fromIndex, toIndex) => {
           setItems((cur) => {
@@ -60,9 +63,12 @@ export default function TabsDemo() {
         { name: "size",           control: { type: "segmented", options: ["sm","md","lg"] as const },                 defaultValue: "md",        omitWhen: "md" },
         { name: "tone",           control: { type: "segmented", options: ["neutral","primary"] as const },            defaultValue: "neutral",   omitWhen: "neutral" },
         { name: "activationMode", label: "activation mode", control: { type: "segmented", options: ["automatic","manual"] as const }, defaultValue: "automatic", omitWhen: "automatic" },
-        { name: "scrollable",     label: "scroll overflow",   control: { type: "toggle" }, defaultValue: false, omitWhen: false },
-        { name: "reorderable",    label: "drag to reorder",   control: { type: "toggle" }, defaultValue: false, omitWhen: false },
+        { name: "orientation",    control: { type: "segmented", options: ["horizontal","vertical"] as const }, defaultValue: "horizontal", omitWhen: "horizontal" },
+        { name: "scrollable",     label: "scroll overflow",    control: { type: "toggle" }, defaultValue: false, omitWhen: false },
+        { name: "reorderable",    label: "drag to reorder",    control: { type: "toggle" }, defaultValue: false, omitWhen: false },
         { name: "closeable",      label: "closeable tabs (×)", control: { type: "toggle" }, defaultValue: false, omitWhen: false },
+        { name: "lazyMount",      label: "lazy mount panels",  control: { type: "toggle" }, defaultValue: false, omitWhen: false },
+        { name: "forceMount",     label: "force mount panels", control: { type: "toggle" }, defaultValue: false, omitWhen: false },
       ]}
       staticProps={{ tabs: "{tabs}", defaultValue: '"overview"' }}
       render={(v) => (
@@ -74,6 +80,9 @@ export default function TabsDemo() {
           reorderable={v.reorderable as boolean}
           closeable={v.closeable as boolean}
           activationMode={v.activationMode as string}
+          orientation={v.orientation as string}
+          lazyMount={v.lazyMount as boolean}
+          forceMount={v.forceMount as boolean}
         />
       )}
     />

@@ -49,7 +49,10 @@ return (
         <tr><td>icon</td><td>ReactNode</td><td>—</td><td>Leading icon</td></tr>
         <tr><td>hideOnZero</td><td>boolean</td><td>false</td><td>Render nothing when <code>count</code> is <code>0</code> and there is no other content. Useful for unread badges.</td></tr>
         <tr><td>showZero</td><td>boolean</td><td>false</td><td>Force-render <code>count={`{0}`}</code>. Overrides <code>hideOnZero</code>.</td></tr>
+        <tr><td>className</td><td>string</td><td>—</td><td>Extra class on the root element</td></tr>
+        <tr><td>style</td><td>CSSProperties</td><td>—</td><td>Inline style override</td></tr>
       </tbody></table>
+      <p class="pkg-note">When <code>count</code> changes the displayed number animates with a flip transition (up when incrementing, down when decrementing).</p>
     </div>
   </PackagePageShell>
 </DocLayout>
