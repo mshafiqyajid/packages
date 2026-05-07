@@ -21,50 +21,73 @@ function pkgVersion(slug: string): string {
   }
 }
 
-const meta = [
-  { slug: "copy-button",       label: "Copy Button",       icon: "📋" },
-  { slug: "otp-input",         label: "OTP Input",         icon: "🔐" },
-  { slug: "segmented-control", label: "Segmented Control", icon: "🎚️" },
-  { slug: "rating",            label: "Rating",            icon: "⭐" },
-  { slug: "color",             label: "Color",             icon: "🎨" },
-  { slug: "tooltip",           label: "Tooltip",           icon: "💬" },
-  { slug: "accordion",         label: "Accordion",         icon: "🪗" },
-  { slug: "tabs",              label: "Tabs",              icon: "🗂️" },
-  { slug: "toast",             label: "Toast",             icon: "🍞" },
-  { slug: "select",            label: "Select",            icon: "📝" },
-  { slug: "modal",             label: "Modal",             icon: "🪟" },
-  { slug: "switch",            label: "Switch",            icon: "🔘" },
-  { slug: "badge",             label: "Badge",             icon: "🏷️" },
-  { slug: "avatar",            label: "Avatar",            icon: "👤" },
-  { slug: "progress",          label: "Progress",          icon: "📊" },
-  { slug: "slider",            label: "Slider",            icon: "🎛️" },
-  { slug: "popover",           label: "Popover",           icon: "💭" },
-  { slug: "dropdown-menu",     label: "Dropdown Menu",     icon: "📋" },
-  { slug: "timeline",          label: "Timeline",          icon: "📅" },
-  { slug: "date-picker",       label: "Date Picker",       icon: "📆" },
-  { slug: "file-upload",       label: "File Upload",       icon: "📁" },
-  { slug: "number-input",      label: "Number Input",      icon: "🔢" },
-  { slug: "phone-input",       label: "Phone Input",       icon: "📞" },
-  { slug: "color-input",       label: "Color Input",       icon: "🖌️" },
-  { slug: "tag-input",         label: "Tag Input",         icon: "🏷️" },
-  { slug: "rich-text",         label: "Rich Text",         icon: "✍️" },
-  { slug: "table",             label: "Table",             icon: "📊" },
-  { slug: "chart",             label: "Chart",             icon: "📈" },
-  { slug: "kanban",            label: "Kanban",            icon: "🗂️" },
-  { slug: "command-palette",   label: "Command Palette",   icon: "⌘"  },
-  { slug: "stepper",           label: "Stepper",           icon: "📶" },
-  { slug: "tree",              label: "Tree",              icon: "🌳" },
-  { slug: "button",            label: "Button",            icon: "🔘" },
-  { slug: "checkbox",          label: "Checkbox",          icon: "☑️" },
-  { slug: "text-input",        label: "Text Input",        icon: "✏️" },
-];
-
-const packages = [
+const categories = [
   {
-    framework: "React",
-    items: meta.map((m) => ({ ...m, version: pkgVersion(m.slug) })),
+    label: "Inputs",
+    items: [
+      { slug: "button",            label: "Button",            icon: "⬜" },
+      { slug: "checkbox",          label: "Checkbox",          icon: "☑️" },
+      { slug: "switch",            label: "Switch",            icon: "🔘" },
+      { slug: "text-input",        label: "Text Input",        icon: "✏️" },
+      { slug: "number-input",      label: "Number Input",      icon: "🔢" },
+      { slug: "phone-input",       label: "Phone Input",       icon: "📞" },
+      { slug: "otp-input",         label: "OTP Input",         icon: "🔐" },
+      { slug: "color-input",       label: "Color Input",       icon: "🖌️" },
+      { slug: "tag-input",         label: "Tag Input",         icon: "🏷️" },
+      { slug: "rating",            label: "Rating",            icon: "⭐" },
+      { slug: "slider",            label: "Slider",            icon: "🎛️" },
+      { slug: "segmented-control", label: "Segmented Control", icon: "🎚️" },
+    ],
+  },
+  {
+    label: "Overlays",
+    items: [
+      { slug: "select",            label: "Select",            icon: "📝" },
+      { slug: "date-picker",       label: "Date Picker",       icon: "📆" },
+      { slug: "modal",             label: "Modal",             icon: "🪟" },
+      { slug: "tooltip",           label: "Tooltip",           icon: "💬" },
+      { slug: "popover",           label: "Popover",           icon: "💭" },
+      { slug: "dropdown-menu",     label: "Dropdown Menu",     icon: "📋" },
+      { slug: "command-palette",   label: "Command Palette",   icon: "⌘"  },
+      { slug: "color",             label: "Color",             icon: "🎨" },
+    ],
+  },
+  {
+    label: "Feedback",
+    items: [
+      { slug: "toast",             label: "Toast",             icon: "🍞" },
+      { slug: "badge",             label: "Badge",             icon: "🏷️" },
+      { slug: "avatar",            label: "Avatar",            icon: "👤" },
+      { slug: "progress",          label: "Progress",          icon: "📊" },
+      { slug: "copy-button",       label: "Copy Button",       icon: "📋" },
+    ],
+  },
+  {
+    label: "Data",
+    items: [
+      { slug: "table",             label: "Table",             icon: "📊" },
+      { slug: "chart",             label: "Chart",             icon: "📈" },
+      { slug: "kanban",            label: "Kanban",            icon: "🗂️" },
+      { slug: "timeline",          label: "Timeline",          icon: "📅" },
+      { slug: "tree",              label: "Tree",              icon: "🌳" },
+      { slug: "rich-text",         label: "Rich Text",         icon: "✍️" },
+      { slug: "file-upload",       label: "File Upload",       icon: "📁" },
+    ],
+  },
+  {
+    label: "Navigation",
+    items: [
+      { slug: "tabs",              label: "Tabs",              icon: "🗂️" },
+      { slug: "accordion",         label: "Accordion",         icon: "🪗" },
+      { slug: "stepper",           label: "Stepper",           icon: "📶" },
+    ],
   },
 ];
+
+const categoriesWithVersions = categories.map((cat) => ({
+  ...cat,
+  items: cat.items.map((m) => ({ ...m, version: pkgVersion(m.slug) })),
+}));
 ---
 
 <nav class="sidebar" id="sidebar" aria-label="Package navigation">
@@ -77,13 +100,11 @@ const packages = [
       Home
     </a>
 
-    {packages.map((group) => (
+    {categoriesWithVersions.map((cat) => (
       <div class="sidebar__group">
-        <div class="sidebar__group-label">
-          <span class="badge badge--react">{group.framework}</span>
-        </div>
+        <div class="sidebar__group-label">{cat.label}</div>
         <ul class="sidebar__list">
-          {group.items.map((item) => (
+          {cat.items.map((item) => (
             <li>
               <a
                 href={`/react/${item.slug}/`}
