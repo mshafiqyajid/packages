@@ -120,12 +120,6 @@ const categoriesWithVersions = categories.map((cat) => ({
       </div>
     ))}
 
-    <div class="sidebar__group sidebar__group--future">
-      <div class="sidebar__group-label sidebar__group-label--muted">Coming soon</div>
-      <ul class="sidebar__list">
-        <li><span class="sidebar__link sidebar__link--disabled">Vue packages</span></li>
-      </ul>
-    </div>
   </div>
 </nav>
 
@@ -137,7 +131,7 @@ const categoriesWithVersions = categories.map((cat) => ({
     overflow-y: auto;
     overscroll-behavior: contain;
     border-right: 1px solid var(--border);
-    padding: 0.625rem 0 1.5rem;
+    padding: 0.5rem 0 1rem;
     scrollbar-width: thin;
     scrollbar-color: transparent transparent;
     transition: scrollbar-color 200ms ease;
@@ -166,12 +160,12 @@ const categoriesWithVersions = categories.map((cat) => ({
     font-weight: 500;
     text-decoration: none;
     transition: color 140ms ease, background 140ms ease;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.4rem;
   }
   .sidebar__home:hover { color: var(--fg); background: var(--bg-subtle); text-decoration: none; }
-  .sidebar__group { margin-top: 0.625rem; }
+  .sidebar__group { margin-top: 0.5rem; }
   .sidebar__group-label {
-    padding: 0 0.55rem 0.25rem;
+    padding: 0 0.55rem 0.2rem;
     font-size: 0.68rem;
     font-weight: 700;
     color: var(--fg-subtle);
@@ -190,10 +184,10 @@ const categoriesWithVersions = categories.map((cat) => ({
   .sidebar__link {
     display: flex;
     align-items: center;
-    gap: 0.4rem;
-    padding: 0.22rem 0.55rem;
-    border-radius: 5px;
-    font-size: 0.79rem;
+    gap: 0.35rem;
+    padding: 0.18rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.77rem;
     font-weight: 450;
     color: var(--fg-muted);
     text-decoration: none;
