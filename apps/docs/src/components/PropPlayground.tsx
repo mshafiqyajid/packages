@@ -329,7 +329,9 @@ export default function PropPlayground({
         <HighlightedCode source={fullCode} />
       </div>
 
-      <style>{`
+      {/* suppressHydrationWarning: Astro SSR HTML-encodes quotes in style content;
+          React client renders raw quotes — these differ but the CSS is identical. */}
+      <style suppressHydrationWarning>{`
         .pp {
           border: 1px solid var(--border);
           border-radius: 12px;
