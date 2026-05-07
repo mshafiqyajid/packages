@@ -1,5 +1,24 @@
 # @mshafiqyajid/docs
 
+## 0.0.19
+
+### Patch Changes
+
+- Updated dependencies [46f7a52]
+- Updated dependencies [660ad46]
+- Updated dependencies [660ad46]
+- Updated dependencies [660ad46]
+- Updated dependencies [31ce6d4]
+- Updated dependencies [31ce6d4]
+- Updated dependencies [660ad46]
+  - @mshafiqyajid/react-date-picker@0.3.3
+  - @mshafiqyajid/react-avatar@0.3.0
+  - @mshafiqyajid/react-copy-button@0.3.0
+  - @mshafiqyajid/react-progress@0.3.0
+  - @mshafiqyajid/react-rich-text@0.4.0
+  - @mshafiqyajid/react-table@0.5.0
+  - @mshafiqyajid/react-text-input@1.0.0
+
 ## 0.0.18
 
 ### Patch Changes
