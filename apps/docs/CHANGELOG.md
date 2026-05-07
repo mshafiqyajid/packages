@@ -1,5 +1,18 @@
 # @mshafiqyajid/docs
 
+## 0.0.18
+
+### Patch Changes
+
+- Updated dependencies [1d51e50]
+- Updated dependencies [1d51e50]
+- Updated dependencies [1ac1dc7]
+- Updated dependencies [1ac1dc7]
+  - @mshafiqyajid/react-badge@0.2.3
+  - @mshafiqyajid/react-date-picker@0.3.2
+  - @mshafiqyajid/react-rich-text@0.3.0
+  - @mshafiqyajid/react-table@0.4.0
+
 ## 0.0.17
 
 ### Patch Changes
