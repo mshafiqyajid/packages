@@ -40,19 +40,18 @@ describe("<ProgressCircleStack />", () => {
     expect(circles).toHaveLength(4);
   });
 
-  it("applies aria-label from ring label", () => {
+  it("renders legend when any ring has a label", () => {
     const { container } = render(
       <ProgressCircleStack rings={[{ value: 60, label: "Move" }]} />,
     );
-    const svg = container.querySelector(".rprog-circle");
-    expect(svg).toHaveAttribute("aria-label", "Move");
+    expect(container.querySelector(".rprog-stack-legend")).not.toBeNull();
   });
 
-  it("wraps labelled rings in rprog-circle-wrap", () => {
-    const { container } = render(
+  it("shows ring label text in legend", () => {
+    const { getByText } = render(
       <ProgressCircleStack rings={[{ value: 60, label: "Move" }]} />,
     );
-    expect(container.querySelector(".rprog-circle-wrap")).not.toBeNull();
+    expect(getByText("Move")).not.toBeNull();
   });
 
   it("applies tone to each ring", () => {
