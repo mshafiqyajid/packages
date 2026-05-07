@@ -113,6 +113,15 @@ Add `data-theme="dark"` to a parent element (or `data-rtab-theme="dark"` for com
 
 MIT
 
+## What's new in 0.4.0
+
+- **Closeable tabs (new API)** — `tab.closeable?: boolean` renders a × button with `aria-label="Close <label>"` and `class="rtab-close"`. Pair with `onClose(value)`. The closed tab animates its width to 0 before calling the handler.
+- **Overflow scroll arrows fade** — scroll arrows now always exist in the DOM and fade in/out via opacity when content overflows, for a smoother experience than conditional rendering.
+- **Drag-reorder (new API)** — `reorderable: true` + `onReorder(fromIndex, toIndex)`. Reports numeric indices instead of the full values array. The `sortable` / `onReorder(values[])` API remains unchanged.
+- **`activationMode` prop** — alias for `activation`. `"automatic"` (default) activates on arrow key; `"manual"` moves focus only — Enter/Space activates.
+- **Drop indicator** — a thin line appears before the drop-target tab during drag-reorder.
+- **`style` prop** — the root `<div>` now accepts a `style` prop.
+
 ## What's new in 0.3.0
 
 - **Closeable tabs** — `tab.closable?: boolean` renders a × button; pair with `onTabClose(value)`.

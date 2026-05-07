@@ -18,27 +18,33 @@ const manyTabs = [
   { value: "changelog",label: "Changelog",content: <p style={{ margin: 0, padding: "1rem 0", color: "var(--fg-muted)", fontSize: "0.875rem" }}>Changelog.</p> },
 ];
 
-function TabsWrapper({ variant, size, tone, scrollable, sortable, closable }: {
-  variant: string; size: string; tone: string; scrollable: boolean; sortable: boolean; closable: boolean;
+function TabsWrapper({ variant, size, tone, scrollable, reorderable, closeable, activationMode }: {
+  variant: string; size: string; tone: string; scrollable: boolean; reorderable: boolean; closeable: boolean; activationMode: string;
 }) {
   const initial = scrollable ? manyTabs : baseTabs;
-  const [items, setItems] = useState(initial.map((t) => ({ ...t, closable })));
+  const [items, setItems] = useState(initial.map((t) => ({ ...t, closeable })));
 
   return (
     <div style={{ width: "100%", maxWidth: 480 }}>
       <TabsStyled
-        key={`${scrollable}-${closable}-${sortable}`}
-        tabs={items.map((t) => ({ ...t, closable }))}
+        key={`${scrollable}-${closeable}-${reorderable}-${activationMode}`}
+        tabs={items.map((t) => ({ ...t, closeable }))}
         variant={variant as "line" | "solid" | "pill"}
         size={size as "sm" | "md" | "lg"}
         tone={tone as "neutral" | "primary"}
         defaultValue={items[0]?.value}
         scrollable={scrollable}
-        sortable={sortable}
-        onTabClose={(value) => setItems((cur) => cur.filter((t) => t.value !== value))}
-        onReorder={(values) =>
-          setItems((cur) => values.map((v) => cur.find((t) => t.value === v)!).filter(Boolean))
-        }
+        reorderable={reorderable}
+        activationMode={activationMode as "automatic" | "manual"}
+        onClose={(value) => setItems((cur) => cur.filter((t) => t.value !== value))}
+        onReorder={(fromIndex, toIndex) => {
+          setItems((cur) => {
+            const next = [...cur];
+            const [moved] = next.splice(fromIndex as number, 1);
+            next.splice(toIndex as number, 0, moved);
+            return next;
+          });
+        }}
       />
     </div>
   );
@@ -50,12 +56,13 @@ export default function TabsDemo() {
       componentName="TabsStyled"
       importLine={`import { TabsStyled } from "@mshafiqyajid/react-tabs/styled";\nimport "@mshafiqyajid/react-tabs/styles.css";`}
       props={[
-        { name: "variant",    control: { type: "segmented", options: ["line","solid","pill"] as const },  defaultValue: "line",    omitWhen: "line" },
-        { name: "size",       control: { type: "segmented", options: ["sm","md","lg"] as const },         defaultValue: "md",      omitWhen: "md" },
-        { name: "tone",       control: { type: "segmented", options: ["neutral","primary"] as const },    defaultValue: "neutral", omitWhen: "neutral" },
-        { name: "scrollable", label: "scroll overflow",  control: { type: "toggle" }, defaultValue: false, omitWhen: false },
-        { name: "sortable",   label: "drag to reorder",  control: { type: "toggle" }, defaultValue: false, omitWhen: false },
-        { name: "closable",   label: "closable tabs (×)", control: { type: "toggle" }, defaultValue: false, omitWhen: false },
+        { name: "variant",        control: { type: "segmented", options: ["line","solid","pill"] as const },          defaultValue: "line",      omitWhen: "line" },
+        { name: "size",           control: { type: "segmented", options: ["sm","md","lg"] as const },                 defaultValue: "md",        omitWhen: "md" },
+        { name: "tone",           control: { type: "segmented", options: ["neutral","primary"] as const },            defaultValue: "neutral",   omitWhen: "neutral" },
+        { name: "activationMode", label: "activation mode", control: { type: "segmented", options: ["automatic","manual"] as const }, defaultValue: "automatic", omitWhen: "automatic" },
+        { name: "scrollable",     label: "scroll overflow",   control: { type: "toggle" }, defaultValue: false, omitWhen: false },
+        { name: "reorderable",    label: "drag to reorder",   control: { type: "toggle" }, defaultValue: false, omitWhen: false },
+        { name: "closeable",      label: "closeable tabs (×)", control: { type: "toggle" }, defaultValue: false, omitWhen: false },
       ]}
       staticProps={{ tabs: "{tabs}", defaultValue: '"overview"' }}
       render={(v) => (
@@ -64,8 +71,9 @@ export default function TabsDemo() {
           size={v.size as string}
           tone={v.tone as string}
           scrollable={v.scrollable as boolean}
-          sortable={v.sortable as boolean}
-          closable={v.closable as boolean}
+          reorderable={v.reorderable as boolean}
+          closeable={v.closeable as boolean}
+          activationMode={v.activationMode as string}
         />
       )}
     />

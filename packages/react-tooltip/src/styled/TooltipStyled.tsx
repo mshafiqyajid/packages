@@ -18,6 +18,7 @@ import type {
   TooltipAlign,
   TooltipStrategy,
 } from "../useTooltip";
+import { useTooltipProvider } from "../TooltipProvider";
 
 export type TooltipSize = "sm" | "md" | "lg";
 export type TooltipTone = "neutral" | "primary" | "success" | "danger";
@@ -58,6 +59,17 @@ export interface TooltipStyledProps {
   group?: string;
   /** Optional id within the group for ordering. Falls back to DOM order. */
   groupId?: string;
+  /**
+   * When true the tooltip stays open when the cursor moves from the trigger
+   * onto the tooltip content. A 50ms bridge delay prevents accidental close.
+   * Tooltip gets pointer-events: auto.
+   */
+  interactive?: boolean;
+  /**
+   * When true the tooltip follows the cursor position instead of anchoring
+   * to the trigger. Disables flip/shift. Useful for data-viz hover labels.
+   */
+  followCursor?: boolean;
 }
 
 // Tooltip group registry — maps group → [tooltip elements in registration order]
@@ -159,7 +171,7 @@ export const TooltipStyled = forwardRef<HTMLDivElement, TooltipStyledProps>(
       placement = "top",
       size = "md",
       tone = "neutral",
-      delay = 0,
+      delay,
       disabled = false,
       multiline = false,
       offset = 8,
@@ -173,9 +185,14 @@ export const TooltipStyled = forwardRef<HTMLDivElement, TooltipStyledProps>(
       longPressDelay = 500,
       group,
       groupId,
+      interactive = false,
+      followCursor = false,
     },
     ref,
   ) {
+    const provider = useTooltipProvider();
+    const resolvedDelay = delay !== undefined ? delay : (provider?.getDelay() ?? 0);
+
     const groupMemberId = useId();
     const id = useId();
     const [isVisible, setIsVisible] = useState(false);
@@ -186,6 +203,7 @@ export const TooltipStyled = forwardRef<HTMLDivElement, TooltipStyledProps>(
     const triggerRef = useRef<HTMLElement>(null);
     const tooltipRef = useRef<HTMLDivElement>(null);
     const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const cursorPos = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
 
     useEffect(() => {
       setMounted(true);
@@ -199,6 +217,12 @@ export const TooltipStyled = forwardRef<HTMLDivElement, TooltipStyledProps>(
     }, []);
 
     const updateCoords = useCallback(() => {
+      if (followCursor) {
+        const sy = strategy === "absolute" ? window.scrollY : 0;
+        const sx = strategy === "absolute" ? window.scrollX : 0;
+        setCoords({ top: cursorPos.current.y + sy + offset, left: cursorPos.current.x + sx });
+        return;
+      }
       if (!triggerRef.current || !tooltipRef.current) return;
       const pos = computePosition({
         trigger: triggerRef.current.getBoundingClientRect(),
@@ -206,43 +230,52 @@ export const TooltipStyled = forwardRef<HTMLDivElement, TooltipStyledProps>(
         placement,
         offset,
         collisionPadding,
-        flip,
-        shift,
+        flip: followCursor ? false : flip,
+        shift: followCursor ? false : shift,
         strategy,
       });
       setCoords({ top: pos.top, left: pos.left });
       setResolvedPlacement(pos.placement);
-    }, [placement, offset, collisionPadding, flip, shift, strategy]);
+    }, [placement, offset, collisionPadding, flip, shift, strategy, followCursor]);
 
     const show = useCallback(() => {
       if (disabled) return;
       clearTimer();
+      const d = delay !== undefined ? delay : (provider?.getDelay() ?? 0);
       timer.current = setTimeout(() => {
         setIsVisible(true);
-      }, delay);
-    }, [disabled, delay, clearTimer]);
+        provider?.onOpen();
+      }, d);
+    }, [disabled, delay, clearTimer, provider]);
 
     const hide = useCallback(() => {
       clearTimer();
-      // When sticky, defer the hide briefly so cursor moving from trigger to
-      // tooltip body doesn't dismiss it.
-      if (sticky) {
-        timer.current = setTimeout(() => setIsVisible(false), 80);
-      } else {
+      const doHide = () => {
         setIsVisible(false);
+        provider?.onClose();
+      };
+      if (sticky || interactive) {
+        timer.current = setTimeout(doHide, 80);
+      } else {
+        doHide();
       }
-    }, [clearTimer, sticky]);
+    }, [clearTimer, sticky, interactive, provider]);
 
     // Long-press touch trigger
     const handleTouchStart = useCallback(() => {
       if (longPressDelay <= 0) return;
       clearTimer();
-      timer.current = setTimeout(() => setIsVisible(true), longPressDelay);
-    }, [longPressDelay, clearTimer]);
+      timer.current = setTimeout(() => {
+        setIsVisible(true);
+        provider?.onOpen();
+      }, longPressDelay);
+    }, [longPressDelay, clearTimer, provider]);
+
     const handleTouchEnd = useCallback(() => {
       clearTimer();
       setIsVisible(false);
-    }, [clearTimer]);
+      provider?.onClose();
+    }, [clearTimer, provider]);
 
     // Group registration: keep an entry for this trigger inside its group.
     useEffect(() => {
@@ -303,6 +336,15 @@ export const TooltipStyled = forwardRef<HTMLDivElement, TooltipStyledProps>(
 
     useEffect(() => () => clearTimer(), [clearTimer]);
 
+    const handleMouseMove = useCallback(
+      (e: React.MouseEvent) => {
+        if (!followCursor) return;
+        cursorPos.current = { x: e.clientX, y: e.clientY };
+        if (isVisible) updateCoords();
+      },
+      [followCursor, isVisible, updateCoords],
+    );
+
     const trigger = isValidElement(children)
       ? cloneElement(children as ReactElement<Record<string, unknown>>, {
           ref: (el: HTMLElement | null) => {
@@ -315,12 +357,17 @@ export const TooltipStyled = forwardRef<HTMLDivElement, TooltipStyledProps>(
           },
           "aria-describedby": isVisible ? id : undefined,
           onMouseEnter: (e: React.MouseEvent) => {
+            if (followCursor) cursorPos.current = { x: e.clientX, y: e.clientY };
             show();
             (children.props as { onMouseEnter?: (e: React.MouseEvent) => void }).onMouseEnter?.(e);
           },
           onMouseLeave: (e: React.MouseEvent) => {
             hide();
             (children.props as { onMouseLeave?: (e: React.MouseEvent) => void }).onMouseLeave?.(e);
+          },
+          onMouseMove: (e: React.MouseEvent) => {
+            handleMouseMove(e);
+            (children.props as { onMouseMove?: (e: React.MouseEvent) => void }).onMouseMove?.(e);
           },
           onFocus: (e: React.FocusEvent) => {
             show();
@@ -350,6 +397,7 @@ export const TooltipStyled = forwardRef<HTMLDivElement, TooltipStyledProps>(
       top: coords.top,
       left: coords.left,
       zIndex: 9999,
+      ...(interactive ? { pointerEvents: "auto" } : {}),
     };
 
     return (
@@ -372,10 +420,12 @@ export const TooltipStyled = forwardRef<HTMLDivElement, TooltipStyledProps>(
               data-visible={isVisible ? "true" : undefined}
               data-multiline={multiline ? "true" : undefined}
               data-sticky={sticky || undefined}
+              data-interactive={interactive || undefined}
+              data-follow-cursor={followCursor || undefined}
               aria-hidden={!isVisible}
               style={tooltipStyle}
-              onMouseEnter={sticky ? clearTimer : undefined}
-              onMouseLeave={sticky ? hide : undefined}
+              onMouseEnter={sticky || interactive ? clearTimer : undefined}
+              onMouseLeave={sticky || interactive ? hide : undefined}
             >
               {header && <div className="rtt-header">{header}</div>}
               <span className="rtt-content">{content}</span>

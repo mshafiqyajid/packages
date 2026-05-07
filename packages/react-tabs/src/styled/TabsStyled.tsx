@@ -25,6 +25,8 @@ export interface TabItem {
   disabled?: boolean;
   /** When true, renders a × button on the tab. Pair with `onTabClose`. */
   closable?: boolean;
+  /** Alias for `closable`. When true, renders a × button on the tab. Pair with `onClose`. */
+  closeable?: boolean;
 }
 
 export interface TabsRenderTabContext {
@@ -50,19 +52,28 @@ export interface TabsStyledProps {
   onChange?: (value: string, reason: TabsChangeReason) => void;
   /** "automatic" (default) — arrow keys move focus AND activate. "manual" — arrows move focus only. */
   activation?: TabsActivation;
+  /** Alias for `activation`. "automatic" (default) or "manual". */
+  activationMode?: TabsActivation;
   /** Affects keyboard nav direction. Default "horizontal". */
   orientation?: TabsOrientation;
   /** Only mount panels after they've been activated at least once. Default: false (all panels mount eagerly). */
   lazyMount?: boolean;
   /** Keep all panels mounted regardless of activation (useful with `lazyMount` overrides). Default: false. */
   forceMount?: boolean;
-  /** Fires when the × on a closable tab is clicked. */
+  /** Fires when the × on a closable/closeable tab is clicked. */
   onTabClose?: (value: string) => void;
+  /** Alias for `onTabClose`. Fires when the × button on a closeable tab is clicked. */
+  onClose?: (value: string) => void;
   /** When true, the tab list scrolls horizontally with chevron buttons at the edges instead of wrapping. */
   scrollable?: boolean;
   /** When true, tabs can be reordered by dragging. Fires `onReorder` with the new value order. */
   sortable?: boolean;
-  onReorder?: (values: string[]) => void;
+  /** When true, tabs can be drag-reordered. Fires `onReorder(fromIndex, toIndex)`. */
+  reorderable?: boolean;
+  /** Called after a drag-reorder. Signature depends on which prop triggered it:
+   *  - `sortable`: receives the full reordered values array.
+   *  - `reorderable`: receives `(fromIndex, toIndex)`. */
+  onReorder?: ((values: string[]) => void) | ((fromIndex: number, toIndex: number) => void);
   /** When true, the active tab is scrolled into view on activation. Default: true when `scrollable`. */
   scrollActiveIntoView?: boolean;
   /** Replace the default tab button content. The button shell (a11y, ref, key) stays owned by the component. */
@@ -70,6 +81,7 @@ export interface TabsStyledProps {
   /** Replace the default panel rendering. */
   renderPanel?: (ctx: TabsRenderPanelContext) => ReactNode;
   className?: string;
+  style?: CSSProperties;
 }
 
 // Run layout effects on the client; fall back to a no-op effect on the server.
@@ -137,26 +149,34 @@ export const TabsStyled = forwardRef<HTMLDivElement, TabsStyledProps>(
       defaultValue,
       value,
       onChange,
-      activation = "automatic",
+      activation,
+      activationMode,
       orientation = "horizontal",
       lazyMount = false,
       forceMount = false,
       onTabClose,
+      onClose,
       scrollable = false,
       sortable = false,
+      reorderable = false,
       onReorder,
       scrollActiveIntoView,
       renderTab,
       renderPanel,
       className,
+      style,
     },
     ref,
   ) {
+    const resolvedActivation = activationMode ?? activation ?? "automatic";
+    const isDraggable = sortable || reorderable;
     const autoScrollActive = scrollActiveIntoView ?? scrollable;
     const [scrollState, setScrollState] = useState<{ left: boolean; right: boolean }>({
       left: false,
       right: false,
     });
+    const [dropTargetValue, setDropTargetValue] = useState<string | null>(null);
+    const [closingValues, setClosingValues] = useState<Set<string>>(new Set());
     const typeaheadBufferRef = useRef("");
     const typeaheadTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const dragValueRef = useRef<string | null>(null);
@@ -170,7 +190,7 @@ export const TabsStyled = forwardRef<HTMLDivElement, TabsStyledProps>(
       defaultValue: value === undefined ? resolvedDefault : undefined,
       value,
       onChange,
-      activation,
+      activation: resolvedActivation,
       orientation,
     });
 
@@ -184,7 +204,7 @@ export const TabsStyled = forwardRef<HTMLDivElement, TabsStyledProps>(
     const rootClass = ["rtab-root", className].filter(Boolean).join(" ");
 
     // Scroll-state: detect when there's content off the left/right edges so we can
-    // toggle the chevron buttons. Only relevant when scrollable.
+    // show/fade the chevron buttons. Only relevant when scrollable.
     useEffect(() => {
       if (!scrollable) return;
       const list = tabListRef.current;
@@ -228,14 +248,12 @@ export const TabsStyled = forwardRef<HTMLDivElement, TabsStyledProps>(
 
       const buffer = typeaheadBufferRef.current;
       const startIdx = Math.max(0, tabs.findIndex((t) => t.value === activeValue));
-      // Search starting just after the active tab, wrapping around.
       for (let i = 1; i <= tabs.length; i++) {
         const idx = (startIdx + i) % tabs.length;
         const tab = tabs[idx];
         if (!tab || tab.disabled) continue;
         const labelStr = typeof tab.label === "string" ? tab.label : "";
         if (labelStr.toLowerCase().startsWith(buffer)) {
-          // Use the existing tab button's click via aria-selected target.
           const list = tabListRef.current;
           const btn = list?.querySelector<HTMLButtonElement>(`[data-value="${tab.value}"]`);
           btn?.click();
@@ -245,31 +263,56 @@ export const TabsStyled = forwardRef<HTMLDivElement, TabsStyledProps>(
       }
     };
 
-    // Drag-to-reorder: HTML5 DnD is fine here — no external lib.
+    // Animated close: animate tab out, then notify consumer.
+    const handleClose = (tabValue: string) => {
+      if (closingValues.has(tabValue)) return;
+      setClosingValues((prev) => new Set(prev).add(tabValue));
+      setTimeout(() => {
+        setClosingValues((prev) => {
+          const next = new Set(prev);
+          next.delete(tabValue);
+          return next;
+        });
+        onTabClose?.(tabValue);
+        onClose?.(tabValue);
+      }, 200);
+    };
+
+    // Drag-to-reorder: HTML5 DnD, no external lib.
     const handleDragStart = (val: string) => (e: React.DragEvent<HTMLButtonElement>) => {
-      if (!sortable) return;
+      if (!isDraggable) return;
       dragValueRef.current = val;
-      e.dataTransfer.effectAllowed = "move";
+      if (e.dataTransfer) e.dataTransfer.effectAllowed = "move";
     };
     const handleDragOver = (val: string) => (e: React.DragEvent<HTMLButtonElement>) => {
-      if (!sortable || !dragValueRef.current || dragValueRef.current === val) return;
+      if (!isDraggable || !dragValueRef.current || dragValueRef.current === val) return;
       e.preventDefault();
-      e.dataTransfer.dropEffect = "move";
+      if (e.dataTransfer) e.dataTransfer.dropEffect = "move";
+      setDropTargetValue(val);
+    };
+    const handleDragEnd = () => {
+      dragValueRef.current = null;
+      setDropTargetValue(null);
     };
     const handleDrop = (val: string) => (e: React.DragEvent<HTMLButtonElement>) => {
-      if (!sortable) return;
+      if (!isDraggable) return;
       e.preventDefault();
       const from = dragValueRef.current;
       dragValueRef.current = null;
+      setDropTargetValue(null);
       if (!from || from === val || !onReorder) return;
       const order = tabs.map((t) => t.value);
       const fromIdx = order.indexOf(from);
       const toIdx = order.indexOf(val);
       if (fromIdx === -1 || toIdx === -1) return;
-      const next = [...order];
-      next.splice(fromIdx, 1);
-      next.splice(toIdx, 0, from);
-      onReorder(next);
+      if (reorderable) {
+        (onReorder as (fromIndex: number, toIndex: number) => void)(fromIdx, toIdx);
+      } else {
+        const next = [...order];
+        next.splice(fromIdx, 1);
+        next.splice(toIdx, 0, from);
+        (onReorder as (values: string[]) => void)(next);
+      }
     };
 
     return (
@@ -279,14 +322,17 @@ export const TabsStyled = forwardRef<HTMLDivElement, TabsStyledProps>(
         data-orientation={orientation}
         data-scrollable={scrollable || undefined}
         onKeyDown={handleTypeahead}
+        style={style}
       >
         <div className="rtab-list-wrap">
-          {scrollable && scrollState.left && (
+          {scrollable && (
             <button
               type="button"
               className="rtab-scroll-btn rtab-scroll-btn--left"
               aria-label="Scroll left"
-              onClick={() => scrollByAmount(-200)}
+              aria-hidden={!scrollState.left}
+              data-visible={scrollState.left || undefined}
+              onClick={() => scrollByAmount(-120)}
             >
               <svg viewBox="0 0 12 12" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M7.5 3l-3 3 3 3"/></svg>
             </button>
@@ -306,23 +352,29 @@ export const TabsStyled = forwardRef<HTMLDivElement, TabsStyledProps>(
             {tabs.map((tab, index) => {
               const isActive = activeValue === tab.value;
               const isDisabled = !!tab.disabled;
+              const isCloseable = !!(tab.closable || tab.closeable);
+              const isClosing = closingValues.has(tab.value);
+              const isDropTarget = dropTargetValue === tab.value;
               const tabProps = getTabProps(tab.value, { disabled: tab.disabled });
               return (
                 <button
                   key={tab.value}
                   data-value={tab.value}
-                  data-closable={tab.closable || undefined}
+                  data-closable={isCloseable || undefined}
+                  data-closing={isClosing || undefined}
+                  data-drop-target={isDropTarget || undefined}
                   className="rtab-tab"
                   {...tabProps}
-                  draggable={sortable && !isDisabled ? true : undefined}
-                  onDragStart={sortable ? handleDragStart(tab.value) : undefined}
-                  onDragOver={sortable ? handleDragOver(tab.value) : undefined}
-                  onDrop={sortable ? handleDrop(tab.value) : undefined}
+                  draggable={isDraggable && !isDisabled ? true : undefined}
+                  onDragStart={isDraggable ? handleDragStart(tab.value) : undefined}
+                  onDragOver={isDraggable ? handleDragOver(tab.value) : undefined}
+                  onDragEnd={isDraggable ? handleDragEnd : undefined}
+                  onDrop={isDraggable ? handleDrop(tab.value) : undefined}
                 >
                   {renderTab
                     ? renderTab({ tab, index, isActive, isDisabled })
                     : tab.label}
-                  {tab.closable && (
+                  {isCloseable && (
                     <span
                       className="rtab-close"
                       role="button"
@@ -330,7 +382,7 @@ export const TabsStyled = forwardRef<HTMLDivElement, TabsStyledProps>(
                       aria-label={`Close ${typeof tab.label === "string" ? tab.label : "tab"}`}
                       onClick={(e) => {
                         e.stopPropagation();
-                        onTabClose?.(tab.value);
+                        handleClose(tab.value);
                       }}
                     >
                       <svg viewBox="0 0 12 12" width="10" height="10" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" aria-hidden="true">
@@ -345,12 +397,14 @@ export const TabsStyled = forwardRef<HTMLDivElement, TabsStyledProps>(
               <span className="rtab-indicator" aria-hidden="true" />
             )}
           </div>
-          {scrollable && scrollState.right && (
+          {scrollable && (
             <button
               type="button"
               className="rtab-scroll-btn rtab-scroll-btn--right"
               aria-label="Scroll right"
-              onClick={() => scrollByAmount(200)}
+              aria-hidden={!scrollState.right}
+              data-visible={scrollState.right || undefined}
+              onClick={() => scrollByAmount(120)}
             >
               <svg viewBox="0 0 12 12" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4.5 3l3 3-3 3"/></svg>
             </button>

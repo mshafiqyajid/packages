@@ -113,7 +113,7 @@
 }
 
 /* ============================================================================
- * Thumb
+ * Thumb — spring easing on release
  * ========================================================================== */
 .rslider-thumb {
   position: absolute;
@@ -125,13 +125,17 @@
   border: 2px solid var(--rslider-thumb-border);
   box-shadow: var(--rslider-thumb-shadow);
   transform: translate(-50%, -50%);
-  transition: left var(--rslider-duration) var(--rslider-ease),
+  transition: left 200ms cubic-bezier(0.34, 1.56, 0.64, 1),
     box-shadow var(--rslider-duration) ease;
   display: flex;
   align-items: center;
   justify-content: center;
   outline: none;
   touch-action: none;
+}
+
+.rslider-thumb[data-dragging="true"] {
+  transition: box-shadow var(--rslider-duration) ease;
 }
 
 .rslider-thumb:focus-visible {
@@ -143,7 +147,7 @@
 }
 
 /* ============================================================================
- * Value tooltip
+ * Value tooltip — fades in on drag, fades out 800ms after drag end
  * ========================================================================== */
 .rslider-tooltip {
   position: absolute;
@@ -159,6 +163,16 @@
   border-radius: 4px;
   white-space: nowrap;
   pointer-events: none;
+}
+
+/* Drag-managed tooltip: only visible when data-drag-tooltip="visible" */
+.rslider-tooltip[data-drag-tooltip] {
+  opacity: 0;
+  transition: opacity 160ms ease;
+}
+
+.rslider-tooltip[data-drag-tooltip="visible"] {
+  opacity: 1;
 }
 
 /* ============================================================================
@@ -249,7 +263,8 @@
  * ========================================================================== */
 @media (prefers-reduced-motion: reduce) {
   .rslider-range,
-  .rslider-thumb {
+  .rslider-thumb,
+  .rslider-tooltip[data-drag-tooltip] {
     transition: none;
   }
 }
@@ -306,5 +321,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .rslider-root[data-bubble-on-interaction] .rslider-tooltip { transition: none; }
+  .rslider-root[data-bubble-on-interaction] .rslider-tooltip,
+  .rslider-thumb[data-dragging="true"] { transition: none; }
 }

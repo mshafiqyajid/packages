@@ -4,10 +4,11 @@ import {
   useRef,
   useCallback,
   useId,
+  useState,
   type CSSProperties,
   type ReactNode,
 } from "react";
-import { useSlider, type SliderValue } from "../useSlider";
+import { useSlider, type SliderValue, type SliderScale } from "../useSlider";
 
 export type SliderSize = "sm" | "md" | "lg";
 export type SliderTone = "neutral" | "primary" | "success" | "danger";
@@ -22,7 +23,7 @@ export interface SliderStyledProps {
   value?: SliderValue;
   defaultValue?: SliderValue;
   onChange?: (value: SliderValue) => void;
-  /** Fires only on pointer release / keyboard commit, not on every step. Useful for expensive update flows. */
+  /** Fires only on pointer release / keyboard commit, not on every step. */
   onCommit?: (value: SliderValue) => void;
   min?: number;
   max?: number;
@@ -34,18 +35,22 @@ export interface SliderStyledProps {
   /** Show the current value next to the thumb. Default: false. */
   showValue?: boolean;
   /**
-   * Show the bubble only while the thumb is hovered/active. Default: depends on `showValue`.
-   * When `showValue` is true, the bubble is always visible. Set this true to make it appear on interaction only.
+   * Show the bubble only while the thumb is hovered/active.
+   * When `showValue` is true the bubble is always visible.
    */
   showValueOnInteraction?: boolean;
   /** Format the value displayed in the bubble. */
   formatValue?: (value: number) => ReactNode;
   /** Render tick marks. Pass `true` to derive from `step`, or an array of values / `{ value, label }` objects. */
   marks?: boolean | number[] | SliderMark[];
+  /** When true and `marks` is set, thumb snaps to the nearest mark on drag end. */
+  snapToMarks?: boolean;
+  /** Map the linear 0-100 visual track to a logarithmic scale. */
+  scale?: SliderScale;
+  /** Base for the log scale. Default 10. */
+  scaleBase?: number;
   /**
-   * Orientation. Default: "horizontal". Vertical lays out the slider top-to-bottom
-   * via `data-orientation="vertical"` on the root; the hook math stays horizontal,
-   * so consumers using the hook directly should still wire pointer math themselves.
+   * Orientation. Default: "horizontal".
    */
   orientation?: SliderOrientation;
   className?: string;
@@ -59,10 +64,11 @@ export interface SliderStyledProps {
   invalid?: boolean;
   /** Mark as required. */
   required?: boolean;
-  /** Form name. Renders hidden input(s) with the current value(s) for native submission. Range mode emits `${name}` and `${name}-end`. */
+  /** Form name. Renders hidden input(s). Range mode emits `${name}` and `${name}-end`. */
   name?: string;
   /** Override the wrapper id. */
   id?: string;
+  style?: CSSProperties;
 }
 
 function buildMarks(min: number, max: number, step: number): number[] {
@@ -89,6 +95,15 @@ function normalizeMarks(
   return [];
 }
 
+function getMarkValues(
+  marks: SliderStyledProps["marks"],
+  min: number,
+  max: number,
+  step: number,
+): number[] {
+  return normalizeMarks(marks, min, max, step).map((m) => m.value);
+}
+
 export const SliderStyled = forwardRef<HTMLDivElement, SliderStyledProps>(
   function SliderStyled(
     {
@@ -106,6 +121,9 @@ export const SliderStyled = forwardRef<HTMLDivElement, SliderStyledProps>(
       showValueOnInteraction,
       formatValue,
       marks = false,
+      snapToMarks = false,
+      scale = "linear",
+      scaleBase = 10,
       orientation = "horizontal",
       onCommit,
       className,
@@ -116,6 +134,7 @@ export const SliderStyled = forwardRef<HTMLDivElement, SliderStyledProps>(
       required,
       name,
       id: idProp,
+      style: styleProp,
     },
     ref,
   ) {
@@ -136,6 +155,26 @@ export const SliderStyled = forwardRef<HTMLDivElement, SliderStyledProps>(
           ? [min, max]
           : min;
 
+    const markValuesForSnap = snapToMarks ? getMarkValues(marks, min, max, step) : undefined;
+
+    const [draggingIndex, setDraggingIndex] = useState<number | null>(null);
+    const tooltipTimers = useRef<Map<number, ReturnType<typeof setTimeout>>>(new Map());
+
+    const handleDragStart = useCallback((index: number) => {
+      const existing = tooltipTimers.current.get(index);
+      if (existing) clearTimeout(existing);
+      tooltipTimers.current.delete(index);
+      setDraggingIndex(index);
+    }, []);
+
+    const handleDragEnd = useCallback((index: number) => {
+      const timer = setTimeout(() => {
+        setDraggingIndex((prev) => (prev === index ? null : prev));
+        tooltipTimers.current.delete(index);
+      }, 800);
+      tooltipTimers.current.set(index, timer);
+    }, []);
+
     const { trackProps, thumbProps, rangeProps, value: liveValue } = useSlider({
       value,
       defaultValue: resolvedDefault,
@@ -144,10 +183,20 @@ export const SliderStyled = forwardRef<HTMLDivElement, SliderStyledProps>(
       max,
       step,
       disabled,
+      marks: markValuesForSnap,
+      snapToMarks,
+      scale,
+      scaleBase,
+      onDragStart: handleDragStart,
+      onDragEnd: handleDragEnd,
     });
 
-    // onCommit: fire when the user releases pointer / keys after a change.
-    // Tracked via a ref so we don't refire on re-renders.
+    useEffect(() => {
+      return () => {
+        tooltipTimers.current.forEach((t) => clearTimeout(t));
+      };
+    }, []);
+
     const lastCommittedRef = useRef<SliderValue | null>(null);
     const liveValueRef = useRef(liveValue);
     liveValueRef.current = liveValue;
@@ -159,7 +208,7 @@ export const SliderStyled = forwardRef<HTMLDivElement, SliderStyledProps>(
         const changed =
           last == null ||
           (Array.isArray(cur) && Array.isArray(last)
-            ? cur[0] !== last[0] || cur[1] !== last[1]
+            ? cur.length !== last.length || cur.some((v, i) => v !== last[i])
             : cur !== last);
         if (changed) {
           lastCommittedRef.current = cur;
@@ -186,14 +235,13 @@ export const SliderStyled = forwardRef<HTMLDivElement, SliderStyledProps>(
     const normalizedMarks = normalizeMarks(marks, min, max, step);
     const getPercent = (v: number) =>
       max === min ? 0 : ((v - min) / (max - min)) * 100;
-    // showValue: bubble always visible.
-    // showValueOnInteraction: bubble only on hover/active (overrides showValue when true).
+
     const showBubbleOnInteraction = showValueOnInteraction === true;
     const showBubbleAlways = showValue && !showBubbleOnInteraction;
 
     const isRangeValue = Array.isArray(liveValue);
-    const hiddenStart = isRangeValue ? liveValue[0] : (liveValue as number);
-    const hiddenEnd = isRangeValue ? liveValue[1] : undefined;
+    const liveArr = Array.isArray(liveValue) ? liveValue : [liveValue as number];
+    const hiddenStart = liveArr[0]!;
 
     return (
       <div
@@ -212,6 +260,7 @@ export const SliderStyled = forwardRef<HTMLDivElement, SliderStyledProps>(
         data-orientation={orientation}
         data-bubble-on-interaction={showBubbleOnInteraction || undefined}
         data-invalid={isInvalid ? "true" : undefined}
+        style={styleProp}
       >
         {label ? (
           <span className="rslider-label" id={labelId}>
@@ -258,15 +307,21 @@ export const SliderStyled = forwardRef<HTMLDivElement, SliderStyledProps>(
 
           {thumbProps.map((tp, i) => {
             const numValue = tp["aria-valuenow"];
+            const isThisDragging = draggingIndex === i;
             return (
               <div
                 key={i}
                 {...tp}
                 className="rslider-thumb"
+                data-dragging={isThisDragging ? "true" : undefined}
                 style={tp.style as CSSProperties}
               >
-                {(showBubbleAlways || showBubbleOnInteraction) && (
-                  <div className="rslider-tooltip" aria-hidden>
+                {(showBubbleAlways || showBubbleOnInteraction || isThisDragging) && (
+                  <div
+                    className="rslider-tooltip"
+                    data-drag-tooltip={isThisDragging ? "visible" : undefined}
+                    aria-hidden
+                  >
                     {formatValue ? formatValue(numValue) : numValue}
                   </div>
                 )}
@@ -283,15 +338,18 @@ export const SliderStyled = forwardRef<HTMLDivElement, SliderStyledProps>(
               required={required}
               readOnly
             />
-            {isRangeValue && hiddenEnd !== undefined ? (
-              <input
-                type="hidden"
-                name={`${name}-end`}
-                value={String(hiddenEnd)}
-                required={required}
-                readOnly
-              />
-            ) : null}
+            {isRangeValue && liveArr.length > 1
+              ? liveArr.slice(1).map((v, i) => (
+                  <input
+                    key={i}
+                    type="hidden"
+                    name={i === 0 ? `${name}-end` : `${name}-${i + 1}`}
+                    value={String(v)}
+                    required={required}
+                    readOnly
+                  />
+                ))
+              : null}
           </>
         ) : null}
         {error ? (

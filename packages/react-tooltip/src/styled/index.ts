@@ -4,3 +4,6 @@ export type {
   TooltipSize,
   TooltipTone,
 } from "./TooltipStyled";
+export { TooltipProvider } from "../TooltipProvider";
+export type { TooltipProviderProps } from "../TooltipProvider";
+export { TooltipObserver } from "./TooltipObserver";

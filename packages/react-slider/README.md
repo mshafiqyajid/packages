@@ -55,16 +55,20 @@ function App() {
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `value` | `number \| [number, number]` | — | Controlled value (single or range) |
-| `defaultValue` | `number \| [number, number]` | `0` | Uncontrolled initial |
-| `onChange` | `(value, reason?) => void` | — | Fires on change |
+| `value` | `number \| [number, number] \| number[]` | — | Controlled value (single, range, or multi-thumb) |
+| `defaultValue` | `number \| [number, number] \| number[]` | `0` | Uncontrolled initial |
+| `onChange` | `(value) => void` | — | Fires on change |
 | `min` / `max` / `step` | `number` | `0 / 100 / 1` | Range bounds and step |
-| `range` | `boolean` | `false` | Two-thumb range mode |
-| `marks` | `number[] \| Mark[]` | — | Tick marks. Pass `[{ value, label }]` for labels. |
-| `transform` | `"linear" \| (v) => v` | `"linear"` | Custom value transform (e.g. logarithmic) |
+| `range` | `boolean` | `false` | Two-thumb range mode (shorthand) |
+| `marks` | `boolean \| number[] \| Mark[]` | — | Tick marks. Pass `[{ value, label }]` for labels. |
+| `snapToMarks` | `boolean` | `false` | Snap to nearest mark on drag end / keyboard commit |
+| `scale` | `"linear" \| "log"` | `"linear"` | Map linear track position to a logarithmic scale |
+| `scaleBase` | `number` | `10` | Base for log scale |
 | `size` | `"sm" \| "md" \| "lg"` | `"md"` | Track and thumb size |
 | `tone` | `"neutral" \| "primary" \| "success" \| "danger"` | `"primary"` | Color |
-| `showValue` | `boolean` | `false` | Show the current value(s) |
+| `showValue` | `boolean` | `false` | Show the current value(s) always |
+| `showValueOnInteraction` | `boolean` | `false` | Show value bubble only on hover/active |
+| `formatValue` | `(v: number) => ReactNode` | — | Custom bubble renderer |
 | `disabled` | `boolean` | `false` | Disable interaction |
 
 ## License
@@ -101,6 +105,14 @@ MIT
 | `required` | `boolean` | aria-required on the track + required on the hidden inputs |
 | `error` / `invalid` | `ReactNode` / `boolean` | Sets `data-invalid` on the root, `aria-invalid` on the track, swaps the active track fill to the error color |
 | `label` / `hint` | `ReactNode` | Above / below the track |
+
+## What's new in 0.4.0
+
+- **Multi-thumb (3+ values)** — pass `value: number[]` with 3 or more elements to render that many independent thumbs. Each thumb is draggable and cannot cross its neighbours (`min` of each thumb is the previous thumb's value + step, `max` is the next thumb's value − step).
+- **`snapToMarks` prop** — when `true` and `marks` is set, the thumb snaps to the nearest mark value on drag end and keyboard commit. The snap is animated via the spring CSS transition.
+- **`scale: "log"` prop** — maps the linear 0–100 visual track position to a logarithmic scale between `min` and `max`. Configure the base with `scaleBase` (default `10`).
+- **Spring thumb motion** — on drag release the thumb now springs slightly past the target then settles (`cubic-bezier(0.34, 1.56, 0.64, 1)`). During an active drag the transition is disabled for immediate feedback.
+- **Drag-managed tooltip** — the value bubble fades in on drag start and fades out 800 ms after drag end. Respects `prefers-reduced-motion`.
 
 ## What's new in 0.3.0
 

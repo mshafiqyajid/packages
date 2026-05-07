@@ -66,12 +66,36 @@ function MyTooltip({ content, children }) {
 | `flip` | `boolean` | `true` | Auto-flip to opposite side near edges |
 | `shift` | `boolean` | `true` | Push back into view along the cross-axis |
 | `strategy` | `"absolute" \| "fixed"` | `"absolute"` | Positioning strategy |
+| `interactive` | `boolean` | `false` | Stay open when cursor moves onto tooltip body (50ms bridge delay) |
+| `followCursor` | `boolean` | `false` | Tooltip tracks pointer position instead of anchoring to trigger |
+| `sticky` | `boolean` | `false` | Keep open while cursor is over the tooltip body |
+| `header` | `ReactNode` | — | Optional header above content |
+| `footer` | `ReactNode` | — | Optional footer below content |
+| `longPressDelay` | `number` | `500` | Touch long-press delay in ms; `0` disables touch trigger |
+| `group` | `string` | — | Group key for keyboard nav between tooltips |
+| `groupId` | `string` | — | Order id within the group (falls back to DOM order) |
 
 `data-placement` on the tooltip reflects the resolved (post-flip) placement.
+
+### TooltipProvider props
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `delayIn` | `number` | `700` | Show delay for the first tooltip in the group |
+| `skipDelay` | `number` | `50` | Show delay for subsequent tooltips while group is active (sweep) |
+| `delayOut` | `number` | `200` | How long after all tooltips close before the group resets |
 
 ## License
 
 MIT
+
+## What's new in 0.4.0
+
+- **`<TooltipProvider delayIn={700} skipDelay={50} delayOut={200}>`** — wrap multiple tooltips in a delay group. First tooltip opens after `delayIn`; while any in the group is open, subsequent ones open after `skipDelay` (sweep behaviour). After all close, the timer resets after `delayOut` ms. CSS class `rtt-provider`.
+- **`interactive?: boolean`** — keeps the tooltip open when the cursor moves from the trigger onto the tooltip body. A 50ms bridge prevents accidental dismissal when crossing the gap. The tooltip gets `pointer-events: auto` and `data-interactive`.
+- **`followCursor?: boolean`** — tooltip tracks the pointer instead of anchoring to the trigger. Flip/shift are disabled. Useful for data-viz hover labels. The arrow is hidden and `data-follow-cursor` is set.
+- **`<TooltipObserver />`** — mount once; auto-wraps any element with `data-tooltip="…"` in a `<TooltipStyled>` using a `MutationObserver`.
+- **Spring entrance animation** — tooltip scales from 0.85 → 1 with `cubic-bezier(0.34, 1.56, 0.64, 1)` over 180ms; exit fades and scales back over 120ms. Transform origin tracks the placement side. Respects `prefers-reduced-motion`.
 
 ## What's new in 0.3.0
 

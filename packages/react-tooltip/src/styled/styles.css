@@ -10,9 +10,21 @@
   --rtt-bg: #18181b;
   --rtt-fg: #fafafa;
   --rtt-radius: 6px;
+  --rtt-duration-in: 180ms;
+  --rtt-duration-out: 120ms;
+  --rtt-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --rtt-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  /* kept for back-compat */
   --rtt-duration: 150ms;
   --rtt-ease: cubic-bezier(0.16, 1, 0.3, 1);
   --rtt-arrow-size: 5px;
+}
+
+/* ============================================================================
+ * Provider wrapper
+ * ========================================================================== */
+.rtt-provider {
+  display: contents;
 }
 
 /* ============================================================================
@@ -31,26 +43,29 @@
   overflow: visible;
 
   opacity: 0;
+  scale: 0.85;
   transition:
-    opacity var(--rtt-duration) var(--rtt-ease),
-    translate var(--rtt-duration) var(--rtt-ease);
+    opacity var(--rtt-duration-out) var(--rtt-ease-out),
+    scale var(--rtt-duration-out) var(--rtt-ease-out);
 }
 
 .rtt-tooltip[data-visible="true"] {
   opacity: 1;
+  scale: 1;
+  transition:
+    opacity var(--rtt-duration-in) var(--rtt-ease-spring),
+    scale var(--rtt-duration-in) var(--rtt-ease-spring);
 }
 
-/* Slide-in animation per placement */
-.rtt-tooltip[data-placement="top"]    { translate: 0 4px; }
-.rtt-tooltip[data-placement="bottom"] { translate: 0 -4px; }
-.rtt-tooltip[data-placement="left"]   { translate: 4px 0; }
-.rtt-tooltip[data-placement="right"]  { translate: -4px 0; }
+/* Transform origin tracks placement side */
+.rtt-tooltip[data-placement^="top"]    { transform-origin: bottom center; }
+.rtt-tooltip[data-placement^="bottom"] { transform-origin: top center; }
+.rtt-tooltip[data-placement^="left"]   { transform-origin: center right; }
+.rtt-tooltip[data-placement^="right"]  { transform-origin: center left; }
 
-.rtt-tooltip[data-placement="top"][data-visible="true"],
-.rtt-tooltip[data-placement="bottom"][data-visible="true"],
-.rtt-tooltip[data-placement="left"][data-visible="true"],
-.rtt-tooltip[data-placement="right"][data-visible="true"] {
-  translate: 0 0;
+/* Interactive tooltip — allow pointer events on the bubble */
+.rtt-tooltip[data-interactive] {
+  pointer-events: auto;
 }
 
 /* ============================================================================
@@ -67,6 +82,11 @@
   rotate: 45deg;
   border-radius: 2px;
   z-index: -1;
+}
+
+/* followCursor — hide the arrow since position is cursor-relative */
+.rtt-tooltip[data-follow-cursor]::after {
+  display: none;
 }
 
 /* Header / footer slots inside the tooltip body */
@@ -196,7 +216,7 @@
  * ========================================================================== */
 @media (prefers-reduced-motion: reduce) {
   .rtt-tooltip {
-    transition: opacity var(--rtt-duration) ease;
-    translate: 0 0 !important;
+    scale: 1 !important;
+    transition: opacity var(--rtt-duration) ease !important;
   }
 }

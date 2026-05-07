@@ -352,7 +352,7 @@
   flex-shrink: 0;
 }
 
-/* Chevron scroll buttons */
+/* Chevron scroll buttons — always rendered when scrollable, fade in/out based on scroll position */
 .rtab-scroll-btn {
   appearance: none;
   background: var(--rtab-bg, transparent);
@@ -364,10 +364,15 @@
   justify-content: center;
   cursor: pointer;
   color: var(--rtab-fg-muted, currentColor);
-  opacity: 0.85;
-  transition: opacity 120ms ease, background 120ms ease;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 160ms ease, background 160ms ease;
 }
-.rtab-scroll-btn:hover { opacity: 1; }
+.rtab-scroll-btn[data-visible] {
+  opacity: 0.85;
+  pointer-events: auto;
+}
+.rtab-scroll-btn[data-visible]:hover { opacity: 1; }
 .rtab-scroll-btn:focus-visible {
   outline: 2px solid var(--rtab-color-active, #6366f1);
   outline-offset: 1px;
@@ -404,6 +409,34 @@
   background: var(--rtab-close-hover-bg, rgba(255, 255, 255, 0.12));
 }
 
+/* Animated tab removal — width collapses to 0 with a fade */
+.rtab-tab[data-closing] {
+  overflow: hidden;
+  max-width: 0;
+  padding-left: 0;
+  padding-right: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    max-width 200ms var(--rtab-ease),
+    opacity 200ms var(--rtab-ease),
+    padding-left 200ms var(--rtab-ease),
+    padding-right 200ms var(--rtab-ease);
+}
+
+/* Drop indicator — a thin line shown before the drop-target tab */
+.rtab-tab[data-drop-target]::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 20%;
+  bottom: 20%;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--rtab-bg-indicator, #6366f1);
+  opacity: 0.8;
+}
+
 /* Drag-to-reorder visuals */
 .rtab-tab[draggable="true"] { cursor: grab; }
 .rtab-tab[draggable="true"]:active { cursor: grabbing; }
@@ -415,4 +448,5 @@
   .rtab-list { scroll-behavior: auto; }
   .rtab-scroll-btn { transition: none; }
   .rtab-close { transition: none; }
+  .rtab-tab[data-closing] { transition-duration: 0ms !important; }
 }

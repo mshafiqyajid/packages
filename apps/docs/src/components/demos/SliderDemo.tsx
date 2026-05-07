@@ -1,6 +1,7 @@
 import { useState } from "react";
 import PropPlayground from "../PropPlayground";
 import { SliderStyled } from "@mshafiqyajid/react-slider/styled";
+import type { SliderValue } from "@mshafiqyajid/react-slider";
 import "@mshafiqyajid/react-slider/styles.css";
 
 const LABELLED_MARKS = [
@@ -14,8 +15,8 @@ const LABELLED_MARKS = [
 function SliderWrapper({ size, tone, range, showValue, showValueOnInteraction, marks, labelledMarks, formatPercent, disabled, orientation }: {
   size: string; tone: string; range: boolean; showValue: boolean; showValueOnInteraction: boolean; marks: boolean; labelledMarks: boolean; formatPercent: boolean; disabled: boolean; orientation: string;
 }) {
-  const [value, setValue] = useState<number | [number, number]>(range ? [20, 70] : 40);
-  const [committed, setCommitted] = useState<number | [number, number]>(value);
+  const [value, setValue] = useState<SliderValue>(range ? [20, 70] : 40);
+  const [committed, setCommitted] = useState<SliderValue>(value);
 
   const marksProp = labelledMarks ? LABELLED_MARKS : marks;
 

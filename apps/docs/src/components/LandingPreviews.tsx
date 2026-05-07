@@ -219,10 +219,10 @@ export function ProgressPreview() {
 }
 
 export function SliderPreview() {
-  const [v, setV] = useState<number | [number, number]>(60);
+  const [v, setV] = useState<number>(60);
   return (
     <div style={{ width: 180 }}>
-      <SliderStyled value={v} onChange={setV} tone="primary" size="sm" />
+      <SliderStyled value={v} onChange={(val) => setV(val as number)} tone="primary" size="sm" />
     </div>
   );
 }
