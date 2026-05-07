@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, type ReactNode } from "react";
+import { useState, useCallback, useMemo, useEffect, useRef, type ReactNode } from "react";
 import { tokenize } from "./highlight";
 
 // ============================================================================
@@ -167,6 +167,20 @@ export default function PropPlayground({
   const [values, setValues] = useState(initial);
   const [copied, setCopied] = useState(false);
   const [controlsOpen, setControlsOpen] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [showFade, setShowFade] = useState(false);
+
+  const checkScroll = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const overflows = el.scrollHeight > el.clientHeight + 2;
+    const atBottom = el.scrollHeight - el.scrollTop <= el.clientHeight + 2;
+    setShowFade(overflows && !atBottom);
+  }, []);
+
+  useEffect(() => {
+    checkScroll();
+  }, [values, checkScroll]);
 
   const set = useCallback(
     (name: string, value: string | number | boolean) => {
@@ -219,6 +233,7 @@ export default function PropPlayground({
               Reset
             </button>
           </div>
+          <div className="pp__controls-scroll" ref={scrollRef} onScroll={checkScroll}>
           <div className="pp__controls-body">
             {props.map((prop) => {
               const value = values[prop.name]!;
@@ -283,6 +298,8 @@ export default function PropPlayground({
               );
             })}
           </div>
+          {showFade && <div className="pp__controls-fade" aria-hidden="true" />}
+          </div>{/* /pp__controls-scroll */}
         </div>
       </div>
 
@@ -352,13 +369,20 @@ export default function PropPlayground({
           align-items: center;
           justify-content: center;
           padding: 2rem 1.5rem;
-          border-right: 1px solid var(--border);
           background: radial-gradient(circle at 30% 30%, color-mix(in srgb, var(--accent) 6%, transparent), transparent 70%), var(--bg-subtle);
           overflow-x: auto;
           min-width: 0;
+          position: sticky;
+          top: calc(var(--header-height) + 0.5rem);
+          align-self: start;
+          min-height: 240px;
         }
         @media (max-width: 860px) {
-          .pp__preview { border-right: none; border-bottom: 1px solid var(--border); }
+          .pp__preview {
+            position: static;
+            border-bottom: 1px solid var(--border);
+          }
+          .pp__controls { border-left: none; }
         }
 
         /* ── stacked layout ── */
@@ -434,6 +458,32 @@ export default function PropPlayground({
           display: flex;
           flex-direction: column;
           background: var(--bg-elevated);
+          min-width: 0;
+          border-left: 1px solid var(--border);
+        }
+        .pp__controls-scroll {
+          position: relative;
+          flex: 1;
+          overflow-y: auto;
+          max-height: 480px;
+          scrollbar-width: thin;
+          scrollbar-color: transparent transparent;
+          transition: scrollbar-color 200ms ease;
+        }
+        .pp__controls-scroll:hover {
+          scrollbar-color: var(--border) transparent;
+        }
+        /* Fade-out gradient — signals more props to scroll */
+        .pp__controls-fade {
+          position: sticky;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          display: block;
+          height: 48px;
+          margin-top: -48px;
+          background: linear-gradient(to bottom, transparent, var(--bg-elevated) 85%);
+          pointer-events: none;
         }
         .pp__controls-header {
           display: flex;
