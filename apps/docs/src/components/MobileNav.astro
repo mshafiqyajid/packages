@@ -10,11 +10,11 @@
   aria-controls="mobile-drawer"
   aria-expanded="false"
 >
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-    <line x1="3" y1="6" x2="21" y2="6"/>
-    <line x1="3" y1="12" x2="21" y2="12"/>
-    <line x1="3" y1="18" x2="21" y2="18"/>
-  </svg>
+  <span class="mobile-nav-trigger__icon" aria-hidden="true">
+    <span class="mobile-nav-trigger__bar mobile-nav-trigger__bar--top"></span>
+    <span class="mobile-nav-trigger__bar mobile-nav-trigger__bar--mid"></span>
+    <span class="mobile-nav-trigger__bar mobile-nav-trigger__bar--bot"></span>
+  </span>
 </button>
 
 <style is:global>
@@ -30,15 +30,51 @@
     color: var(--fg-muted);
     cursor: pointer;
     flex-shrink: 0;
-    transition: color 140ms ease, background 140ms ease, border-color 140ms ease;
+    transition: color 140ms ease, background 140ms ease, border-color 140ms ease, transform 200ms cubic-bezier(0.32, 0.72, 0, 1);
   }
   .mobile-nav-trigger:hover {
     color: var(--fg);
     background: var(--bg-subtle);
     border-color: var(--border-strong);
   }
-  .mobile-nav-trigger:active { transform: scale(0.95); }
+  .mobile-nav-trigger:active { transform: scale(0.92); }
+
+  /* Burger ↔ X morph */
+  .mobile-nav-trigger__icon {
+    position: relative;
+    width: 18px;
+    height: 14px;
+    display: inline-block;
+  }
+  .mobile-nav-trigger__bar {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: currentColor;
+    border-radius: 2px;
+    transition: transform 280ms cubic-bezier(0.32, 0.72, 0, 1), opacity 220ms ease;
+    transform-origin: 50% 50%;
+  }
+  .mobile-nav-trigger__bar--top { top: 0; }
+  .mobile-nav-trigger__bar--mid { top: 50%; transform: translateY(-50%); }
+  .mobile-nav-trigger__bar--bot { bottom: 0; }
+
+  .mobile-nav-trigger[aria-expanded="true"] .mobile-nav-trigger__bar--top {
+    transform: translateY(6px) rotate(45deg);
+  }
+  .mobile-nav-trigger[aria-expanded="true"] .mobile-nav-trigger__bar--mid {
+    opacity: 0;
+    transform: translateY(-50%) scaleX(0.4);
+  }
+  .mobile-nav-trigger[aria-expanded="true"] .mobile-nav-trigger__bar--bot {
+    transform: translateY(-6px) rotate(-45deg);
+  }
+
   @media (max-width: 768px) {
     .mobile-nav-trigger { display: inline-flex; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .mobile-nav-trigger__bar { transition: none; }
   }
 </style>

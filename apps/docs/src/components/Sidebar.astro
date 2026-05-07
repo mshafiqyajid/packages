@@ -137,11 +137,21 @@ const categoriesWithVersions = categories.map((cat) => ({
     top: var(--header-height);
     height: calc(100vh - var(--header-height));
     overflow-y: auto;
+    overscroll-behavior: contain;
     border-right: 1px solid var(--border);
     padding: 1rem 0 2rem;
     scrollbar-width: thin;
-    scrollbar-color: var(--border) transparent;
+    scrollbar-color: transparent transparent;
+    transition: scrollbar-color 200ms ease;
   }
+  .sidebar:hover { scrollbar-color: var(--border) transparent; }
+  .sidebar::-webkit-scrollbar { width: 6px; }
+  .sidebar::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 3px;
+    transition: background 200ms ease;
+  }
+  .sidebar:hover::-webkit-scrollbar-thumb { background: var(--border); }
   .sidebar__inner {
     display: flex;
     flex-direction: column;
