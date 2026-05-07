@@ -235,7 +235,12 @@ export function useNumberInput({
   const handleChange = useCallback(
     (e: ChangeEvent<HTMLInputElement>) => {
       if (disabled || readOnly) return;
-      setInputText(e.target.value);
+      const v = e.target.value;
+      // Allow empty, leading minus, and valid partial numeric strings.
+      // Blocks letters and symbols that can never form a valid number.
+      if (v === "" || v === "-" || /^-?(\d+\.?\d*|\.\d*)$/.test(v)) {
+        setInputText(v);
+      }
     },
     [disabled, readOnly],
   );

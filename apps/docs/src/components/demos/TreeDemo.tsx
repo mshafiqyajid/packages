@@ -71,6 +71,7 @@ export default function TreeDemo() {
 
   return (
     <PropPlayground
+      layout="stacked"
       componentName="TreeStyled"
       importLine={`import { TreeStyled } from "@mshafiqyajid/react-tree/styled";\nimport "@mshafiqyajid/react-tree/styles.css";`}
       props={[

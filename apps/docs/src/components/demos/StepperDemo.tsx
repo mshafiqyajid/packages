@@ -11,6 +11,7 @@ export default function StepperDemo() {
   const [agree, setAgree] = useState(false);
   return (
     <PropPlayground
+      layout="stacked"
       componentName="StepperStyled"
       importLine={`import { StepperStyled } from "@mshafiqyajid/react-stepper/styled";\nimport "@mshafiqyajid/react-stepper/styles.css";`}
       props={[
