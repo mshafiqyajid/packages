@@ -1,7 +1,9 @@
 import { useState } from "react";
 import PropPlayground from "../PropPlayground";
 import { ProgressBar, ProgressCircle, ProgressCircleStack } from "@mshafiqyajid/react-progress/styled";
+import { ButtonStyled } from "@mshafiqyajid/react-button/styled";
 import "@mshafiqyajid/react-progress/styles.css";
+import "@mshafiqyajid/react-button/styles.css";
 
 const SECTIONS_DEMO = [
   { value: 40, tone: "primary"  as const, label: "Design" },
@@ -53,12 +55,14 @@ export default function ProgressDemo() {
       <div style={{ display: "flex", flexDirection: "column", gap: 8, maxWidth: 400 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <span style={{ fontSize: "0.8rem", fontWeight: 500 }}>bufferValue — ghost buffered track</span>
-          <button
+          <ButtonStyled
+            variant="outline"
+            tone="neutral"
+            size="sm"
             onClick={() => setBufferOn((b) => !b)}
-            style={{ fontSize: "0.75rem", padding: "2px 8px", cursor: "pointer" }}
           >
-            {bufferOn ? "hide buffer" : "show buffer"}
-          </button>
+            {bufferOn ? "Hide buffer" : "Show buffer"}
+          </ButtonStyled>
         </div>
         <ProgressBar
           value={40}
