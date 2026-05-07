@@ -346,9 +346,8 @@ export default function PropPlayground({
         <HighlightedCode source={fullCode} />
       </div>
 
-      {/* suppressHydrationWarning: Astro SSR HTML-encodes quotes in style content;
-          React client renders raw quotes — these differ but the CSS is identical. */}
-      <style suppressHydrationWarning>{`
+      {/* CSS lives in global.css — no inline style needed */}
+      {false && <style>{`
         .pp {
           border: 1px solid var(--border);
           border-radius: 12px;
@@ -732,7 +731,7 @@ export default function PropPlayground({
         .pp-code .tok-comment   { color: var(--tok-comment); font-style: italic; }
         .pp-code .tok-expr      { color: var(--tok-expr); }
         .pp-code .tok-plain     { color: var(--tok-plain); }
-      `}</style>
+      `}</style>}
     </div>
   );
 }
