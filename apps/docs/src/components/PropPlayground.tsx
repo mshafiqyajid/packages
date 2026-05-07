@@ -391,6 +391,8 @@ export default function PropPlayground({
           min-height: 0;
         }
         .pp[data-layout="stacked"] .pp__preview {
+          position: static;
+          align-self: auto;
           border-right: none;
           border-bottom: 1px solid var(--border);
           align-items: flex-start;
@@ -400,6 +402,7 @@ export default function PropPlayground({
         }
         .pp[data-layout="stacked"] .pp__controls {
           border-top: none;
+          border-left: none;
         }
         .pp__controls--hidden {
           display: none;
