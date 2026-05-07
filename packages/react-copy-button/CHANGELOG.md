@@ -1,5 +1,14 @@
 # @mshafiqyajid/react-copy-button
 
+## 0.3.0
+
+### Minor Changes
+
+- 660ad46: Add `timeout` alias and `transform` callback to `useCopyToClipboard`.
+
+  - `timeout` — human-readable alias for `resetAfter` on both the hook and all components (`CopyButton`, `CopyButtonStyled`). When both are provided, `resetAfter` takes precedence.
+  - `transform` — `(text: string) => string | Promise<string>` option on the hook. Applied after the source resolves but before the clipboard write. `onCopy` receives the transformed result.
+
 ## 0.2.1
 
 ### Patch Changes
