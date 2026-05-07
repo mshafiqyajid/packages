@@ -295,17 +295,26 @@ export function useDatePicker(options: UseDatePickerOptions = {}): UseDatePicker
       const outsideMonth = date.getMonth() !== viewMonth;
       const mods = getModifiers(date).join(" ");
 
-      const isRangeStart =
-        mode === "range"
-          ? selected && Array.isArray(selected)
-            ? isSameDay(date, (selected as RangeValue)[0])
-            : !!rangeAnchor && isSameDay(date, rangeAnchor)
-          : false;
+      const isRangeStart = (() => {
+        if (mode !== "range") return false;
+        if (selected && Array.isArray(selected)) return isSameDay(date, (selected as RangeValue)[0]);
+        if (!rangeAnchor) return false;
+        if (!hoverDate) return isSameDay(date, rangeAnchor);
+        // During hover preview, the earlier of anchor/hover is the start.
+        return startOfDay(rangeAnchor).getTime() <= startOfDay(hoverDate).getTime()
+          ? isSameDay(date, rangeAnchor)
+          : isSameDay(date, hoverDate);
+      })();
 
-      const isRangeEnd =
-        mode === "range" && selected && Array.isArray(selected)
-          ? isSameDay(date, (selected as RangeValue)[1])
-          : false;
+      const isRangeEnd = (() => {
+        if (mode !== "range") return false;
+        if (selected && Array.isArray(selected)) return isSameDay(date, (selected as RangeValue)[1]);
+        if (!rangeAnchor || !hoverDate) return false;
+        // During hover preview, the later of anchor/hover is the end.
+        return startOfDay(rangeAnchor).getTime() <= startOfDay(hoverDate).getTime()
+          ? isSameDay(date, hoverDate)
+          : isSameDay(date, rangeAnchor);
+      })();
 
       return {
         date,
@@ -324,7 +333,7 @@ export function useDatePicker(options: UseDatePickerOptions = {}): UseDatePicker
         "data-modifiers": mods,
       };
     },
-    [isSelected, isInRange, isDisabled, isToday, handleDayClick, handleKeyDown, viewMonth, mode, selected, rangeAnchor, getModifiers],
+    [isSelected, isInRange, isDisabled, isToday, handleDayClick, handleKeyDown, viewMonth, mode, selected, rangeAnchor, hoverDate, getModifiers],
   );
 
   const updateViewWith = useCallback(

@@ -103,7 +103,7 @@ export const BadgeStyled = forwardRef<HTMLSpanElement, BadgeStyledProps>(
         )}
         {icon && <span className="rbadge-icon" aria-hidden="true">{icon}</span>}
         {children && <span className="rbadge-label">{children}</span>}
-        {count !== undefined && (
+        {count !== undefined && !(hideOnZero && count === 0 && !showZero) && (
           <span className="rbadge-count" aria-label={`${maxCount !== undefined && count > maxCount ? `${maxCount}+` : count} items`}>
             {maxCount !== undefined && count > maxCount ? `${maxCount}+` : count}
           </span>

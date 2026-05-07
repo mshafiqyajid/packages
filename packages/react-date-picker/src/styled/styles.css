@@ -162,7 +162,8 @@
   font-family: var(--rdp-font-family);
   font-size: var(--rdp-font-size-md);
   padding: 12px;
-  width: 280px;
+  width: max-content;
+  min-width: 280px;
   user-select: none;
   animation: rdp-calendar-in var(--rdp-duration-slow) var(--rdp-ease) both;
   transform-origin: top center;
@@ -175,13 +176,13 @@
 .rdp-calendar[data-size="sm"] {
   font-size: var(--rdp-font-size-sm);
   padding: 8px;
-  width: 256px;
+  min-width: 256px;
 }
 
 .rdp-calendar[data-size="lg"] {
   font-size: var(--rdp-font-size-lg);
   padding: 16px;
-  width: 308px;
+  min-width: 308px;
 }
 
 /* ── Header ──────────────────────────────────────────────────────────────── */
