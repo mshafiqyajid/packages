@@ -1,5 +1,30 @@
 # @mshafiqyajid/docs
 
+## 0.0.20
+
+### Patch Changes
+
+- Updated dependencies [2cc00d8]
+- Updated dependencies [615a68c]
+- Updated dependencies [615a68c]
+- Updated dependencies [615a68c]
+- Updated dependencies [615a68c]
+- Updated dependencies [615a68c]
+- Updated dependencies [c2c13d9]
+- Updated dependencies [c2c13d9]
+- Updated dependencies [c2c13d9]
+- Updated dependencies [fce12b0]
+  - @mshafiqyajid/react-chart@1.0.2
+  - @mshafiqyajid/react-accordion@0.3.0
+  - @mshafiqyajid/react-badge@0.3.0
+  - @mshafiqyajid/react-checkbox@0.4.0
+  - @mshafiqyajid/react-modal@0.4.0
+  - @mshafiqyajid/react-number-input@1.2.0
+  - @mshafiqyajid/react-slider@0.4.0
+  - @mshafiqyajid/react-tabs@0.4.0
+  - @mshafiqyajid/react-tooltip@0.4.0
+  - @mshafiqyajid/react-stepper@0.3.1
+
 ## 0.0.19
 
 ### Patch Changes

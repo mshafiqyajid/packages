@@ -1,5 +1,11 @@
 # @mshafiqyajid/react-number-input
 
+## 1.2.0
+
+### Minor Changes
+
+- 615a68c: Add hold-to-repeat acceleration (`repeat` prop), scrubable label drag (`scrubable` / `scrubPixels`), `largeStep` alias, and digit scroll animation on stepper interaction.
+
 ## 1.1.1
 
 ### Patch Changes
