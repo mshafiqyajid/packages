@@ -28,12 +28,12 @@
         return a;
       });
 
-      // Highlight the heading currently in view
+      // In the three-column layout, <main> is the scroll container — pass it
+      // as the IntersectionObserver root so active-heading tracking works.
       const observer = new IntersectionObserver(
         (entries) => {
           const visible = entries.filter((e) => e.isIntersecting);
           if (visible.length === 0) return;
-          // Pick the topmost visible
           const topmost = visible.reduce((prev, curr) =>
             curr.boundingClientRect.top < prev.boundingClientRect.top ? curr : prev,
           );
@@ -46,10 +46,21 @@
             }
           });
         },
-        { rootMargin: "-80px 0px -65% 0px", threshold: 0 },
+        { root: main, rootMargin: "-80px 0px -65% 0px", threshold: 0 },
       );
 
       headings.forEach((h) => observer.observe(h));
+
+      // Anchor clicks must scroll within <main>, not the page (which no longer scrolls).
+      links.forEach((a) => {
+        a.addEventListener("click", (e) => {
+          e.preventDefault();
+          const id = a.getAttribute("href")?.slice(1);
+          if (!id) return;
+          const target = main?.querySelector(`#${id}`) as HTMLElement | null;
+          if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+      });
     }
   }
 </script>
@@ -58,13 +69,14 @@
   .toc {
     width: 200px;
     flex-shrink: 0;
-    position: sticky;
-    top: calc(var(--header-height) + 2rem);
-    align-self: flex-start;
-    max-height: calc(100vh - var(--header-height) - 4rem);
+    height: 100%;
     overflow-y: auto;
-    padding: 0 1rem;
+    padding: 2rem 1rem 2rem;
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+    transition: scrollbar-color 200ms ease;
   }
+  .toc:hover { scrollbar-color: var(--border) transparent; }
   .toc__title {
     font-size: 11px;
     font-weight: 600;

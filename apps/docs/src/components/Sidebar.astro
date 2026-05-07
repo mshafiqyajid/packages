@@ -133,9 +133,7 @@ const categoriesWithVersions = categories.map((cat) => ({
   .sidebar {
     width: var(--sidebar-width);
     flex-shrink: 0;
-    position: sticky;
-    top: var(--header-height);
-    height: calc(100vh - var(--header-height));
+    height: 100%;
     overflow-y: auto;
     overscroll-behavior: contain;
     border-right: 1px solid var(--border);
