@@ -9,6 +9,8 @@ import {
 
 export type { ToastItem, ToastOptions, ToastType, ToastUpdatePartial } from "./store";
 
+const EMPTY_TOASTS: ToastItem[] = [];
+
 export interface ToastPromiseMessages<T> {
   loading: string;
   success: string | ((value: T) => string);
@@ -117,7 +119,7 @@ export function useToasts(channel = "default"): ToastItem[] {
   return useSyncExternalStore(
     store.subscribe.bind(store),
     store.getSnapshot.bind(store),
-    () => [],
+    () => EMPTY_TOASTS,
   );
 }
 
