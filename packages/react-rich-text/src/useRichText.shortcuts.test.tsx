@@ -34,7 +34,7 @@ function makeKeyEvent(opts: {
 
 describe("useRichText shortcuts", () => {
   it("invokes onShortcut + execCommand for Mod+B (Mac)", () => {
-    Object.defineProperty(navigator, "platform", { value: "MacIntel", configurable: true });
+    Object.defineProperty(navigator, "userAgent", { value: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)", configurable: true });
     const onShortcut = vi.fn();
     const { result } = renderHook(() =>
       useRichText({ shortcuts: { bold: "Mod+B" }, onShortcut }),
@@ -67,7 +67,7 @@ describe("useRichText shortcuts", () => {
   });
 
   it("ignores when modifiers don't match", () => {
-    Object.defineProperty(navigator, "platform", { value: "MacIntel", configurable: true });
+    Object.defineProperty(navigator, "userAgent", { value: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)", configurable: true });
     const onShortcut = vi.fn();
     const { result } = renderHook(() =>
       useRichText({ shortcuts: { bold: "Mod+B" }, onShortcut }),
