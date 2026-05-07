@@ -1,5 +1,11 @@
 # @mshafiqyajid/react-tabs
 
+## 0.4.0
+
+### Minor Changes
+
+- c2c13d9: Add closeable tabs with animated removal, scroll-arrow fade, drag-reorder `reorderable` API, `activationMode` prop, and drop indicator.
+
 ## 0.3.1
 
 ### Patch Changes

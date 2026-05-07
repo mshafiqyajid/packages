@@ -1,6 +1,6 @@
 {
   "name": "@mshafiqyajid/react-stepper",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Multi-step wizard / stepper hook and styled component for React. Linear or non-linear, validation gates, progress indicator. Zero dependencies, fully typed.",
   "keywords": [
     "react",

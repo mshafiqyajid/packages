@@ -1,6 +1,6 @@
 {
   "name": "@mshafiqyajid/react-checkbox",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "Headless checkbox hook and styled component for React. Indeterminate state, accessible, keyboard-friendly, fully typed.",
   "keywords": [
     "react",

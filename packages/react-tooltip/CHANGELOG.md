@@ -1,5 +1,11 @@
 # @mshafiqyajid/react-tooltip
 
+## 0.4.0
+
+### Minor Changes
+
+- c2c13d9: feat(react-tooltip): TooltipProvider delay group, interactive prop, followCursor prop, TooltipObserver, spring entrance animation
+
 ## 0.3.1
 
 ### Patch Changes

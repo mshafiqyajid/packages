@@ -1,5 +1,11 @@
 # @mshafiqyajid/react-modal
 
+## 0.4.0
+
+### Minor Changes
+
+- 615a68c: Add mobileVariant="sheet" (bottom-sheet on ≤640px with drag-to-dismiss), confirmVariant="confirm" shorthand footer, async preventClose guard, and improved backdrop blur + dialog scale-up motion.
+
 ## 0.3.1
 
 ### Patch Changes
