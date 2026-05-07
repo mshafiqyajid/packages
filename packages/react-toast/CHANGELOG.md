@@ -1,5 +1,11 @@
 # @mshafiqyajid/react-toast
 
+## 0.4.1
+
+### Patch Changes
+
+- c25a82f: fix(toast): cache getServerSnapshot return value to prevent React infinite loop warning
+
 ## 0.4.0
 
 ### Minor Changes
