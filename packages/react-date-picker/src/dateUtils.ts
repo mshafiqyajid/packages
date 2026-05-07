@@ -95,18 +95,21 @@ export function formatDate(date: Date, fmt: string): string {
   const y = date.getFullYear();
   const m = date.getMonth();
   const d = date.getDate();
-  const mm = String(m + 1).padStart(2, "0");
-  const dd = String(d).padStart(2, "0");
-
-  return fmt
-    .replace(/YYYY/g, String(y))
-    .replace(/YY/g, String(y).slice(-2))
-    .replace(/MMMM/g, MONTH_NAMES[m] ?? "")
-    .replace(/MMM/g, MONTH_ABBR[m] ?? "")
-    .replace(/MM/g, mm)
-    .replace(/M/g, String(m + 1))
-    .replace(/DD/g, dd)
-    .replace(/D/g, String(d));
+  // Single-pass replacement so shorter tokens (M, D) don't corrupt the output
+  // of longer tokens (MMM → "May" would later have its M replaced by "5").
+  return fmt.replace(/YYYY|YY|MMMM|MMM|MM|M|DD|D/g, (token) => {
+    switch (token) {
+      case "YYYY": return String(y);
+      case "YY":   return String(y).slice(-2);
+      case "MMMM": return MONTH_NAMES[m] ?? "";
+      case "MMM":  return MONTH_ABBR[m] ?? "";
+      case "MM":   return String(m + 1).padStart(2, "0");
+      case "M":    return String(m + 1);
+      case "DD":   return String(d).padStart(2, "0");
+      case "D":    return String(d);
+      default:     return token;
+    }
+  });
 }
 
 export { MONTH_NAMES, MONTH_ABBR, DAY_NAMES, DAY_ABBR };
