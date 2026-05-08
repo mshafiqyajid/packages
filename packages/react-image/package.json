@@ -1,6 +1,6 @@
 {
   "name": "@mshafiqyajid/react-image",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Image component with lazy loading, blur-up effect, skeleton placeholder, and error fallback.",
   "keywords": [
     "react",

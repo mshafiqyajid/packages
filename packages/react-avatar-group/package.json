@@ -1,6 +1,6 @@
 {
   "name": "@mshafiqyajid/react-avatar-group",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Avatar group with overflow indicator, tooltips, and stacking variants.",
   "keywords": [
     "react",

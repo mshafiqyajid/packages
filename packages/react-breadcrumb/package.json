@@ -1,6 +1,6 @@
 {
   "name": "@mshafiqyajid/react-breadcrumb",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Breadcrumb navigation with collapsible items and customizable separators.",
   "keywords": [
     "react",

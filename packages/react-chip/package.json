@@ -1,6 +1,6 @@
 {
   "name": "@mshafiqyajid/react-chip",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Chip component with selection, dismissal, tones, and icon support.",
   "keywords": [
     "react",

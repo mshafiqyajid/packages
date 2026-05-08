@@ -1,6 +1,6 @@
 {
   "name": "@mshafiqyajid/react-stat",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Statistic display with count-up animation, trend indicator, and loading skeleton.",
   "keywords": [
     "react",

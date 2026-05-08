@@ -1,6 +1,6 @@
 {
   "name": "@mshafiqyajid/react-navbar",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Responsive navigation bar with sticky, transparent-on-scroll, and mobile menu.",
   "license": "MIT",
   "author": "Shafiq Yajid",
@@ -9,7 +9,9 @@
     "url": "git+https://github.com/mshafiqyajid/packages.git",
     "directory": "packages/react-navbar"
   },
-  "bugs": { "url": "https://github.com/mshafiqyajid/packages/issues" },
+  "bugs": {
+    "url": "https://github.com/mshafiqyajid/packages/issues"
+  },
   "homepage": "https://docs.shafiqyajid.com/react/navbar/",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -29,8 +31,14 @@
     "./styles.css": "./dist/styles.css",
     "./package.json": "./package.json"
   },
-  "files": ["dist", "README.md", "LICENSE"],
-  "sideEffects": ["**/*.css"],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": [
+    "**/*.css"
+  ],
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
@@ -39,7 +47,9 @@
     "typecheck": "tsc --noEmit",
     "prepublishOnly": "npm run build"
   },
-  "peerDependencies": { "react": ">=17.0.0" },
+  "peerDependencies": {
+    "react": ">=17.0.0"
+  },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.4.0",
     "@testing-library/react": "^16.0.0",
@@ -55,6 +65,10 @@
     "typescript": "^5.6.0",
     "vitest": "^2.1.0"
   },
-  "publishConfig": { "access": "public" },
-  "engines": { "node": ">=18" }
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=18"
+  }
 }

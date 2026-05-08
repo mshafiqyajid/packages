@@ -1,6 +1,6 @@
 {
   "name": "@mshafiqyajid/react-divider",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Horizontal and vertical divider with optional label, tones, and line styles.",
   "license": "MIT",
   "author": "Shafiq Yajid",
@@ -31,8 +31,14 @@
     "./styles.css": "./dist/styles.css",
     "./package.json": "./package.json"
   },
-  "files": ["dist", "README.md", "LICENSE"],
-  "sideEffects": ["**/*.css"],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": [
+    "**/*.css"
+  ],
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",

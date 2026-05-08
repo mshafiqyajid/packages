@@ -1,6 +1,6 @@
 {
   "name": "@mshafiqyajid/react-pagination",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Pagination control with ellipsis, page size selector, and full keyboard support.",
   "keywords": [
     "react",

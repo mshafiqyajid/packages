@@ -1,6 +1,6 @@
 {
   "name": "@mshafiqyajid/react-empty-state",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Empty state display with presets, custom illustrations, and action slots.",
   "keywords": [
     "react",
