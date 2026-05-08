@@ -1,6 +1,6 @@
 {
   "name": "@mshafiqyajid/react-calendar",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Headless calendar hook and styled date-picker calendar for React.",
   "license": "MIT",
   "author": "Shafiq Yajid",

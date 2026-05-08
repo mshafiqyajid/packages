@@ -1,6 +1,6 @@
 {
   "name": "@mshafiqyajid/react-carousel",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Headless carousel hook and styled slide component for React.",
   "license": "MIT",
   "author": "Shafiq Yajid",

@@ -1,6 +1,6 @@
 {
   "name": "@mshafiqyajid/react-time-picker",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Headless time picker hook and styled time input for React.",
   "keywords": [
     "react",

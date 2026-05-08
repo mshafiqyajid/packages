@@ -1,6 +1,6 @@
 {
   "name": "@mshafiqyajid/react-code-block",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Headless code block hook and styled syntax-highlighted code component for React.",
   "license": "MIT",
   "author": "Shafiq Yajid",
