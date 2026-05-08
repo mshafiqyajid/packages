@@ -19,13 +19,8 @@
   /* Ring color (border separating overlapping avatars) */
   --ravg-ring-color: #ffffff;
 
-  /* Spacing (negative margin for overlap) */
-  --ravg-spacing-tight: -10px;
-  --ravg-spacing-normal: -8px;
-  --ravg-spacing-loose: 0px;
-
-  /* Gap: resolved from override (set by gap prop) or spacing data-attribute */
-  --ravg-gap: var(--ravg-gap-override, var(--ravg-spacing-normal));
+  /* Gap: controlled via --ravg-gap-override inline style (gap prop). Default -8px overlap. */
+  --ravg-gap: var(--ravg-gap-override, -8px);
 
   /* Fallback avatar colors */
   --ravg-fallback-bg: #e4e4e7;
@@ -52,19 +47,6 @@
   flex-direction: row;
   align-items: center;
   flex-wrap: nowrap;
-}
-
-/* Spacing variants — set the gap variable per preset when no override is present */
-.ravg-root[data-spacing="tight"] {
-  --ravg-gap: var(--ravg-gap-override, var(--ravg-spacing-tight));
-}
-
-.ravg-root[data-spacing="normal"] {
-  --ravg-gap: var(--ravg-gap-override, var(--ravg-spacing-normal));
-}
-
-.ravg-root[data-spacing="loose"] {
-  --ravg-gap: var(--ravg-gap-override, var(--ravg-spacing-loose));
 }
 
 /* Apply gap to all direct children after the first */
