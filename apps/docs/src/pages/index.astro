@@ -1,4 +1,5 @@
 ---
+import { allSlugs } from "~/data/nav";
 import "~/styles/global.css";
 import Header from "~/components/Header.astro";
 import {
@@ -126,7 +127,7 @@ const byCategory = categories.map((cat) => ({
         <div class="hero__inner">
           <div class="hero__eyebrow">
             <span class="hero__dot"></span>
-            {packages.length} packages · React · TypeScript · Zero deps
+            {allSlugs.length} packages · React · TypeScript · Zero deps
           </div>
           <h1 class="hero__title">
             Tiny, polished<br />
@@ -150,7 +151,7 @@ const byCategory = categories.map((cat) => ({
         <div class="packages__inner">
           <div class="packages__header">
             <h2 class="packages__heading">All packages</h2>
-            <span class="packages__count">{packages.length} packages</span>
+            <span class="packages__count">{allSlugs.length} packages</span>
           </div>
           {byCategory.map((cat) => (
             <div class="packages__category">
