@@ -20,6 +20,24 @@ import { TextInputStyled } from "@mshafiqyajid/react-text-input/styled";
 import { NumberInputStyled } from "@mshafiqyajid/react-number-input/styled";
 import { PhoneInputStyled } from "@mshafiqyajid/react-phone-input/styled";
 import { TagInputStyled } from "@mshafiqyajid/react-tag-input/styled";
+// New packages
+import { RadioGroupStyled, RadioItem } from "@mshafiqyajid/react-radio/styled";
+import { TextareaStyled } from "@mshafiqyajid/react-textarea/styled";
+import { AlertStyled } from "@mshafiqyajid/react-alert/styled";
+import { SpinnerStyled } from "@mshafiqyajid/react-spinner/styled";
+import { ChipStyled } from "@mshafiqyajid/react-chip/styled";
+import { EmptyStateStyled } from "@mshafiqyajid/react-empty-state/styled";
+import { AvatarGroupStyled } from "@mshafiqyajid/react-avatar-group/styled";
+import { StatStyled } from "@mshafiqyajid/react-stat/styled";
+import { CardStyled, Card } from "@mshafiqyajid/react-card/styled";
+import { DividerStyled } from "@mshafiqyajid/react-divider/styled";
+import { PaginationStyled } from "@mshafiqyajid/react-pagination/styled";
+import { BreadcrumbStyled } from "@mshafiqyajid/react-breadcrumb/styled";
+import { RangeStyled } from "@mshafiqyajid/react-range/styled";
+import { ComboboxStyled } from "@mshafiqyajid/react-combobox/styled";
+import { MultiSelectStyled } from "@mshafiqyajid/react-multi-select/styled";
+import { NavbarStyled } from "@mshafiqyajid/react-navbar/styled";
+import { SidebarStyled } from "@mshafiqyajid/react-sidebar/styled";
 import "@mshafiqyajid/react-copy-button/styles.css";
 import "@mshafiqyajid/react-otp-input/styles.css";
 import "@mshafiqyajid/react-segmented-control/styles.css";
@@ -41,6 +59,23 @@ import "@mshafiqyajid/react-text-input/styles.css";
 import "@mshafiqyajid/react-number-input/styles.css";
 import "@mshafiqyajid/react-phone-input/styles.css";
 import "@mshafiqyajid/react-tag-input/styles.css";
+import "@mshafiqyajid/react-radio/styles.css";
+import "@mshafiqyajid/react-textarea/styles.css";
+import "@mshafiqyajid/react-alert/styles.css";
+import "@mshafiqyajid/react-spinner/styles.css";
+import "@mshafiqyajid/react-chip/styles.css";
+import "@mshafiqyajid/react-empty-state/styles.css";
+import "@mshafiqyajid/react-avatar-group/styles.css";
+import "@mshafiqyajid/react-stat/styles.css";
+import "@mshafiqyajid/react-card/styles.css";
+import "@mshafiqyajid/react-divider/styles.css";
+import "@mshafiqyajid/react-pagination/styles.css";
+import "@mshafiqyajid/react-breadcrumb/styles.css";
+import "@mshafiqyajid/react-range/styles.css";
+import "@mshafiqyajid/react-combobox/styles.css";
+import "@mshafiqyajid/react-multi-select/styles.css";
+import "@mshafiqyajid/react-navbar/styles.css";
+import "@mshafiqyajid/react-sidebar/styles.css";
 
 export function CopyButtonPreview() {
   return <CopyButtonStyled text="Hello!" tone="primary" label="Copy" size="sm" />;
@@ -550,6 +585,364 @@ export function TreePreview() {
       <Row depth={2} icon="▸" label="Card.tsx" />
       <Row depth={1} icon="▸" label="App.tsx" />
       <Row depth={0} icon="▸" label="public" bold />
+    </div>
+  );
+}
+
+// ── New packages ─────────────────────────────────────────────────────────────
+
+export function RadioPreview() {
+  const [v, setV] = useState("monthly");
+  return (
+    <div style={{ pointerEvents: "none" }}>
+      <RadioGroupStyled
+        value={v}
+        onChange={setV}
+        size="sm"
+        tone="primary"
+        orientation="vertical"
+      >
+        <RadioItem value="monthly" label="Monthly" />
+        <RadioItem value="yearly" label="Yearly" />
+        <RadioItem value="lifetime" label="Lifetime" />
+      </RadioGroupStyled>
+    </div>
+  );
+}
+
+export function TextareaPreview() {
+  return (
+    <div style={{ width: 240, pointerEvents: "none" }}>
+      <TextareaStyled
+        value="This is a resizable textarea with character count, auto-resize, and form integration."
+        rows={3}
+        size="sm"
+        tone="primary"
+        showCount
+        maxLength={120}
+      />
+    </div>
+  );
+}
+
+export function AlertPreview() {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 6, width: 260, pointerEvents: "none" }}>
+      <AlertStyled tone="success" size="sm" title="Saved!" variant="soft" showIcon />
+      <AlertStyled tone="warning" size="sm" title="Review required" variant="soft" showIcon />
+      <AlertStyled tone="danger"  size="sm" title="Action failed" variant="soft" showIcon />
+    </div>
+  );
+}
+
+export function SpinnerPreview() {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 16, pointerEvents: "none" }}>
+      <SpinnerStyled variant="spin"  tone="primary" size="md" />
+      <SpinnerStyled variant="dots"  tone="primary" size="md" />
+      <SpinnerStyled variant="ring"  tone="primary" size="md" />
+      <SpinnerStyled variant="pulse" tone="primary" size="md" />
+    </div>
+  );
+}
+
+export function ChipPreview() {
+  return (
+    <div style={{ display: "flex", gap: 5, flexWrap: "wrap", pointerEvents: "none" }}>
+      <ChipStyled tone="primary"  variant="subtle">Design</ChipStyled>
+      <ChipStyled tone="success"  variant="subtle">Shipped</ChipStyled>
+      <ChipStyled tone="warning"  variant="subtle">In Review</ChipStyled>
+      <ChipStyled tone="danger"   variant="subtle">Blocked</ChipStyled>
+    </div>
+  );
+}
+
+export function EmptyStatePreview() {
+  return (
+    <div style={{ pointerEvents: "none", transform: "scale(0.85)", transformOrigin: "top center" }}>
+      <EmptyStateStyled
+        preset="no-results"
+        size="sm"
+        title="No results"
+        description="Try a different search term."
+      />
+    </div>
+  );
+}
+
+export function AvatarGroupPreview() {
+  return (
+    <div style={{ pointerEvents: "none" }}>
+      <AvatarGroupStyled
+        size="md"
+        spacing="normal"
+        showTooltip={false}
+        avatars={[
+          { name: "Alice Smith" },
+          { name: "Bob Jones" },
+          { name: "Carol White" },
+          { name: "Dave Brown" },
+          { name: "Eve Davis" },
+          { name: "Frank Lee" },
+        ]}
+        max={4}
+      />
+    </div>
+  );
+}
+
+export function StatPreview() {
+  return (
+    <div style={{ display: "flex", gap: 8, pointerEvents: "none" }}>
+      <StatStyled value="$12.4k" label="Revenue" trend={18.2} trendLabel="vs last month" size="sm" countUp={false} />
+      <StatStyled value="2.4k"  label="Users"   trend={-3.1}  trendLabel="vs last month" size="sm" countUp={false} />
+    </div>
+  );
+}
+
+export function CardPreview() {
+  return (
+    <div style={{ pointerEvents: "none", width: 220 }}>
+      <CardStyled variant="elevated" size="sm" radius="md">
+        <Card.Body>
+          <div style={{ fontSize: "0.8rem", fontWeight: 600, color: "var(--fg)", marginBottom: 4 }}>Project Alpha</div>
+          <div style={{ fontSize: "0.72rem", color: "var(--fg-muted)", lineHeight: 1.5 }}>Flexible card with header, body, and footer slots.</div>
+        </Card.Body>
+      </CardStyled>
+    </div>
+  );
+}
+
+export function DividerPreview() {
+  return (
+    <div style={{ width: 220, pointerEvents: "none", display: "flex", flexDirection: "column", gap: 8 }}>
+      <DividerStyled />
+      <DividerStyled label="or continue with" tone="neutral" />
+      <DividerStyled lineStyle="dashed" tone="primary" />
+    </div>
+  );
+}
+
+export function PaginationPreview() {
+  const [page, setPage] = useState(3);
+  return (
+    <div style={{ pointerEvents: "none" }}>
+      <PaginationStyled page={page} onChange={setPage} total={100} pageSize={10} size="sm" siblings={1} boundaries={1} />
+    </div>
+  );
+}
+
+export function BreadcrumbPreview() {
+  return (
+    <div style={{ pointerEvents: "none" }}>
+      <BreadcrumbStyled
+        size="sm"
+        separator="chevron"
+        items={[
+          { label: "Home", href: "/" },
+          { label: "Docs", href: "/docs" },
+          { label: "Components" },
+        ]}
+      />
+    </div>
+  );
+}
+
+export function RangePreview() {
+  const [v, setV] = useState<[number, number]>([25, 75]);
+  return (
+    <div style={{ width: 220, pointerEvents: "none" }}>
+      <RangeStyled
+        mode="range"
+        value={v}
+        onChange={(val) => setV(val as [number, number])}
+        tone="primary"
+        size="sm"
+        showTooltip="always"
+      />
+    </div>
+  );
+}
+
+export function ComboboxPreview() {
+  const [v, setV] = useState<string | null>("react");
+  return (
+    <div style={{ width: 200, pointerEvents: "none" }}>
+      <ComboboxStyled
+        value={v}
+        onChange={setV}
+        size="sm"
+        placeholder="Select framework…"
+        options={[
+          { value: "react",   label: "React" },
+          { value: "vue",     label: "Vue" },
+          { value: "svelte",  label: "Svelte" },
+          { value: "solid",   label: "Solid" },
+        ]}
+      />
+    </div>
+  );
+}
+
+export function MultiSelectPreview() {
+  const [v, setV] = useState(["ts", "react"]);
+  return (
+    <div style={{ width: 220, pointerEvents: "none" }}>
+      <MultiSelectStyled
+        value={v}
+        onChange={setV}
+        size="sm"
+        triggerMode="chips"
+        maxChips={3}
+        options={[
+          { value: "ts",     label: "TypeScript" },
+          { value: "react",  label: "React" },
+          { value: "vite",   label: "Vite" },
+          { value: "vitest", label: "Vitest" },
+        ]}
+      />
+    </div>
+  );
+}
+
+export function NavbarPreview() {
+  return (
+    <div style={{ pointerEvents: "none", width: 280, transform: "scale(0.9)", transformOrigin: "top left" }}>
+      <NavbarStyled
+        brand={<span style={{ fontWeight: 700, fontSize: "0.9rem" }}>Acme</span>}
+        items={[
+          { label: "Home",  href: "#", active: true },
+          { label: "Docs",  href: "#" },
+          { label: "Blog",  href: "#" },
+        ]}
+        variant="default"
+        size="sm"
+      />
+    </div>
+  );
+}
+
+export function SidebarPreview() {
+  return (
+    <div style={{ pointerEvents: "none", width: 180, height: 130, overflow: "hidden", borderRadius: 8, border: "1px solid var(--border)" }}>
+      <SidebarStyled
+        size="sm"
+        variant="default"
+        showCollapseButton={false}
+        activeId="dash"
+        items={[
+          { label: "Main", items: [
+            { id: "dash",     label: "Dashboard", icon: "⊞" },
+            { id: "users",    label: "Users",     icon: "👥" },
+            { id: "settings", label: "Settings",  icon: "⚙" },
+          ]},
+        ]}
+      />
+    </div>
+  );
+}
+
+export function SheetPreview() {
+  return (
+    <div style={{ pointerEvents: "none", position: "relative", width: 220, height: 110, overflow: "hidden", borderRadius: 8, background: "rgba(0,0,0,0.35)" }}>
+      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, background: "var(--bg-elevated)", border: "1px solid var(--border)", borderRadius: "10px 10px 0 0", padding: "10px 14px 8px", boxShadow: "0 -4px 20px rgba(0,0,0,0.15)" }}>
+        <div style={{ width: 32, height: 4, borderRadius: 2, background: "var(--border)", margin: "0 auto 10px" }} />
+        <div style={{ fontSize: "0.78rem", fontWeight: 600, color: "var(--fg)", marginBottom: 4 }}>Quick actions</div>
+        <div style={{ display: "flex", gap: 6 }}>
+          {["Share", "Edit", "Delete"].map((a) => (
+            <span key={a} style={{ padding: "3px 8px", borderRadius: 5, border: "1px solid var(--border)", fontSize: "0.68rem", color: "var(--fg-muted)", background: "var(--bg-subtle)" }}>{a}</span>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function HoverCardPreview() {
+  return (
+    <div style={{ pointerEvents: "none", display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+      <div style={{ background: "var(--bg-elevated)", border: "1px solid var(--border)", borderRadius: 10, padding: "10px 14px", boxShadow: "0 6px 20px rgba(0,0,0,0.12)", width: 200 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+          <div style={{ width: 32, height: 32, borderRadius: "50%", background: "var(--accent)", display: "flex", alignItems: "center", justifyContent: "center", color: "white", fontSize: "0.8rem", fontWeight: 700, flexShrink: 0 }}>SY</div>
+          <div>
+            <div style={{ fontSize: "0.78rem", fontWeight: 600, color: "var(--fg)" }}>Shafiq Yajid</div>
+            <div style={{ fontSize: "0.68rem", color: "var(--fg-muted)" }}>@mshafiqyajid</div>
+          </div>
+        </div>
+        <div style={{ fontSize: "0.7rem", color: "var(--fg-muted)", lineHeight: 1.5 }}>Building open-source React UI primitives.</div>
+      </div>
+      <div style={{ padding: "4px 12px", borderRadius: 6, border: "1px solid var(--border)", background: "var(--bg-elevated)", fontSize: "0.75rem", color: "var(--fg)" }}>Hover over me</div>
+    </div>
+  );
+}
+
+export function ContextMenuPreview() {
+  return (
+    <div style={{ pointerEvents: "none", background: "var(--bg-elevated)", border: "1px solid var(--border)", borderRadius: 8, overflow: "hidden", width: 170, boxShadow: "0 6px 20px rgba(0,0,0,0.12)" }}>
+      {[
+        { label: "Open",      icon: "↗" },
+        { label: "Rename",    icon: "✏" },
+        { label: "Duplicate", icon: "⧉" },
+        null,
+        { label: "Delete",    icon: "🗑", danger: true },
+      ].map((item, i) =>
+        item === null ? (
+          <div key={i} style={{ height: 1, background: "var(--border)", margin: "2px 0" }} />
+        ) : (
+          <div key={item.label} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 10px", fontSize: "0.78rem", color: item.danger ? "#dc2626" : "var(--fg)" }}>
+            <span style={{ width: 14, fontSize: "0.7rem" }}>{item.icon}</span>
+            {item.label}
+          </div>
+        )
+      )}
+    </div>
+  );
+}
+
+export function LightboxPreview() {
+  return (
+    <div style={{ pointerEvents: "none", background: "rgba(0,0,0,0.9)", borderRadius: 8, padding: "10px", width: 220, display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
+        <span style={{ fontSize: "0.65rem", color: "rgba(255,255,255,0.5)" }}>2 / 5</span>
+        <span style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.5)" }}>✕</span>
+      </div>
+      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+        <span style={{ color: "rgba(255,255,255,0.4)", fontSize: "1.2rem" }}>‹</span>
+        <div style={{ width: 130, height: 72, borderRadius: 6, background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%)" }} />
+        <span style={{ color: "rgba(255,255,255,0.4)", fontSize: "1.2rem" }}>›</span>
+      </div>
+      <div style={{ display: "flex", gap: 4 }}>
+        {[0,1,2,3,4].map((i) => (
+          <div key={i} style={{ width: 28, height: 18, borderRadius: 3, background: i === 1 ? "var(--accent)" : "rgba(255,255,255,0.2)", border: i === 1 ? "2px solid white" : "1px solid transparent" }} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export function SortablePreview() {
+  const items = [
+    { id: "1", label: "Design tokens" },
+    { id: "2", label: "Component library" },
+    { id: "3", label: "Documentation" },
+  ];
+  return (
+    <div style={{ pointerEvents: "none", width: 220 }}>
+      {items.map((item, i) => (
+        <div key={item.id} style={{
+          display: "flex", alignItems: "center", gap: 8,
+          padding: "6px 10px", marginBottom: 4,
+          background: "var(--bg-elevated)", border: "1px solid var(--border)",
+          borderRadius: 6, fontSize: "0.75rem", color: "var(--fg)",
+          opacity: i === 1 ? 0.5 : 1,
+          boxShadow: i === 1 ? "0 4px 12px rgba(0,0,0,0.12)" : "none",
+        }}>
+          <svg width="10" height="14" viewBox="0 0 10 14" fill="var(--fg-subtle)" aria-hidden="true">
+            {[2,6,10].map((y) => [2,7].map((x) => <circle key={`${x}-${y}`} cx={x} cy={y} r="1.2" />))}
+          </svg>
+          {item.label}
+        </div>
+      ))}
     </div>
   );
 }

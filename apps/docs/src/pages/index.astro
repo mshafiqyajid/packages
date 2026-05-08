@@ -38,6 +38,28 @@ import {
   KanbanPreview,
   CommandPalettePreview,
   TreePreview,
+  RadioPreview,
+  TextareaPreview,
+  AlertPreview,
+  SpinnerPreview,
+  ChipPreview,
+  EmptyStatePreview,
+  AvatarGroupPreview,
+  StatPreview,
+  CardPreview,
+  DividerPreview,
+  PaginationPreview,
+  BreadcrumbPreview,
+  RangePreview,
+  ComboboxPreview,
+  MultiSelectPreview,
+  NavbarPreview,
+  SidebarPreview,
+  SortablePreview,
+  SheetPreview,
+  HoverCardPreview,
+  ContextMenuPreview,
+  LightboxPreview,
 } from "~/components/LandingPreviews";
 
 const packages = [
@@ -81,6 +103,34 @@ const packages = [
   { category: "navigation", slug: "tabs",          name: "react-tabs",              size: "~9 KB",  tags: ["animated", "controlled", "a11y"],    desc: "Accessible tabs with line, solid, and pill variants. Sliding indicator driven by ResizeObserver. Controlled and uncontrolled." },
   { category: "navigation", slug: "accordion",     name: "react-accordion",         size: "~8 KB",  tags: ["animated", "a11y", "keyboard"],      desc: "Accessible accordion with single/multiple mode, smooth CSS grid height animation, and full keyboard navigation." },
   { category: "navigation", slug: "stepper",       name: "react-stepper",           size: "~9 KB",  tags: ["wizard", "linear", "footer"],        desc: "Multi-step flow with linear/non-linear modes, completed checks, optional steps, footer nav, and progress bar." },
+  { category: "navigation", slug: "navbar",        name: "react-navbar",            size: "~6 KB",  tags: ["sticky", "mobile menu", "scroll"],   desc: "Responsive navbar with sticky scroll, transparent-on-top mode, and animated mobile slide-down menu." },
+  { category: "navigation", slug: "sidebar",       name: "react-sidebar",           size: "~7 KB",  tags: ["collapsible", "nested", "badges"],   desc: "Collapsible navigation sidebar with nested items, badges, icon-only mode, and full keyboard navigation." },
+  { category: "navigation", slug: "breadcrumb",    name: "react-breadcrumb",        size: "~4 KB",  tags: ["collapse", "separator", "a11y"],     desc: "Accessible breadcrumb with collapsible overflow, three separator styles, and stagger-in expand animation." },
+  { category: "navigation", slug: "pagination",    name: "react-pagination",        size: "~5 KB",  tags: ["siblings", "first/last", "sizes"],   desc: "Pagination with sibling/boundary pages, first/last buttons, page-size selector, and full keyboard support." },
+  { category: "navigation", slug: "sortable",      name: "react-sortable",          size: "~6 KB",  tags: ["drag-and-drop", "keyboard", "zero deps"], desc: "Drag-and-drop sortable list with pointer events, keyboard reordering, live announcements, and zero dependencies." },
+  // ── Inputs (new) ─────────────────────────────────────────────────────────
+  { category: "inputs", slug: "radio",             name: "react-radio",             size: "~5 KB",  tags: ["group", "card variant", "keyboard"],  desc: "Radio group with default, card, and button-group variants. Controlled and uncontrolled. Full keyboard navigation." },
+  { category: "inputs", slug: "textarea",          name: "react-textarea",          size: "~6 KB",  tags: ["auto-resize", "char count", "a11y"],  desc: "Textarea with auto-resize, character count, overflow limit, and the full form-control prop surface." },
+  { category: "inputs", slug: "range",             name: "react-range",             size: "~7 KB",  tags: ["dual thumb", "marks", "tooltip"],     desc: "Single and dual-thumb range slider with snap marks, drag/always/never tooltip, and full keyboard navigation." },
+  { category: "inputs", slug: "combobox",          name: "react-combobox",          size: "~9 KB",  tags: ["async", "creatable", "groups"],       desc: "Searchable combobox with async loading, option grouping, creatable mode, and ARIA combobox pattern." },
+  { category: "inputs", slug: "multi-select",      name: "react-multi-select",      size: "~9 KB",  tags: ["chips", "select-all", "groups"],      desc: "Multi-selection dropdown with chips, search, select-all with indeterminate, and grouped options." },
+  { category: "inputs", slug: "form",              name: "react-form",              size: "~6 KB",  tags: ["validation", "async", "headless"],    desc: "Headless form state with sync/async validation, validateOn strategies, controlled mode, and zero runtime deps." },
+  // ── Feedback (new) ───────────────────────────────────────────────────────
+  { category: "feedback", slug: "alert",           name: "react-alert",             size: "~5 KB",  tags: ["dismissible", "tones", "icon"],       desc: "Alert banner with four variants, six tones, icon slot, action slot, dismissible, and slide-out animation." },
+  { category: "feedback", slug: "spinner",         name: "react-spinner",           size: "~4 KB",  tags: ["5 variants", "overlay", "tones"],     desc: "Loading spinner with five animation variants (spin, dots, bars, ring, pulse), overlay mode, and six tones." },
+  { category: "feedback", slug: "chip",            name: "react-chip",              size: "~4 KB",  tags: ["selectable", "dismissible", "avatar"], desc: "Chip/tag with selectable and dismissible modes, avatar slot, icon slots, and spring-animate state changes." },
+  { category: "feedback", slug: "empty-state",     name: "react-empty-state",       size: "~5 KB",  tags: ["presets", "illustration", "actions"], desc: "Empty state with five presets, icon/image slot, title, description, and primary + secondary action slots." },
+  // ── Display (new) ────────────────────────────────────────────────────────
+  { category: "feedback", slug: "avatar-group",    name: "react-avatar-group",      size: "~4 KB",  tags: ["+N overflow", "tooltip", "shapes"],   desc: "Avatar group with count overflow badge, tooltip-per-avatar, shape and spacing control." },
+  { category: "feedback", slug: "stat",            name: "react-stat",              size: "~5 KB",  tags: ["count-up", "trend", "loading"],       desc: "Metric stat card with count-up animation, auto-computed trend arrow, prefix/suffix, and loading skeleton." },
+  // ── Layout (new) ─────────────────────────────────────────────────────────
+  { category: "feedback", slug: "card",            name: "react-card",              size: "~4 KB",  tags: ["clickable", "polymorphic", "slots"],  desc: "Card with elevated/outlined/filled/ghost variants, clickable with hover/active states, header/footer slots, and polymorphic `as` prop." },
+  { category: "feedback", slug: "divider",         name: "react-divider",           size: "~3 KB",  tags: ["label", "tones", "orientations"],     desc: "Horizontal and vertical divider with centered label, solid/dashed/dotted line styles, and six tones." },
+  // ── Overlays (new) ───────────────────────────────────────────────────────
+  { category: "overlays", slug: "sheet",           name: "react-sheet",             size: "~8 KB",  tags: ["snap points", "swipe", "sides"],      desc: "Bottom/side sheet with snap points, swipe-to-dismiss, focus trap, and smooth spring slide animation." },
+  { category: "overlays", slug: "hover-card",      name: "react-hover-card",        size: "~5 KB",  tags: ["delay", "auto-placement", "arrow"],   desc: "Hover-triggered floating card with configurable open/close delay, auto-placement, and smooth scale animation." },
+  { category: "overlays", slug: "context-menu",    name: "react-context-menu",      size: "~6 KB",  tags: ["sub-menus", "keyboard", "first-letter"], desc: "Right-click context menu with nested sub-menus, full keyboard navigation, and first-letter jump." },
+  { category: "overlays", slug: "lightbox",        name: "react-lightbox",          size: "~8 KB",  tags: ["thumbnails", "swipe", "zoom"],        desc: "Full-screen image lightbox with thumbnail strip, swipe-to-navigate, optional pinch/scroll zoom, and keyboard control." },
 ];
 
 const categories = [
@@ -202,6 +252,28 @@ const byCategory = categories.map((cat) => ({
                       {pkg.slug === "command-palette" && <CommandPalettePreview client:visible />}
                       {pkg.slug === "stepper" && <StepperPreview client:visible />}
                       {pkg.slug === "tree" && <TreePreview client:visible />}
+                      {pkg.slug === "radio" && <RadioPreview client:visible />}
+                      {pkg.slug === "textarea" && <TextareaPreview client:visible />}
+                      {pkg.slug === "alert" && <AlertPreview client:visible />}
+                      {pkg.slug === "spinner" && <SpinnerPreview client:visible />}
+                      {pkg.slug === "chip" && <ChipPreview client:visible />}
+                      {pkg.slug === "empty-state" && <EmptyStatePreview client:visible />}
+                      {pkg.slug === "avatar-group" && <AvatarGroupPreview client:visible />}
+                      {pkg.slug === "stat" && <StatPreview client:visible />}
+                      {pkg.slug === "card" && <CardPreview client:visible />}
+                      {pkg.slug === "divider" && <DividerPreview client:visible />}
+                      {pkg.slug === "pagination" && <PaginationPreview client:visible />}
+                      {pkg.slug === "breadcrumb" && <BreadcrumbPreview client:visible />}
+                      {pkg.slug === "range" && <RangePreview client:visible />}
+                      {pkg.slug === "combobox" && <ComboboxPreview client:visible />}
+                      {pkg.slug === "multi-select" && <MultiSelectPreview client:visible />}
+                      {pkg.slug === "navbar" && <NavbarPreview client:visible />}
+                      {pkg.slug === "sidebar" && <SidebarPreview client:visible />}
+                      {pkg.slug === "sortable" && <SortablePreview client:visible />}
+                      {pkg.slug === "sheet" && <SheetPreview client:visible />}
+                      {pkg.slug === "hover-card" && <HoverCardPreview client:visible />}
+                      {pkg.slug === "context-menu" && <ContextMenuPreview client:visible />}
+                      {pkg.slug === "lightbox" && <LightboxPreview client:visible />}
                     </div>
                     <div class="pkg-card__body">
                       <div class="pkg-card__header">
