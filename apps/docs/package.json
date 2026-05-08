@@ -76,8 +76,7 @@
     "@mshafiqyajid/react-code-block": "*",
     "shiki": "^1.0.0",
     "@mshafiqyajid/react-skeleton": "*",
-    "@mshafiqyajid/react-masonry": "*",
-    "@mshafiqyajid/react-input-mask": "*",
+"@mshafiqyajid/react-input-mask": "*",
     "react": "^18.3.0",
     "react-dom": "^18.3.0"
   },

@@ -18,7 +18,7 @@ export const NEW_SLUGS = new Set([
   "navbar", "sidebar", "sortable",
   "carousel", "calendar",
   "code-block", "skeleton",
-  "masonry", "drawer",
+  "drawer",
   "input-mask",
   "time-picker",
 ]);
@@ -121,8 +121,7 @@ export const categories: NavCategory[] = [
       { slug: "stat",              label: "Stat",              icon: "📈" },
       { slug: "progress",          label: "Progress",          icon: "📊" },
       { slug: "card",              label: "Card",              icon: "🃏" },
-      { slug: "masonry",           label: "Masonry",           icon: "🧱" },
-      { slug: "divider",           label: "Divider",           icon: "➖" },
+{ slug: "divider",           label: "Divider",           icon: "➖" },
       { slug: "code-block",        label: "Code Block",        icon: "💻" },
     ],
   },
