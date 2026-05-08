@@ -5,7 +5,7 @@ import React, {
   useCallback,
   type InputHTMLAttributes,
 } from "react";
-import { useInputMask } from "../useInputMask";
+import { useInputMask, type FormatChars } from "../useInputMask";
 
 export type InputMaskSize = "sm" | "md" | "lg";
 export type InputMaskTone = "neutral" | "primary" | "success" | "danger";
@@ -19,6 +19,7 @@ export interface InputMaskStyledProps
     | "size"
     | "disabled"
     | "readOnly"
+    | "prefix"
   > {
   mask: string;
   maskChar?: string;
@@ -28,6 +29,12 @@ export interface InputMaskStyledProps
   onAccept?: (value: string, rawValue: string) => void;
   onComplete?: (value: string, rawValue: string) => void;
   allowedChars?: RegExp;
+  formatChars?: FormatChars;
+  lazy?: boolean;
+  showMask?: boolean;
+  autoUnmask?: boolean;
+  prefix?: string;
+  suffix?: string;
   size?: InputMaskSize;
   tone?: InputMaskTone;
   disabled?: boolean;
@@ -50,7 +57,15 @@ export const InputMaskStyled = forwardRef<HTMLInputElement, InputMaskStyledProps
       onChange,
       onAccept,
       onComplete,
+      onFocus,
+      onBlur,
       allowedChars,
+      formatChars,
+      lazy,
+      showMask,
+      autoUnmask,
+      prefix,
+      suffix,
       size = "md",
       tone = "neutral",
       disabled = false,
@@ -98,7 +113,13 @@ export const InputMaskStyled = forwardRef<HTMLInputElement, InputMaskStyledProps
       onChange,
       onAccept,
       onComplete,
+      onFocus,
+      onBlur,
       allowedChars,
+      formatChars,
+      lazy,
+      showMask,
+      autoUnmask,
       disabled,
       readOnly,
     });
@@ -130,6 +151,10 @@ export const InputMaskStyled = forwardRef<HTMLInputElement, InputMaskStyledProps
         data-readonly={readOnly ? "true" : undefined}
         data-invalid={hasError ? "true" : undefined}
         data-focused={isFocused ? "true" : undefined}
+        data-has-prefix={prefix ? "true" : undefined}
+        data-has-suffix={suffix ? "true" : undefined}
+        data-lazy={lazy === false ? "false" : undefined}
+        data-show-mask={showMask === false ? "false" : undefined}
         style={style}
       >
         {label && (
@@ -144,6 +169,11 @@ export const InputMaskStyled = forwardRef<HTMLInputElement, InputMaskStyledProps
           </label>
         )}
         <span className="rimsk-wrap">
+          {prefix && (
+            <span className="rimsk-prefix" aria-hidden="true">
+              {prefix}
+            </span>
+          )}
           <input
             {...rest}
             {...restInputProps}
@@ -159,6 +189,11 @@ export const InputMaskStyled = forwardRef<HTMLInputElement, InputMaskStyledProps
             }
             className="rimsk-input"
           />
+          {suffix && (
+            <span className="rimsk-suffix" aria-hidden="true">
+              {suffix}
+            </span>
+          )}
         </span>
         {(hint || error) && (
           <span

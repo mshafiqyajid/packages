@@ -54,15 +54,33 @@ function MySkeleton() {
   );
 }`} />
     </div>
+    <div class="pkg-section"><H2>Repeated skeletons</H2>
+      <CodeBlock lang="tsx" code={`// Stack 4 line skeletons with 12px gap
+<SkeletonStyled variant="line" count={4} spacing={12} />
+
+// Inline badges
+<SkeletonStyled variant="rect" count={3} inline spacing={8} width={64} height={24} radius="full" />
+
+// Disable animation for all items in the group
+<SkeletonStyled count={3} enableAnimation={false} />`} />
+    </div>
     <div class="pkg-section"><H2>API</H2>
       <table class="props-table"><thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
         <tr><td>variant</td><td>"rect" | "line" | "circle" | "text"</td><td>"rect"</td><td>Shape variant</td></tr>
         <tr><td>animation</td><td>"pulse" | "wave" | "none"</td><td>"pulse"</td><td>Animation style</td></tr>
         <tr><td>width</td><td>string | number</td><td>—</td><td>Width (e.g. "100%", 200, "12rem")</td></tr>
         <tr><td>height</td><td>string | number</td><td>—</td><td>Height (e.g. 20, "1rem")</td></tr>
-        <tr><td>radius</td><td>"none" | "sm" | "md" | "lg" | "full"</td><td>"sm"</td><td>Border radius</td></tr>
+        <tr><td>radius</td><td>"none" | "sm" | "md" | "lg" | "full"</td><td>"sm"</td><td>Border radius preset</td></tr>
+        <tr><td>borderRadius</td><td>string | number</td><td>—</td><td>Custom border-radius, overrides <code>radius</code> preset</td></tr>
         <tr><td>lines</td><td>number</td><td>3</td><td>Number of lines (text variant only)</td></tr>
         <tr><td>lastLineWidth</td><td>string</td><td>"60%"</td><td>Width of last line (text variant only)</td></tr>
+        <tr><td>count</td><td>number</td><td>1</td><td>Render N skeletons stacked; wraps in <code>.rsk-group</code></td></tr>
+        <tr><td>spacing</td><td>number</td><td>8</td><td>Gap in px between items when <code>count &gt; 1</code></td></tr>
+        <tr><td>inline</td><td>boolean</td><td>false</td><td>Use <code>inline-block</code> display; group becomes <code>inline-flex</code></td></tr>
+        <tr><td>baseColor</td><td>string</td><td>—</td><td>Override skeleton base color (sets <code>--rsk-bg</code>)</td></tr>
+        <tr><td>highlightColor</td><td>string</td><td>—</td><td>Override shimmer highlight color (sets <code>--rsk-wave-highlight</code>)</td></tr>
+        <tr><td>enableAnimation</td><td>boolean</td><td>true</td><td>Set to <code>false</code> to disable animation (same as <code>animation="none"</code>)</td></tr>
+        <tr><td>fitContent</td><td>boolean</td><td>false</td><td>Size skeleton to its natural content dimensions</td></tr>
         <tr><td>className</td><td>string</td><td>—</td><td>Extra class on root</td></tr>
         <tr><td>style</td><td>CSSProperties</td><td>—</td><td>Inline style override</td></tr>
       </tbody></table>

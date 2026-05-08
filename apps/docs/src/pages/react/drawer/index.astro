@@ -7,7 +7,7 @@ import DrawerDemo from "~/components/demos/DrawerDemo";
 ---
 
 <DocLayout title="react-drawer" description="Persistent navigation drawer with focus trap, overlay backdrop, smooth slide animation, and keyboard support." pkg="drawer">
-  <PackagePageShell name="react-drawer" description="Headless hook and styled navigation drawer for React. Left or right side, three width sizes, focus trap, overlay backdrop, body scroll lock, Escape to close, and smooth slide animations. Zero dependencies." size="~5 KB">
+  <PackagePageShell name="react-drawer" description="Headless hook and styled navigation drawer for React. Left or right side, three width sizes, push or overlay variant, swipe to close, focus trap, body scroll lock, Escape to close, and smooth slide animations. Zero dependencies." size="~5 KB">
 
     <div class="pkg-section">
       <H2>Playground</H2>
@@ -51,10 +51,60 @@ const [open, setOpen] = useState(false);
 
     <div class="pkg-section">
       <H2>Width sizes</H2>
-      <p><code>size</code> controls the panel width. <code>"sm"</code> is 240 px, <code>"md"</code> is 280 px (default), <code>"lg"</code> is 320 px.</p>
+      <p><code>size</code> controls the panel width. <code>"sm"</code> is 240 px, <code>"md"</code> is 280 px (default), <code>"lg"</code> is 320 px. Pass a <code>width</code> prop for a fully custom size.</p>
       <CodeBlock lang="tsx" code={`<DrawerStyled open={open} onOpenChange={setOpen} size="sm">…</DrawerStyled>
 <DrawerStyled open={open} onOpenChange={setOpen} size="md">…</DrawerStyled>
-<DrawerStyled open={open} onOpenChange={setOpen} size="lg">…</DrawerStyled>`} />
+<DrawerStyled open={open} onOpenChange={setOpen} size="lg">…</DrawerStyled>
+
+{/* Custom width — overrides the size preset */}
+<DrawerStyled open={open} onOpenChange={setOpen} width={400}>…</DrawerStyled>
+<DrawerStyled open={open} onOpenChange={setOpen} width="50vw">…</DrawerStyled>`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Push variant</H2>
+      <p>By default the drawer slides over the page with a dimming backdrop (<code>variant="overlay"</code>). Set <code>variant="push"</code> to have the drawer push the page content aside instead. There is no backdrop in push mode — the drawer sits fixed on the edge and the page shifts using the <code>--rdrw-push-offset</code> CSS variable that is automatically set on <code>:root</code>.</p>
+      <CodeBlock lang="tsx" code={`<DrawerStyled open={open} onOpenChange={setOpen} variant="push" title="Sidebar">
+  <nav>…</nav>
+</DrawerStyled>`} />
+      <p>Apply the offset to your layout container:</p>
+      <CodeBlock lang="css" code={`/* Example: shift your main content when the push drawer is open */
+.layout-main {
+  margin-left: var(--rdrw-push-offset, 0px);
+  transition: margin-left 300ms cubic-bezier(0.32, 0.72, 0, 1);
+}`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Swipe to close</H2>
+      <p>On touch and pointer devices, users can swipe the panel toward the closed edge to dismiss it. This is enabled by default (<code>swipeable={"{true}"}</code>). The drawer follows the finger during drag and closes if the swipe exceeds 80 px. Disable it by passing <code>swipeable={"{false}"}</code>.</p>
+      <CodeBlock lang="tsx" code={`{/* Disable swipe to close */}
+<DrawerStyled open={open} onOpenChange={setOpen} swipeable={false}>
+  …
+</DrawerStyled>`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Close button</H2>
+      <p>A close button (X icon) is rendered inside the header area by default. Hide it with <code>showCloseButton={"{false}"}</code>. When no <code>title</code> is provided, the header is only rendered if <code>showCloseButton</code> is <code>true</code>.</p>
+      <CodeBlock lang="tsx" code={`{/* Header visible only for the close button — no title */}
+<DrawerStyled open={open} onOpenChange={setOpen} showCloseButton>
+  <p>Content here.</p>
+</DrawerStyled>
+
+{/* Hide close button entirely */}
+<DrawerStyled open={open} onOpenChange={setOpen} title="Nav" showCloseButton={false}>
+  <p>Content here.</p>
+</DrawerStyled>`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Keep mounted</H2>
+      <p>By default the drawer's portal is removed from the DOM when closed. Set <code>keepMounted</code> to keep the portal in the DOM (hidden via <code>aria-hidden</code> and <code>inert</code>) so that scroll position and form state inside the drawer are preserved across open/close cycles.</p>
+      <CodeBlock lang="tsx" code={`<DrawerStyled open={open} onOpenChange={setOpen} keepMounted title="Cart">
+  {/* Scroll position is remembered between open/close */}
+  <CartContents />
+</DrawerStyled>`} />
     </div>
 
     <div class="pkg-section">
@@ -136,10 +186,15 @@ const { isOpen, open, close, drawerProps, overlayProps, triggerProps } = useDraw
           <tr><td>onOpenChange</td><td>(open: boolean) =&gt; void</td><td>—</td><td>Called when open state changes</td></tr>
           <tr><td>side</td><td>"left" | "right"</td><td>"left"</td><td>Which edge the drawer slides from</td></tr>
           <tr><td>size</td><td>"sm" | "md" | "lg"</td><td>"md"</td><td>Panel width — 240 / 280 / 320 px</td></tr>
+          <tr><td>variant</td><td>"overlay" | "push"</td><td>"overlay"</td><td>Overlay dims the page; push shifts page content aside via <code>--rdrw-push-offset</code></td></tr>
+          <tr><td>width</td><td>string | number</td><td>—</td><td>Custom panel width — overrides the size preset (sets <code>--rdrw-custom-width</code>)</td></tr>
+          <tr><td>showCloseButton</td><td>boolean</td><td>true</td><td>Render an X close button in the header area</td></tr>
+          <tr><td>swipeable</td><td>boolean</td><td>true</td><td>Allow swipe-to-close gesture on touch / pointer devices</td></tr>
+          <tr><td>keepMounted</td><td>boolean</td><td>false</td><td>Keep portal in DOM when closed (hidden via aria-hidden + inert)</td></tr>
           <tr><td>closeOnOverlayClick</td><td>boolean</td><td>true</td><td>Close when clicking the overlay backdrop</td></tr>
           <tr><td>closeOnEsc</td><td>boolean</td><td>true</td><td>Close on Escape key</td></tr>
           <tr><td>lockBodyScroll</td><td>boolean</td><td>true</td><td>Lock body scroll while drawer is open</td></tr>
-          <tr><td>title</td><td>ReactNode</td><td>—</td><td>Drawer heading — omit to hide the header</td></tr>
+          <tr><td>title</td><td>ReactNode</td><td>—</td><td>Drawer heading — omit to hide the title (header still renders if showCloseButton)</td></tr>
           <tr><td>description</td><td>ReactNode</td><td>—</td><td>Accessible description linked via aria-describedby</td></tr>
           <tr><td>footer</td><td>ReactNode</td><td>—</td><td>Footer content — omit to hide footer</td></tr>
           <tr><td>children</td><td>ReactNode</td><td>—</td><td>Scrollable body content</td></tr>
@@ -155,9 +210,11 @@ const { isOpen, open, close, drawerProps, overlayProps, triggerProps } = useDraw
       <table class="props-table">
         <thead><tr><th>Attribute</th><th>Values</th><th>Description</th></tr></thead>
         <tbody>
-          <tr><td>data-side</td><td>"left" | "right"</td><td>Current side — on both overlay and panel</td></tr>
-          <tr><td>data-state</td><td>"open" | "closed"</td><td>Visibility state — on both overlay and panel</td></tr>
+          <tr><td>data-side</td><td>"left" | "right"</td><td>Current side — on both root and panel</td></tr>
+          <tr><td>data-state</td><td>"open" | "closed"</td><td>Visibility state — on both root and panel</td></tr>
           <tr><td>data-size</td><td>"sm" | "md" | "lg"</td><td>Current size — on panel</td></tr>
+          <tr><td>data-variant</td><td>"overlay" | "push"</td><td>Current variant — on both root and panel</td></tr>
+          <tr><td>data-dragging</td><td>"true" | absent</td><td>Present on panel while swipe drag is active</td></tr>
         </tbody>
       </table>
 
@@ -170,11 +227,14 @@ const { isOpen, open, close, drawerProps, overlayProps, triggerProps } = useDraw
           <tr><td>onOpenChange</td><td>(open: boolean) =&gt; void</td><td>Open change callback</td></tr>
           <tr><td>closeOnEsc</td><td>boolean</td><td>Close on Escape (true)</td></tr>
           <tr><td>lockBodyScroll</td><td>boolean</td><td>Lock body scroll (true)</td></tr>
+          <tr><td>variant</td><td>"overlay" | "push"</td><td>Overlay or push mode ("overlay")</td></tr>
           <tr><td colspan="3"><em>Returns:</em></td></tr>
           <tr><td>isOpen</td><td>boolean</td><td>Current open state</td></tr>
           <tr><td>open</td><td>() =&gt; void</td><td>Open the drawer</td></tr>
           <tr><td>close</td><td>() =&gt; void</td><td>Close the drawer</td></tr>
           <tr><td>toggle</td><td>() =&gt; void</td><td>Toggle open/closed</td></tr>
+          <tr><td>dragOffset</td><td>number</td><td>Current swipe drag offset in px (0 when not dragging)</td></tr>
+          <tr><td>isDragging</td><td>boolean</td><td>Whether a swipe drag is in progress</td></tr>
           <tr><td>drawerProps</td><td>DrawerProps</td><td>Spread onto panel element (role, aria-*, tabIndex, id)</td></tr>
           <tr><td>overlayProps</td><td>OverlayProps</td><td>Spread onto overlay element (data-rdrw-overlay, aria-hidden)</td></tr>
           <tr><td>triggerProps</td><td>TriggerProps</td><td>Spread onto trigger button (aria-haspopup, aria-expanded, aria-controls)</td></tr>

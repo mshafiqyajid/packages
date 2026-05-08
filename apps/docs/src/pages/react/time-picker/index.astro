@@ -26,6 +26,24 @@ const [time, setTime] = useState("09:00");
   label="Alarm time"
 />`} />
     </div>
+    <div class="pkg-section"><H2>Inline mode</H2>
+      <p>Set <code>inline</code> to always show the column picker without a text input or floating dropdown. Useful for embedding in forms or panels.</p>
+      <CodeBlock lang="tsx" code={`<TimePickerStyled
+  value={time}
+  onChange={setTime}
+  inline
+  label="Pick a time"
+/>`} />
+    </div>
+    <div class="pkg-section"><H2>Clearable</H2>
+      <p>Set <code>clearable</code> to show a × button when a value is set. Clicking it calls <code>onChange("")</code>.</p>
+      <CodeBlock lang="tsx" code={`<TimePickerStyled
+  value={time}
+  onChange={setTime}
+  clearable
+  label="Meeting time"
+/>`} />
+    </div>
     <div class="pkg-section"><H2>Headless</H2>
       <CodeBlock lang="tsx" code={`import { useTimePicker } from "@mshafiqyajid/react-time-picker";
 
@@ -40,9 +58,11 @@ const {
   isOpen,
   open,
   close,
+  clear,
 } = useTimePicker({
   defaultValue: "14:30",
   format: "24h",
+  clearable: true,
   onChange: (v) => console.log(v),
 });
 
@@ -74,12 +94,20 @@ return (
         <tr><td>id / name / placeholder</td><td>string</td><td>—</td><td>Native input attributes</td></tr>
         <tr><td>className / style</td><td>string / CSSProperties</td><td>—</td><td>Applied to the root wrapper</td></tr>
         <tr><td>ref</td><td>Ref&lt;HTMLInputElement&gt;</td><td>—</td><td>Forwarded to the primary input element</td></tr>
+        <tr><td>clearable</td><td>boolean</td><td>false</td><td>Show a × clear button inside the input when a value is set. Calls onChange("")</td></tr>
+        <tr><td>inline</td><td>boolean</td><td>false</td><td>Always render the column picker without a floating dropdown or text input trigger</td></tr>
+        <tr><td>prefix</td><td>ReactNode</td><td>—</td><td>Decorative node rendered before the input text (e.g. a clock icon)</td></tr>
+        <tr><td>suffix</td><td>ReactNode</td><td>—</td><td>Decorative node rendered after the input text (e.g. a timezone label)</td></tr>
+        <tr><td>onFocus</td><td>() =&gt; void</td><td>—</td><td>Called when the input gains focus</td></tr>
+        <tr><td>onBlur</td><td>() =&gt; void</td><td>—</td><td>Called when the input loses focus</td></tr>
+        <tr><td>locale</td><td>string</td><td>"en-US"</td><td>BCP 47 locale tag used to localise AM/PM labels in 12h mode (e.g. "fr-FR", "de-DE")</td></tr>
       </tbody></table>
     </div>
     <div class="pkg-section"><H2>Keyboard</H2>
       <table class="props-table"><thead><tr><th>Key</th><th>Action</th></tr></thead><tbody>
         <tr><td>Click / Focus</td><td>Opens dropdown</td></tr>
-        <tr><td>ArrowDown (on input)</td><td>Opens dropdown</td></tr>
+        <tr><td>ArrowDown (on input, closed)</td><td>Opens dropdown</td></tr>
+        <tr><td>ArrowUp / ArrowDown (on input, focused)</td><td>Increments / decrements the segment under the cursor (hours, minutes, seconds, or period)</td></tr>
         <tr><td>Escape</td><td>Closes dropdown</td></tr>
         <tr><td>Tab</td><td>Closes dropdown and moves focus</td></tr>
         <tr><td>ArrowUp / ArrowDown (in column)</td><td>Navigate options</td></tr>

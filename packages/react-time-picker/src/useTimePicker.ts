@@ -5,6 +5,7 @@ import {
   useEffect,
   type ChangeEvent,
   type KeyboardEvent,
+  type ReactNode,
 } from "react";
 
 export type TimeFormat = "12h" | "24h";
@@ -21,6 +22,13 @@ export interface UseTimePickerOptions {
   step?: number;
   disabled?: boolean;
   readOnly?: boolean;
+  clearable?: boolean;
+  inline?: boolean;
+  prefix?: ReactNode;
+  suffix?: ReactNode;
+  onFocus?: () => void;
+  onBlur?: () => void;
+  locale?: string;
 }
 
 export interface UseTimePickerReturn {
@@ -53,6 +61,7 @@ export interface UseTimePickerReturn {
   };
   value: string;
   setValue: (v: string) => void;
+  clear: () => void;
   hours: number;
   minutes: number;
   seconds: number;
@@ -61,6 +70,7 @@ export interface UseTimePickerReturn {
   open: () => void;
   close: () => void;
   isFocused: boolean;
+  periodLabels: { am: string; pm: string };
 }
 
 function parseTimeString(
@@ -131,18 +141,37 @@ function formatDisplayValue(
   period: TimePeriod,
   fmt: TimeFormat,
   showSeconds: boolean,
+  amLabel: string,
+  pmLabel: string,
 ): string {
   if (fmt === "12h") {
     const hh = String(h).padStart(2, "0");
     const mm = String(m).padStart(2, "0");
     const ss = String(s).padStart(2, "0");
-    return showSeconds ? `${hh}:${mm}:${ss} ${period}` : `${hh}:${mm} ${period}`;
+    const periodLabel = period === "AM" ? amLabel : pmLabel;
+    return showSeconds ? `${hh}:${mm}:${ss} ${periodLabel}` : `${hh}:${mm} ${periodLabel}`;
   }
   let h24 = h;
   const hh = String(h24).padStart(2, "0");
   const mm = String(m).padStart(2, "0");
   const ss = String(s).padStart(2, "0");
   return showSeconds ? `${hh}:${mm}:${ss}` : `${hh}:${mm}`;
+}
+
+function getLocalePeriodLabels(locale: string): { am: string; pm: string } {
+  try {
+    // Use a known AM hour (9) and PM hour (21) to extract locale period strings
+    const amDate = new Date(2000, 0, 1, 9, 0, 0);
+    const pmDate = new Date(2000, 0, 1, 21, 0, 0);
+    const fmt = new Intl.DateTimeFormat(locale, { hour: "numeric", hour12: true });
+    const amParts = fmt.formatToParts(amDate);
+    const pmParts = fmt.formatToParts(pmDate);
+    const amLabel = amParts.find((p) => p.type === "dayPeriod")?.value ?? "AM";
+    const pmLabel = pmParts.find((p) => p.type === "dayPeriod")?.value ?? "PM";
+    return { am: amLabel, pm: pmLabel };
+  } catch {
+    return { am: "AM", pm: "PM" };
+  }
 }
 
 function parseMinuteString(raw: string): { h: number; m: number } | null {
@@ -158,6 +187,44 @@ function toMinutes(h: number, m: number): number {
   return h * 60 + m;
 }
 
+// Detect which time segment the cursor is in for arrow-key increment
+function getSegmentAtCursor(
+  inputValue: string,
+  cursorPos: number,
+  fmt: TimeFormat,
+  showSeconds: boolean,
+): "hours" | "minutes" | "seconds" | "period" | null {
+  // Find positions of colons and space
+  const colonOne = inputValue.indexOf(":");
+  const colonTwo = inputValue.indexOf(":", colonOne + 1);
+  const spacePos = inputValue.indexOf(" ");
+
+  if (colonOne === -1) return null;
+
+  // Hours segment: before first colon
+  if (cursorPos <= colonOne) return "hours";
+
+  const afterFirstColon = colonOne + 1;
+
+  if (showSeconds && colonTwo !== -1) {
+    // minutes: between first and second colon
+    if (cursorPos <= colonTwo) return "minutes";
+    const afterSecondColon = colonTwo + 1;
+    if (fmt === "12h" && spacePos !== -1) {
+      if (cursorPos <= spacePos) return "seconds";
+      return "period";
+    }
+    return "seconds";
+  } else {
+    // minutes: after first colon
+    if (fmt === "12h" && spacePos !== -1) {
+      if (cursorPos <= spacePos) return "minutes";
+      return "period";
+    }
+    return "minutes";
+  }
+}
+
 export function useTimePicker(opts: UseTimePickerOptions = {}): UseTimePickerReturn {
   const {
     value: controlledValue,
@@ -170,6 +237,9 @@ export function useTimePicker(opts: UseTimePickerOptions = {}): UseTimePickerRet
     step: _step = 1,
     disabled = false,
     readOnly = false,
+    onFocus: onFocusCb,
+    onBlur: onBlurCb,
+    locale,
   } = opts;
 
   const isControlled = controlledValue !== undefined;
@@ -186,6 +256,8 @@ export function useTimePicker(opts: UseTimePickerOptions = {}): UseTimePickerRet
   const [internalPeriod, setInternalPeriod] = useState<TimePeriod>(initial.period);
   const [isOpen, setIsOpen] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
+
+  const periodLabels = getLocalePeriodLabels(locale ?? "en-US");
 
   // Sync with controlled value changes
   useEffect(() => {
@@ -209,6 +281,8 @@ export function useTimePicker(opts: UseTimePickerOptions = {}): UseTimePickerRet
     computedPeriod,
     format,
     showSeconds,
+    periodLabels.am,
+    periodLabels.pm,
   );
 
   const canonicalValue = buildTimeString(
@@ -256,6 +330,15 @@ export function useTimePicker(opts: UseTimePickerOptions = {}): UseTimePickerRet
     },
     [format, applyChange],
   );
+
+  const clear = useCallback(() => {
+    if (disabled || readOnly) return;
+    setInternalHours(0);
+    setInternalMinutes(0);
+    setInternalSeconds(0);
+    setInternalPeriod("AM");
+    onChange?.("");
+  }, [disabled, readOnly, onChange]);
 
   const changeHours = useCallback(
     (h: number) => {
@@ -342,19 +425,53 @@ export function useTimePicker(opts: UseTimePickerOptions = {}): UseTimePickerRet
         if (!disabled && !readOnly) setIsOpen(true);
       } else if (e.key === "Tab") {
         setIsOpen(false);
+      } else if ((e.key === "ArrowUp" || e.key === "ArrowDown") && isOpen === false) {
+        // Already handled above for opening; this branch won't fire when isOpen=false and key=ArrowDown
+        // This clause is a no-op guard but kept for clarity
+      } else if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+        // When dropdown is open, let the column handle it
+      }
+
+      // Arrow key increment/decrement on focused input segments
+      if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+        const input = e.currentTarget;
+        if (!input) return;
+        const cursor = input.selectionStart ?? 0;
+        const segment = getSegmentAtCursor(input.value, cursor, format, showSeconds);
+        if (!segment) return;
+
+        e.preventDefault();
+        const delta = e.key === "ArrowUp" ? 1 : -1;
+
+        if (segment === "hours") {
+          const maxH = format === "12h" ? 12 : 23;
+          const minH = format === "12h" ? 1 : 0;
+          const next = computedH + delta;
+          changeHours(next < minH ? maxH : next > maxH ? minH : next);
+        } else if (segment === "minutes") {
+          const next = computedM + delta;
+          changeMinutes(next < 0 ? 59 : next > 59 ? 0 : next);
+        } else if (segment === "seconds") {
+          const next = computedS + delta;
+          changeSeconds(next < 0 ? 59 : next > 59 ? 0 : next);
+        } else if (segment === "period") {
+          changePeriod(computedPeriod === "AM" ? "PM" : "AM");
+        }
       }
     },
-    [isOpen, disabled, readOnly],
+    [isOpen, disabled, readOnly, format, showSeconds, computedH, computedM, computedS, computedPeriod, changeHours, changeMinutes, changeSeconds, changePeriod],
   );
 
   const handleFocus = useCallback(() => {
     setIsFocused(true);
+    onFocusCb?.();
     if (!disabled && !readOnly) setIsOpen(true);
-  }, [disabled, readOnly]);
+  }, [disabled, readOnly, onFocusCb]);
 
   const handleBlur = useCallback(() => {
     setIsFocused(false);
-  }, []);
+    onBlurCb?.();
+  }, [onBlurCb]);
 
   const openDropdown = useCallback(() => {
     if (disabled || readOnly) return;
@@ -395,6 +512,7 @@ export function useTimePicker(opts: UseTimePickerOptions = {}): UseTimePickerRet
     },
     value: canonicalValue,
     setValue,
+    clear,
     hours: computedH,
     minutes: computedM,
     seconds: computedS,
@@ -403,5 +521,6 @@ export function useTimePicker(opts: UseTimePickerOptions = {}): UseTimePickerRet
     open: openDropdown,
     close: closeDropdown,
     isFocused,
+    periodLabels,
   };
 }

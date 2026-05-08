@@ -10,13 +10,24 @@ import {
 
 // ── Segment types ────────────────────────────────────────────────────────────
 
-export type SlotType = "digit" | "alpha" | "any";
+export type SlotType = "digit" | "alpha" | "any" | "custom";
 
 export interface MaskSegment {
   type: "fixed" | "slot";
   char: string;
   slotType?: SlotType;
+  slotRegex?: RegExp;
 }
+
+// ── Format chars ─────────────────────────────────────────────────────────────
+
+export type FormatChars = Record<string, RegExp>;
+
+const DEFAULT_FORMAT_CHARS: FormatChars = {
+  _: /\d/,
+  a: /[a-zA-Z]/,
+  "*": /[a-zA-Z0-9]/,
+};
 
 // ── Options / Result ─────────────────────────────────────────────────────────
 
@@ -28,7 +39,13 @@ export interface UseInputMaskOptions {
   onChange?: (value: string, rawValue: string) => void;
   onAccept?: (value: string, rawValue: string) => void;
   onComplete?: (value: string, rawValue: string) => void;
+  onFocus?: (e: FocusEvent<HTMLInputElement>) => void;
+  onBlur?: (e: FocusEvent<HTMLInputElement>) => void;
   allowedChars?: RegExp;
+  formatChars?: FormatChars;
+  lazy?: boolean;
+  showMask?: boolean;
+  autoUnmask?: boolean;
   disabled?: boolean;
   readOnly?: boolean;
 }
@@ -53,11 +70,23 @@ export interface UseInputMaskResult {
 
 // ── Mask parsing ─────────────────────────────────────────────────────────────
 
-function parseMask(mask: string): MaskSegment[] {
+function parseMask(mask: string, formatChars: FormatChars): MaskSegment[] {
   return mask.split("").map((char) => {
-    if (char === "_") return { type: "slot", char, slotType: "digit" };
-    if (char === "a") return { type: "slot", char, slotType: "alpha" };
-    if (char === "*") return { type: "slot", char, slotType: "any" };
+    const regex = formatChars[char];
+    if (regex) {
+      // Determine a named slotType for built-in chars; custom otherwise
+      let slotType: SlotType;
+      if (char === "_" && regex === DEFAULT_FORMAT_CHARS._) {
+        slotType = "digit";
+      } else if (char === "a" && regex === DEFAULT_FORMAT_CHARS.a) {
+        slotType = "alpha";
+      } else if (char === "*" && regex === DEFAULT_FORMAT_CHARS["*"]) {
+        slotType = "any";
+      } else {
+        slotType = "custom";
+      }
+      return { type: "slot", char, slotType, slotRegex: regex };
+    }
     return { type: "fixed", char };
   });
 }
@@ -66,10 +95,15 @@ function slotCount(segments: MaskSegment[]): number {
   return segments.filter((s) => s.type === "slot").length;
 }
 
-function charMatchesSlot(char: string, slotType: SlotType, allowedChars?: RegExp): boolean {
+function charMatchesSlot(
+  char: string,
+  seg: MaskSegment,
+  allowedChars?: RegExp,
+): boolean {
   if (allowedChars) return allowedChars.test(char);
-  if (slotType === "digit") return /\d/.test(char);
-  if (slotType === "alpha") return /[a-zA-Z]/.test(char);
+  if (seg.slotRegex) return seg.slotRegex.test(char);
+  if (seg.slotType === "digit") return /\d/.test(char);
+  if (seg.slotType === "alpha") return /[a-zA-Z]/.test(char);
   return /[a-zA-Z0-9]/.test(char);
 }
 
@@ -79,15 +113,46 @@ function buildDisplayValue(
   segments: MaskSegment[],
   raw: string,
   maskChar: string,
+  lazy: boolean,
+  showMask: boolean,
 ): string {
+  // In lazy mode, find how far we need to show (up to lastFilledIndex + 1 slot)
+  // In eager mode, show the full mask
+  const filledCount = raw.length;
+
   let rawIdx = 0;
-  return segments
-    .map((seg) => {
-      if (seg.type === "fixed") return seg.char;
-      const ch = rawIdx < raw.length ? raw[rawIdx++] : maskChar;
-      return ch;
-    })
-    .join("");
+  let result = "";
+  let slotIdx = 0;
+
+  for (let i = 0; i < segments.length; i++) {
+    const seg = segments[i]!;
+    if (seg.type === "fixed") {
+      if (lazy) {
+        // Only show fixed chars that are before or at the next slot to fill
+        if (slotIdx <= filledCount) {
+          result += seg.char;
+        }
+      } else {
+        result += seg.char;
+      }
+    } else {
+      // slot
+      if (rawIdx < raw.length) {
+        result += raw[rawIdx++];
+      } else {
+        if (!showMask) {
+          // hide maskChar entirely — don't add anything
+        } else if (lazy && slotIdx > filledCount) {
+          // In lazy mode, stop showing mask beyond the next-to-fill slot
+        } else {
+          result += maskChar;
+        }
+      }
+      slotIdx++;
+    }
+  }
+
+  return result;
 }
 
 // ── Cursor helpers ───────────────────────────────────────────────────────────
@@ -124,11 +189,18 @@ export function useInputMask({
   onChange,
   onAccept,
   onComplete,
+  onFocus,
+  onBlur,
   allowedChars,
+  formatChars,
+  lazy = true,
+  showMask = true,
+  autoUnmask = false,
   disabled = false,
   readOnly = false,
 }: UseInputMaskOptions): UseInputMaskResult {
-  const segments = parseMask(mask);
+  const mergedFormatChars: FormatChars = { ...DEFAULT_FORMAT_CHARS, ...formatChars };
+  const segments = parseMask(mask, mergedFormatChars);
   const totalSlots = slotCount(segments);
   const isControlled = value !== undefined;
 
@@ -136,7 +208,6 @@ export function useInputMask({
   const extractRaw = useCallback(
     (formatted: string): string => {
       let raw = "";
-      let rawIdx = 0;
       for (let i = 0; i < segments.length && i < formatted.length; i++) {
         const seg = segments[i]!;
         if (seg.type === "slot") {
@@ -144,7 +215,6 @@ export function useInputMask({
           if (ch && ch !== maskChar) {
             raw += ch;
           }
-          rawIdx++;
         }
       }
       return raw;
@@ -159,16 +229,22 @@ export function useInputMask({
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
-  const setRaw = useCallback(
-    (raw: string) => {
-      const display = buildDisplayValue(segments, raw, maskChar);
-      if (!isControlled) setInternalRaw(raw);
-      onChange?.(display, raw);
-    },
-    [isControlled, segments, maskChar, onChange],
+  const buildDisplay = useCallback(
+    (raw: string) => buildDisplayValue(segments, raw, maskChar, lazy, showMask),
+    [segments, maskChar, lazy, showMask],
   );
 
-  const displayValue = buildDisplayValue(segments, currentRaw, maskChar);
+  const setRaw = useCallback(
+    (raw: string) => {
+      const display = buildDisplay(raw);
+      const outValue = autoUnmask ? raw : display;
+      if (!isControlled) setInternalRaw(raw);
+      onChange?.(outValue, raw);
+    },
+    [isControlled, buildDisplay, autoUnmask, onChange],
+  );
+
+  const displayValue = buildDisplay(currentRaw);
   const isComplete = currentRaw.length === totalSlots;
 
   const setCursor = useCallback((pos: number) => {
@@ -211,31 +287,32 @@ export function useInputMask({
 
       const slotIdx = currentRaw.length;
       // Find the slot at this index
-      let slotCount = 0;
+      let sCount = 0;
       let targetSeg: MaskSegment | undefined;
       for (const seg of segments) {
         if (seg.type === "slot") {
-          if (slotCount === slotIdx) {
+          if (sCount === slotIdx) {
             targetSeg = seg;
             break;
           }
-          slotCount++;
+          sCount++;
         }
       }
 
       if (!targetSeg || targetSeg.slotType === undefined) return;
 
-      if (!charMatchesSlot(e.key, targetSeg.slotType, allowedChars)) return;
+      if (!charMatchesSlot(e.key, targetSeg, allowedChars)) return;
 
       e.preventDefault();
       const newRaw = currentRaw + e.key;
-      const newDisplay = buildDisplayValue(segments, newRaw, maskChar);
+      const newDisplay = buildDisplay(newRaw);
+      const outValue = autoUnmask ? newRaw : newDisplay;
       if (!isControlled) setInternalRaw(newRaw);
-      onChange?.(newDisplay, newRaw);
-      onAccept?.(newDisplay, newRaw);
+      onChange?.(outValue, newRaw);
+      onAccept?.(outValue, newRaw);
 
       if (newRaw.length === totalSlots) {
-        onComplete?.(newDisplay, newRaw);
+        onComplete?.(outValue, newRaw);
       }
 
       const cursorPos = displayPositionForCursor(segments, newRaw.length);
@@ -254,9 +331,10 @@ export function useInputMask({
       currentRaw,
       totalSlots,
       segments,
-      maskChar,
       allowedChars,
       isControlled,
+      autoUnmask,
+      buildDisplay,
       setRaw,
       onChange,
       onAccept,
@@ -295,18 +373,19 @@ export function useInputMask({
           }
         }
         if (!targetSeg || targetSeg.slotType === undefined) break;
-        if (!charMatchesSlot(ch, targetSeg.slotType, allowedChars)) continue;
+        if (!charMatchesSlot(ch, targetSeg, allowedChars)) continue;
         newRaw += ch;
       }
 
       if (newRaw === currentRaw) return;
-      const newDisplay = buildDisplayValue(segments, newRaw, maskChar);
+      const newDisplay = buildDisplay(newRaw);
+      const outValue = autoUnmask ? newRaw : newDisplay;
       if (!isControlled) setInternalRaw(newRaw);
-      onChange?.(newDisplay, newRaw);
-      onAccept?.(newDisplay, newRaw);
+      onChange?.(outValue, newRaw);
+      onAccept?.(outValue, newRaw);
 
       if (newRaw.length === totalSlots) {
-        onComplete?.(newDisplay, newRaw);
+        onComplete?.(outValue, newRaw);
       }
 
       const displayPos =
@@ -321,9 +400,10 @@ export function useInputMask({
       currentRaw,
       totalSlots,
       segments,
-      maskChar,
       allowedChars,
       isControlled,
+      autoUnmask,
+      buildDisplay,
       onChange,
       onAccept,
       onComplete,
@@ -332,18 +412,23 @@ export function useInputMask({
   );
 
   const handleFocus = useCallback(
-    (_e: FocusEvent<HTMLInputElement>) => {
+    (e: FocusEvent<HTMLInputElement>) => {
       setIsFocused(true);
       // Place cursor at the first empty slot
       const displayPos = nextSlotPosition(segments, currentRaw.length);
       setCursor(displayPos);
+      onFocus?.(e);
     },
-    [segments, currentRaw, setCursor],
+    [segments, currentRaw, setCursor, onFocus],
   );
 
-  const handleBlur = useCallback((_e: FocusEvent<HTMLInputElement>) => {
-    setIsFocused(false);
-  }, []);
+  const handleBlur = useCallback(
+    (e: FocusEvent<HTMLInputElement>) => {
+      setIsFocused(false);
+      onBlur?.(e);
+    },
+    [onBlur],
+  );
 
   // Sync ref so setCursor can find the element
   const refCallback = useCallback((el: HTMLInputElement | null) => {

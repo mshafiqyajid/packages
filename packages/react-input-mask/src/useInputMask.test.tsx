@@ -13,7 +13,13 @@ interface FieldProps {
   onChange?: (value: string, rawValue: string) => void;
   onAccept?: (value: string, rawValue: string) => void;
   onComplete?: (value: string, rawValue: string) => void;
+  onFocus?: (e: React.FocusEvent<HTMLInputElement>) => void;
+  onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
   allowedChars?: RegExp;
+  formatChars?: Record<string, RegExp>;
+  lazy?: boolean;
+  showMask?: boolean;
+  autoUnmask?: boolean;
   disabled?: boolean;
   invalid?: boolean;
 }
@@ -26,7 +32,13 @@ function Field({
   onChange,
   onAccept,
   onComplete,
+  onFocus,
+  onBlur,
   allowedChars,
+  formatChars,
+  lazy,
+  showMask,
+  autoUnmask,
   disabled,
   invalid,
 }: FieldProps) {
@@ -38,7 +50,13 @@ function Field({
     onChange,
     onAccept,
     onComplete,
+    onFocus,
+    onBlur,
     allowedChars,
+    formatChars,
+    lazy,
+    showMask,
+    autoUnmask,
     disabled,
   });
 
@@ -64,13 +82,15 @@ function Field({
 // ── Tests ────────────────────────────────────────────────────────────────────
 
 describe("useInputMask", () => {
-  it("shows mask with maskChar in empty slots by default", () => {
-    render(<Field mask="__/__/____" />);
+  // ── Eager mode (lazy=false) — full mask always visible ──────────────────────
+
+  it("shows full mask in eager mode (lazy=false)", () => {
+    render(<Field mask="__/__/____" lazy={false} />);
     expect(screen.getByTestId("input")).toHaveValue("__/__/____");
   });
 
-  it("uses a custom maskChar", () => {
-    render(<Field mask="__/__/____" maskChar="-" />);
+  it("uses a custom maskChar in eager mode", () => {
+    render(<Field mask="__/__/____" maskChar="-" lazy={false} />);
     expect(screen.getByTestId("input")).toHaveValue("--/--/----");
   });
 
@@ -79,9 +99,9 @@ describe("useInputMask", () => {
     expect(screen.getByTestId("raw")).toHaveTextContent("12032024");
   });
 
-  it("typing a digit fills the next digit slot", async () => {
+  it("typing a digit fills the next digit slot (eager)", async () => {
     const user = userEvent.setup();
-    render(<Field mask="__/__/____" />);
+    render(<Field mask="__/__/____" lazy={false} />);
     const input = screen.getByTestId("input");
     await user.click(input);
     await user.keyboard("1");
@@ -89,20 +109,19 @@ describe("useInputMask", () => {
     expect(screen.getByTestId("input")).toHaveValue("1_/__/____");
   });
 
-  it("skips over fixed chars automatically", async () => {
+  it("skips over fixed chars automatically (eager)", async () => {
     const user = userEvent.setup();
-    render(<Field mask="__/__/____" />);
+    render(<Field mask="__/__/____" lazy={false} />);
     const input = screen.getByTestId("input");
     await user.click(input);
     await user.keyboard("12");
-    // After typing '1' and '2', rawValue should be '12' and display '12/__/____'
     expect(screen.getByTestId("raw")).toHaveTextContent("12");
     expect(screen.getByTestId("input")).toHaveValue("12/__/____");
   });
 
-  it("backspace clears the last filled slot", async () => {
+  it("backspace clears the last filled slot (eager)", async () => {
     const user = userEvent.setup();
-    render(<Field mask="__/__/____" />);
+    render(<Field mask="__/__/____" lazy={false} />);
     const input = screen.getByTestId("input");
     await user.click(input);
     await user.keyboard("12");
@@ -112,9 +131,9 @@ describe("useInputMask", () => {
     expect(screen.getByTestId("input")).toHaveValue("1_/__/____");
   });
 
-  it("backspace on empty input does nothing", async () => {
+  it("backspace on empty input does nothing (eager)", async () => {
     const user = userEvent.setup();
-    render(<Field mask="__/__" />);
+    render(<Field mask="__/__" lazy={false} />);
     const input = screen.getByTestId("input");
     await user.click(input);
     await user.keyboard("{Backspace}");
@@ -152,7 +171,7 @@ describe("useInputMask", () => {
   it("onChange is called with formatted value and rawValue", async () => {
     const user = userEvent.setup();
     const onChange = vi.fn();
-    render(<Field mask="__/__" onChange={onChange} />);
+    render(<Field mask="__/__" lazy={false} onChange={onChange} />);
     const input = screen.getByTestId("input");
     await user.click(input);
     await user.keyboard("1");
@@ -162,7 +181,7 @@ describe("useInputMask", () => {
   it("onAccept is called when a character is accepted", async () => {
     const user = userEvent.setup();
     const onAccept = vi.fn();
-    render(<Field mask="__/__" onAccept={onAccept} />);
+    render(<Field mask="__/__" lazy={false} onAccept={onAccept} />);
     const input = screen.getByTestId("input");
     await user.click(input);
     await user.keyboard("1");
@@ -173,7 +192,7 @@ describe("useInputMask", () => {
   it("onComplete is called when the last slot is filled", async () => {
     const user = userEvent.setup();
     const onComplete = vi.fn();
-    render(<Field mask="__/__" onComplete={onComplete} />);
+    render(<Field mask="__/__" lazy={false} onComplete={onComplete} />);
     const input = screen.getByTestId("input");
     await user.click(input);
     await user.keyboard("1234");
@@ -182,7 +201,7 @@ describe("useInputMask", () => {
   });
 
   it("paste fills slots greedily with valid chars", async () => {
-    render(<Field mask="__/__/____" />);
+    render(<Field mask="__/__/____" lazy={false} />);
     const input = screen.getByTestId("input");
     fireEvent.paste(input, {
       clipboardData: { getData: () => "12032024" },
@@ -222,10 +241,8 @@ describe("useInputMask", () => {
     render(<Field mask="aa-__" />);
     const input = screen.getByTestId("input");
     await user.click(input);
-    // First two slots are alpha ('a'), last two are digit ('_')
     await user.keyboard("A");
     expect(screen.getByTestId("raw")).toHaveTextContent("A");
-    // Digit should not be accepted in alpha slot
     await user.keyboard("1");
     expect(screen.getByTestId("raw")).toHaveTextContent("A");
     await user.keyboard("B");
@@ -249,5 +266,147 @@ describe("useInputMask", () => {
     await user.click(input);
     await user.keyboard("3");
     expect(onChange).toHaveBeenCalled();
+  });
+
+  // ── Lazy mode (default) ─────────────────────────────────────────────────────
+
+  it("lazy mode: shows only first slot when empty", () => {
+    render(<Field mask="__/__/____" />);
+    expect(screen.getByTestId("input")).toHaveValue("_");
+  });
+
+  it("lazy mode: expands mask as user types", async () => {
+    const user = userEvent.setup();
+    render(<Field mask="__/__/____" />);
+    const input = screen.getByTestId("input");
+    await user.click(input);
+    await user.keyboard("1");
+    // After '1': slot 0 filled, show next slot (slotIdx=1), no fixed yet
+    expect(screen.getByTestId("input")).toHaveValue("1_");
+  });
+
+  it("lazy mode: includes fixed chars when slots around them are reached", async () => {
+    const user = userEvent.setup();
+    render(<Field mask="__/__/____" />);
+    const input = screen.getByTestId("input");
+    await user.click(input);
+    await user.keyboard("12");
+    // Slots 0 and 1 filled; next is slot 2 which is after '/', so show '/'
+    expect(screen.getByTestId("input")).toHaveValue("12/_");
+  });
+
+  it("lazy=false shows full mask immediately (eager)", () => {
+    render(<Field mask="____ ____ ____ ____" lazy={false} />);
+    expect(screen.getByTestId("input")).toHaveValue("____ ____ ____ ____");
+  });
+
+  // ── showMask ────────────────────────────────────────────────────────────────
+
+  it("showMask=false hides maskChar — empty input shows empty string", () => {
+    render(<Field mask="__/__/____" showMask={false} />);
+    expect(screen.getByTestId("input")).toHaveValue("");
+  });
+
+  it("showMask=false still shows typed characters", async () => {
+    const user = userEvent.setup();
+    render(<Field mask="__/__/____" showMask={false} />);
+    const input = screen.getByTestId("input");
+    await user.click(input);
+    await user.keyboard("12");
+    expect(screen.getByTestId("input")).toHaveValue("12/");
+  });
+
+  // ── autoUnmask ──────────────────────────────────────────────────────────────
+
+  it("autoUnmask=false: onChange receives formatted value (default)", async () => {
+    const user = userEvent.setup();
+    const onChange = vi.fn();
+    render(<Field mask="__/__" lazy={false} onChange={onChange} />);
+    const input = screen.getByTestId("input");
+    await user.click(input);
+    await user.keyboard("1");
+    expect(onChange).toHaveBeenCalledWith("1_/__", "1");
+  });
+
+  it("autoUnmask=true: onChange receives raw value as first arg", async () => {
+    const user = userEvent.setup();
+    const onChange = vi.fn();
+    render(<Field mask="__/__" autoUnmask onChange={onChange} />);
+    const input = screen.getByTestId("input");
+    await user.click(input);
+    await user.keyboard("1");
+    // First arg is rawValue, second is also rawValue when autoUnmask=true
+    expect(onChange).toHaveBeenCalledWith("1", "1");
+  });
+
+  it("autoUnmask=true: onComplete receives raw value", async () => {
+    const user = userEvent.setup();
+    const onComplete = vi.fn();
+    render(<Field mask="__/__" autoUnmask onComplete={onComplete} />);
+    const input = screen.getByTestId("input");
+    await user.click(input);
+    await user.keyboard("1234");
+    expect(onComplete).toHaveBeenCalledWith("1234", "1234");
+  });
+
+  // ── formatChars ─────────────────────────────────────────────────────────────
+
+  it("formatChars: custom hex slot 'H' accepts hex chars", async () => {
+    const user = userEvent.setup();
+    render(<Field mask="HH:HH" formatChars={{ H: /[0-9A-Fa-f]/ }} />);
+    const input = screen.getByTestId("input");
+    await user.click(input);
+    await user.keyboard("A");
+    expect(screen.getByTestId("raw")).toHaveTextContent("A");
+    // 'G' is not a valid hex char
+    await user.keyboard("G");
+    expect(screen.getByTestId("raw")).toHaveTextContent("A");
+    await user.keyboard("f");
+    expect(screen.getByTestId("raw")).toHaveTextContent("Af");
+  });
+
+  it("formatChars: user overrides default '_' char", async () => {
+    const user = userEvent.setup();
+    // Override _ to accept only uppercase letters
+    render(<Field mask="__" formatChars={{ _: /[A-Z]/ }} />);
+    const input = screen.getByTestId("input");
+    await user.click(input);
+    await user.keyboard("1");
+    // digit should be rejected since _ now maps to [A-Z]
+    expect(screen.getByTestId("raw")).toHaveTextContent("");
+    await user.keyboard("A");
+    expect(screen.getByTestId("raw")).toHaveTextContent("A");
+  });
+
+  it("formatChars: defaults still work when only partial override provided", async () => {
+    const user = userEvent.setup();
+    render(<Field mask="H_" formatChars={{ H: /[A-Fa-f0-9]/ }} />);
+    const input = screen.getByTestId("input");
+    await user.click(input);
+    await user.keyboard("A");
+    expect(screen.getByTestId("raw")).toHaveTextContent("A");
+    await user.keyboard("5");
+    expect(screen.getByTestId("raw")).toHaveTextContent("A5");
+  });
+
+  // ── onFocus / onBlur ────────────────────────────────────────────────────────
+
+  it("onFocus is called when input is focused", async () => {
+    const user = userEvent.setup();
+    const onFocus = vi.fn();
+    render(<Field mask="__/__" onFocus={onFocus} />);
+    const input = screen.getByTestId("input");
+    await user.click(input);
+    expect(onFocus).toHaveBeenCalledTimes(1);
+  });
+
+  it("onBlur is called when input loses focus", async () => {
+    const user = userEvent.setup();
+    const onBlur = vi.fn();
+    render(<Field mask="__/__" onBlur={onBlur} />);
+    const input = screen.getByTestId("input");
+    await user.click(input);
+    await user.tab();
+    expect(onBlur).toHaveBeenCalledTimes(1);
   });
 });

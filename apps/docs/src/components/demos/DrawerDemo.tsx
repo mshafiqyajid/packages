@@ -8,21 +8,29 @@ import "@mshafiqyajid/react-button/styles.css";
 function DrawerWrapper({
   side,
   size,
+  variant,
   closeOnOverlayClick,
   closeOnEsc,
   lockBodyScroll,
   showTitle,
   showDescription,
   showFooter,
+  showCloseButton,
+  swipeable,
+  keepMounted,
 }: {
   side: string;
   size: string;
+  variant: string;
   closeOnOverlayClick: boolean;
   closeOnEsc: boolean;
   lockBodyScroll: boolean;
   showTitle: boolean;
   showDescription: boolean;
   showFooter: boolean;
+  showCloseButton: boolean;
+  swipeable: boolean;
+  keepMounted: boolean;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -37,9 +45,13 @@ function DrawerWrapper({
         onOpenChange={setOpen}
         side={side as "left" | "right"}
         size={size as "sm" | "md" | "lg"}
+        variant={variant as "overlay" | "push"}
         closeOnOverlayClick={closeOnOverlayClick}
         closeOnEsc={closeOnEsc}
         lockBodyScroll={lockBodyScroll}
+        showCloseButton={showCloseButton}
+        swipeable={swipeable}
+        keepMounted={keepMounted}
         title={showTitle ? "Navigation" : undefined}
         description={showDescription ? "Browse sections of the application." : undefined}
         footer={
@@ -102,6 +114,13 @@ export default function DrawerDemo() {
           omitWhen: "md",
         },
         {
+          name: "variant",
+          group: "Appearance",
+          control: { type: "segmented", options: ["overlay", "push"] as const },
+          defaultValue: "overlay",
+          omitWhen: "overlay",
+        },
+        {
           name: "closeOnOverlayClick",
           group: "Behaviour",
           label: "overlay click closes",
@@ -124,6 +143,30 @@ export default function DrawerDemo() {
           control: { type: "toggle" },
           defaultValue: true,
           omitWhen: true,
+        },
+        {
+          name: "showCloseButton",
+          group: "Behaviour",
+          label: "show close button",
+          control: { type: "toggle" },
+          defaultValue: true,
+          omitWhen: true,
+        },
+        {
+          name: "swipeable",
+          group: "Behaviour",
+          label: "swipeable",
+          control: { type: "toggle" },
+          defaultValue: true,
+          omitWhen: true,
+        },
+        {
+          name: "keepMounted",
+          group: "Behaviour",
+          label: "keep mounted",
+          control: { type: "toggle" },
+          defaultValue: false,
+          omitWhen: false,
         },
         {
           name: "showTitle",
@@ -155,12 +198,16 @@ export default function DrawerDemo() {
         <DrawerWrapper
           side={v.side as string}
           size={v.size as string}
+          variant={v.variant as string}
           closeOnOverlayClick={v.closeOnOverlayClick as boolean}
           closeOnEsc={v.closeOnEsc as boolean}
           lockBodyScroll={v.lockBodyScroll as boolean}
           showTitle={v.showTitle as boolean}
           showDescription={v.showDescription as boolean}
           showFooter={v.showFooter as boolean}
+          showCloseButton={v.showCloseButton as boolean}
+          swipeable={v.swipeable as boolean}
+          keepMounted={v.keepMounted as boolean}
         />
       )}
     />

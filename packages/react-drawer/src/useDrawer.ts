@@ -6,6 +6,11 @@ export interface UseDrawerOptions {
   onOpenChange?: (open: boolean) => void;
   closeOnEsc?: boolean;
   lockBodyScroll?: boolean;
+  variant?: "overlay" | "push";
+  showCloseButton?: boolean;
+  width?: string | number;
+  swipeable?: boolean;
+  keepMounted?: boolean;
 }
 
 export interface DrawerProps {
@@ -36,6 +41,8 @@ export interface UseDrawerResult {
   drawerProps: DrawerProps;
   overlayProps: OverlayProps;
   triggerProps: TriggerProps;
+  dragOffset: number;
+  isDragging: boolean;
 }
 
 export function useDrawer(options: UseDrawerOptions = {}): UseDrawerResult {
@@ -45,6 +52,7 @@ export function useDrawer(options: UseDrawerOptions = {}): UseDrawerResult {
     onOpenChange,
     closeOnEsc = true,
     lockBodyScroll = true,
+    variant = "overlay",
   } = options;
 
   const isControlled = controlledOpen !== undefined;
@@ -84,6 +92,20 @@ export function useDrawer(options: UseDrawerOptions = {}): UseDrawerResult {
     }
   }, [isOpen, lockBodyScroll]);
 
+  // Push variant: expose --rdrw-push-offset CSS variable on documentElement
+  useEffect(() => {
+    if (variant !== "push") return;
+    if (isOpen) {
+      // The actual offset will be set by DrawerStyled once it knows the panel width.
+      // Here we just ensure cleanup on close.
+      return () => {
+        document.documentElement.style.removeProperty("--rdrw-push-offset");
+      };
+    } else {
+      document.documentElement.style.removeProperty("--rdrw-push-offset");
+    }
+  }, [isOpen, variant]);
+
   // Escape key
   useEffect(() => {
     if (!isOpen || !closeOnEsc) return;
@@ -122,5 +144,7 @@ export function useDrawer(options: UseDrawerOptions = {}): UseDrawerResult {
     drawerProps,
     overlayProps,
     triggerProps,
+    dragOffset: 0,
+    isDragging: false,
   };
 }

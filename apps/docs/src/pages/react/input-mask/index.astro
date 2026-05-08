@@ -53,6 +53,53 @@ const [phone, setPhone] = useState("");
 <InputMaskStyled mask="__/__/____" maskChar="•" />`} />
     </div>
 
+    <div class="pkg-section"><H2>Lazy mode</H2>
+      <p>By default (<code>lazy</code> is <code>true</code>), mask placeholder characters are only shown up to the next slot to fill. The field looks clean until the user starts typing. Set <code>lazy={"{false}"}</code> to always show the full mask — useful for credit card fields that should show the entire pattern immediately.</p>
+      <CodeBlock lang="tsx" code={`// Always show the full mask pattern (eager mode)
+<InputMaskStyled mask="____ ____ ____ ____" lazy={false} label="Card number" />
+
+// Default: only show mask as far as the user has typed (lazy mode)
+<InputMaskStyled mask="____ ____ ____ ____" label="Card number" />`} />
+    </div>
+
+    <div class="pkg-section"><H2>showMask</H2>
+      <p>Set <code>showMask={"{false}"}</code> to hide the <code>maskChar</code> fill characters entirely. Only the typed characters are displayed — useful when you want mask validation without visual placeholders.</p>
+      <CodeBlock lang="tsx" code={`<InputMaskStyled mask="(___) ___-____" showMask={false} label="Phone" />`} />
+    </div>
+
+    <div class="pkg-section"><H2>Custom format chars</H2>
+      <p>Override or extend the default format character map with <code>formatChars</code>. Keys are the characters used in the mask string; values are <code>RegExp</code> patterns that a typed character must match.</p>
+      <CodeBlock lang="tsx" code={`// Hex input: H accepts [0-9A-Fa-f]
+<InputMaskStyled
+  mask="HH:HH:HH"
+  formatChars={{ H: /[0-9A-Fa-f]/ }}
+  label="MAC segment"
+/>
+
+// Pin with uppercase letters only
+<InputMaskStyled
+  mask="UUUU"
+  formatChars={{ U: /[A-Z]/ }}
+  label="PIN"
+/>`} />
+    </div>
+
+    <div class="pkg-section"><H2>Auto-unmask</H2>
+      <p>When <code>autoUnmask</code> is <code>true</code>, the first argument passed to <code>onChange</code> is the raw value (no mask chars) instead of the formatted display value. The second argument remains <code>rawValue</code> as usual.</p>
+      <CodeBlock lang="tsx" code={`// onChange receives "5551234567" instead of "(555) 123-4567"
+<InputMaskStyled
+  mask="(___) ___-____"
+  autoUnmask
+  onChange={(val, raw) => console.log(val)} // val === raw === "5551234567"
+/>`} />
+    </div>
+
+    <div class="pkg-section"><H2>Prefix and suffix</H2>
+      <p>Use <code>prefix</code> and <code>suffix</code> to render non-editable decorative text inside the input wrapper — before or after the input field.</p>
+      <CodeBlock lang="tsx" code={`<InputMaskStyled mask="___-____" prefix="$" label="Amount" />
+<InputMaskStyled mask="__/__/____" suffix="cal" label="Date" />`} />
+    </div>
+
     <div class="pkg-section"><H2>Validation</H2>
       <p>Pass an <code>error</code> string to flip tone to danger and show the message below the field. Use <code>hint</code> for helper text.</p>
       <CodeBlock lang="tsx" code={`<InputMaskStyled
@@ -86,7 +133,15 @@ return <input {...inputProps} />;`} />
         <tr><td>onChange</td><td>(value: string, rawValue: string) =&gt; void</td><td>—</td><td>Called on every change</td></tr>
         <tr><td>onAccept</td><td>(value: string, rawValue: string) =&gt; void</td><td>—</td><td>Called when a character is accepted</td></tr>
         <tr><td>onComplete</td><td>(value: string, rawValue: string) =&gt; void</td><td>—</td><td>Called when all slots are filled</td></tr>
+        <tr><td>onFocus</td><td>(e: React.FocusEvent) =&gt; void</td><td>—</td><td>Focus event callback</td></tr>
+        <tr><td>onBlur</td><td>(e: React.FocusEvent) =&gt; void</td><td>—</td><td>Blur event callback</td></tr>
         <tr><td>allowedChars</td><td>RegExp</td><td>—</td><td>Override default per-slot character acceptance</td></tr>
+        <tr><td>formatChars</td><td>Record&lt;string, RegExp&gt;</td><td>—</td><td>Custom format character map; merged with defaults (<code>_</code>=digit, <code>a</code>=alpha, <code>*</code>=any)</td></tr>
+        <tr><td>lazy</td><td>boolean</td><td>true</td><td>When true, mask chars are only shown up to the next empty slot; when false, full mask is always visible</td></tr>
+        <tr><td>showMask</td><td>boolean</td><td>true</td><td>When false, hides the maskChar fill characters — only typed characters are shown</td></tr>
+        <tr><td>autoUnmask</td><td>boolean</td><td>false</td><td>When true, the first onChange argument is the raw value without mask chars</td></tr>
+        <tr><td>prefix</td><td>string</td><td>—</td><td>Non-editable text rendered before the input inside the wrapper</td></tr>
+        <tr><td>suffix</td><td>string</td><td>—</td><td>Non-editable text rendered after the input inside the wrapper</td></tr>
         <tr><td>size</td><td>"sm" | "md" | "lg"</td><td>"md"</td><td>Size variant</td></tr>
         <tr><td>tone</td><td>"neutral" | "primary" | "success" | "danger"</td><td>"neutral"</td><td>Color tone</td></tr>
         <tr><td>disabled</td><td>boolean</td><td>false</td><td>Disable the input</td></tr>

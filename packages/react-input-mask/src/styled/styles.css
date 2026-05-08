@@ -137,6 +137,27 @@
   border-color: var(--rimsk-border);
 }
 
+/* ── Prefix / Suffix ───────────────────────────────────────── */
+.rimsk-prefix,
+.rimsk-suffix {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  color: var(--rimsk-placeholder);
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+  user-select: none;
+}
+
+.rimsk-prefix {
+  padding-right: 0.25em;
+}
+
+.rimsk-suffix {
+  padding-left: 0.25em;
+}
+
 /* ── Input ─────────────────────────────────────────────────── */
 .rimsk-input {
   appearance: none;

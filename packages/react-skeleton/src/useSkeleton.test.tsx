@@ -74,10 +74,98 @@ describe("SkeletonStyled", () => {
     expect(el).toHaveClass("my-custom-class");
   });
 
-  it("ref forwards to root DOM element", () => {
+  it("ref forwards to root DOM element (single)", () => {
     const ref = createRef<HTMLDivElement>();
     render(<SkeletonStyled ref={ref} />);
     const el = screen.getByRole("status");
     expect(ref.current).toBe(el);
+  });
+
+  // count
+  it("count > 1 renders N skeleton elements", () => {
+    render(<SkeletonStyled count={3} />);
+    const items = screen.getAllByRole("status");
+    expect(items).toHaveLength(3);
+  });
+
+  it("count > 1 wraps items in .rsk-group", () => {
+    const { container } = render(<SkeletonStyled count={3} />);
+    const group = container.querySelector(".rsk-group");
+    expect(group).toBeInTheDocument();
+    expect(group).toHaveAttribute("data-count", "3");
+  });
+
+  it("count > 1 ref points to the group wrapper", () => {
+    const ref = createRef<HTMLDivElement>();
+    const { container } = render(<SkeletonStyled count={3} ref={ref} />);
+    const group = container.querySelector(".rsk-group");
+    expect(ref.current).toBe(group);
+  });
+
+  it("spacing sets --rsk-group-gap on the group wrapper", () => {
+    const { container } = render(<SkeletonStyled count={2} spacing={16} />);
+    const group = container.querySelector<HTMLElement>(".rsk-group");
+    expect(group?.style.getPropertyValue("--rsk-group-gap")).toBe("16px");
+  });
+
+  // inline
+  it('inline=true sets data-inline="true" on root', () => {
+    render(<SkeletonStyled inline />);
+    const el = screen.getByRole("status");
+    expect(el).toHaveAttribute("data-inline", "true");
+  });
+
+  it('inline=false does not set data-inline on root', () => {
+    render(<SkeletonStyled />);
+    const el = screen.getByRole("status");
+    expect(el).not.toHaveAttribute("data-inline");
+  });
+
+  it('count > 1 and inline=true sets data-inline on group', () => {
+    const { container } = render(<SkeletonStyled count={2} inline />);
+    const group = container.querySelector(".rsk-group");
+    expect(group).toHaveAttribute("data-inline", "true");
+  });
+
+  // enableAnimation
+  it('enableAnimation=false forces data-animation="none"', () => {
+    render(<SkeletonStyled enableAnimation={false} animation="pulse" />);
+    const el = screen.getByRole("status");
+    expect(el).toHaveAttribute("data-animation", "none");
+  });
+
+  it("enableAnimation=true (default) respects animation prop", () => {
+    render(<SkeletonStyled enableAnimation animation="wave" />);
+    const el = screen.getByRole("status");
+    expect(el).toHaveAttribute("data-animation", "wave");
+  });
+
+  // baseColor
+  it("baseColor applies --rsk-bg inline style", () => {
+    render(<SkeletonStyled baseColor="#ff0000" />);
+    const el = screen.getByRole("status") as HTMLElement;
+    expect(el.style.getPropertyValue("--rsk-bg")).toBe("#ff0000");
+  });
+
+  // highlightColor
+  it("highlightColor applies --rsk-wave-highlight inline style", () => {
+    render(<SkeletonStyled highlightColor="rgba(0,0,0,0.2)" />);
+    const el = screen.getByRole("status") as HTMLElement;
+    expect(el.style.getPropertyValue("--rsk-wave-highlight")).toBe(
+      "rgba(0,0,0,0.2)",
+    );
+  });
+
+  // borderRadius
+  it("borderRadius (string) applies --rsk-custom-radius inline style", () => {
+    render(<SkeletonStyled borderRadius="12px" />);
+    const el = screen.getByRole("status") as HTMLElement;
+    expect(el.style.getPropertyValue("--rsk-custom-radius")).toBe("12px");
+  });
+
+  it("borderRadius (number) applies --rsk-custom-radius as px", () => {
+    render(<SkeletonStyled borderRadius={16} />);
+    const el = screen.getByRole("status") as HTMLElement;
+    expect(el.style.getPropertyValue("--rsk-custom-radius")).toBe("16px");
   });
 });

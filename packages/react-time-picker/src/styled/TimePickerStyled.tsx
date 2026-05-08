@@ -5,6 +5,7 @@ import {
   useCallback,
   useEffect,
   useId,
+  type ReactNode,
   type KeyboardEvent,
   type CSSProperties,
   type MouseEvent,
@@ -39,6 +40,13 @@ export interface TimePickerStyledProps {
   placeholder?: string;
   className?: string;
   style?: CSSProperties;
+  clearable?: boolean;
+  inline?: boolean;
+  prefix?: ReactNode;
+  suffix?: ReactNode;
+  onFocus?: () => void;
+  onBlur?: () => void;
+  locale?: string;
 }
 
 function buildHourOptions(fmt: TimeFormat): number[] {
@@ -141,6 +149,83 @@ function TimeColumn({ options, selected, onSelect, label, format: fmt, isOpen }:
   );
 }
 
+interface ColumnsContentProps {
+  format: TimeFormat;
+  showSeconds: boolean;
+  step: number;
+  hourOptions: number[];
+  minuteOptions: number[];
+  secondOptions: number[];
+  picker: ReturnType<typeof useTimePicker>;
+  isOpen: boolean;
+  handleSelectHour: (v: number | TimePeriod) => void;
+  handleSelectMinute: (v: number | TimePeriod) => void;
+  handleSelectSecond: (v: number | TimePeriod) => void;
+  handleSelectPeriod: (v: number | TimePeriod) => void;
+}
+
+function ColumnsContent({
+  format,
+  showSeconds,
+  hourOptions,
+  minuteOptions,
+  secondOptions,
+  picker,
+  isOpen,
+  handleSelectHour,
+  handleSelectMinute,
+  handleSelectSecond,
+  handleSelectPeriod,
+}: ColumnsContentProps) {
+  return (
+    <div className="rtp-columns">
+      <TimeColumn
+        options={hourOptions}
+        selected={picker.hours}
+        onSelect={handleSelectHour}
+        label="Hours"
+        format={(v) => pad(v as number)}
+        isOpen={isOpen}
+      />
+      <div className="rtp-column-sep" aria-hidden="true">:</div>
+      <TimeColumn
+        options={minuteOptions}
+        selected={picker.minutes}
+        onSelect={handleSelectMinute}
+        label="Minutes"
+        format={(v) => pad(v as number)}
+        isOpen={isOpen}
+      />
+      {showSeconds && (
+        <>
+          <div className="rtp-column-sep" aria-hidden="true">:</div>
+          <TimeColumn
+            options={secondOptions}
+            selected={picker.seconds}
+            onSelect={handleSelectSecond}
+            label="Seconds"
+            format={(v) => pad(v as number)}
+            isOpen={isOpen}
+          />
+        </>
+      )}
+      {format === "12h" && (
+        <TimeColumn
+          options={["AM", "PM"] as TimePeriod[]}
+          selected={picker.period}
+          onSelect={handleSelectPeriod}
+          label="Period"
+          format={(v) => {
+            const p = v as TimePeriod;
+            return p === "AM" ? picker.periodLabels.am : picker.periodLabels.pm;
+          }}
+          isOpen={isOpen}
+        />
+      )}
+    </div>
+  );
+}
+
 export const TimePickerStyled = forwardRef<HTMLInputElement, TimePickerStyledProps>(
   function TimePickerStyled(
     {
@@ -166,6 +251,13 @@ export const TimePickerStyled = forwardRef<HTMLInputElement, TimePickerStyledPro
       placeholder,
       className,
       style,
+      clearable = false,
+      inline = false,
+      prefix,
+      suffix,
+      onFocus,
+      onBlur,
+      locale,
     },
     ref,
   ) {
@@ -198,6 +290,9 @@ export const TimePickerStyled = forwardRef<HTMLInputElement, TimePickerStyledPro
       step,
       disabled,
       readOnly,
+      onFocus,
+      onBlur,
+      locale,
     });
 
     const [mounted, setMounted] = useState(false);
@@ -236,12 +331,12 @@ export const TimePickerStyled = forwardRef<HTMLInputElement, TimePickerStyledPro
     }, []);
 
     useEffect(() => {
-      if (!picker.isOpen) return;
+      if (!picker.isOpen || inline) return;
       requestAnimationFrame(() => updatePosition());
-    }, [picker.isOpen, updatePosition]);
+    }, [picker.isOpen, inline, updatePosition]);
 
     useEffect(() => {
-      if (!picker.isOpen) return;
+      if (!picker.isOpen || inline) return;
       const onScroll = () => updatePosition();
       const onResize = () => updatePosition();
       const onKeyDown = (e: globalThis.KeyboardEvent) => {
@@ -268,7 +363,7 @@ export const TimePickerStyled = forwardRef<HTMLInputElement, TimePickerStyledPro
         document.removeEventListener("keydown", onKeyDown);
         document.removeEventListener("mousedown", onMouseDown);
       };
-    }, [picker.isOpen, picker, updatePosition]);
+    }, [picker.isOpen, inline, picker, updatePosition]);
 
     const hourOptions = buildHourOptions(format);
     const minuteOptions = buildMinuteOptions(step);
@@ -315,6 +410,14 @@ export const TimePickerStyled = forwardRef<HTMLInputElement, TimePickerStyledPro
       [picker],
     );
 
+    const handleClear = useCallback(
+      (e: MouseEvent<HTMLButtonElement>) => {
+        e.stopPropagation();
+        picker.clear();
+      },
+      [picker],
+    );
+
     const dropdownStyle: CSSProperties = {
       position: "absolute",
       top: dropdownCoords.top,
@@ -330,6 +433,24 @@ export const TimePickerStyled = forwardRef<HTMLInputElement, TimePickerStyledPro
       .filter(Boolean)
       .join(" ") || undefined;
 
+    const hasValue = !!picker.value && picker.inputProps.value !== "";
+    const showClear = clearable && hasValue && !disabled && !readOnly;
+
+    const columnsProps: ColumnsContentProps = {
+      format,
+      showSeconds,
+      step,
+      hourOptions,
+      minuteOptions,
+      secondOptions,
+      picker,
+      isOpen: inline ? true : picker.isOpen,
+      handleSelectHour,
+      handleSelectMinute,
+      handleSelectSecond,
+      handleSelectPeriod,
+    };
+
     return (
       <div
         ref={rootRef}
@@ -342,6 +463,10 @@ export const TimePickerStyled = forwardRef<HTMLInputElement, TimePickerStyledPro
         data-invalid={isInvalid ? "true" : undefined}
         data-focused={picker.isFocused ? "true" : undefined}
         data-open={picker.isOpen ? "true" : undefined}
+        data-inline={inline ? "true" : undefined}
+        data-clearable={clearable ? "true" : undefined}
+        data-has-prefix={prefix ? "true" : undefined}
+        data-has-suffix={suffix ? "true" : undefined}
       >
         {label && (
           <label className="rtp-label" htmlFor={inputId}>
@@ -354,34 +479,70 @@ export const TimePickerStyled = forwardRef<HTMLInputElement, TimePickerStyledPro
           </label>
         )}
 
-        <div
-          ref={wrapperRef}
-          className="rtp-control"
-          role="group"
-          aria-label="Time picker"
-          onKeyDown={handleWrapperKeyDown}
-        >
-          <span className="rtp-icon" aria-hidden="true">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
-              <circle cx="8" cy="8" r="6.5" />
-              <path d="M8 4.5v3.5l2 1.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </span>
+        {!inline && (
+          <div
+            ref={wrapperRef}
+            className="rtp-control"
+            role="group"
+            aria-label="Time picker"
+            onKeyDown={handleWrapperKeyDown}
+          >
+            <span className="rtp-icon" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+                <circle cx="8" cy="8" r="6.5" />
+                <path d="M8 4.5v3.5l2 1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </span>
 
-          <input
-            ref={ref}
-            id={inputId}
-            name={name}
-            type="text"
-            className="rtp-input"
-            placeholder={defaultPlaceholder}
-            required={required}
-            aria-required={required || undefined}
-            aria-invalid={isInvalid || undefined}
-            aria-describedby={ariaDescribedBy}
-            {...picker.inputProps}
-          />
-        </div>
+            {prefix && (
+              <span className="rtp-prefix" aria-hidden="true">{prefix}</span>
+            )}
+
+            <input
+              ref={ref}
+              id={inputId}
+              name={name}
+              type="text"
+              className="rtp-input"
+              placeholder={defaultPlaceholder}
+              required={required}
+              aria-required={required || undefined}
+              aria-invalid={isInvalid || undefined}
+              aria-describedby={ariaDescribedBy}
+              {...picker.inputProps}
+            />
+
+            {suffix && (
+              <span className="rtp-suffix" aria-hidden="true">{suffix}</span>
+            )}
+
+            {showClear && (
+              <button
+                type="button"
+                className="rtp-clear-btn"
+                aria-label="Clear time"
+                tabIndex={-1}
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={handleClear}
+              >
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" aria-hidden="true">
+                  <path d="M2 2l8 8M10 2l-8 8" />
+                </svg>
+              </button>
+            )}
+          </div>
+        )}
+
+        {inline && (
+          <div
+            ref={wrapperRef}
+            className="rtp-inline-container"
+            role="group"
+            aria-label="Time picker"
+          >
+            <ColumnsContent {...columnsProps} />
+          </div>
+        )}
 
         {hint && !error && (
           <span id={hintId} className="rtp-hint">
@@ -394,7 +555,8 @@ export const TimePickerStyled = forwardRef<HTMLInputElement, TimePickerStyledPro
           </span>
         )}
 
-        {mounted &&
+        {!inline &&
+          mounted &&
           picker.isOpen &&
           createPortal(
             <div
@@ -404,47 +566,7 @@ export const TimePickerStyled = forwardRef<HTMLInputElement, TimePickerStyledPro
               role="presentation"
               onMouseDown={handleDropdownMouseDown}
             >
-              <div className="rtp-columns">
-                <TimeColumn
-                  options={hourOptions}
-                  selected={picker.hours}
-                  onSelect={handleSelectHour}
-                  label="Hours"
-                  format={(v) => pad(v as number)}
-                  isOpen={picker.isOpen}
-                />
-                <div className="rtp-column-sep" aria-hidden="true">:</div>
-                <TimeColumn
-                  options={minuteOptions}
-                  selected={picker.minutes}
-                  onSelect={handleSelectMinute}
-                  label="Minutes"
-                  format={(v) => pad(v as number)}
-                  isOpen={picker.isOpen}
-                />
-                {showSeconds && (
-                  <>
-                    <div className="rtp-column-sep" aria-hidden="true">:</div>
-                    <TimeColumn
-                      options={secondOptions}
-                      selected={picker.seconds}
-                      onSelect={handleSelectSecond}
-                      label="Seconds"
-                      format={(v) => pad(v as number)}
-                      isOpen={picker.isOpen}
-                    />
-                  </>
-                )}
-                {format === "12h" && (
-                  <TimeColumn
-                    options={["AM", "PM"] as TimePeriod[]}
-                    selected={picker.period}
-                    onSelect={handleSelectPeriod}
-                    label="Period"
-                    isOpen={picker.isOpen}
-                  />
-                )}
-              </div>
+              <ColumnsContent {...columnsProps} />
             </div>,
             document.body,
           )}

@@ -73,6 +73,34 @@ export default function InputMaskDemo() {
           defaultValue: false,
           omitWhen: false,
         },
+        {
+          name: "prefix",
+          group: "Content",
+          control: { type: "select", options: ["none", "$", "+", "#"] as const },
+          defaultValue: "none",
+          omitWhen: "none",
+        },
+        {
+          name: "lazy",
+          group: "Behaviour",
+          control: { type: "toggle" },
+          defaultValue: true,
+          omitWhen: true,
+        },
+        {
+          name: "showMask",
+          group: "Behaviour",
+          control: { type: "toggle" },
+          defaultValue: true,
+          omitWhen: true,
+        },
+        {
+          name: "autoUnmask",
+          group: "Behaviour",
+          control: { type: "toggle" },
+          defaultValue: false,
+          omitWhen: false,
+        },
       ]}
       staticProps={{ onChange: "{(val) => setValue(val)}" }}
       render={(v) => {
@@ -85,6 +113,10 @@ export default function InputMaskDemo() {
         const invalid = v.invalid as boolean;
         const showLabel = v.label as boolean;
         const showHint = v.hint as boolean;
+        const prefixVal = v.prefix as string;
+        const lazy = v.lazy as boolean;
+        const showMask = v.showMask as boolean;
+        const autoUnmask = v.autoUnmask as boolean;
 
         const labelText =
           maskKey === "phone" ? "Phone number" :
@@ -107,10 +139,14 @@ export default function InputMaskDemo() {
               tone={tone}
               disabled={disabled}
               invalid={invalid}
+              lazy={lazy}
+              showMask={showMask}
+              autoUnmask={autoUnmask}
+              prefix={prefixVal !== "none" ? prefixVal : undefined}
               label={showLabel ? labelText : undefined}
               hint={showHint ? hintText : undefined}
               value={value}
-              onChange={(val) => setValue(val)}
+              onChange={(val: string) => setValue(val)}
             />
           </div>
         );

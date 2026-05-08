@@ -5,7 +5,7 @@
  * CSS prefix: rdrw-
  * ========================================================================== */
 
-.rdrw-overlay {
+.rdrw-root {
   --rdrw-width-sm: 240px;
   --rdrw-width-md: 280px;
   --rdrw-width-lg: 320px;
@@ -22,7 +22,12 @@
   --rdrw-duration: 300ms;
   --rdrw-ease: cubic-bezier(0.32, 0.72, 0, 1);
   --rdrw-overlay-duration: 200ms;
+}
 
+/* ============================================================================
+ * Overlay variant (default) — full-screen backdrop
+ * ========================================================================== */
+.rdrw-overlay {
   position: fixed;
   inset: 0;
   z-index: 9000;
@@ -42,13 +47,41 @@
 }
 
 /* Left drawer alignment */
-.rdrw-overlay[data-side="left"] {
+.rdrw-overlay[data-side="left"],
+.rdrw-push[data-side="left"] {
   justify-content: flex-start;
 }
 
 /* Right drawer alignment */
-.rdrw-overlay[data-side="right"] {
+.rdrw-overlay[data-side="right"],
+.rdrw-push[data-side="right"] {
   justify-content: flex-end;
+}
+
+/* ============================================================================
+ * Push variant — no overlay, panel sits fixed; page content pushed via CSS var
+ * ========================================================================== */
+.rdrw-push {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  z-index: 9000;
+  background: transparent;
+  pointer-events: none;
+  display: flex;
+  align-items: stretch;
+}
+
+.rdrw-push[data-side="left"] {
+  left: 0;
+}
+
+.rdrw-push[data-side="right"] {
+  right: 0;
+}
+
+.rdrw-push .rdrw-panel {
+  pointer-events: auto;
 }
 
 /* ============================================================================
@@ -67,10 +100,10 @@
   border-radius: var(--rdrw-radius);
 }
 
-/* Size variants */
-.rdrw-panel[data-size="sm"] { width: var(--rdrw-width-sm); }
-.rdrw-panel[data-size="md"] { width: var(--rdrw-width-md); }
-.rdrw-panel[data-size="lg"] { width: var(--rdrw-width-lg); }
+/* Size variants — custom width takes priority */
+.rdrw-panel[data-size="sm"] { width: var(--rdrw-custom-width, var(--rdrw-width-sm)); }
+.rdrw-panel[data-size="md"] { width: var(--rdrw-custom-width, var(--rdrw-width-md)); }
+.rdrw-panel[data-size="lg"] { width: var(--rdrw-custom-width, var(--rdrw-width-lg)); }
 
 /* ============================================================================
  * Left drawer slide
@@ -185,6 +218,19 @@
 /* ============================================================================
  * Dark mode — [data-theme="dark"] only, never prefers-color-scheme
  * ========================================================================== */
+[data-theme="dark"] .rdrw-root {
+  --rdrw-bg: #18181b;
+  --rdrw-border: #27272a;
+  --rdrw-overlay-bg: rgba(0, 0, 0, 0.65);
+  --rdrw-shadow: -4px 0 24px rgba(0, 0, 0, 0.4);
+  --rdrw-fg: #fafafa;
+  --rdrw-fg-muted: #a1a1aa;
+  --rdrw-header-border: #27272a;
+  --rdrw-bg-header: #1f1f22;
+  --rdrw-bg-footer: #1f1f22;
+}
+
+/* Keep legacy selector for backwards compat */
 [data-theme="dark"] .rdrw-overlay {
   --rdrw-bg: #18181b;
   --rdrw-border: #27272a;
@@ -198,7 +244,7 @@
 }
 
 /* ============================================================================
- * Reduced motion — fade only, no slide
+ * Reduced motion — fade only, no slide; also disables swipe spring
  * ========================================================================== */
 @media (prefers-reduced-motion: reduce) {
   .rdrw-overlay {
@@ -213,5 +259,10 @@
 
   .rdrw-panel--visible {
     opacity: 1 !important;
+  }
+
+  /* Disable swipe-drag spring animation */
+  .rdrw-panel[data-dragging="true"] {
+    transition: none !important;
   }
 }

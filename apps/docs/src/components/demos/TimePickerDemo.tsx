@@ -14,6 +14,10 @@ function TimePickerWrapper({
   invalid,
   showLabel,
   showHint,
+  clearable,
+  inline,
+  showPrefix,
+  locale,
 }: {
   format: string;
   showSeconds: boolean;
@@ -25,6 +29,10 @@ function TimePickerWrapper({
   invalid: boolean;
   showLabel: boolean;
   showHint: boolean;
+  clearable: boolean;
+  inline: boolean;
+  showPrefix: boolean;
+  locale: string;
 }) {
   const [value, setValue] = useState("");
   return (
@@ -41,6 +49,10 @@ function TimePickerWrapper({
       invalid={invalid}
       label={showLabel ? "Meeting time" : undefined}
       hint={showHint ? "Select a time for the meeting" : undefined}
+      clearable={clearable}
+      inline={inline}
+      prefix={showPrefix ? "🕐" : undefined}
+      locale={locale}
     />
   );
 }
@@ -59,13 +71,17 @@ export default function TimePickerDemo() {
         { name: "disabled",    group: "State",      control: { type: "toggle" },                                                                 defaultValue: false,     omitWhen: false },
         { name: "readOnly",    group: "State",      control: { type: "toggle" },                                                                 defaultValue: false,     omitWhen: false },
         { name: "invalid",     group: "State",      control: { type: "toggle" },                                                                 defaultValue: false,     omitWhen: false },
+        { name: "clearable",   group: "Behaviour",  control: { type: "toggle" },                                                                 defaultValue: false,     omitWhen: false },
+        { name: "inline",      group: "Behaviour",  control: { type: "toggle" },                                                                 defaultValue: false,     omitWhen: false },
         { name: "showLabel",   group: "Content",    label: "label",  control: { type: "toggle" },                                                defaultValue: false,     omitWhen: false },
         { name: "showHint",    group: "Content",    label: "hint",   control: { type: "toggle" },                                                defaultValue: false,     omitWhen: false },
+        { name: "showPrefix",  group: "Content",    label: "prefix (🕐)", control: { type: "toggle" },                                           defaultValue: false,     omitWhen: false },
+        { name: "locale",      group: "Format",     control: { type: "select", options: ["en-US", "fr-FR", "de-DE"] as const },                  defaultValue: "en-US",   omitWhen: "en-US" },
       ]}
       staticProps={{ value: "{value}", onChange: "{setValue}" }}
       render={(v) => (
         <TimePickerWrapper
-          key={`${String(v.format)}-${String(v.showSeconds)}`}
+          key={`${String(v.format)}-${String(v.showSeconds)}-${String(v.locale)}`}
           format={v.format as string}
           showSeconds={v.showSeconds as boolean}
           step={Number(v.step)}
@@ -76,6 +92,10 @@ export default function TimePickerDemo() {
           invalid={v.invalid as boolean}
           showLabel={v.showLabel as boolean}
           showHint={v.showHint as boolean}
+          clearable={v.clearable as boolean}
+          inline={v.inline as boolean}
+          showPrefix={v.showPrefix as boolean}
+          locale={v.locale as string}
         />
       )}
     />

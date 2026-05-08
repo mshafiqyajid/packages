@@ -26,6 +26,19 @@
   100% { background-position: 200% 0; }
 }
 
+/* Group wrapper (count > 1) */
+.rsk-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rsk-group-gap, 8px);
+}
+
+.rsk-group[data-inline="true"] {
+  display: inline-flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
 /* Root */
 .rsk-root {
   display: block;
@@ -33,12 +46,16 @@
   overflow: hidden;
 }
 
+.rsk-root[data-inline="true"] {
+  display: inline-block;
+}
+
 /* Radius variants (non-circle) */
-.rsk-root[data-radius="none"] { border-radius: var(--rsk-radius-none); }
-.rsk-root[data-radius="sm"]   { border-radius: var(--rsk-radius-sm); }
-.rsk-root[data-radius="md"]   { border-radius: var(--rsk-radius-md); }
-.rsk-root[data-radius="lg"]   { border-radius: var(--rsk-radius-lg); }
-.rsk-root[data-radius="full"] { border-radius: 9999px; }
+.rsk-root[data-radius="none"] { border-radius: var(--rsk-custom-radius, var(--rsk-radius-none)); }
+.rsk-root[data-radius="sm"]   { border-radius: var(--rsk-custom-radius, var(--rsk-radius-sm)); }
+.rsk-root[data-radius="md"]   { border-radius: var(--rsk-custom-radius, var(--rsk-radius-md)); }
+.rsk-root[data-radius="lg"]   { border-radius: var(--rsk-custom-radius, var(--rsk-radius-lg)); }
+.rsk-root[data-radius="full"] { border-radius: var(--rsk-custom-radius, 9999px); }
 
 /* Variant: circle */
 .rsk-root[data-variant="circle"] {
@@ -70,11 +87,11 @@
   border-radius: var(--rsk-radius-sm);
 }
 
-.rsk-line[data-radius="none"] { border-radius: var(--rsk-radius-none); }
-.rsk-line[data-radius="sm"]   { border-radius: var(--rsk-radius-sm); }
-.rsk-line[data-radius="md"]   { border-radius: var(--rsk-radius-md); }
-.rsk-line[data-radius="lg"]   { border-radius: var(--rsk-radius-lg); }
-.rsk-line[data-radius="full"] { border-radius: 9999px; }
+.rsk-line[data-radius="none"] { border-radius: var(--rsk-custom-radius, var(--rsk-radius-none)); }
+.rsk-line[data-radius="sm"]   { border-radius: var(--rsk-custom-radius, var(--rsk-radius-sm)); }
+.rsk-line[data-radius="md"]   { border-radius: var(--rsk-custom-radius, var(--rsk-radius-md)); }
+.rsk-line[data-radius="lg"]   { border-radius: var(--rsk-custom-radius, var(--rsk-radius-lg)); }
+.rsk-line[data-radius="full"] { border-radius: var(--rsk-custom-radius, 9999px); }
 
 /* Pulse animation */
 .rsk-root[data-animation="pulse"] {

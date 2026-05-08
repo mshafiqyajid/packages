@@ -293,7 +293,7 @@ describe("DrawerStyled", () => {
         <p>content</p>
       </DrawerStyled>,
     );
-    screen.getByLabelText("Close").click();
+    screen.getByLabelText("Close drawer").click();
     expect(onOpenChange).toHaveBeenCalledWith(false);
   });
 

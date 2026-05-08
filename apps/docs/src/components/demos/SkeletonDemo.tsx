@@ -27,10 +27,14 @@ export default function SkeletonDemo() {
         componentName="SkeletonStyled"
         importLine={`import { SkeletonStyled } from "@mshafiqyajid/react-skeleton/styled";\nimport "@mshafiqyajid/react-skeleton/styles.css";`}
         props={[
-          { name: "variant",   group: "Appearance", control: { type: "segmented", options: ["rect", "line", "circle", "text"] as const },  defaultValue: "rect",  omitWhen: "rect" },
-          { name: "animation", group: "Appearance", control: { type: "segmented", options: ["pulse", "wave", "none"] as const },            defaultValue: "pulse", omitWhen: "pulse" },
-          { name: "radius",    group: "Appearance", control: { type: "segmented", options: ["none", "sm", "md", "lg", "full"] as const },   defaultValue: "sm",    omitWhen: "sm" },
-          { name: "lines",     group: "Content",    control: { type: "slider", min: 1, max: 5, step: 1 },                                   defaultValue: 3,       omitWhen: 3 },
+          { name: "variant",         group: "Appearance", control: { type: "segmented", options: ["rect", "line", "circle", "text"] as const },  defaultValue: "rect",  omitWhen: "rect" },
+          { name: "animation",       group: "Appearance", control: { type: "segmented", options: ["pulse", "wave", "none"] as const },            defaultValue: "pulse", omitWhen: "pulse" },
+          { name: "radius",          group: "Appearance", control: { type: "segmented", options: ["none", "sm", "md", "lg", "full"] as const },   defaultValue: "sm",    omitWhen: "sm" },
+          { name: "inline",          group: "Appearance", control: { type: "switch" },                                                            defaultValue: false,   omitWhen: false },
+          { name: "enableAnimation", group: "Appearance", control: { type: "switch" },                                                            defaultValue: true,    omitWhen: true },
+          { name: "lines",           group: "Content",    control: { type: "slider", min: 1, max: 5, step: 1 },                                   defaultValue: 3,       omitWhen: 3 },
+          { name: "count",           group: "Layout",     control: { type: "slider", min: 1, max: 5, step: 1 },                                   defaultValue: 1,       omitWhen: 1 },
+          { name: "spacing",         group: "Layout",     control: { type: "slider", min: 0, max: 32, step: 4 },                                  defaultValue: 8,       omitWhen: 8 },
         ]}
         render={(v) => (
           <div style={{ width: 240 }}>
@@ -39,6 +43,10 @@ export default function SkeletonDemo() {
               animation={v.animation as "pulse" | "wave" | "none"}
               radius={v.radius as "none" | "sm" | "md" | "lg" | "full"}
               lines={v.lines as number}
+              count={v.count as number}
+              spacing={v.spacing as number}
+              inline={v.inline as boolean}
+              enableAnimation={v.enableAnimation as boolean}
               width={v.variant === "rect" ? "100%" : undefined}
               height={v.variant === "rect" ? 60 : undefined}
             />

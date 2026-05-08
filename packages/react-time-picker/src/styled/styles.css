@@ -331,3 +331,60 @@
 .rtp-option[data-selected="true"]:hover {
   background: var(--rtp-option-active-bg);
 }
+
+/* ── Clear button ────────────────────────────────────────────────────────── */
+.rtp-clear-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  border: none;
+  background: transparent;
+  color: var(--rtp-icon-fg);
+  border-radius: 50%;
+  cursor: pointer;
+  padding: 0;
+  transition:
+    background-color var(--rtp-duration) var(--rtp-ease),
+    color var(--rtp-duration) var(--rtp-ease),
+    opacity var(--rtp-duration) var(--rtp-ease);
+}
+
+.rtp-clear-btn:hover {
+  background: var(--rtp-option-hover-bg);
+  color: var(--rtp-fg);
+}
+
+.rtp-clear-btn:focus-visible {
+  outline: 2px solid var(--rtp-border-focus);
+  outline-offset: 1px;
+}
+
+/* ── Prefix / Suffix ─────────────────────────────────────────────────────── */
+.rtp-prefix,
+.rtp-suffix {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  color: var(--rtp-icon-fg);
+  font-size: inherit;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* ── Inline container ────────────────────────────────────────────────────── */
+.rtp-root[data-inline="true"] .rtp-inline-container {
+  display: inline-flex;
+  background: var(--rtp-dropdown-bg);
+  border: 1.5px solid var(--rtp-dropdown-border);
+  border-radius: 10px;
+  box-shadow: var(--rtp-dropdown-shadow);
+  overflow: hidden;
+}
+
+.rtp-root[data-inline="true"] .rtp-columns {
+  padding: 4px;
+  gap: 2px;
+}
