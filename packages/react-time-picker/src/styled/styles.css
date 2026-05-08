@@ -1,0 +1,333 @@
+/* @mshafiqyajid/react-time-picker styles */
+/* Prefix: rtp- */
+/* Dark mode: [data-theme="dark"] only — NO @media (prefers-color-scheme: dark) */
+
+/* ── Tokens ─────────────────────────────────────────────────────────────── */
+:root {
+  --rtp-height-sm: 2rem;
+  --rtp-height-md: 2.5rem;
+  --rtp-height-lg: 3rem;
+  --rtp-font-size-sm: 0.8125rem;
+  --rtp-font-size-md: 0.875rem;
+  --rtp-font-size-lg: 1rem;
+  --rtp-radius-sm: 6px;
+  --rtp-radius-md: 8px;
+  --rtp-radius-lg: 10px;
+  --rtp-padding-x-sm: 10px;
+  --rtp-padding-x-md: 12px;
+  --rtp-padding-x-lg: 14px;
+  --rtp-bg: #ffffff;
+  --rtp-bg-readonly: #f4f4f5;
+  --rtp-fg: #18181b;
+  --rtp-placeholder: #a1a1aa;
+  --rtp-border: #e4e4e7;
+  --rtp-border-hover: #a1a1aa;
+  --rtp-border-focus: #6366f1;
+  --rtp-shadow-focus: 0 0 0 3px rgba(99, 102, 241, 0.18);
+  --rtp-label-fg: #3f3f46;
+  --rtp-hint-fg: #71717a;
+  --rtp-error-fg: #dc2626;
+  --rtp-error-border: #dc2626;
+  --rtp-error-shadow: 0 0 0 3px rgba(220, 38, 38, 0.18);
+  --rtp-icon-fg: #71717a;
+  --rtp-dropdown-bg: #ffffff;
+  --rtp-dropdown-border: #e4e4e7;
+  --rtp-dropdown-shadow: 0 4px 16px rgba(0, 0, 0, 0.10);
+  --rtp-option-hover-bg: #f4f4f5;
+  --rtp-option-active-bg: #eef2ff;
+  --rtp-option-active-fg: #4338ca;
+  --rtp-sep-fg: #a1a1aa;
+  --rtp-duration: 150ms;
+  --rtp-ease: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Tone overrides */
+  --rtp-tone-border-focus: #6366f1;
+  --rtp-tone-shadow-focus: 0 0 0 3px rgba(99, 102, 241, 0.18);
+}
+
+[data-theme="dark"] {
+  --rtp-bg: #18181b;
+  --rtp-bg-readonly: #27272a;
+  --rtp-fg: #fafafa;
+  --rtp-placeholder: #52525b;
+  --rtp-border: #3f3f46;
+  --rtp-border-hover: #71717a;
+  --rtp-border-focus: #818cf8;
+  --rtp-shadow-focus: 0 0 0 3px rgba(129, 140, 248, 0.22);
+  --rtp-label-fg: #a1a1aa;
+  --rtp-hint-fg: #71717a;
+  --rtp-error-fg: #f87171;
+  --rtp-error-border: #f87171;
+  --rtp-error-shadow: 0 0 0 3px rgba(248, 113, 113, 0.18);
+  --rtp-icon-fg: #71717a;
+  --rtp-dropdown-bg: #1c1c1e;
+  --rtp-dropdown-border: #3f3f46;
+  --rtp-dropdown-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --rtp-option-hover-bg: #27272a;
+  --rtp-option-active-bg: #1e1b4b;
+  --rtp-option-active-fg: #818cf8;
+  --rtp-sep-fg: #52525b;
+
+  --rtp-tone-border-focus: #818cf8;
+  --rtp-tone-shadow-focus: 0 0 0 3px rgba(129, 140, 248, 0.22);
+}
+
+/* ── Root ────────────────────────────────────────────────────────────────── */
+.rtp-root {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 4px;
+  font-family: inherit;
+  position: relative;
+}
+
+/* ── Label ───────────────────────────────────────────────────────────────── */
+.rtp-label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--rtp-label-fg);
+  line-height: 1.4;
+  user-select: none;
+}
+
+.rtp-required {
+  color: var(--rtp-error-fg);
+}
+
+/* ── Control (input wrapper) ─────────────────────────────────────────────── */
+.rtp-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1.5px solid var(--rtp-border);
+  border-radius: var(--rtp-radius-md);
+  background: var(--rtp-bg);
+  color: var(--rtp-fg);
+  transition:
+    border-color var(--rtp-duration) var(--rtp-ease),
+    box-shadow var(--rtp-duration) var(--rtp-ease),
+    background-color var(--rtp-duration) var(--rtp-ease);
+  cursor: text;
+}
+
+/* Size variants */
+.rtp-root[data-size="sm"] .rtp-control {
+  height: var(--rtp-height-sm);
+  padding: 0 var(--rtp-padding-x-sm);
+  border-radius: var(--rtp-radius-sm);
+  font-size: var(--rtp-font-size-sm);
+}
+
+.rtp-root[data-size="md"] .rtp-control {
+  height: var(--rtp-height-md);
+  padding: 0 var(--rtp-padding-x-md);
+  border-radius: var(--rtp-radius-md);
+  font-size: var(--rtp-font-size-md);
+}
+
+.rtp-root[data-size="lg"] .rtp-control {
+  height: var(--rtp-height-lg);
+  padding: 0 var(--rtp-padding-x-lg);
+  border-radius: var(--rtp-radius-lg);
+  font-size: var(--rtp-font-size-lg);
+}
+
+/* Hover */
+.rtp-root:not([data-disabled="true"]):not([data-focused="true"]) .rtp-control:hover {
+  border-color: var(--rtp-border-hover);
+}
+
+/* Focus */
+.rtp-root[data-focused="true"] .rtp-control {
+  border-color: var(--rtp-border-focus);
+  box-shadow: var(--rtp-shadow-focus);
+  outline: none;
+}
+
+/* Tone: primary */
+.rtp-root[data-tone="primary"][data-focused="true"] .rtp-control {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.18);
+}
+
+/* Tone: success */
+.rtp-root[data-tone="success"][data-focused="true"] .rtp-control {
+  border-color: #16a34a;
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.18);
+}
+
+/* Tone: danger */
+.rtp-root[data-tone="danger"] .rtp-control,
+.rtp-root[data-invalid="true"] .rtp-control {
+  border-color: var(--rtp-error-border);
+}
+
+.rtp-root[data-tone="danger"][data-focused="true"] .rtp-control,
+.rtp-root[data-invalid="true"][data-focused="true"] .rtp-control {
+  box-shadow: var(--rtp-error-shadow);
+}
+
+/* Disabled */
+.rtp-root[data-disabled="true"] {
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.rtp-root[data-disabled="true"] .rtp-control {
+  cursor: not-allowed;
+}
+
+/* Read-only */
+.rtp-root[data-readonly="true"] .rtp-control {
+  background: var(--rtp-bg-readonly);
+  cursor: default;
+}
+
+.rtp-root[data-readonly="true"][data-focused="true"] .rtp-control {
+  box-shadow: none;
+  border-color: var(--rtp-border);
+}
+
+/* ── Clock icon ──────────────────────────────────────────────────────────── */
+.rtp-icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  color: var(--rtp-icon-fg);
+  pointer-events: none;
+}
+
+/* ── Input ───────────────────────────────────────────────────────────────── */
+.rtp-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: inherit;
+  font-size: inherit;
+  font-family: inherit;
+  line-height: 1;
+  min-width: 0;
+  padding: 0;
+}
+
+.rtp-input::placeholder {
+  color: var(--rtp-placeholder);
+}
+
+/* ── Hint / Error ────────────────────────────────────────────────────────── */
+.rtp-hint {
+  font-size: 0.75rem;
+  color: var(--rtp-hint-fg);
+  line-height: 1.4;
+}
+
+.rtp-error {
+  font-size: 0.75rem;
+  color: var(--rtp-error-fg);
+  line-height: 1.4;
+}
+
+/* ── Dropdown ────────────────────────────────────────────────────────────── */
+.rtp-dropdown {
+  background: var(--rtp-dropdown-bg);
+  border: 1.5px solid var(--rtp-dropdown-border);
+  border-radius: 10px;
+  box-shadow: var(--rtp-dropdown-shadow);
+  overflow: hidden;
+  animation: rtp-slide-in var(--rtp-duration) var(--rtp-ease) both;
+}
+
+@keyframes rtp-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rtp-dropdown {
+    animation: none;
+  }
+}
+
+/* ── Columns container ───────────────────────────────────────────────────── */
+.rtp-columns {
+  display: flex;
+  align-items: flex-start;
+  padding: 4px;
+  gap: 2px;
+}
+
+/* ── Column separator ────────────────────────────────────────────────────── */
+.rtp-column-sep {
+  color: var(--rtp-sep-fg);
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 0 2px;
+  align-self: flex-start;
+  padding-top: 8px;
+  user-select: none;
+}
+
+/* ── Column ──────────────────────────────────────────────────────────────── */
+.rtp-column {
+  flex: 1;
+  max-height: 200px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--rtp-border) transparent;
+  border-radius: 6px;
+}
+
+.rtp-column::-webkit-scrollbar {
+  width: 4px;
+}
+
+.rtp-column::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.rtp-column::-webkit-scrollbar-thumb {
+  background: var(--rtp-border);
+  border-radius: 2px;
+}
+
+/* ── Option ──────────────────────────────────────────────────────────────── */
+.rtp-option {
+  padding: 7px 8px;
+  border-radius: 5px;
+  font-size: 0.875rem;
+  font-family: inherit;
+  text-align: center;
+  cursor: pointer;
+  color: var(--rtp-fg);
+  transition:
+    background-color 100ms var(--rtp-ease),
+    color 100ms var(--rtp-ease);
+  user-select: none;
+  outline: none;
+}
+
+.rtp-option:hover {
+  background: var(--rtp-option-hover-bg);
+}
+
+.rtp-option:focus-visible {
+  background: var(--rtp-option-hover-bg);
+  box-shadow: 0 0 0 2px var(--rtp-border-focus);
+}
+
+.rtp-option[data-selected="true"] {
+  background: var(--rtp-option-active-bg);
+  color: var(--rtp-option-active-fg);
+  font-weight: 600;
+}
+
+.rtp-option[data-selected="true"]:hover {
+  background: var(--rtp-option-active-bg);
+}

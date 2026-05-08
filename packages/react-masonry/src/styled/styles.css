@@ -1,0 +1,26 @@
+:root {
+  --rmsn-columns: 3;
+  --rmsn-gap: 16px;
+  --rmsn-item-radius: 0px;
+}
+
+.rmsn-root {
+  columns: var(--rmsn-columns, 3);
+  column-gap: var(--rmsn-gap, 16px);
+  display: block;
+}
+
+.rmsn-item {
+  break-inside: avoid;
+  margin-bottom: var(--rmsn-gap, 16px);
+  display: inline-block;
+  width: 100%;
+  border-radius: var(--rmsn-item-radius, 0px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rmsn-root,
+  .rmsn-item {
+    transition: none;
+  }
+}

@@ -1,0 +1,201 @@
+/* react-input-mask — styled component
+ * Dark mode via [data-theme="dark"] ancestor only.
+ * All transitions respect prefers-reduced-motion.
+ */
+:root {
+  --rimsk-height-sm: 2rem;
+  --rimsk-height-md: 2.5rem;
+  --rimsk-height-lg: 3rem;
+  --rimsk-font-size-sm: 0.8125rem;
+  --rimsk-font-size-md: 0.875rem;
+  --rimsk-font-size-lg: 1rem;
+  --rimsk-radius-sm: 6px;
+  --rimsk-radius-md: 8px;
+  --rimsk-radius-lg: 10px;
+  --rimsk-padding-x-sm: 10px;
+  --rimsk-padding-x-md: 12px;
+  --rimsk-padding-x-lg: 14px;
+
+  --rimsk-bg: #ffffff;
+  --rimsk-bg-readonly: #f4f4f5;
+  --rimsk-fg: #18181b;
+  --rimsk-border: #e4e4e7;
+  --rimsk-border-hover: #a1a1aa;
+  --rimsk-border-focus: #6366f1;
+  --rimsk-shadow-focus: 0 0 0 3px rgba(99, 102, 241, 0.18);
+  --rimsk-placeholder: #a1a1aa;
+  --rimsk-label-fg: #18181b;
+  --rimsk-hint-fg: #71717a;
+  --rimsk-error-fg: #dc2626;
+  --rimsk-error-border: #dc2626;
+  --rimsk-error-shadow: 0 0 0 3px rgba(220, 38, 38, 0.18);
+
+  --rimsk-duration: 150ms;
+  --rimsk-ease: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-theme="dark"] {
+  --rimsk-bg: #18181b;
+  --rimsk-bg-readonly: #27272a;
+  --rimsk-fg: #fafafa;
+  --rimsk-border: #3f3f46;
+  --rimsk-border-hover: #71717a;
+  --rimsk-border-focus: #818cf8;
+  --rimsk-shadow-focus: 0 0 0 3px rgba(129, 140, 248, 0.22);
+  --rimsk-placeholder: #52525b;
+  --rimsk-label-fg: #fafafa;
+  --rimsk-hint-fg: #a1a1aa;
+  --rimsk-error-fg: #f87171;
+  --rimsk-error-border: #f87171;
+  --rimsk-error-shadow: 0 0 0 3px rgba(248, 113, 113, 0.2);
+}
+
+/* ── Root ──────────────────────────────────────────────────── */
+.rimsk-root {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-family: inherit;
+}
+
+/* ── Wrap ──────────────────────────────────────────────────── */
+.rimsk-wrap {
+  display: inline-flex;
+  align-items: center;
+  background: var(--rimsk-bg);
+  border: 1.5px solid var(--rimsk-border);
+  border-radius: var(--rimsk-radius-md);
+  color: var(--rimsk-fg);
+  width: 100%;
+  transition:
+    border-color var(--rimsk-duration) var(--rimsk-ease),
+    box-shadow var(--rimsk-duration) var(--rimsk-ease),
+    background var(--rimsk-duration) var(--rimsk-ease);
+}
+
+.rimsk-root[data-size="sm"] .rimsk-wrap {
+  height: var(--rimsk-height-sm);
+  padding: 0 var(--rimsk-padding-x-sm);
+  font-size: var(--rimsk-font-size-sm);
+  border-radius: var(--rimsk-radius-sm);
+}
+.rimsk-root[data-size="md"] .rimsk-wrap {
+  height: var(--rimsk-height-md);
+  padding: 0 var(--rimsk-padding-x-md);
+  font-size: var(--rimsk-font-size-md);
+  border-radius: var(--rimsk-radius-md);
+}
+.rimsk-root[data-size="lg"] .rimsk-wrap {
+  height: var(--rimsk-height-lg);
+  padding: 0 var(--rimsk-padding-x-lg);
+  font-size: var(--rimsk-font-size-lg);
+  border-radius: var(--rimsk-radius-lg);
+}
+
+/* ── Hover ─────────────────────────────────────────────────── */
+.rimsk-root:not([data-disabled="true"]) .rimsk-wrap:hover {
+  border-color: var(--rimsk-border-hover);
+}
+
+/* ── Focus ─────────────────────────────────────────────────── */
+.rimsk-root:not([data-disabled="true"]) .rimsk-wrap:focus-within {
+  border-color: var(--rimsk-border-focus);
+  box-shadow: var(--rimsk-shadow-focus);
+  outline: none;
+}
+
+/* ── Tone: primary ─────────────────────────────────────────── */
+.rimsk-root[data-tone="primary"] .rimsk-wrap:focus-within {
+  border-color: var(--rimsk-border-focus);
+  box-shadow: var(--rimsk-shadow-focus);
+}
+
+/* ── Tone: danger / invalid ────────────────────────────────── */
+.rimsk-root[data-tone="danger"] .rimsk-wrap,
+.rimsk-root[data-invalid="true"] .rimsk-wrap {
+  border-color: var(--rimsk-error-border);
+}
+.rimsk-root[data-tone="danger"] .rimsk-wrap:focus-within,
+.rimsk-root[data-invalid="true"] .rimsk-wrap:focus-within {
+  box-shadow: var(--rimsk-error-shadow);
+}
+
+/* ── Disabled ──────────────────────────────────────────────── */
+.rimsk-root[data-disabled="true"] .rimsk-wrap {
+  background: color-mix(in srgb, var(--rimsk-bg) 80%, var(--rimsk-border));
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* ── Read-only ─────────────────────────────────────────────── */
+.rimsk-root[data-readonly="true"] .rimsk-wrap {
+  background: var(--rimsk-bg-readonly);
+  border-color: var(--rimsk-border);
+}
+.rimsk-root[data-readonly="true"] .rimsk-wrap:focus-within {
+  box-shadow: none;
+  border-color: var(--rimsk-border);
+}
+
+/* ── Input ─────────────────────────────────────────────────── */
+.rimsk-input {
+  appearance: none;
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+  padding: 0;
+  margin: 0;
+  caret-color: var(--rimsk-border-focus);
+}
+.rimsk-input::placeholder {
+  color: var(--rimsk-placeholder);
+  letter-spacing: normal;
+}
+.rimsk-input:disabled {
+  cursor: not-allowed;
+}
+
+/* ── Label ─────────────────────────────────────────────────── */
+.rimsk-label {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--rimsk-label-fg);
+  line-height: 1.3;
+  padding: 0 0.15rem;
+  user-select: none;
+}
+.rimsk-required {
+  color: var(--rimsk-error-fg);
+  font-weight: 600;
+}
+
+/* ── Hint / error ──────────────────────────────────────────── */
+.rimsk-message {
+  font-size: 0.75rem;
+  color: var(--rimsk-hint-fg);
+  line-height: 1.3;
+  padding: 0 0.15rem;
+}
+.rimsk-message--error {
+  color: var(--rimsk-error-fg);
+  animation: rimsk-error-in var(--rimsk-duration) var(--rimsk-ease) both;
+}
+@keyframes rimsk-error-in {
+  from { opacity: 0; transform: translateY(-2px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Reduced motion ────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .rimsk-wrap { transition: none; }
+  .rimsk-message--error { animation: none; }
+}

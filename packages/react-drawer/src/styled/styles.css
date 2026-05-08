@@ -1,0 +1,217 @@
+/* ============================================================================
+ * react-drawer — styled component
+ *
+ * Dark mode: [data-theme="dark"] on any ancestor — never prefers-color-scheme.
+ * CSS prefix: rdrw-
+ * ========================================================================== */
+
+.rdrw-overlay {
+  --rdrw-width-sm: 240px;
+  --rdrw-width-md: 280px;
+  --rdrw-width-lg: 320px;
+  --rdrw-bg: #ffffff;
+  --rdrw-border: #e4e4e7;
+  --rdrw-overlay-bg: rgba(0, 0, 0, 0.45);
+  --rdrw-shadow: -4px 0 24px rgba(0, 0, 0, 0.12);
+  --rdrw-radius: 0px;
+  --rdrw-header-border: #e4e4e7;
+  --rdrw-fg: #18181b;
+  --rdrw-fg-muted: #71717a;
+  --rdrw-bg-header: #fafafa;
+  --rdrw-bg-footer: #fafafa;
+  --rdrw-duration: 300ms;
+  --rdrw-ease: cubic-bezier(0.32, 0.72, 0, 1);
+  --rdrw-overlay-duration: 200ms;
+
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  background: var(--rdrw-overlay-bg);
+
+  opacity: 0;
+  transition: opacity var(--rdrw-overlay-duration) ease;
+  pointer-events: none;
+
+  display: flex;
+  align-items: stretch;
+}
+
+.rdrw-overlay--visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Left drawer alignment */
+.rdrw-overlay[data-side="left"] {
+  justify-content: flex-start;
+}
+
+/* Right drawer alignment */
+.rdrw-overlay[data-side="right"] {
+  justify-content: flex-end;
+}
+
+/* ============================================================================
+ * Panel — base
+ * ========================================================================== */
+.rdrw-panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--rdrw-bg);
+  height: 100%;
+  max-height: 100vh;
+  outline: none;
+  overflow: hidden;
+  will-change: transform;
+  border-radius: var(--rdrw-radius);
+}
+
+/* Size variants */
+.rdrw-panel[data-size="sm"] { width: var(--rdrw-width-sm); }
+.rdrw-panel[data-size="md"] { width: var(--rdrw-width-md); }
+.rdrw-panel[data-size="lg"] { width: var(--rdrw-width-lg); }
+
+/* ============================================================================
+ * Left drawer slide
+ * ========================================================================== */
+.rdrw-panel[data-side="left"] {
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.12);
+  transform: translateX(-100%);
+  transition: transform var(--rdrw-duration) var(--rdrw-ease);
+}
+
+.rdrw-panel[data-side="left"].rdrw-panel--visible {
+  transform: translateX(0);
+}
+
+/* ============================================================================
+ * Right drawer slide
+ * ========================================================================== */
+.rdrw-panel[data-side="right"] {
+  box-shadow: var(--rdrw-shadow);
+  transform: translateX(100%);
+  transition: transform var(--rdrw-duration) var(--rdrw-ease);
+}
+
+.rdrw-panel[data-side="right"].rdrw-panel--visible {
+  transform: translateX(0);
+}
+
+/* ============================================================================
+ * Header
+ * ========================================================================== */
+.rdrw-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.875rem 1.25rem 0.75rem;
+  background: var(--rdrw-bg-header);
+  border-bottom: 1px solid var(--rdrw-header-border);
+  flex-shrink: 0;
+}
+
+.rdrw-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--rdrw-fg);
+  line-height: 1.4;
+}
+
+/* ============================================================================
+ * Close button
+ * ========================================================================== */
+.rdrw-close {
+  appearance: none;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 8px;
+  color: var(--rdrw-fg-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 120ms ease, color 120ms ease;
+  margin: -2px -4px -2px auto;
+}
+.rdrw-close:hover { background: color-mix(in srgb, var(--rdrw-border) 80%, transparent); color: var(--rdrw-fg); }
+.rdrw-close:active { background: color-mix(in srgb, var(--rdrw-border) 100%, transparent); }
+.rdrw-close:focus-visible { outline: 2px solid #6366f1; outline-offset: 1px; }
+
+/* ============================================================================
+ * Description
+ * ========================================================================== */
+.rdrw-description {
+  margin: 0;
+  padding: 0.625rem 1.25rem 0;
+  color: var(--rdrw-fg-muted);
+  font-size: 0.875rem;
+  line-height: 1.55;
+  flex-shrink: 0;
+}
+
+/* ============================================================================
+ * Body — scrollable
+ * ========================================================================== */
+.rdrw-body {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 1.25rem;
+  color: var(--rdrw-fg);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ============================================================================
+ * Footer
+ * ========================================================================== */
+.rdrw-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.625rem;
+  padding: 0.875rem 1.25rem;
+  background: var(--rdrw-bg-footer);
+  border-top: 1px solid var(--rdrw-border);
+  flex-shrink: 0;
+}
+
+/* ============================================================================
+ * Dark mode — [data-theme="dark"] only, never prefers-color-scheme
+ * ========================================================================== */
+[data-theme="dark"] .rdrw-overlay {
+  --rdrw-bg: #18181b;
+  --rdrw-border: #27272a;
+  --rdrw-overlay-bg: rgba(0, 0, 0, 0.65);
+  --rdrw-shadow: -4px 0 24px rgba(0, 0, 0, 0.4);
+  --rdrw-fg: #fafafa;
+  --rdrw-fg-muted: #a1a1aa;
+  --rdrw-header-border: #27272a;
+  --rdrw-bg-header: #1f1f22;
+  --rdrw-bg-footer: #1f1f22;
+}
+
+/* ============================================================================
+ * Reduced motion — fade only, no slide
+ * ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .rdrw-overlay {
+    transition-duration: 100ms !important;
+  }
+
+  .rdrw-panel {
+    transition: opacity var(--rdrw-overlay-duration) linear !important;
+    transform: none !important;
+    opacity: 0;
+  }
+
+  .rdrw-panel--visible {
+    opacity: 1 !important;
+  }
+}

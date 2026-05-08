@@ -1,0 +1,185 @@
+---
+import DocLayout from "~/layouts/DocLayout.astro";
+import PackagePageShell from "~/components/PackagePageShell.astro";
+import H2 from "~/components/H2.astro";
+import CodeBlock from "~/components/CodeBlock.astro";
+import DrawerDemo from "~/components/demos/DrawerDemo";
+---
+
+<DocLayout title="react-drawer" description="Persistent navigation drawer with focus trap, overlay backdrop, smooth slide animation, and keyboard support." pkg="drawer">
+  <PackagePageShell name="react-drawer" description="Headless hook and styled navigation drawer for React. Left or right side, three width sizes, focus trap, overlay backdrop, body scroll lock, Escape to close, and smooth slide animations. Zero dependencies." size="~5 KB">
+
+    <div class="pkg-section">
+      <H2>Playground</H2>
+      <DrawerDemo client:load />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Install</H2>
+      <CodeBlock lang="bash" code="npm install @mshafiqyajid/react-drawer" />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Quick start</H2>
+      <CodeBlock lang="tsx" code={`import { useState } from "react";
+import { DrawerStyled } from "@mshafiqyajid/react-drawer/styled";
+import "@mshafiqyajid/react-drawer/styles.css";
+
+const [open, setOpen] = useState(false);
+
+<button onClick={() => setOpen(true)}>Open drawer</button>
+
+<DrawerStyled
+  open={open}
+  onOpenChange={setOpen}
+  title="Navigation"
+>
+  <nav>
+    <a href="/">Home</a>
+    <a href="/about">About</a>
+  </nav>
+</DrawerStyled>`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Side</H2>
+      <p>Set <code>side</code> to <code>"left"</code> (default) or <code>"right"</code> to control which edge the drawer slides in from.</p>
+      <CodeBlock lang="tsx" code={`<DrawerStyled open={open} onOpenChange={setOpen} side="right" title="Settings">
+  <p>Slides in from the right.</p>
+</DrawerStyled>`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Width sizes</H2>
+      <p><code>size</code> controls the panel width. <code>"sm"</code> is 240 px, <code>"md"</code> is 280 px (default), <code>"lg"</code> is 320 px.</p>
+      <CodeBlock lang="tsx" code={`<DrawerStyled open={open} onOpenChange={setOpen} size="sm">…</DrawerStyled>
+<DrawerStyled open={open} onOpenChange={setOpen} size="md">…</DrawerStyled>
+<DrawerStyled open={open} onOpenChange={setOpen} size="lg">…</DrawerStyled>`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Focus management</H2>
+      <p>Focus is trapped inside the drawer while open and returned to the previously-focused element on close. Override with <code>initialFocusRef</code> and <code>finalFocusRef</code>.</p>
+      <CodeBlock lang="tsx" code={`const inputRef = useRef<HTMLInputElement>(null);
+const triggerRef = useRef<HTMLButtonElement>(null);
+
+<button ref={triggerRef} onClick={() => setOpen(true)}>Open</button>
+
+<DrawerStyled
+  open={open}
+  onOpenChange={setOpen}
+  initialFocusRef={inputRef}
+  finalFocusRef={triggerRef}
+>
+  <input ref={inputRef} placeholder="Focused on open" />
+</DrawerStyled>`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Headless</H2>
+      <CodeBlock lang="tsx" code={`import { useDrawer } from "@mshafiqyajid/react-drawer";
+
+const { isOpen, open, close, drawerProps, overlayProps, triggerProps } = useDrawer({
+  closeOnEsc: true,
+  lockBodyScroll: true,
+});
+
+<button {...triggerProps} onClick={open}>Open</button>
+
+{isOpen && (
+  <div
+    {...overlayProps}
+    style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)" }}
+    onClick={close}
+  >
+    <div
+      {...drawerProps}
+      style={{
+        position: "fixed",
+        top: 0, left: 0, bottom: 0,
+        width: 280,
+        background: "#fff",
+        padding: "1rem",
+      }}
+      onClick={(e) => e.stopPropagation()}
+    >
+      <button onClick={close}>Close</button>
+      <nav>…</nav>
+    </div>
+  </div>
+)}`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>CSS tokens</H2>
+      <CodeBlock lang="css" code={`:root {
+  --rdrw-width-sm: 240px;
+  --rdrw-width-md: 280px;
+  --rdrw-width-lg: 320px;
+  --rdrw-bg: #ffffff;
+  --rdrw-border: #e4e4e7;
+  --rdrw-overlay-bg: rgba(0, 0, 0, 0.45);
+  --rdrw-fg: #18181b;
+  --rdrw-duration: 300ms;
+  --rdrw-ease: cubic-bezier(0.32, 0.72, 0, 1);
+  --rdrw-overlay-duration: 200ms;
+}`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>API</H2>
+      <table class="props-table">
+        <thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>open</td><td>boolean</td><td>—</td><td>Controlled open state</td></tr>
+          <tr><td>defaultOpen</td><td>boolean</td><td>false</td><td>Uncontrolled default open state</td></tr>
+          <tr><td>onOpenChange</td><td>(open: boolean) =&gt; void</td><td>—</td><td>Called when open state changes</td></tr>
+          <tr><td>side</td><td>"left" | "right"</td><td>"left"</td><td>Which edge the drawer slides from</td></tr>
+          <tr><td>size</td><td>"sm" | "md" | "lg"</td><td>"md"</td><td>Panel width — 240 / 280 / 320 px</td></tr>
+          <tr><td>closeOnOverlayClick</td><td>boolean</td><td>true</td><td>Close when clicking the overlay backdrop</td></tr>
+          <tr><td>closeOnEsc</td><td>boolean</td><td>true</td><td>Close on Escape key</td></tr>
+          <tr><td>lockBodyScroll</td><td>boolean</td><td>true</td><td>Lock body scroll while drawer is open</td></tr>
+          <tr><td>title</td><td>ReactNode</td><td>—</td><td>Drawer heading — omit to hide the header</td></tr>
+          <tr><td>description</td><td>ReactNode</td><td>—</td><td>Accessible description linked via aria-describedby</td></tr>
+          <tr><td>footer</td><td>ReactNode</td><td>—</td><td>Footer content — omit to hide footer</td></tr>
+          <tr><td>children</td><td>ReactNode</td><td>—</td><td>Scrollable body content</td></tr>
+          <tr><td>initialFocusRef</td><td>RefObject&lt;HTMLElement&gt;</td><td>—</td><td>Element to focus when drawer opens</td></tr>
+          <tr><td>finalFocusRef</td><td>RefObject&lt;HTMLElement&gt;</td><td>—</td><td>Element to focus when drawer closes</td></tr>
+          <tr><td>className</td><td>string</td><td>—</td><td>Extra class on the panel element</td></tr>
+          <tr><td>style</td><td>CSSProperties</td><td>—</td><td>Inline style on the panel element</td></tr>
+          <tr><td>ref</td><td>forwarded</td><td>—</td><td>Forwarded to the panel <code>div</code></td></tr>
+        </tbody>
+      </table>
+
+      <h3>Data attributes</h3>
+      <table class="props-table">
+        <thead><tr><th>Attribute</th><th>Values</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>data-side</td><td>"left" | "right"</td><td>Current side — on both overlay and panel</td></tr>
+          <tr><td>data-state</td><td>"open" | "closed"</td><td>Visibility state — on both overlay and panel</td></tr>
+          <tr><td>data-size</td><td>"sm" | "md" | "lg"</td><td>Current size — on panel</td></tr>
+        </tbody>
+      </table>
+
+      <h3>useDrawer options &amp; return</h3>
+      <table class="props-table">
+        <thead><tr><th>Key</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>open</td><td>boolean</td><td>Controlled open state</td></tr>
+          <tr><td>defaultOpen</td><td>boolean</td><td>Uncontrolled default (false)</td></tr>
+          <tr><td>onOpenChange</td><td>(open: boolean) =&gt; void</td><td>Open change callback</td></tr>
+          <tr><td>closeOnEsc</td><td>boolean</td><td>Close on Escape (true)</td></tr>
+          <tr><td>lockBodyScroll</td><td>boolean</td><td>Lock body scroll (true)</td></tr>
+          <tr><td colspan="3"><em>Returns:</em></td></tr>
+          <tr><td>isOpen</td><td>boolean</td><td>Current open state</td></tr>
+          <tr><td>open</td><td>() =&gt; void</td><td>Open the drawer</td></tr>
+          <tr><td>close</td><td>() =&gt; void</td><td>Close the drawer</td></tr>
+          <tr><td>toggle</td><td>() =&gt; void</td><td>Toggle open/closed</td></tr>
+          <tr><td>drawerProps</td><td>DrawerProps</td><td>Spread onto panel element (role, aria-*, tabIndex, id)</td></tr>
+          <tr><td>overlayProps</td><td>OverlayProps</td><td>Spread onto overlay element (data-rdrw-overlay, aria-hidden)</td></tr>
+          <tr><td>triggerProps</td><td>TriggerProps</td><td>Spread onto trigger button (aria-haspopup, aria-expanded, aria-controls)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </PackagePageShell>
+</DocLayout>

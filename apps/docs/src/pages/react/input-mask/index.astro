@@ -1,0 +1,112 @@
+---
+import DocLayout from "~/layouts/DocLayout.astro";
+import PackagePageShell from "~/components/PackagePageShell.astro";
+import H2 from "~/components/H2.astro";
+import CodeBlock from "~/components/CodeBlock.astro";
+import InputMaskDemo from "~/components/demos/InputMaskDemo";
+---
+<DocLayout title="react-input-mask" description="Headless input mask hook and styled masked input for React. Supports phone, date, time, card, and custom mask patterns." pkg="input-mask">
+  <PackagePageShell name="react-input-mask" description="Headless input mask hook + styled component. Supports custom mask patterns with digit (_), alpha (a), and alphanumeric (*) slots. Fixed literal characters are skipped automatically. Size + tone variants, label, hint, error, controlled or uncontrolled." size="~3 KB">
+    <div class="pkg-section"><H2>Playground</H2><InputMaskDemo client:load /></div>
+    <div class="pkg-section"><H2>Install</H2><CodeBlock lang="bash" code="npm install @mshafiqyajid/react-input-mask" /></div>
+
+    <div class="pkg-section"><H2>Quick start</H2>
+      <CodeBlock lang="tsx" code={`import { InputMaskStyled } from "@mshafiqyajid/react-input-mask/styled";
+import "@mshafiqyajid/react-input-mask/styles.css";
+
+const [phone, setPhone] = useState("");
+
+<InputMaskStyled
+  mask="(___) ___-____"
+  label="Phone number"
+  value={phone}
+  onChange={(value, rawValue) => setPhone(value)}
+/>`} />
+    </div>
+
+    <div class="pkg-section"><H2>Mask format</H2>
+      <p>Define your pattern using these special characters:</p>
+      <table class="props-table"><thead><tr><th>Character</th><th>Accepts</th></tr></thead><tbody>
+        <tr><td><code>_</code></td><td>Digit (0–9)</td></tr>
+        <tr><td><code>a</code></td><td>Letter (a–z, A–Z)</td></tr>
+        <tr><td><code>*</code></td><td>Alphanumeric (letter or digit)</td></tr>
+        <tr><td>Any other character</td><td>Fixed literal — cannot be deleted, cursor skips over it</td></tr>
+      </tbody></table>
+      <CodeBlock lang="tsx" code={`// Phone
+<InputMaskStyled mask="(___) ___-____" />
+
+// Date
+<InputMaskStyled mask="__/__/____" />
+
+// Time
+<InputMaskStyled mask="__:__" />
+
+// Credit card
+<InputMaskStyled mask="____ ____ ____ ____" />
+
+// Plate (2 letters + 4 digits)
+<InputMaskStyled mask="aa-____" />`} />
+    </div>
+
+    <div class="pkg-section"><H2>Custom mask character</H2>
+      <CodeBlock lang="tsx" code={`// Use • instead of _ for empty slots
+<InputMaskStyled mask="__/__/____" maskChar="•" />`} />
+    </div>
+
+    <div class="pkg-section"><H2>Validation</H2>
+      <p>Pass an <code>error</code> string to flip tone to danger and show the message below the field. Use <code>hint</code> for helper text.</p>
+      <CodeBlock lang="tsx" code={`<InputMaskStyled
+  mask="__/__/____"
+  label="Date of birth"
+  value={value}
+  onChange={(val, raw) => setValue(val)}
+  error={raw.length > 0 && raw.length < 8 ? "Enter a complete date" : undefined}
+  hint="Format: MM/DD/YYYY"
+/>`} />
+    </div>
+
+    <div class="pkg-section"><H2>Headless</H2>
+      <CodeBlock lang="tsx" code={`import { useInputMask } from "@mshafiqyajid/react-input-mask";
+
+const { inputProps, value, rawValue, isComplete, isFocused } = useInputMask({
+  mask: "(___) ___-____",
+  onChange: (value, rawValue) => console.log(value, rawValue),
+  onComplete: (value, rawValue) => submitForm(rawValue),
+});
+
+return <input {...inputProps} />;`} />
+    </div>
+
+    <div class="pkg-section"><H2>API — InputMaskStyled</H2>
+      <table class="props-table"><thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+        <tr><td>mask</td><td>string</td><td>—</td><td>Mask pattern string (required)</td></tr>
+        <tr><td>maskChar</td><td>string</td><td>"_"</td><td>Fill character shown in empty slots</td></tr>
+        <tr><td>value</td><td>string</td><td>—</td><td>Controlled formatted value</td></tr>
+        <tr><td>defaultValue</td><td>string</td><td>""</td><td>Uncontrolled initial value</td></tr>
+        <tr><td>onChange</td><td>(value: string, rawValue: string) =&gt; void</td><td>—</td><td>Called on every change</td></tr>
+        <tr><td>onAccept</td><td>(value: string, rawValue: string) =&gt; void</td><td>—</td><td>Called when a character is accepted</td></tr>
+        <tr><td>onComplete</td><td>(value: string, rawValue: string) =&gt; void</td><td>—</td><td>Called when all slots are filled</td></tr>
+        <tr><td>allowedChars</td><td>RegExp</td><td>—</td><td>Override default per-slot character acceptance</td></tr>
+        <tr><td>size</td><td>"sm" | "md" | "lg"</td><td>"md"</td><td>Size variant</td></tr>
+        <tr><td>tone</td><td>"neutral" | "primary" | "success" | "danger"</td><td>"neutral"</td><td>Color tone</td></tr>
+        <tr><td>disabled</td><td>boolean</td><td>false</td><td>Disable the input</td></tr>
+        <tr><td>readOnly</td><td>boolean</td><td>false</td><td>Read-only mode</td></tr>
+        <tr><td>required</td><td>boolean</td><td>false</td><td>Mark required, adds asterisk to label</td></tr>
+        <tr><td>invalid</td><td>boolean</td><td>false</td><td>Apply invalid/error styling</td></tr>
+        <tr><td>label</td><td>string</td><td>—</td><td>Label rendered above the field</td></tr>
+        <tr><td>hint</td><td>string</td><td>—</td><td>Helper text below the field</td></tr>
+        <tr><td>error</td><td>string</td><td>—</td><td>Error message — auto-applies danger tone + aria-invalid</td></tr>
+      </tbody></table>
+    </div>
+
+    <div class="pkg-section"><H2>API — useInputMask</H2>
+      <table class="props-table"><thead><tr><th>Return</th><th>Type</th><th>Description</th></tr></thead><tbody>
+        <tr><td>inputProps</td><td>object</td><td>Spread onto your &lt;input&gt;</td></tr>
+        <tr><td>value</td><td>string</td><td>Formatted display value (with mask chars)</td></tr>
+        <tr><td>rawValue</td><td>string</td><td>User-entered characters only, no mask chars</td></tr>
+        <tr><td>isComplete</td><td>boolean</td><td>True when all slots are filled</td></tr>
+        <tr><td>isFocused</td><td>boolean</td><td>True when the input is focused</td></tr>
+      </tbody></table>
+    </div>
+  </PackagePageShell>
+</DocLayout>

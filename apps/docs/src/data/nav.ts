@@ -18,6 +18,9 @@ export const NEW_SLUGS = new Set([
   "navbar", "sidebar", "sortable",
   "carousel", "calendar",
   "code-block", "skeleton",
+  "masonry", "drawer",
+  "input-mask",
+  "time-picker",
 ]);
 
 export const categories: NavCategory[] = [
@@ -40,6 +43,7 @@ export const categories: NavCategory[] = [
       { slug: "number-input",      label: "Number Input",      icon: "🔢" },
       { slug: "phone-input",       label: "Phone Input",       icon: "📞" },
       { slug: "otp-input",         label: "OTP Input",         icon: "🔐" },
+      { slug: "input-mask",        label: "Input Mask",        icon: "🎭" },
       { slug: "color-input",       label: "Color Input",       icon: "🖌️" },
       { slug: "tag-input",         label: "Tag Input",         icon: "🏷️" },
       { slug: "rating",            label: "Rating",            icon: "⭐" },
@@ -56,6 +60,7 @@ export const categories: NavCategory[] = [
       { slug: "slider",            label: "Slider",            icon: "🎛️" },
       { slug: "range",             label: "Range",             icon: "↔️" },
       { slug: "date-picker",       label: "Date Picker",       icon: "📆" },
+      { slug: "time-picker",       label: "Time Picker",       icon: "🕐" },
       { slug: "calendar",          label: "Calendar",          icon: "📅" },
       { slug: "color",             label: "Color Picker",      icon: "🎨" },
       { slug: "file-upload",       label: "File Upload",       icon: "📁" },
@@ -66,6 +71,7 @@ export const categories: NavCategory[] = [
     items: [
       { slug: "modal",             label: "Modal",             icon: "🪟" },
       { slug: "sheet",             label: "Sheet",             icon: "📄" },
+      { slug: "drawer",            label: "Drawer",            icon: "📂" },
       { slug: "tooltip",           label: "Tooltip",           icon: "💬" },
       { slug: "popover",           label: "Popover",           icon: "💭" },
       { slug: "hover-card",        label: "Hover Card",        icon: "🃏" },
@@ -115,6 +121,7 @@ export const categories: NavCategory[] = [
       { slug: "stat",              label: "Stat",              icon: "📈" },
       { slug: "progress",          label: "Progress",          icon: "📊" },
       { slug: "card",              label: "Card",              icon: "🃏" },
+      { slug: "masonry",           label: "Masonry",           icon: "🧱" },
       { slug: "divider",           label: "Divider",           icon: "➖" },
       { slug: "code-block",        label: "Code Block",        icon: "💻" },
     ],

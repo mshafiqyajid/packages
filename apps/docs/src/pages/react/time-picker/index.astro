@@ -1,0 +1,91 @@
+---
+import DocLayout from "~/layouts/DocLayout.astro";
+import PackagePageShell from "~/components/PackagePageShell.astro";
+import H2 from "~/components/H2.astro";
+import CodeBlock from "~/components/CodeBlock.astro";
+import TimePickerDemo from "~/components/demos/TimePickerDemo";
+---
+<DocLayout title="react-time-picker" description="Accessible time picker with text input and dropdown columns, 12h/24h format, keyboard navigation, and portal positioning." pkg="time-picker">
+  <PackagePageShell name="react-time-picker" description="Headless time picker hook and styled component. Text input with dropdown columns for hours, minutes, and optional seconds. 12h and 24h formats, AM/PM toggle, minute step, min/max bounds, full keyboard navigation, ARIA listbox, portal to document.body. Zero dependencies." size="~10 KB">
+    <div class="pkg-section"><H2>Playground</H2><TimePickerDemo client:load /></div>
+    <div class="pkg-section"><H2>Install</H2><CodeBlock lang="bash" code="npm install @mshafiqyajid/react-time-picker" /></div>
+    <div class="pkg-section"><H2>Quick start</H2>
+      <CodeBlock lang="tsx" code={`import { TimePickerStyled } from "@mshafiqyajid/react-time-picker/styled";
+import "@mshafiqyajid/react-time-picker/styles.css";
+
+const [time, setTime] = useState("09:00");
+<TimePickerStyled value={time} onChange={setTime} label="Meeting time" />
+
+// 12h format with seconds
+<TimePickerStyled
+  value={time}
+  onChange={setTime}
+  format="12h"
+  showSeconds
+  step={15}
+  label="Alarm time"
+/>`} />
+    </div>
+    <div class="pkg-section"><H2>Headless</H2>
+      <CodeBlock lang="tsx" code={`import { useTimePicker } from "@mshafiqyajid/react-time-picker";
+
+const {
+  inputProps,
+  hourProps,
+  minuteProps,
+  periodProps,
+  hours,
+  minutes,
+  period,
+  isOpen,
+  open,
+  close,
+} = useTimePicker({
+  defaultValue: "14:30",
+  format: "24h",
+  onChange: (v) => console.log(v),
+});
+
+return (
+  <div>
+    <input {...inputProps} placeholder="HH:mm" />
+    {isOpen && (
+      <div>
+        {/* custom column UI */}
+        <button onClick={() => hourProps.onChange(10)}>10</button>
+        <button onClick={() => minuteProps.onChange(30)}>30</button>
+      </div>
+    )}
+  </div>
+);`} />
+    </div>
+    <div class="pkg-section"><H2>API</H2>
+      <table class="props-table"><thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+        <tr><td>value / defaultValue</td><td>string</td><td>—</td><td>Controlled or uncontrolled time value. "HH:mm", "HH:mm:ss", or "hh:mm AM"</td></tr>
+        <tr><td>onChange</td><td>(v: string) =&gt; void</td><td>—</td><td>Called on every change. Always emits 24h canonical "HH:mm" or "HH:mm:ss"</td></tr>
+        <tr><td>format</td><td>"12h" | "24h"</td><td>"24h"</td><td>Display format. Input accepts both; output is always 24h canonical</td></tr>
+        <tr><td>showSeconds</td><td>boolean</td><td>false</td><td>Show seconds column in dropdown and include seconds in output</td></tr>
+        <tr><td>step</td><td>number</td><td>1</td><td>Minute step for the dropdown column (1, 5, 15, 30 are common)</td></tr>
+        <tr><td>min / max</td><td>string</td><td>—</td><td>Minimum / maximum time "HH:mm". Values outside bounds are rejected</td></tr>
+        <tr><td>size</td><td>"sm" | "md" | "lg"</td><td>"md"</td><td>Input height: 32 / 40 / 48 px</td></tr>
+        <tr><td>tone</td><td>"neutral" | "primary" | "success" | "danger"</td><td>"neutral"</td><td>Focus ring color</td></tr>
+        <tr><td>disabled / readOnly / required / invalid</td><td>boolean</td><td>false</td><td>Form-control states</td></tr>
+        <tr><td>label / hint / error</td><td>string</td><td>—</td><td>Field label, hint text, and error message. error sets tone="danger" automatically</td></tr>
+        <tr><td>id / name / placeholder</td><td>string</td><td>—</td><td>Native input attributes</td></tr>
+        <tr><td>className / style</td><td>string / CSSProperties</td><td>—</td><td>Applied to the root wrapper</td></tr>
+        <tr><td>ref</td><td>Ref&lt;HTMLInputElement&gt;</td><td>—</td><td>Forwarded to the primary input element</td></tr>
+      </tbody></table>
+    </div>
+    <div class="pkg-section"><H2>Keyboard</H2>
+      <table class="props-table"><thead><tr><th>Key</th><th>Action</th></tr></thead><tbody>
+        <tr><td>Click / Focus</td><td>Opens dropdown</td></tr>
+        <tr><td>ArrowDown (on input)</td><td>Opens dropdown</td></tr>
+        <tr><td>Escape</td><td>Closes dropdown</td></tr>
+        <tr><td>Tab</td><td>Closes dropdown and moves focus</td></tr>
+        <tr><td>ArrowUp / ArrowDown (in column)</td><td>Navigate options</td></tr>
+        <tr><td>Enter / Space (on option)</td><td>Selects the option</td></tr>
+        <tr><td>Click outside</td><td>Closes dropdown</td></tr>
+      </tbody></table>
+    </div>
+  </PackagePageShell>
+</DocLayout>
