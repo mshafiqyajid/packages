@@ -1,0 +1,104 @@
+---
+import DocLayout from "~/layouts/DocLayout.astro";
+import PackagePageShell from "~/components/PackagePageShell.astro";
+import H2 from "~/components/H2.astro";
+import CodeBlock from "~/components/CodeBlock.astro";
+import EmptyStateDemo from "~/components/demos/EmptyStateDemo";
+---
+<DocLayout title="react-empty-state" description="Empty state display with presets, custom illustrations, and action slots." pkg="empty-state">
+  <PackagePageShell name="react-empty-state" description="Headless empty state hook and styled component. Five presets, custom icon/image, size and orientation variants, action slots, fully accessible." size="~4 KB">
+
+    <div class="pkg-section"><H2>Playground</H2><EmptyStateDemo client:load /></div>
+
+    <div class="pkg-section">
+      <H2>Install</H2>
+      <CodeBlock lang="bash" code="npm install @mshafiqyajid/react-empty-state" />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Quick start</H2>
+      <CodeBlock lang="tsx" code={`import { EmptyStateStyled } from "@mshafiqyajid/react-empty-state/styled";
+import "@mshafiqyajid/react-empty-state/styles.css";
+
+<EmptyStateStyled
+  preset="no-data"
+  action={<button>Add item</button>}
+/>
+
+// Custom content
+<EmptyStateStyled
+  title="Nothing here yet"
+  description="Create your first item to get started."
+  action={<button>Create item</button>}
+  size="lg"
+/>`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Headless</H2>
+      <CodeBlock lang="tsx" code={`import { useEmptyState } from "@mshafiqyajid/react-empty-state";
+
+function MyEmptyState({ title }: { title: string }) {
+  const { rootProps } = useEmptyState({ title });
+  return (
+    <div {...rootProps} className="my-empty-state">
+      <p>{title}</p>
+    </div>
+  );
+}`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Presets</H2>
+      <table class="props-table">
+        <thead>
+          <tr><th>Preset</th><th>Title</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>no-data</code></td><td>No data yet</td><td>Start adding items to see them here.</td></tr>
+          <tr><td><code>no-results</code></td><td>No results found</td><td>Try adjusting your search or filters.</td></tr>
+          <tr><td><code>error</code></td><td>Something went wrong</td><td>Please try again later.</td></tr>
+          <tr><td><code>offline</code></td><td>You're offline</td><td>Check your internet connection.</td></tr>
+          <tr><td><code>empty-search</code></td><td>No matches</td><td>We couldn't find anything matching your search.</td></tr>
+        </tbody>
+      </table>
+      <p class="pkg-note">Preset values for <code>title</code>, <code>description</code>, and <code>icon</code> are overridden when you supply those props directly.</p>
+    </div>
+
+    <div class="pkg-section">
+      <H2>API</H2>
+      <table class="props-table">
+        <thead>
+          <tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>preset</td><td>"no-data" | "no-results" | "error" | "offline" | "empty-search"</td><td>—</td><td>Built-in preset with icon, title, and description</td></tr>
+          <tr><td>icon</td><td>ReactNode</td><td>—</td><td>Custom icon element (overrides preset icon)</td></tr>
+          <tr><td>image</td><td>string | ReactNode</td><td>—</td><td>Image URL or element shown in place of the icon</td></tr>
+          <tr><td>title</td><td>ReactNode</td><td>—</td><td>Heading text (overrides preset title)</td></tr>
+          <tr><td>description</td><td>ReactNode</td><td>—</td><td>Body text (overrides preset description)</td></tr>
+          <tr><td>action</td><td>ReactNode</td><td>—</td><td>Primary action slot</td></tr>
+          <tr><td>secondaryAction</td><td>ReactNode</td><td>—</td><td>Secondary action slot</td></tr>
+          <tr><td>size</td><td>"sm" | "md" | "lg"</td><td>"md"</td><td>Controls icon and font size</td></tr>
+          <tr><td>orientation</td><td>"vertical" | "horizontal"</td><td>"vertical"</td><td>Stack direction — vertical centers content, horizontal aligns left</td></tr>
+          <tr><td>className</td><td>string</td><td>—</td><td>Extra class on the root element</td></tr>
+          <tr><td>style</td><td>CSSProperties</td><td>—</td><td>Inline style override</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pkg-section">
+      <H2>Headless API — useEmptyState</H2>
+      <table class="props-table">
+        <thead>
+          <tr><th>Option</th><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>title</td><td>string</td><td>Used as <code>aria-label</code> on the root element</td></tr>
+        </tbody>
+      </table>
+      <p class="pkg-note">The hook returns <code>rootProps</code> with <code>role="status"</code> and <code>aria-label</code> set to the title string.</p>
+    </div>
+
+  </PackagePageShell>
+</DocLayout>

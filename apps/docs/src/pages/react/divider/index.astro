@@ -1,0 +1,78 @@
+---
+import DocLayout from "~/layouts/DocLayout.astro";
+import PackagePageShell from "~/components/PackagePageShell.astro";
+import H2 from "~/components/H2.astro";
+import CodeBlock from "~/components/CodeBlock.astro";
+import DividerDemo from "~/components/demos/DividerDemo";
+---
+<DocLayout title="react-divider" description="Horizontal and vertical divider with optional label, tones, and line styles." pkg="divider">
+  <PackagePageShell name="react-divider" description="Headless divider hook and styled component. Horizontal and vertical orientation, six tones, solid/dashed/dotted lines, optional centered label." size="~3 KB">
+    <div class="pkg-section"><H2>Playground</H2><DividerDemo client:load /></div>
+
+    <div class="pkg-section"><H2>Install</H2>
+      <CodeBlock lang="bash" code="npm install @mshafiqyajid/react-divider" />
+    </div>
+
+    <div class="pkg-section"><H2>Quick start</H2>
+      <CodeBlock lang="tsx" code={`import { DividerStyled } from "@mshafiqyajid/react-divider/styled";
+import "@mshafiqyajid/react-divider/styles.css";
+
+// Simple horizontal rule
+<DividerStyled />
+
+// With centered label
+<DividerStyled label="Or continue with" />
+
+// Label aligned to start
+<DividerStyled label="Section" labelAlign="start" />
+
+// Toned and dashed
+<DividerStyled tone="primary" lineStyle="dashed" />
+
+// Vertical (inside a flex row)
+<div style={{ display: "flex", alignItems: "center", height: "2rem" }}>
+  <span>Home</span>
+  <DividerStyled orientation="vertical" spacing="sm" />
+  <span>About</span>
+</div>`} />
+    </div>
+
+    <div class="pkg-section"><H2>Headless</H2>
+      <CodeBlock lang="tsx" code={`import { useDivider } from "@mshafiqyajid/react-divider";
+
+function MyDivider({ vertical }: { vertical?: boolean }) {
+  const { dividerProps } = useDivider({
+    orientation: vertical ? "vertical" : "horizontal",
+  });
+
+  return (
+    <hr
+      {...dividerProps}
+      className="my-divider"
+    />
+  );
+}`} />
+    </div>
+
+    <div class="pkg-section"><H2>API — DividerStyled</H2>
+      <table class="props-table"><thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+        <tr><td>orientation</td><td>"horizontal" | "vertical"</td><td>"horizontal"</td><td>Divider direction. Vertical dividers stretch to the parent flex container height</td></tr>
+        <tr><td>label</td><td>ReactNode</td><td>—</td><td>Optional label rendered between two lines</td></tr>
+        <tr><td>labelAlign</td><td>"start" | "center" | "end"</td><td>"center"</td><td>Horizontal position of the label (horizontal dividers only)</td></tr>
+        <tr><td>tone</td><td>"neutral" | "primary" | "success" | "warning" | "danger" | "info"</td><td>"neutral"</td><td>Line color</td></tr>
+        <tr><td>lineStyle</td><td>"solid" | "dashed" | "dotted"</td><td>"solid"</td><td>CSS border style of the line</td></tr>
+        <tr><td>size</td><td>"sm" | "md" | "lg"</td><td>"md"</td><td>Line thickness — <code>sm</code>/<code>md</code> = 1 px, <code>lg</code> = 2 px</td></tr>
+        <tr><td>spacing</td><td>"sm" | "md" | "lg"</td><td>"md"</td><td>Margin around the divider (top/bottom for horizontal, left/right for vertical)</td></tr>
+        <tr><td>className</td><td>string</td><td>—</td><td>Extra class on the root element</td></tr>
+        <tr><td>style</td><td>CSSProperties</td><td>—</td><td>Inline style override</td></tr>
+      </tbody></table>
+    </div>
+
+    <div class="pkg-section"><H2>API — useDivider hook</H2>
+      <table class="props-table"><thead><tr><th>Option</th><th>Type</th><th>Description</th></tr></thead><tbody>
+        <tr><td>orientation</td><td>"horizontal" | "vertical"</td><td>Sets <code>aria-orientation</code> on the separator</td></tr>
+      </tbody></table>
+      <p class="pkg-note">Returns <code>dividerProps</code> — spread onto your element to get <code>role="separator"</code> and the correct <code>aria-orientation</code>.</p>
+    </div>
+  </PackagePageShell>
+</DocLayout>

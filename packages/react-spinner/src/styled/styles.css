@@ -1,0 +1,192 @@
+/* react-spinner — [data-theme="dark"] only for dark mode */
+:root {
+  --rspn-primary: #6366f1;
+  --rspn-neutral: #71717a;
+  --rspn-success: #16a34a;
+  --rspn-warning: #d97706;
+  --rspn-danger: #dc2626;
+  --rspn-info: #0ea5e9;
+
+  --rspn-size-xs: 16px;
+  --rspn-size-sm: 20px;
+  --rspn-size-md: 28px;
+  --rspn-size-lg: 36px;
+  --rspn-size-xl: 48px;
+
+  --rspn-speed-slow: 1400ms;
+  --rspn-speed-normal: 800ms;
+  --rspn-speed-fast: 450ms;
+}
+
+[data-theme="dark"] {
+  --rspn-primary: #818cf8;
+  --rspn-neutral: #a1a1aa;
+  --rspn-success: #4ade80;
+  --rspn-warning: #fbbf24;
+  --rspn-danger: #f87171;
+  --rspn-info: #38bdf8;
+}
+
+/* Visually hidden but readable by screen readers */
+.rspn-sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.rspn-root {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+/* Overlay */
+.rspn-root[data-overlay="true"] {
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.7);
+  animation: rspn-overlay-fade 200ms ease both;
+}
+
+[data-theme="dark"] .rspn-root[data-overlay="true"] { background: rgba(0,0,0,0.5); }
+
+@keyframes rspn-overlay-fade { from { opacity: 0; } to { opacity: 1; } }
+
+/* Sizes */
+.rspn-root[data-size="xs"] { width: var(--rspn-size-xs); height: var(--rspn-size-xs); }
+.rspn-root[data-size="sm"] { width: var(--rspn-size-sm); height: var(--rspn-size-sm); }
+.rspn-root[data-size="md"] { width: var(--rspn-size-md); height: var(--rspn-size-md); }
+.rspn-root[data-size="lg"] { width: var(--rspn-size-lg); height: var(--rspn-size-lg); }
+.rspn-root[data-size="xl"] { width: var(--rspn-size-xl); height: var(--rspn-size-xl); }
+
+/* Tone colors */
+.rspn-root[data-tone="primary"] { color: var(--rspn-primary); }
+.rspn-root[data-tone="neutral"] { color: var(--rspn-neutral); }
+.rspn-root[data-tone="success"] { color: var(--rspn-success); }
+.rspn-root[data-tone="warning"] { color: var(--rspn-warning); }
+.rspn-root[data-tone="danger"]  { color: var(--rspn-danger); }
+.rspn-root[data-tone="info"]    { color: var(--rspn-info); }
+.rspn-root[data-tone="current"] { color: currentColor; }
+
+/* Speed — applied as animation-duration CSS var */
+.rspn-root[data-speed="slow"]   { --rspn-dur: var(--rspn-speed-slow); }
+.rspn-root[data-speed="normal"] { --rspn-dur: var(--rspn-speed-normal); }
+.rspn-root[data-speed="fast"]   { --rspn-dur: var(--rspn-speed-fast); }
+
+/* ── Variant: spin ─────────────────────────────────────────── */
+.rspn-spin {
+  display: block;
+  width: 100%; height: 100%;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  animation: rspn-spin var(--rspn-dur, 800ms) linear infinite;
+}
+
+@keyframes rspn-spin { to { transform: rotate(360deg); } }
+
+/* ── Variant: dots ─────────────────────────────────────────── */
+.rspn-dots {
+  display: flex;
+  align-items: center;
+  gap: 0.2em;
+  width: 100%; height: 100%;
+  justify-content: center;
+}
+
+.rspn-dot {
+  display: block;
+  width: 0.28em; height: 0.28em;
+  border-radius: 50%;
+  background: currentColor;
+  animation: rspn-dot-bounce var(--rspn-dur, 800ms) ease-in-out infinite both;
+}
+
+.rspn-dot:nth-child(2) { animation-delay: calc(var(--rspn-dur, 800ms) * 0.16); }
+.rspn-dot:nth-child(3) { animation-delay: calc(var(--rspn-dur, 800ms) * 0.32); }
+
+@keyframes rspn-dot-bounce {
+  0%, 80%, 100% { transform: scale(0.4); opacity: 0.3; }
+  40% { transform: scale(1); opacity: 1; }
+}
+
+/* ── Variant: bars ─────────────────────────────────────────── */
+.rspn-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.15em;
+  width: 100%; height: 100%;
+  justify-content: center;
+  padding-bottom: 0.1em;
+}
+
+.rspn-bar {
+  display: block;
+  width: 0.2em;
+  background: currentColor;
+  border-radius: 2px;
+  animation: rspn-bar-grow var(--rspn-dur, 800ms) ease-in-out infinite both;
+}
+
+.rspn-bar:nth-child(1) { height: 40%; }
+.rspn-bar:nth-child(2) { height: 60%; animation-delay: calc(var(--rspn-dur, 800ms) * 0.1); }
+.rspn-bar:nth-child(3) { height: 80%; animation-delay: calc(var(--rspn-dur, 800ms) * 0.2); }
+.rspn-bar:nth-child(4) { height: 60%; animation-delay: calc(var(--rspn-dur, 800ms) * 0.3); }
+
+@keyframes rspn-bar-grow {
+  0%, 40%, 100% { transform: scaleY(0.4); opacity: 0.3; }
+  20% { transform: scaleY(1); opacity: 1; }
+}
+
+/* ── Variant: pulse ────────────────────────────────────────── */
+.rspn-pulse {
+  display: block;
+  width: 80%; height: 80%;
+  border-radius: 50%;
+  background: currentColor;
+  animation: rspn-pulse var(--rspn-dur, 800ms) ease-in-out infinite;
+}
+
+@keyframes rspn-pulse {
+  0%, 100% { transform: scale(0.6); opacity: 0.4; }
+  50% { transform: scale(1); opacity: 1; }
+}
+
+/* ── Variant: ring ─────────────────────────────────────────── */
+.rspn-rings {
+  display: block;
+  width: 100%; height: 100%;
+  position: relative;
+}
+
+.rspn-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  opacity: 0.6;
+  animation: rspn-ring-spin var(--rspn-dur, 800ms) linear infinite;
+}
+
+.rspn-ring:nth-child(2) {
+  inset: 20%;
+  opacity: 0.9;
+  animation-direction: reverse;
+  animation-duration: calc(var(--rspn-dur, 800ms) * 0.7);
+}
+
+@keyframes rspn-ring-spin { to { transform: rotate(360deg); } }
+
+/* ── Reduced motion ────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .rspn-spin, .rspn-dot, .rspn-bar, .rspn-ring { animation: rspn-reduced-pulse 2s ease-in-out infinite; }
+  .rspn-pulse { animation: rspn-reduced-pulse 2s ease-in-out infinite; }
+
+  @keyframes rspn-reduced-pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+}

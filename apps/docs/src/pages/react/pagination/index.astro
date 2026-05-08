@@ -1,0 +1,175 @@
+---
+import DocLayout from "~/layouts/DocLayout.astro";
+import PackagePageShell from "~/components/PackagePageShell.astro";
+import H2 from "~/components/H2.astro";
+import CodeBlock from "~/components/CodeBlock.astro";
+import PaginationDemo from "~/components/demos/PaginationDemo";
+---
+
+<DocLayout title="react-pagination" description="Pagination control with ellipsis, page size selector, and full keyboard support." pkg="pagination">
+  <PackagePageShell name="react-pagination" description="Headless pagination hook and styled component. Ellipsis algorithm, page size selector, controlled and uncontrolled state, multiple variants and sizes, full keyboard and ARIA support." size="~5 KB">
+
+    <div class="pkg-section">
+      <H2>Playground</H2>
+      <PaginationDemo client:load />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Install</H2>
+      <CodeBlock lang="bash" code="npm install @mshafiqyajid/react-pagination" />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Quick start</H2>
+      <CodeBlock lang="tsx" code={`import { useState } from "react";
+import { PaginationStyled } from "@mshafiqyajid/react-pagination/styled";
+import "@mshafiqyajid/react-pagination/styles.css";
+
+function App() {
+  const [page, setPage] = useState(1);
+  return (
+    <PaginationStyled
+      page={page}
+      onChange={setPage}
+      total={200}
+      pageSize={10}
+    />
+  );
+}`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Variants</H2>
+      <p>Three visual variants: <code>"default"</code> (filled active page), <code>"outline"</code> (bordered buttons), and <code>"ghost"</code> (no borders, bold active).</p>
+      <CodeBlock lang="tsx" code={`<PaginationStyled total={100} variant="default" />
+<PaginationStyled total={100} variant="outline" />
+<PaginationStyled total={100} variant="ghost" />`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Tones</H2>
+      <p>Use <code>tone="primary"</code> to apply a branded color to the active page button.</p>
+      <CodeBlock lang="tsx" code={`<PaginationStyled total={100} tone="neutral" />
+<PaginationStyled total={100} tone="primary" />`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Sizes</H2>
+      <CodeBlock lang="tsx" code={`<PaginationStyled total={100} size="sm" />
+<PaginationStyled total={100} size="md" />
+<PaginationStyled total={100} size="lg" />`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Page size selector</H2>
+      <p>Enable a native <code>&lt;select&gt;</code> for rows-per-page with <code>showPageSize</code>.</p>
+      <CodeBlock lang="tsx" code={`const [pageSize, setPageSize] = useState(10);
+
+<PaginationStyled
+  total={500}
+  pageSize={pageSize}
+  onPageSizeChange={setPageSize}
+  pageSizeOptions={[10, 25, 50, 100]}
+  showPageSize
+/>`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Ellipsis algorithm</H2>
+      <p>The <code>siblings</code> prop controls how many page buttons appear on each side of the current page before an ellipsis is shown. <code>boundaries</code> controls how many pages are always shown at the start and end.</p>
+      <CodeBlock lang="tsx" code={`{/* Show 2 siblings on each side of current page */}
+<PaginationStyled total={500} siblings={2} />
+
+{/* Always show 2 boundary pages at each end */}
+<PaginationStyled total={500} boundaries={2} />`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Headless</H2>
+      <CodeBlock lang="tsx" code={`import { usePagination } from "@mshafiqyajid/react-pagination";
+
+function MyPagination() {
+  const {
+    page,
+    pages,
+    totalPages,
+    hasPrev,
+    hasNext,
+    prev,
+    next,
+    getPageProps,
+    prevProps,
+    nextProps,
+    firstProps,
+    lastProps,
+  } = usePagination({ total: 200, pageSize: 10 });
+
+  return (
+    <nav role="navigation" aria-label="Pagination">
+      <button {...firstProps}>«</button>
+      <button {...prevProps}>‹</button>
+      {pages.map((p, i) =>
+        p === "..." ? (
+          <span key={\`e-\${i}\`}>…</span>
+        ) : (
+          <button key={p} {...getPageProps(p)}>{p}</button>
+        )
+      )}
+      <button {...nextProps}>›</button>
+      <button {...lastProps}>»</button>
+    </nav>
+  );
+}`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>API — PaginationStyled</H2>
+      <table class="props-table">
+        <thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>total</td><td>number</td><td>—</td><td>Total number of items (required)</td></tr>
+          <tr><td>page</td><td>number</td><td>—</td><td>Controlled current page (1-based)</td></tr>
+          <tr><td>defaultPage</td><td>number</td><td>1</td><td>Uncontrolled initial page</td></tr>
+          <tr><td>onChange</td><td>(page: number) =&gt; void</td><td>—</td><td>Fires when the page changes</td></tr>
+          <tr><td>pageSize</td><td>number</td><td>10</td><td>Items per page</td></tr>
+          <tr><td>onPageSizeChange</td><td>(size: number) =&gt; void</td><td>—</td><td>Fires when the page size selector changes</td></tr>
+          <tr><td>pageSizeOptions</td><td>number[]</td><td>[10, 20, 50, 100]</td><td>Options for the page size selector</td></tr>
+          <tr><td>showPageSize</td><td>boolean</td><td>false</td><td>Show the rows-per-page selector</td></tr>
+          <tr><td>siblings</td><td>number</td><td>1</td><td>Page buttons on each side of current before ellipsis</td></tr>
+          <tr><td>boundaries</td><td>number</td><td>1</td><td>Always-visible pages at each end</td></tr>
+          <tr><td>showFirstLast</td><td>boolean</td><td>true</td><td>Show first/last buttons</td></tr>
+          <tr><td>showPrevNext</td><td>boolean</td><td>true</td><td>Show previous/next buttons</td></tr>
+          <tr><td>size</td><td>"sm" | "md" | "lg"</td><td>"md"</td><td>Button size</td></tr>
+          <tr><td>variant</td><td>"default" | "outline" | "ghost"</td><td>"default"</td><td>Visual style</td></tr>
+          <tr><td>tone</td><td>"neutral" | "primary"</td><td>"neutral"</td><td>Color tone for the active page</td></tr>
+          <tr><td>labels</td><td>{"{ prev?, next?, first?, last? }"}</td><td>—</td><td>Override the navigation button labels</td></tr>
+          <tr><td>className</td><td>string</td><td>—</td><td>Extra class on the root element</td></tr>
+          <tr><td>style</td><td>CSSProperties</td><td>—</td><td>Inline style override</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pkg-section">
+      <H2>API — usePagination</H2>
+      <table class="props-table">
+        <thead><tr><th>Key</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>page</td><td>number</td><td>Current page (1-based)</td></tr>
+          <tr><td>setPage</td><td>(page: number) =&gt; void</td><td>Navigate to a specific page</td></tr>
+          <tr><td>pages</td><td>(number | "...")[]</td><td>Ordered array of page numbers and ellipsis markers</td></tr>
+          <tr><td>totalPages</td><td>number</td><td>Total number of pages</td></tr>
+          <tr><td>hasPrev</td><td>boolean</td><td>Whether a previous page exists</td></tr>
+          <tr><td>hasNext</td><td>boolean</td><td>Whether a next page exists</td></tr>
+          <tr><td>prev</td><td>() =&gt; void</td><td>Navigate to the previous page</td></tr>
+          <tr><td>next</td><td>() =&gt; void</td><td>Navigate to the next page</td></tr>
+          <tr><td>getPageProps</td><td>(p: number) =&gt; ButtonProps</td><td>ARIA props for a numbered page button</td></tr>
+          <tr><td>prevProps</td><td>ButtonProps</td><td>ARIA props for the previous button</td></tr>
+          <tr><td>nextProps</td><td>ButtonProps</td><td>ARIA props for the next button</td></tr>
+          <tr><td>firstProps</td><td>ButtonProps</td><td>ARIA props for the first button</td></tr>
+          <tr><td>lastProps</td><td>ButtonProps</td><td>ARIA props for the last button</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </PackagePageShell>
+</DocLayout>

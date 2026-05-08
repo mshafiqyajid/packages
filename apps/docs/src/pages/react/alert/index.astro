@@ -1,0 +1,57 @@
+---
+import DocLayout from "~/layouts/DocLayout.astro";
+import PackagePageShell from "~/components/PackagePageShell.astro";
+import H2 from "~/components/H2.astro";
+import CodeBlock from "~/components/CodeBlock.astro";
+import AlertDemo from "~/components/demos/AlertDemo";
+---
+<DocLayout title="react-alert" description="Alert and notification banner component with six tones, four variants, and dismissal support." pkg="alert">
+  <PackagePageShell name="react-alert" description="Headless alert hook and styled component. Six tones, four variants, dismissible, and smooth enter/exit animations." size="~3 KB">
+    <div class="pkg-section"><H2>Playground</H2><AlertDemo client:load /></div>
+    <div class="pkg-section"><H2>Install</H2><CodeBlock lang="bash" code="npm install @mshafiqyajid/react-alert" /></div>
+    <div class="pkg-section"><H2>Quick start</H2>
+      <CodeBlock lang="tsx" code={`import { AlertStyled } from "@mshafiqyajid/react-alert/styled";
+import "@mshafiqyajid/react-alert/styles.css";
+
+<AlertStyled tone="success" title="Saved!" description="Your changes have been saved." />
+<AlertStyled tone="danger" title="Error" description="Something went wrong." dismissible />
+<AlertStyled tone="warning" variant="filled" title="Warning" description="Disk space is low." />`} />
+    </div>
+    <div class="pkg-section"><H2>Headless</H2>
+      <CodeBlock lang="tsx" code={`import { useAlert } from "@mshafiqyajid/react-alert";
+
+function MyAlert() {
+  const { alertProps, dismissProps, isDismissed, dismiss } = useAlert({
+    dismissible: true,
+    tone: "danger",
+    onDismiss: () => console.log("dismissed"),
+  });
+
+  if (isDismissed) return null;
+  return (
+    <div {...alertProps} className="my-alert">
+      <span>Something went wrong.</span>
+      <button {...dismissProps}>×</button>
+    </div>
+  );
+}`} />
+    </div>
+    <div class="pkg-section"><H2>API</H2>
+      <table class="props-table"><thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+        <tr><td>variant</td><td>"soft" | "filled" | "outline" | "banner"</td><td>"soft"</td><td>Visual style</td></tr>
+        <tr><td>tone</td><td>"neutral" | "primary" | "success" | "warning" | "danger" | "info"</td><td>"neutral"</td><td>Color tone</td></tr>
+        <tr><td>size</td><td>"sm" | "md" | "lg"</td><td>"md"</td><td>Size</td></tr>
+        <tr><td>title</td><td>ReactNode</td><td>—</td><td>Alert title</td></tr>
+        <tr><td>description</td><td>ReactNode</td><td>—</td><td>Alert body text</td></tr>
+        <tr><td>icon</td><td>ReactNode</td><td>—</td><td>Override default tone icon</td></tr>
+        <tr><td>showIcon</td><td>boolean</td><td>true</td><td>Show/hide the icon</td></tr>
+        <tr><td>dismissible</td><td>boolean</td><td>false</td><td>Show dismiss button; Escape also dismisses</td></tr>
+        <tr><td>onDismiss</td><td>() =&gt; void</td><td>—</td><td>Called when dismissed</td></tr>
+        <tr><td>action</td><td>ReactNode</td><td>—</td><td>Action button slot</td></tr>
+        <tr><td>children</td><td>ReactNode</td><td>—</td><td>Additional content</td></tr>
+        <tr><td>className</td><td>string</td><td>—</td><td>Extra class on root</td></tr>
+        <tr><td>style</td><td>CSSProperties</td><td>—</td><td>Inline style override</td></tr>
+      </tbody></table>
+    </div>
+  </PackagePageShell>
+</DocLayout>

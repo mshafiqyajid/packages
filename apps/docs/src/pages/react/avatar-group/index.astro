@@ -1,0 +1,89 @@
+---
+import DocLayout from "~/layouts/DocLayout.astro";
+import PackagePageShell from "~/components/PackagePageShell.astro";
+import H2 from "~/components/H2.astro";
+import CodeBlock from "~/components/CodeBlock.astro";
+import AvatarGroupDemo from "~/components/demos/AvatarGroupDemo";
+---
+<DocLayout title="react-avatar-group" description="Avatar group with overflow indicator, tooltips, and stacking variants." pkg="avatar-group">
+  <PackagePageShell name="react-avatar-group" description="Headless hook + styled component for avatar groups. Overflow badge, tooltip on hover, size/shape/spacing variants, accessible role=group labelling." size="~3 KB">
+
+    <div class="pkg-section"><H2>Playground</H2><AvatarGroupDemo client:load /></div>
+
+    <div class="pkg-section">
+      <H2>Install</H2>
+      <CodeBlock lang="bash" code="npm install @mshafiqyajid/react-avatar-group" />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Quick start</H2>
+      <CodeBlock lang="tsx" code={`import { AvatarGroupStyled } from "@mshafiqyajid/react-avatar-group/styled";
+import "@mshafiqyajid/react-avatar-group/styles.css";
+
+const avatars = [
+  { name: "Alice", src: "https://i.pravatar.cc/150?u=alice" },
+  { name: "Bob" },
+  { name: "Carol", src: "https://i.pravatar.cc/150?u=carol" },
+  { name: "Dave" },
+  { name: "Eve", src: "https://i.pravatar.cc/150?u=eve" },
+];
+
+<AvatarGroupStyled avatars={avatars} max={4} size="md" shape="circle" />`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>With overflow click handler</H2>
+      <CodeBlock lang="tsx" code={`<AvatarGroupStyled
+  avatars={avatars}
+  max={4}
+  onOverflowClick={() => setShowAll(true)}
+/>`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Headless</H2>
+      <CodeBlock lang="tsx" code={`import { useAvatarGroup } from "@mshafiqyajid/react-avatar-group";
+
+const { groupProps, visibleAvatars, overflowCount, overflowProps, getAvatarProps } =
+  useAvatarGroup({ avatars, max: 4 });
+
+return (
+  <div {...groupProps} style={{ display: "flex" }}>
+    {visibleAvatars.map((avatar, i) => (
+      <span key={i} {...getAvatarProps(avatar, i)}>
+        {avatar.name?.[0]}
+      </span>
+    ))}
+    {overflowCount > 0 && (
+      <span {...overflowProps}>+{overflowCount}</span>
+    )}
+  </div>
+);`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>AvatarGroupItem shape</H2>
+      <CodeBlock lang="ts" code={`interface AvatarGroupItem {
+  src?: string;      // image URL — rendered as <img> when provided
+  name?: string;     // display name — used for initials and aria-label
+  fallback?: string; // override initials text
+  href?: string;     // wraps avatar in <a> when provided
+}`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>API</H2>
+      <table class="props-table"><thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+        <tr><td>avatars</td><td>AvatarGroupItem[]</td><td>—</td><td>Array of avatar data objects</td></tr>
+        <tr><td>max</td><td>number</td><td>4</td><td>Max avatars shown before overflow badge</td></tr>
+        <tr><td>size</td><td>"xs" | "sm" | "md" | "lg" | "xl"</td><td>"md"</td><td>Avatar size (24–64 px)</td></tr>
+        <tr><td>shape</td><td>"circle" | "square"</td><td>"circle"</td><td>Avatar shape</td></tr>
+        <tr><td>spacing</td><td>"tight" | "normal" | "loose"</td><td>"normal"</td><td>Overlap amount</td></tr>
+        <tr><td>showTooltip</td><td>boolean</td><td>true</td><td>Show name on hover via title attribute</td></tr>
+        <tr><td>overflow</td><td>"count" | "avatars"</td><td>"count"</td><td>Overflow display mode</td></tr>
+        <tr><td>onOverflowClick</td><td>() =&gt; void</td><td>—</td><td>Makes overflow badge a focusable button</td></tr>
+      </tbody></table>
+    </div>
+
+  </PackagePageShell>
+</DocLayout>

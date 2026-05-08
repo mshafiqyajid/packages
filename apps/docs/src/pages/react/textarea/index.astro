@@ -1,0 +1,181 @@
+---
+import DocLayout from "~/layouts/DocLayout.astro";
+import PackagePageShell from "~/components/PackagePageShell.astro";
+import H2 from "~/components/H2.astro";
+import CodeBlock from "~/components/CodeBlock.astro";
+import TextareaDemo from "~/components/demos/TextareaDemo";
+---
+<DocLayout title="react-textarea" description="Headless textarea hook and styled component for React. Auto-resizing, character count, controlled/uncontrolled, accessible, fully typed." pkg="textarea">
+  <PackagePageShell name="react-textarea" description="Headless textarea hook + styled component. Auto-resize (min/max rows), character counter (inside or outside), three sizes, four tones, hint and error messages, controlled or uncontrolled." size="~4 KB">
+
+    <div class="pkg-section"><H2>Playground</H2><TextareaDemo client:load /></div>
+
+    <div class="pkg-section">
+      <H2>Install</H2>
+      <CodeBlock lang="bash" code="npm install @mshafiqyajid/react-textarea" />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Quick start</H2>
+      <CodeBlock lang="tsx" code={`import { TextareaStyled } from "@mshafiqyajid/react-textarea/styled";
+import "@mshafiqyajid/react-textarea/styles.css";
+
+<TextareaStyled
+  label="Message"
+  placeholder="Type your message..."
+  maxLength={500}
+  showCount
+/>`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Auto-resize</H2>
+      <p><code>autoResize</code> is enabled by default. The textarea grows from <code>minRows</code> (default: 2) up to <code>maxRows</code> (default: 10) as the user types. Set <code>autoResize={"{false}"}</code> to disable and use <code>resize</code> instead.</p>
+      <CodeBlock lang="tsx" code={`<TextareaStyled
+  label="Notes"
+  minRows={3}
+  maxRows={8}
+  autoResize
+  placeholder="The textarea grows as you type..."
+/>
+
+{/* Manual resize */}
+<TextareaStyled
+  label="Bio"
+  autoResize={false}
+  resize="vertical"
+  rows={4}
+/>`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Character count</H2>
+      <p>Enable <code>showCount</code> with an optional <code>maxLength</code>. The counter can be positioned inside or outside the textarea. It turns amber when at the limit and red when over.</p>
+      <CodeBlock lang="tsx" code={`{/* Count outside (default) */}
+<TextareaStyled
+  label="Bio"
+  maxLength={160}
+  showCount
+/>
+
+{/* Count inside */}
+<TextareaStyled
+  label="Comment"
+  maxLength={280}
+  showCount
+  countPosition="inside"
+/>`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Validation states</H2>
+      <p>Pass an <code>error</code> string to flip to the danger tone and render the message below. Use <code>hint</code> for plain helper text.</p>
+      <CodeBlock lang="tsx" code={`<TextareaStyled
+  label="Description"
+  value={text}
+  onChange={(e) => setText(e.target.value)}
+  error={text.length < 20 ? "Must be at least 20 characters" : undefined}
+  hint="Describe your project in a few sentences"
+/>`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Controlled</H2>
+      <CodeBlock lang="tsx" code={`const [value, setValue] = useState("");
+
+<TextareaStyled
+  value={value}
+  onChange={(e) => setValue(e.target.value)}
+  onValueChange={(v) => console.log(v)}
+  label="Message"
+  maxLength={200}
+  showCount
+/>`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Headless</H2>
+      <p>Use <code>useTextarea</code> for full control over markup and styling. The hook manages value state, ARIA attributes, and character counting.</p>
+      <CodeBlock lang="tsx" code={`import { useTextarea } from "@mshafiqyajid/react-textarea";
+
+const { textareaProps, charCount, isAtLimit, isOverLimit } = useTextarea({
+  defaultValue: "",
+  maxLength: 200,
+  required: true,
+});
+
+return (
+  <div>
+    <label htmlFor={textareaProps.id}>Message</label>
+    <textarea {...textareaProps} placeholder="Type something..." />
+    <span style={{ color: isOverLimit ? "red" : "inherit" }}>
+      {charCount} / 200
+    </span>
+  </div>
+);`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>API — TextareaStyled</H2>
+      <table class="props-table">
+        <thead>
+          <tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>value</td><td>string</td><td>—</td><td>Controlled value</td></tr>
+          <tr><td>defaultValue</td><td>string</td><td>""</td><td>Uncontrolled initial value</td></tr>
+          <tr><td>onChange</td><td>(e: ChangeEvent) =&gt; void</td><td>—</td><td>Native change event handler</td></tr>
+          <tr><td>onValueChange</td><td>(value: string) =&gt; void</td><td>—</td><td>Called with the string value on every change</td></tr>
+          <tr><td>placeholder</td><td>string</td><td>—</td><td>Placeholder text</td></tr>
+          <tr><td>rows</td><td>number</td><td>3</td><td>Row count when <code>autoResize</code> is false</td></tr>
+          <tr><td>minRows</td><td>number</td><td>2</td><td>Minimum rows when auto-resizing</td></tr>
+          <tr><td>maxRows</td><td>number</td><td>10</td><td>Maximum rows when auto-resizing</td></tr>
+          <tr><td>autoResize</td><td>boolean</td><td>true</td><td>Automatically grow/shrink the textarea</td></tr>
+          <tr><td>maxLength</td><td>number</td><td>—</td><td>Maximum character count</td></tr>
+          <tr><td>showCount</td><td>boolean</td><td>false</td><td>Show character counter</td></tr>
+          <tr><td>countPosition</td><td>"inside" | "outside"</td><td>"outside"</td><td>Where to render the counter</td></tr>
+          <tr><td>resize</td><td>"none" | "vertical" | "horizontal" | "both"</td><td>"none"</td><td>CSS resize when <code>autoResize</code> is false</td></tr>
+          <tr><td>size</td><td>"sm" | "md" | "lg"</td><td>"md"</td><td>Size variant</td></tr>
+          <tr><td>tone</td><td>"neutral" | "primary" | "success" | "danger"</td><td>"neutral"</td><td>Colour tone</td></tr>
+          <tr><td>label</td><td>string</td><td>—</td><td>Field label rendered above</td></tr>
+          <tr><td>hint</td><td>string</td><td>—</td><td>Helper text rendered below</td></tr>
+          <tr><td>error</td><td>string</td><td>—</td><td>Error message — auto-applies danger tone</td></tr>
+          <tr><td>required</td><td>boolean</td><td>false</td><td>Mark field as required (adds asterisk)</td></tr>
+          <tr><td>disabled</td><td>boolean</td><td>false</td><td>Disable the textarea</td></tr>
+          <tr><td>readOnly</td><td>boolean</td><td>false</td><td>Make the textarea read-only</td></tr>
+          <tr><td>invalid</td><td>boolean</td><td>false</td><td>Force invalid state without inline error text</td></tr>
+          <tr><td>id</td><td>string</td><td>auto</td><td>HTML id for the textarea</td></tr>
+          <tr><td>name</td><td>string</td><td>—</td><td>Form field name</td></tr>
+          <tr><td>autoFocus</td><td>boolean</td><td>—</td><td>Auto-focus on mount</td></tr>
+          <tr><td>spellCheck</td><td>boolean</td><td>—</td><td>Browser spell-check</td></tr>
+          <tr><td>className</td><td>string</td><td>—</td><td>Extra class on the root element</td></tr>
+          <tr><td>style</td><td>CSSProperties</td><td>—</td><td>Inline style on the root element</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pkg-section">
+      <H2>API — useTextarea hook</H2>
+      <table class="props-table">
+        <thead>
+          <tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>value</td><td>string</td><td>—</td><td>Controlled value</td></tr>
+          <tr><td>defaultValue</td><td>string</td><td>""</td><td>Uncontrolled initial value</td></tr>
+          <tr><td>onChange</td><td>(e: ChangeEvent) =&gt; void</td><td>—</td><td>Native change event</td></tr>
+          <tr><td>onValueChange</td><td>(value: string) =&gt; void</td><td>—</td><td>String value change handler</td></tr>
+          <tr><td>maxLength</td><td>number</td><td>—</td><td>Character limit for isAtLimit / isOverLimit</td></tr>
+          <tr><td>disabled</td><td>boolean</td><td>—</td><td>Disabled state</td></tr>
+          <tr><td>readOnly</td><td>boolean</td><td>—</td><td>Read-only state</td></tr>
+          <tr><td>required</td><td>boolean</td><td>—</td><td>Required state</td></tr>
+          <tr><td>invalid</td><td>boolean</td><td>—</td><td>Invalid state</td></tr>
+          <tr><td>id</td><td>string</td><td>auto</td><td>HTML id</td></tr>
+          <tr><td>name</td><td>string</td><td>—</td><td>Form name</td></tr>
+        </tbody>
+      </table>
+      <p style="margin-top: 0.75rem; font-size: 0.875rem;">Returns <code>{"{ textareaProps, charCount, isAtLimit, isOverLimit }"}</code>. Spread <code>textareaProps</code> on a <code>&lt;textarea&gt;</code> element.</p>
+    </div>
+
+  </PackagePageShell>
+</DocLayout>

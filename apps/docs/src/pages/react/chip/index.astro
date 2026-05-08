@@ -1,0 +1,133 @@
+---
+import DocLayout from "~/layouts/DocLayout.astro";
+import PackagePageShell from "~/components/PackagePageShell.astro";
+import H2 from "~/components/H2.astro";
+import CodeBlock from "~/components/CodeBlock.astro";
+import ChipDemo from "~/components/demos/ChipDemo";
+---
+<DocLayout title="react-chip" description="Chip component with selection, dismissal, tones, and icon support." pkg="chip">
+  <PackagePageShell name="react-chip" description="Headless chip hook and styled component. Four variants, six tones, selectable, dismissible, icon slots, fully accessible." size="~5 KB">
+
+    <div class="pkg-section"><H2>Playground</H2><ChipDemo client:load /></div>
+
+    <div class="pkg-section">
+      <H2>Install</H2>
+      <CodeBlock lang="bash" code="npm install @mshafiqyajid/react-chip" />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Quick start</H2>
+      <CodeBlock lang="tsx" code={`import { ChipStyled } from "@mshafiqyajid/react-chip/styled";
+import "@mshafiqyajid/react-chip/styles.css";
+
+<ChipStyled tone="primary">Label</ChipStyled>
+<ChipStyled tone="success" variant="solid">Active</ChipStyled>
+<ChipStyled tone="danger" dismissible onDismiss={() => {}}>Remove me</ChipStyled>`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Selectable chips</H2>
+      <CodeBlock lang="tsx" code={`const [selected, setSelected] = useState(false);
+
+<ChipStyled
+  tone="primary"
+  selectable
+  selected={selected}
+  onSelect={setSelected}
+>
+  Toggle me
+</ChipStyled>
+
+// Uncontrolled with defaultSelected
+<ChipStyled tone="primary" selectable defaultSelected>
+  Pre-selected
+</ChipStyled>`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>With icons</H2>
+      <CodeBlock lang="tsx" code={`<ChipStyled
+  tone="primary"
+  icon={<StarIcon />}
+  iconRight={<ChevronDownIcon />}
+>
+  Featured
+</ChipStyled>
+
+// Avatar takes priority over icon
+<ChipStyled tone="neutral" avatar={<img src="/avatar.jpg" alt="" />}>
+  Shafiq Yajid
+</ChipStyled>`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Headless</H2>
+      <CodeBlock lang="tsx" code={`import { useChip } from "@mshafiqyajid/react-chip";
+
+function MyChip({ label }: { label: string }) {
+  const { chipProps, dismissProps, isSelected, isDismissed } = useChip({
+    selectable: true,
+    dismissible: true,
+    onSelect: (s) => console.log("selected:", s),
+    onDismiss: () => console.log("dismissed"),
+  });
+
+  if (isDismissed) return null;
+
+  return (
+    <span {...chipProps} className="my-chip" data-selected={isSelected || undefined}>
+      {label}
+      <button {...dismissProps}>×</button>
+    </span>
+  );
+}`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>API</H2>
+      <table class="props-table">
+        <thead>
+          <tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>variant</td><td>"solid" | "subtle" | "outline" | "soft"</td><td>"subtle"</td><td>Visual style</td></tr>
+          <tr><td>tone</td><td>"neutral" | "primary" | "success" | "warning" | "danger" | "info"</td><td>"neutral"</td><td>Color tone</td></tr>
+          <tr><td>size</td><td>"sm" | "md" | "lg"</td><td>"md"</td><td>Size scale</td></tr>
+          <tr><td>selectable</td><td>boolean</td><td>false</td><td>Enable selection toggle; adds <code>role="option"</code> and keyboard support</td></tr>
+          <tr><td>selected</td><td>boolean</td><td>—</td><td>Controlled selected state</td></tr>
+          <tr><td>defaultSelected</td><td>boolean</td><td>false</td><td>Uncontrolled initial selected state</td></tr>
+          <tr><td>onSelect</td><td>(selected: boolean) =&gt; void</td><td>—</td><td>Called when selection changes</td></tr>
+          <tr><td>dismissible</td><td>boolean</td><td>false</td><td>Show dismiss button with <code>aria-label="Remove"</code></td></tr>
+          <tr><td>onDismiss</td><td>() =&gt; void</td><td>—</td><td>Called when chip is dismissed</td></tr>
+          <tr><td>icon</td><td>ReactNode</td><td>—</td><td>Leading icon</td></tr>
+          <tr><td>iconRight</td><td>ReactNode</td><td>—</td><td>Trailing icon</td></tr>
+          <tr><td>avatar</td><td>ReactNode</td><td>—</td><td>Leading avatar element (takes priority over <code>icon</code>)</td></tr>
+          <tr><td>disabled</td><td>boolean</td><td>false</td><td>Disable all interactions</td></tr>
+          <tr><td>children</td><td>ReactNode</td><td>—</td><td>Chip label (required)</td></tr>
+          <tr><td>className</td><td>string</td><td>—</td><td>Extra class on the root element</td></tr>
+          <tr><td>style</td><td>CSSProperties</td><td>—</td><td>Inline style override</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pkg-section">
+      <H2>Headless API — useChip</H2>
+      <table class="props-table">
+        <thead>
+          <tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>selectable</td><td>boolean</td><td>false</td><td>Enable selection behavior</td></tr>
+          <tr><td>selected</td><td>boolean</td><td>—</td><td>Controlled selected state</td></tr>
+          <tr><td>defaultSelected</td><td>boolean</td><td>false</td><td>Initial uncontrolled selected state</td></tr>
+          <tr><td>onSelect</td><td>(selected: boolean) =&gt; void</td><td>—</td><td>Called on selection change</td></tr>
+          <tr><td>dismissible</td><td>boolean</td><td>false</td><td>Enable dismiss behavior</td></tr>
+          <tr><td>onDismiss</td><td>() =&gt; void</td><td>—</td><td>Called when dismissed</td></tr>
+          <tr><td>disabled</td><td>boolean</td><td>false</td><td>Disable all interactions</td></tr>
+        </tbody>
+      </table>
+      <p class="pkg-note">Returns <code>chipProps</code>, <code>dismissProps</code>, <code>isSelected</code>, <code>isDismissed</code>, <code>select(v?)</code>, and <code>dismiss()</code>. Dismissed chips return <code>isDismissed=true</code> — render <code>null</code> in your component to remove them from the DOM.</p>
+    </div>
+
+  </PackagePageShell>
+</DocLayout>

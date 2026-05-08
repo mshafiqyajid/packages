@@ -1,0 +1,169 @@
+---
+import DocLayout from "~/layouts/DocLayout.astro";
+import PackagePageShell from "~/components/PackagePageShell.astro";
+import H2 from "~/components/H2.astro";
+import CodeBlock from "~/components/CodeBlock.astro";
+import BreadcrumbDemo from "~/components/demos/BreadcrumbDemo";
+---
+
+<DocLayout title="react-breadcrumb" description="Breadcrumb navigation with collapsible items and customizable separators." pkg="breadcrumb">
+  <PackagePageShell name="react-breadcrumb" description="Headless breadcrumb hook and styled component. Collapsible items with expand animation, three separator styles, icon support per item, link/button/span rendering, ARIA-compliant." size="~4 KB">
+
+    <div class="pkg-section">
+      <H2>Playground</H2>
+      <BreadcrumbDemo client:load />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Install</H2>
+      <CodeBlock lang="bash" code="npm install @mshafiqyajid/react-breadcrumb" />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Quick start</H2>
+      <CodeBlock lang="tsx" code={`import { BreadcrumbStyled } from "@mshafiqyajid/react-breadcrumb/styled";
+import "@mshafiqyajid/react-breadcrumb/styles.css";
+
+const items = [
+  { label: "Home", href: "/" },
+  { label: "Products", href: "/products" },
+  { label: "Smartphones" },
+];
+
+<BreadcrumbStyled items={items} />`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Separators</H2>
+      <p>Three built-in separators: <code>"chevron"</code> (›, default), <code>"slash"</code> (/), and <code>"arrow"</code> (→). You can also pass any <code>ReactNode</code> for a custom separator.</p>
+      <CodeBlock lang="tsx" code={`<BreadcrumbStyled items={items} separator="chevron" />
+<BreadcrumbStyled items={items} separator="slash" />
+<BreadcrumbStyled items={items} separator="arrow" />
+<BreadcrumbStyled items={items} separator={<span>·</span>} />`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Collapsible</H2>
+      <p>Set <code>maxItems</code> to collapse long breadcrumbs. When collapsed, only the first and last items are shown with an expand button (…) in between. Clicking it reveals all items with a staggered fade-in animation.</p>
+      <CodeBlock lang="tsx" code={`<BreadcrumbStyled items={items} maxItems={2} />`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Item types</H2>
+      <p>Each item renders the most semantically appropriate element based on its props:</p>
+      <CodeBlock lang="tsx" code={`const items = [
+  // <a href="..."> — link
+  { label: "Home", href: "/" },
+
+  // <button type="button"> — click handler only
+  { label: "Products", onClick: () => navigate("/products") },
+
+  // <span> — no href, no onClick, not last
+  { label: "Region" },
+
+  // <span aria-current="page"> — last item is always a span
+  { label: "Smartphones" },
+];`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Icons</H2>
+      <p>Add an <code>icon</code> to any item. The icon renders before the label.</p>
+      <CodeBlock lang="tsx" code={`const items = [
+  { label: "Home", href: "/", icon: <HomeIcon /> },
+  { label: "Products", href: "/products", icon: <BoxIcon /> },
+  { label: "Smartphones" },
+];
+
+<BreadcrumbStyled items={items} />`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Sizes</H2>
+      <CodeBlock lang="tsx" code={`<BreadcrumbStyled items={items} size="sm" />
+<BreadcrumbStyled items={items} size="md" />
+<BreadcrumbStyled items={items} size="lg" />`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Headless</H2>
+      <CodeBlock lang="tsx" code={`import { useBreadcrumb } from "@mshafiqyajid/react-breadcrumb";
+
+function MyBreadcrumb({ items }) {
+  const {
+    navProps,
+    visibleItems,
+    isCollapsed,
+    expand,
+    getItemProps,
+  } = useBreadcrumb({ items, maxItems: 3 });
+
+  return (
+    <nav {...navProps}>
+      <ol style={{ display: "flex", gap: "0.5rem", listStyle: "none" }}>
+        {visibleItems.map(({ item, originalIndex, isEllipsis }, i) => (
+          <li key={isEllipsis ? "e" : originalIndex}>
+            {i > 0 && <span aria-hidden="true"> / </span>}
+            {isEllipsis ? (
+              <button onClick={expand}>…</button>
+            ) : getItemProps(originalIndex).isLast ? (
+              <span aria-current="page">{item.label}</span>
+            ) : item.href ? (
+              <a href={item.href}>{item.label}</a>
+            ) : (
+              <span>{item.label}</span>
+            )}
+          </li>
+        ))}
+      </ol>
+    </nav>
+  );
+}`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>API — BreadcrumbStyled</H2>
+      <table class="props-table">
+        <thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>items</td><td>BreadcrumbItem[]</td><td>—</td><td>Array of breadcrumb items (required)</td></tr>
+          <tr><td>separator</td><td>"chevron" | "slash" | "arrow" | ReactNode</td><td>"chevron"</td><td>Separator rendered between items</td></tr>
+          <tr><td>maxItems</td><td>number</td><td>—</td><td>Collapse to first + ellipsis + last when length exceeds this</td></tr>
+          <tr><td>expandLabel</td><td>string</td><td>"Show all"</td><td>Accessible label for the expand button</td></tr>
+          <tr><td>size</td><td>"sm" | "md" | "lg"</td><td>"md"</td><td>Font size</td></tr>
+          <tr><td>className</td><td>string</td><td>—</td><td>Extra class on the root element</td></tr>
+          <tr><td>style</td><td>CSSProperties</td><td>—</td><td>Inline style override</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pkg-section">
+      <H2>API — BreadcrumbItem</H2>
+      <table class="props-table">
+        <thead><tr><th>Key</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>label</td><td>ReactNode</td><td>Item label (required)</td></tr>
+          <tr><td>href</td><td>string</td><td>If set, renders an <code>&lt;a&gt;</code> element</td></tr>
+          <tr><td>onClick</td><td>() =&gt; void</td><td>Click handler. Renders <code>&lt;button&gt;</code> when no <code>href</code></td></tr>
+          <tr><td>icon</td><td>ReactNode</td><td>Leading icon rendered before the label</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pkg-section">
+      <H2>API — useBreadcrumb</H2>
+      <table class="props-table">
+        <thead><tr><th>Key</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>navProps</td><td>object</td><td><code>role="navigation"</code> + <code>aria-label="Breadcrumb"</code></td></tr>
+          <tr><td>listProps</td><td>object</td><td>Props to spread on the <code>&lt;ol&gt;</code></td></tr>
+          <tr><td>visibleItems</td><td>VisibleItem[]</td><td>Items to render (respects collapse state)</td></tr>
+          <tr><td>isCollapsed</td><td>boolean</td><td>Whether items are currently collapsed</td></tr>
+          <tr><td>expand</td><td>() =&gt; void</td><td>Reveal all items</td></tr>
+          <tr><td>getItemProps</td><td>(index: number) =&gt; object</td><td>Returns <code>aria-current</code>, <code>isLast</code>, <code>item</code> for the original index</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </PackagePageShell>
+</DocLayout>

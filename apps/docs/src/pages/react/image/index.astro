@@ -1,0 +1,110 @@
+---
+import DocLayout from "~/layouts/DocLayout.astro";
+import PackagePageShell from "~/components/PackagePageShell.astro";
+import H2 from "~/components/H2.astro";
+import CodeBlock from "~/components/CodeBlock.astro";
+import ImageDemo from "~/components/demos/ImageDemo";
+---
+<DocLayout title="react-image" description="Image component with lazy loading, blur-up effect, skeleton placeholder, and error fallback." pkg="image">
+  <PackagePageShell name="react-image" description="Headless hook + styled wrapper for images. Native lazy loading, skeleton shimmer, blur-up placeholder, graceful error fallback with custom content, aspect ratio, object-fit, and radius variants." size="~3 KB">
+
+    <div class="pkg-section"><H2>Playground</H2><ImageDemo client:load /></div>
+
+    <div class="pkg-section">
+      <H2>Install</H2>
+      <CodeBlock lang="bash" code="npm install @mshafiqyajid/react-image" />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Quick start</H2>
+      <CodeBlock lang="tsx" code={`import { ImageStyled } from "@mshafiqyajid/react-image/styled";
+import "@mshafiqyajid/react-image/styles.css";
+
+<ImageStyled
+  src="https://picsum.photos/800/600"
+  alt="A scenic photo"
+  aspectRatio="4/3"
+  radius="md"
+  placeholder="skeleton"
+/>`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Blur-up placeholder</H2>
+      <p>Pass a tiny base64 data URL as <code>blurDataURL</code>. It renders blurred behind the main image until the full image loads.</p>
+      <CodeBlock lang="tsx" code={`<ImageStyled
+  src="https://picsum.photos/800/600"
+  alt="Landscape"
+  placeholder="blur"
+  blurDataURL="data:image/jpeg;base64,/9j/4AA..."
+  aspectRatio="16/9"
+/>`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Fallback on error</H2>
+      <CodeBlock lang="tsx" code={`// Auto-retry with fallback URL
+<ImageStyled
+  src="/uploads/photo.jpg"
+  alt="User photo"
+  fallbackSrc="/images/placeholder.jpg"
+/>
+
+// Custom error content
+<ImageStyled
+  src="/uploads/photo.jpg"
+  alt="User photo"
+  fallback={<div className="error-state">Image unavailable</div>}
+/>`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Headless</H2>
+      <CodeBlock lang="tsx" code={`import { useImage } from "@mshafiqyajid/react-image";
+
+const { imgProps, isLoading, isLoaded, isError } = useImage({
+  src: "https://example.com/photo.jpg",
+  alt: "A photo",
+  fallbackSrc: "https://example.com/fallback.jpg",
+  lazy: true,
+  onLoad: () => console.log("loaded"),
+  onError: () => console.error("failed"),
+});
+
+return (
+  <div style={{ position: "relative", width: 400, height: 300 }}>
+    {isLoading && <div className="my-skeleton" />}
+    {!isError && <img {...imgProps} style={{ width: "100%", height: "100%", objectFit: "cover" }} />}
+    {isError && <div>Could not load image</div>}
+  </div>
+);`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Decorative images</H2>
+      <p>Pass an empty <code>alt=""</code> for purely decorative images. The hook automatically adds <code>aria-hidden="true"</code>.</p>
+      <CodeBlock lang="tsx" code={`<ImageStyled src="/decorative-bg.jpg" alt="" />`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>API</H2>
+      <table class="props-table"><thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+        <tr><td>src</td><td>string</td><td>—</td><td>Image source URL</td></tr>
+        <tr><td>alt</td><td>string</td><td>—</td><td>Alt text. Empty string marks image as decorative (aria-hidden)</td></tr>
+        <tr><td>fallbackSrc</td><td>string</td><td>—</td><td>URL to try if src fails to load</td></tr>
+        <tr><td>fallback</td><td>ReactNode</td><td>—</td><td>Custom content shown in error state</td></tr>
+        <tr><td>placeholder</td><td>"blur" | "skeleton" | "color" | "none"</td><td>"skeleton"</td><td>Loading placeholder strategy</td></tr>
+        <tr><td>blurDataURL</td><td>string</td><td>—</td><td>Tiny base64 image for blur placeholder</td></tr>
+        <tr><td>placeholderColor</td><td>string</td><td>—</td><td>Background color for "color" placeholder</td></tr>
+        <tr><td>lazy</td><td>boolean</td><td>true</td><td>Use native lazy loading attribute</td></tr>
+        <tr><td>aspectRatio</td><td>string | number</td><td>—</td><td>CSS aspect-ratio (e.g. "4/3", "16/9")</td></tr>
+        <tr><td>objectFit</td><td>"cover" | "contain" | "fill" | "none" | "scale-down"</td><td>"cover"</td><td>CSS object-fit</td></tr>
+        <tr><td>objectPosition</td><td>string</td><td>"center"</td><td>CSS object-position</td></tr>
+        <tr><td>radius</td><td>"none" | "sm" | "md" | "lg" | "full"</td><td>"none"</td><td>Border radius</td></tr>
+        <tr><td>onLoad</td><td>() =&gt; void</td><td>—</td><td>Callback when image successfully loads</td></tr>
+        <tr><td>onError</td><td>() =&gt; void</td><td>—</td><td>Callback when all load attempts fail</td></tr>
+      </tbody></table>
+    </div>
+
+  </PackagePageShell>
+</DocLayout>

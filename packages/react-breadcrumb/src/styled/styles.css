@@ -1,0 +1,255 @@
+/* react-breadcrumb — styled component
+ * Dark mode via [data-theme="dark"] ancestor only.
+ * All transitions respect prefers-reduced-motion.
+ */
+:root {
+  --rbrc-duration: 200ms;
+  --rbrc-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --rbrc-fg: #18181b;
+  --rbrc-link-fg: #6366f1;
+  --rbrc-link-hover-fg: #4f46e5;
+  --rbrc-separator-fg: #9ca3af;
+  --rbrc-current-fg: #6b7280;
+  --rbrc-ellipsis-fg: #6b7280;
+  --rbrc-ellipsis-bg: transparent;
+  --rbrc-ellipsis-hover-bg: #f4f4f5;
+  --rbrc-ellipsis-border: #d4d4d8;
+  --rbrc-focus-ring: #6366f1;
+  --rbrc-fs-sm: 0.8125rem;
+  --rbrc-fs-md: 0.875rem;
+  --rbrc-fs-lg: 1rem;
+}
+
+[data-theme="dark"] {
+  --rbrc-fg: #fafafa;
+  --rbrc-link-fg: #818cf8;
+  --rbrc-link-hover-fg: #6366f1;
+  --rbrc-separator-fg: #6b7280;
+  --rbrc-current-fg: #a1a1aa;
+  --rbrc-ellipsis-fg: #a1a1aa;
+  --rbrc-ellipsis-hover-bg: #27272a;
+  --rbrc-ellipsis-border: #3f3f46;
+  --rbrc-focus-ring: #818cf8;
+}
+
+/* ── Nav root ──────────────────────────────────────────────── */
+.rbrc-nav {
+  display: block;
+}
+
+/* ── List ──────────────────────────────────────────────────── */
+.rbrc-list {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* ── Item ──────────────────────────────────────────────────── */
+.rbrc-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+/* ── Sizes ─────────────────────────────────────────────────── */
+.rbrc-nav[data-size="sm"] .rbrc-item,
+.rbrc-nav[data-size="sm"] .rbrc-link,
+.rbrc-nav[data-size="sm"] .rbrc-button,
+.rbrc-nav[data-size="sm"] .rbrc-current,
+.rbrc-nav[data-size="sm"] .rbrc-separator,
+.rbrc-nav[data-size="sm"] .rbrc-ellipsis-btn {
+  font-size: var(--rbrc-fs-sm);
+}
+
+.rbrc-nav[data-size="md"] .rbrc-item,
+.rbrc-nav[data-size="md"] .rbrc-link,
+.rbrc-nav[data-size="md"] .rbrc-button,
+.rbrc-nav[data-size="md"] .rbrc-current,
+.rbrc-nav[data-size="md"] .rbrc-separator,
+.rbrc-nav[data-size="md"] .rbrc-ellipsis-btn {
+  font-size: var(--rbrc-fs-md);
+}
+
+.rbrc-nav[data-size="lg"] .rbrc-item,
+.rbrc-nav[data-size="lg"] .rbrc-link,
+.rbrc-nav[data-size="lg"] .rbrc-button,
+.rbrc-nav[data-size="lg"] .rbrc-current,
+.rbrc-nav[data-size="lg"] .rbrc-separator,
+.rbrc-nav[data-size="lg"] .rbrc-ellipsis-btn {
+  font-size: var(--rbrc-fs-lg);
+}
+
+/* ── Separator ─────────────────────────────────────────────── */
+.rbrc-separator {
+  display: inline-flex;
+  align-items: center;
+  color: var(--rbrc-separator-fg);
+  margin: 0 0.25rem;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+/* ── Link ──────────────────────────────────────────────────── */
+.rbrc-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--rbrc-link-fg);
+  text-decoration: none;
+  font-family: inherit;
+  font-weight: 400;
+  transition: color var(--rbrc-duration) var(--rbrc-ease);
+  outline: none;
+  border-radius: 3px;
+}
+
+.rbrc-link:hover {
+  color: var(--rbrc-link-hover-fg);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.rbrc-link:focus-visible {
+  outline: 2px solid var(--rbrc-focus-ring);
+  outline-offset: 2px;
+}
+
+.rbrc-link--static {
+  color: var(--rbrc-fg);
+  cursor: default;
+}
+
+.rbrc-link--static:hover {
+  text-decoration: none;
+}
+
+/* ── Button (onClick-only items) ───────────────────────────── */
+.rbrc-button {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--rbrc-link-fg);
+  background: transparent;
+  border: none;
+  padding: 0;
+  font-family: inherit;
+  font-weight: 400;
+  cursor: pointer;
+  transition: color var(--rbrc-duration) var(--rbrc-ease);
+  outline: none;
+  border-radius: 3px;
+}
+
+.rbrc-button:hover {
+  color: var(--rbrc-link-hover-fg);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.rbrc-button:focus-visible {
+  outline: 2px solid var(--rbrc-focus-ring);
+  outline-offset: 2px;
+}
+
+/* ── Current (last item) ───────────────────────────────────── */
+.rbrc-current {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--rbrc-current-fg);
+  font-weight: 500;
+  cursor: default;
+}
+
+/* ── Ellipsis expand button ────────────────────────────────── */
+.rbrc-ellipsis-btn {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--rbrc-ellipsis-fg);
+  background: var(--rbrc-ellipsis-bg);
+  border: 1px solid var(--rbrc-ellipsis-border);
+  border-radius: 4px;
+  padding: 0 0.35rem;
+  min-width: 1.75rem;
+  height: 1.5em;
+  font-family: inherit;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition:
+    background var(--rbrc-duration) var(--rbrc-ease),
+    border-color var(--rbrc-duration) var(--rbrc-ease),
+    color var(--rbrc-duration) var(--rbrc-ease);
+  outline: none;
+}
+
+.rbrc-ellipsis-btn:hover {
+  background: var(--rbrc-ellipsis-hover-bg);
+  color: var(--rbrc-fg);
+}
+
+.rbrc-ellipsis-btn:focus-visible {
+  outline: 2px solid var(--rbrc-focus-ring);
+  outline-offset: 2px;
+}
+
+.rbrc-ellipsis-btn:active {
+  transform: scale(0.95);
+}
+
+/* ── Icon slot ─────────────────────────────────────────────── */
+.rbrc-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 1em;
+  height: 1em;
+}
+
+/* ── Expand animation: items fade + slide in from left ─────── */
+@keyframes rbrc-item-in {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.rbrc-nav:not([data-collapsed="true"]) .rbrc-item {
+  animation: rbrc-item-in var(--rbrc-duration) var(--rbrc-ease) both;
+}
+
+.rbrc-nav:not([data-collapsed="true"]) .rbrc-item:nth-child(1) { animation-delay: 0ms; }
+.rbrc-nav:not([data-collapsed="true"]) .rbrc-item:nth-child(2) { animation-delay: 50ms; }
+.rbrc-nav:not([data-collapsed="true"]) .rbrc-item:nth-child(3) { animation-delay: 100ms; }
+.rbrc-nav:not([data-collapsed="true"]) .rbrc-item:nth-child(4) { animation-delay: 150ms; }
+.rbrc-nav:not([data-collapsed="true"]) .rbrc-item:nth-child(5) { animation-delay: 200ms; }
+.rbrc-nav:not([data-collapsed="true"]) .rbrc-item:nth-child(6) { animation-delay: 250ms; }
+.rbrc-nav:not([data-collapsed="true"]) .rbrc-item:nth-child(7) { animation-delay: 300ms; }
+.rbrc-nav:not([data-collapsed="true"]) .rbrc-item:nth-child(8) { animation-delay: 350ms; }
+
+/* ── Reduced motion ────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .rbrc-link,
+  .rbrc-button,
+  .rbrc-ellipsis-btn {
+    transition: none;
+  }
+  .rbrc-ellipsis-btn:active {
+    transform: none;
+  }
+  .rbrc-nav:not([data-collapsed="true"]) .rbrc-item {
+    animation: none;
+  }
+}

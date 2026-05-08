@@ -1,0 +1,280 @@
+:root {
+  --ravg-duration: 150ms;
+  --ravg-ease: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Sizes */
+  --ravg-size-xs: 24px;
+  --ravg-size-sm: 32px;
+  --ravg-size-md: 40px;
+  --ravg-size-lg: 48px;
+  --ravg-size-xl: 64px;
+
+  /* Font sizes */
+  --ravg-fs-xs: 0.625rem;
+  --ravg-fs-sm: 0.75rem;
+  --ravg-fs-md: 0.875rem;
+  --ravg-fs-lg: 1rem;
+  --ravg-fs-xl: 1.25rem;
+
+  /* Ring (border separating overlapping avatars) */
+  --ravg-ring: 2px solid #ffffff;
+
+  /* Spacing (negative margin for overlap) */
+  --ravg-spacing-tight: -10px;
+  --ravg-spacing-normal: -8px;
+  --ravg-spacing-loose: 0px;
+
+  /* Fallback avatar colors */
+  --ravg-fallback-bg: #e4e4e7;
+  --ravg-fallback-fg: #3f3f46;
+
+  /* Overflow badge colors */
+  --ravg-overflow-bg: #f4f4f5;
+  --ravg-overflow-fg: #3f3f46;
+  --ravg-overflow-border: #d4d4d8;
+}
+
+[data-theme="dark"] {
+  --ravg-ring: 2px solid #18181b;
+  --ravg-fallback-bg: #3f3f46;
+  --ravg-fallback-fg: #fafafa;
+  --ravg-overflow-bg: #27272a;
+  --ravg-overflow-fg: #a1a1aa;
+  --ravg-overflow-border: #3f3f46;
+}
+
+/* Root container */
+.ravg-root {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: nowrap;
+}
+
+/* Spacing variants — applied as margin-left on each avatar after the first */
+.ravg-root[data-spacing="tight"] .ravg-avatar,
+.ravg-root[data-spacing="tight"] .ravg-avatar-link,
+.ravg-root[data-spacing="tight"] .ravg-overflow {
+  margin-left: var(--ravg-spacing-tight);
+}
+
+.ravg-root[data-spacing="normal"] .ravg-avatar,
+.ravg-root[data-spacing="normal"] .ravg-avatar-link,
+.ravg-root[data-spacing="normal"] .ravg-overflow {
+  margin-left: var(--ravg-spacing-normal);
+}
+
+.ravg-root[data-spacing="loose"] .ravg-avatar,
+.ravg-root[data-spacing="loose"] .ravg-avatar-link,
+.ravg-root[data-spacing="loose"] .ravg-overflow {
+  margin-left: var(--ravg-spacing-loose);
+}
+
+/* Remove margin from first child */
+.ravg-root > .ravg-avatar:first-child,
+.ravg-root > .ravg-avatar-link:first-child {
+  margin-left: 0;
+}
+
+/* Avatar base */
+.ravg-avatar {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+  background: var(--ravg-fallback-bg);
+  color: var(--ravg-fallback-fg);
+  font-weight: 600;
+  border: var(--ravg-ring);
+  cursor: default;
+  user-select: none;
+  transition: transform var(--ravg-duration) var(--ravg-ease),
+    z-index 0ms;
+  z-index: 0;
+}
+
+.ravg-avatar:hover {
+  transform: translateY(-2px);
+  z-index: 10;
+}
+
+/* Avatar link wrapper */
+.ravg-avatar-link {
+  display: inline-flex;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.ravg-avatar-link .ravg-avatar {
+  cursor: pointer;
+}
+
+/* Size variants */
+.ravg-root[data-size="xs"] .ravg-avatar,
+.ravg-root[data-size="xs"] .ravg-overflow {
+  width: var(--ravg-size-xs);
+  height: var(--ravg-size-xs);
+  font-size: var(--ravg-fs-xs);
+}
+
+.ravg-root[data-size="sm"] .ravg-avatar,
+.ravg-root[data-size="sm"] .ravg-overflow {
+  width: var(--ravg-size-sm);
+  height: var(--ravg-size-sm);
+  font-size: var(--ravg-fs-sm);
+}
+
+.ravg-root[data-size="md"] .ravg-avatar,
+.ravg-root[data-size="md"] .ravg-overflow {
+  width: var(--ravg-size-md);
+  height: var(--ravg-size-md);
+  font-size: var(--ravg-fs-md);
+}
+
+.ravg-root[data-size="lg"] .ravg-avatar,
+.ravg-root[data-size="lg"] .ravg-overflow {
+  width: var(--ravg-size-lg);
+  height: var(--ravg-size-lg);
+  font-size: var(--ravg-fs-lg);
+}
+
+.ravg-root[data-size="xl"] .ravg-avatar,
+.ravg-root[data-size="xl"] .ravg-overflow {
+  width: var(--ravg-size-xl);
+  height: var(--ravg-size-xl);
+  font-size: var(--ravg-fs-xl);
+}
+
+/* Shape: circle */
+.ravg-root[data-shape="circle"] .ravg-avatar,
+.ravg-root[data-shape="circle"] .ravg-overflow {
+  border-radius: 50%;
+}
+
+/* Shape: square — radius per size */
+.ravg-root[data-shape="square"][data-size="xs"] .ravg-avatar,
+.ravg-root[data-shape="square"][data-size="xs"] .ravg-overflow {
+  border-radius: 4px;
+}
+
+.ravg-root[data-shape="square"][data-size="sm"] .ravg-avatar,
+.ravg-root[data-shape="square"][data-size="sm"] .ravg-overflow {
+  border-radius: 6px;
+}
+
+.ravg-root[data-shape="square"][data-size="md"] .ravg-avatar,
+.ravg-root[data-shape="square"][data-size="md"] .ravg-overflow {
+  border-radius: 8px;
+}
+
+.ravg-root[data-shape="square"][data-size="lg"] .ravg-avatar,
+.ravg-root[data-shape="square"][data-size="lg"] .ravg-overflow {
+  border-radius: 10px;
+}
+
+.ravg-root[data-shape="square"][data-size="xl"] .ravg-avatar,
+.ravg-root[data-shape="square"][data-size="xl"] .ravg-overflow {
+  border-radius: 12px;
+}
+
+/* Avatar image */
+.ravg-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Initials */
+.ravg-initials {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  line-height: 1;
+  letter-spacing: 0.02em;
+}
+
+/* Overflow badge */
+.ravg-overflow {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: var(--ravg-overflow-bg);
+  color: var(--ravg-overflow-fg);
+  border: 1px solid var(--ravg-overflow-border);
+  font-weight: 600;
+  font-size: inherit;
+  cursor: default;
+  user-select: none;
+  transition: transform var(--ravg-duration) var(--ravg-ease);
+}
+
+.ravg-overflow[role="button"] {
+  cursor: pointer;
+}
+
+.ravg-overflow[role="button"]:hover {
+  transform: translateY(-2px);
+}
+
+.ravg-overflow[role="button"]:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+/* Stagger mount animation: each avatar fades in + scales from 0.5 */
+@keyframes ravg-avatar-in {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.ravg-avatar {
+  animation: ravg-avatar-in var(--ravg-duration) var(--ravg-ease) both;
+}
+
+.ravg-avatar[data-index="0"] { animation-delay: 0ms; }
+.ravg-avatar[data-index="1"] { animation-delay: 40ms; }
+.ravg-avatar[data-index="2"] { animation-delay: 80ms; }
+.ravg-avatar[data-index="3"] { animation-delay: 120ms; }
+.ravg-avatar[data-index="4"] { animation-delay: 160ms; }
+.ravg-avatar[data-index="5"] { animation-delay: 200ms; }
+.ravg-avatar[data-index="6"] { animation-delay: 240ms; }
+.ravg-avatar[data-index="7"] { animation-delay: 280ms; }
+
+.ravg-overflow {
+  animation: ravg-avatar-in var(--ravg-duration) var(--ravg-ease) both;
+  animation-delay: 320ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ravg-avatar {
+    animation: none;
+    transition: none;
+  }
+
+  .ravg-avatar:hover {
+    transform: none;
+  }
+
+  .ravg-overflow {
+    animation: none;
+    transition: none;
+  }
+
+  .ravg-overflow[role="button"]:hover {
+    transform: none;
+  }
+}
