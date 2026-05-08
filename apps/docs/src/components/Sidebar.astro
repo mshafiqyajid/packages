@@ -38,11 +38,11 @@ const categories = [
       { slug: "tag-input",         label: "Tag Input",         icon: "🏷️" },
       { slug: "rating",            label: "Rating",            icon: "⭐" },
       { slug: "slider",            label: "Slider",            icon: "🎛️" },
-      { slug: "range",             label: "Range",             icon: "↔️" },
+      { slug: "range",             label: "Range",             icon: "↔️",  new: true },
       { slug: "segmented-control", label: "Segmented Control", icon: "🎚️" },
-      { slug: "combobox",          label: "Combobox",          icon: "🔍" },
-      { slug: "multi-select",      label: "Multi Select",      icon: "☑️" },
-      { slug: "form",              label: "Form",              icon: "📋" },
+      { slug: "combobox",          label: "Combobox",          icon: "🔍",  new: true },
+      { slug: "multi-select",      label: "Multi Select",      icon: "☑️",  new: true },
+      { slug: "form",              label: "Form",              icon: "📋",  new: true },
     ],
   },
   {
@@ -51,14 +51,14 @@ const categories = [
       { slug: "select",            label: "Select",            icon: "📝" },
       { slug: "date-picker",       label: "Date Picker",       icon: "📆" },
       { slug: "modal",             label: "Modal",             icon: "🪟" },
-      { slug: "sheet",             label: "Sheet",             icon: "📄" },
-      { slug: "hover-card",        label: "Hover Card",        icon: "🃏" },
+      { slug: "sheet",             label: "Sheet",             icon: "📄",  new: true },
+      { slug: "hover-card",        label: "Hover Card",        icon: "🃏",  new: true },
       { slug: "tooltip",           label: "Tooltip",           icon: "💬" },
       { slug: "popover",           label: "Popover",           icon: "💭" },
       { slug: "dropdown-menu",     label: "Dropdown Menu",     icon: "📋" },
-      { slug: "context-menu",      label: "Context Menu",      icon: "🖱️" },
+      { slug: "context-menu",      label: "Context Menu",      icon: "🖱️",  new: true },
       { slug: "command-palette",   label: "Command Palette",   icon: "⌘"  },
-      { slug: "lightbox",          label: "Lightbox",          icon: "🖼️" },
+      { slug: "lightbox",          label: "Lightbox",          icon: "🖼️",  new: true },
       { slug: "color",             label: "Color",             icon: "🎨" },
     ],
   },
@@ -111,9 +111,9 @@ const categories = [
       { slug: "pagination",        label: "Pagination",        icon: "📑" },
       { slug: "breadcrumb",        label: "Breadcrumb",        icon: "🔗" },
       { slug: "stepper",           label: "Stepper",           icon: "📶" },
-      { slug: "navbar",             label: "Navbar",            icon: "🧭" },
-      { slug: "sidebar",           label: "Sidebar",           icon: "◀️" },
-      { slug: "sortable",          label: "Sortable",          icon: "↕️" },
+      { slug: "navbar",             label: "Navbar",            icon: "🧭",  new: true },
+      { slug: "sidebar",           label: "Sidebar",           icon: "◀️",  new: true },
+      { slug: "sortable",          label: "Sortable",          icon: "↕️",  new: true },
     ],
   },
 ];
@@ -146,6 +146,7 @@ const categoriesWithVersions = categories.map((cat) => ({
               >
                 <span class="sidebar__icon" aria-hidden="true">{item.icon}</span>
                 <span class="sidebar__name">{item.label}</span>
+                {item.new && <span class="sidebar__new" aria-label="New">new</span>}
                 <span class="sidebar__version">{item.version}</span>
               </a>
             </li>
@@ -252,6 +253,18 @@ const categoriesWithVersions = categories.map((cat) => ({
   .sidebar__link:hover .sidebar__version,
   .sidebar__link--active .sidebar__version { opacity: 1; }
   .sidebar__link--active .sidebar__version { color: var(--accent); opacity: 0.7; }
+  .sidebar__new {
+    font-size: 0.55rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 0.1em 0.38em;
+    border-radius: 3px;
+    background: color-mix(in srgb, var(--accent) 14%, transparent);
+    color: var(--accent);
+    flex-shrink: 0;
+    line-height: 1.6;
+  }
   @media (max-width: 768px) { .sidebar { display: none; } }
 </style>
 
