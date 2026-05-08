@@ -10,20 +10,20 @@ export default function TextInputDemo() {
       componentName="TextInputStyled"
       importLine={`import { TextInputStyled } from "@mshafiqyajid/react-text-input/styled";\nimport "@mshafiqyajid/react-text-input/styles.css";`}
       props={[
-        { name: "type",           control: { type: "segmented", options: ["text","email","password","url","search","tel"] as const }, defaultValue: "email",   omitWhen: "text" },
-        { name: "size",           control: { type: "segmented", options: ["sm","md","lg"] as const },                                   defaultValue: "md",      omitWhen: "md" },
-        { name: "tone",           control: { type: "segmented", options: ["neutral","primary","success","danger"] as const },           defaultValue: "neutral", omitWhen: "neutral" },
-        { name: "label",          control: { type: "text", placeholder: "Field label" },                                                 defaultValue: "Email",  omitWhen: "" },
-        { name: "required",       control: { type: "toggle" },                                                                            defaultValue: false,     omitWhen: false },
-        { name: "block",          control: { type: "toggle" },                                                                            defaultValue: true,      omitWhen: false },
-        { name: "clearable",      control: { type: "toggle" },                                                                            defaultValue: true,      omitWhen: false },
-        { name: "passwordToggle", control: { type: "toggle" },                                                                            defaultValue: false,     omitWhen: false },
-        { name: "loading",        control: { type: "toggle" },                                                                            defaultValue: false,     omitWhen: false },
-        { name: "success",        control: { type: "toggle" },                                                                            defaultValue: false,     omitWhen: false },
-        { name: "withError",      label: "show validation", control: { type: "toggle" },                                                   defaultValue: false,     omitWhen: false },
-        { name: "maxLength",      control: { type: "slider", min: 0, max: 80, step: 5 },                                                 defaultValue: 0,         omitWhen: 0 },
-        { name: "disabled",       control: { type: "toggle" },                                                                            defaultValue: false,     omitWhen: false },
-        { name: "readOnly",       control: { type: "toggle" },                                                                            defaultValue: false,     omitWhen: false },
+        { name: "type",           group: "Appearance", control: { type: "segmented", options: ["text","email","password","url","search","tel"] as const }, defaultValue: "email",   omitWhen: "text" },
+        { name: "size",           group: "Appearance", control: { type: "segmented", options: ["sm","md","lg"] as const },                                   defaultValue: "md",      omitWhen: "md" },
+        { name: "tone",           group: "Appearance", control: { type: "segmented", options: ["neutral","primary","success","danger"] as const },           defaultValue: "neutral", omitWhen: "neutral" },
+        { name: "label",          group: "Content",    control: { type: "text", placeholder: "Field label" },                                                 defaultValue: "Email",  omitWhen: "" },
+        { name: "required",       group: "Content",    control: { type: "toggle" },                                                                            defaultValue: false,     omitWhen: false },
+        { name: "block",          group: "Layout",     control: { type: "toggle" },                                                                            defaultValue: true,      omitWhen: false },
+        { name: "clearable",      group: "Behaviour",  control: { type: "toggle" },                                                                            defaultValue: true,      omitWhen: false },
+        { name: "passwordToggle", group: "Behaviour",  control: { type: "toggle" },                                                                            defaultValue: false,     omitWhen: false },
+        { name: "loading",        group: "State",      control: { type: "toggle" },                                                                            defaultValue: false,     omitWhen: false },
+        { name: "success",        group: "State",      control: { type: "toggle" },                                                                            defaultValue: false,     omitWhen: false },
+        { name: "withError",      group: "State",      label: "show validation", control: { type: "toggle" },                                                   defaultValue: false,     omitWhen: false },
+        { name: "maxLength",      group: "State",      control: { type: "slider", min: 0, max: 80, step: 5 },                                                 defaultValue: 0,         omitWhen: 0 },
+        { name: "disabled",       group: "State",      control: { type: "toggle" },                                                                            defaultValue: false,     omitWhen: false },
+        { name: "readOnly",       group: "State",      control: { type: "toggle" },                                                                            defaultValue: false,     omitWhen: false },
       ]}
       staticProps={{ value: "{value}", onChange: "{setValue}", placeholder: '"Type something…"' }}
       render={(v) => {

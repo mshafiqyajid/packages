@@ -98,19 +98,19 @@ export default function ModalDemo() {
       componentName="ModalStyled"
       importLine={`import { ModalStyled } from "@mshafiqyajid/react-modal/styled";\nimport "@mshafiqyajid/react-modal/styles.css";`}
       props={[
-        { name: "size",                control: { type: "segmented", options: ["sm","md","lg","full"] as const },                                        defaultValue: "md",       omitWhen: "md" },
-        { name: "variant",             control: { type: "segmented", options: ["dialog","drawer-left","drawer-right","drawer-bottom"] as const },         defaultValue: "dialog",   omitWhen: "dialog" },
-        { name: "mobileVariant",       label: "mobile variant",    control: { type: "segmented", options: ["default","sheet"] as const },                 defaultValue: "default",  omitWhen: "default" },
-        { name: "blur",                control: { type: "segmented", options: ["none","sm","md","lg"] as const },                                         defaultValue: "md",       omitWhen: "md" },
-        { name: "padding",             control: { type: "segmented", options: ["none","sm","md","lg"] as const },                                         defaultValue: "md",       omitWhen: "md" },
-        { name: "scrollable",          control: { type: "toggle" },                                                                                      defaultValue: true,       omitWhen: true },
-        { name: "closeOnOverlayClick", control: { type: "toggle" },                                                                                      defaultValue: true,       omitWhen: true },
-        { name: "closeOnEsc",          control: { type: "toggle" },                                                                                      defaultValue: true,       omitWhen: true },
-        { name: "showCloseButton",     control: { type: "toggle" },                                                                                      defaultValue: true,       omitWhen: true },
-        { name: "transition",          control: { type: "segmented", options: ["fade","zoom","slide-up","slide-down"] as const },                        defaultValue: "fade",     omitWhen: "fade" },
-        { name: "swipeToDismiss",      label: "swipe to dismiss",  control: { type: "toggle" },                                                          defaultValue: false,      omitWhen: false },
-        { name: "closeOnSubmit",       control: { type: "toggle" },                                                                                      defaultValue: false,      omitWhen: false },
-        { name: "confirmDemo",         label: "confirm variant",   control: { type: "toggle" },                                                          defaultValue: false,      omitWhen: false },
+        { name: "size",                group: "Appearance", control: { type: "segmented", options: ["sm","md","lg","full"] as const },                                        defaultValue: "md",       omitWhen: "md" },
+        { name: "variant",             group: "Appearance", control: { type: "segmented", options: ["dialog","drawer-left","drawer-right","drawer-bottom"] as const },         defaultValue: "dialog",   omitWhen: "dialog" },
+        { name: "mobileVariant",       group: "Appearance", label: "mobile variant",    control: { type: "segmented", options: ["default","sheet"] as const },                 defaultValue: "default",  omitWhen: "default" },
+        { name: "blur",                group: "Appearance", control: { type: "segmented", options: ["none","sm","md","lg"] as const },                                         defaultValue: "md",       omitWhen: "md" },
+        { name: "padding",             group: "Appearance", control: { type: "segmented", options: ["none","sm","md","lg"] as const },                                         defaultValue: "md",       omitWhen: "md" },
+        { name: "transition",          group: "Appearance", control: { type: "segmented", options: ["fade","zoom","slide-up","slide-down"] as const },                        defaultValue: "fade",     omitWhen: "fade" },
+        { name: "scrollable",          group: "Behaviour",  control: { type: "toggle" },                                                                                      defaultValue: true,       omitWhen: true },
+        { name: "closeOnOverlayClick", group: "Behaviour",  control: { type: "toggle" },                                                                                      defaultValue: true,       omitWhen: true },
+        { name: "closeOnEsc",          group: "Behaviour",  control: { type: "toggle" },                                                                                      defaultValue: true,       omitWhen: true },
+        { name: "showCloseButton",     group: "Display",    control: { type: "toggle" },                                                                                      defaultValue: true,       omitWhen: true },
+        { name: "swipeToDismiss",      group: "Behaviour",  label: "swipe to dismiss",  control: { type: "toggle" },                                                          defaultValue: false,      omitWhen: false },
+        { name: "closeOnSubmit",       group: "Behaviour",  control: { type: "toggle" },                                                                                      defaultValue: false,      omitWhen: false },
+        { name: "confirmDemo",         group: "Behaviour",  label: "confirm variant",   control: { type: "toggle" },                                                          defaultValue: false,      omitWhen: false },
       ]}
       staticProps={{ isOpen: "{open}", onClose: "{() => setOpen(false)}", title: '"Example modal"' }}
       render={(v) => (

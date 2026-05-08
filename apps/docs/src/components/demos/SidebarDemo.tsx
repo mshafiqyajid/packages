@@ -124,18 +124,21 @@ export default function SidebarDemo() {
       props={[
         {
           name: "variant",
+          group: "Appearance",
           control: { type: "segmented", options: ["default", "bordered", "filled", "floating"] as const },
           defaultValue: "default",
           omitWhen: "default",
         },
         {
           name: "size",
+          group: "Appearance",
           control: { type: "segmented", options: ["sm", "md", "lg"] as const },
           defaultValue: "md",
           omitWhen: "md",
         },
         {
           name: "showCollapseButton",
+          group: "Display",
           control: { type: "toggle" },
           defaultValue: true,
           omitWhen: true,

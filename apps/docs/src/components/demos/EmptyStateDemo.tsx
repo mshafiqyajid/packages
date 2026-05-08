@@ -25,13 +25,13 @@ export default function EmptyStateDemo() {
         componentName="EmptyStateStyled"
         importLine={`import { EmptyStateStyled } from "@mshafiqyajid/react-empty-state/styled";\nimport "@mshafiqyajid/react-empty-state/styles.css";`}
         props={[
-          { name: "preset",              control: { type: "segmented", options: ["no-data","no-results","error","offline","empty-search"] as const }, defaultValue: "no-data",   omitWhen: "no-data" },
-          { name: "size",                control: { type: "segmented", options: ["sm","md","lg"] as const },                                          defaultValue: "md",        omitWhen: "md" },
-          { name: "orientation",         control: { type: "segmented", options: ["vertical","horizontal"] as const },                                 defaultValue: "vertical",  omitWhen: "vertical" },
-          { name: "title",               control: { type: "text" },                                                                                   defaultValue: "",          omitWhen: "" },
-          { name: "description",         control: { type: "text" },                                                                                   defaultValue: "",          omitWhen: "" },
-          { name: "showAction",          control: { type: "toggle" },                                                                                 defaultValue: false,       omitWhen: false },
-          { name: "showSecondaryAction", control: { type: "toggle" },                                                                                defaultValue: false,       omitWhen: false },
+          { name: "preset",              group: "Appearance", control: { type: "segmented", options: ["no-data","no-results","error","offline","empty-search"] as const }, defaultValue: "no-data",   omitWhen: "no-data" },
+          { name: "size",                group: "Appearance", control: { type: "segmented", options: ["sm","md","lg"] as const },                                          defaultValue: "md",        omitWhen: "md" },
+          { name: "orientation",         group: "Appearance", control: { type: "segmented", options: ["vertical","horizontal"] as const },                                 defaultValue: "vertical",  omitWhen: "vertical" },
+          { name: "title",               group: "Content",    control: { type: "text" },                                                                                   defaultValue: "",          omitWhen: "" },
+          { name: "description",         group: "Content",    control: { type: "text" },                                                                                   defaultValue: "",          omitWhen: "" },
+          { name: "showAction",          group: "Display",    control: { type: "toggle" },                                                                                 defaultValue: false,       omitWhen: false },
+          { name: "showSecondaryAction", group: "Display",    control: { type: "toggle" },                                                                                defaultValue: false,       omitWhen: false },
         ]}
         render={(v) => (
           <EmptyStateStyled

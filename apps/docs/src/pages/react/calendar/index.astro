@@ -1,0 +1,211 @@
+---
+import DocLayout from "~/layouts/DocLayout.astro";
+import PackagePageShell from "~/components/PackagePageShell.astro";
+import H2 from "~/components/H2.astro";
+import CodeBlock from "~/components/CodeBlock.astro";
+import CalendarDemo from "~/components/demos/CalendarDemo";
+---
+
+<DocLayout title="react-calendar" description="Headless calendar hook and styled date-picker calendar for React. Single, range and multiple selection, drill-down views, keyboard navigation, ARIA grid." pkg="calendar">
+  <PackagePageShell name="react-calendar" description="Headless calendar hook and styled date-picker calendar for React. Single date, date range, and multiple-date selection modes. Month / year / decade drill-down views. Keyboard navigation (arrow keys, Page Up/Down, Home/End), full ARIA grid semantics, disabled dates, min/max bounds, week numbers, configurable first day of week, and smooth transitions." size="~6 KB">
+
+    <div class="pkg-section">
+      <H2>Playground</H2>
+      <CalendarDemo client:load />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Install</H2>
+      <CodeBlock lang="bash" code="npm install @mshafiqyajid/react-calendar" />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Quick start</H2>
+      <CodeBlock lang="tsx" code={`import { CalendarStyled } from "@mshafiqyajid/react-calendar/styled";
+import "@mshafiqyajid/react-calendar/styles.css";
+import { useState } from "react";
+
+export function Example() {
+  const [value, setValue] = useState<Date | null>(null);
+
+  return (
+    <CalendarStyled
+      value={value}
+      onChange={setValue}
+    />
+  );
+}`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Range selection</H2>
+      <p>Pass <code>mode="range"</code> and a <code>[Date | null, Date | null]</code> value to select a date range. Hover shows a live range preview.</p>
+      <CodeBlock lang="tsx" code={`import { CalendarStyled } from "@mshafiqyajid/react-calendar/styled";
+import "@mshafiqyajid/react-calendar/styles.css";
+import { useState } from "react";
+
+export function RangeExample() {
+  const [range, setRange] = useState<[Date | null, Date | null]>([null, null]);
+
+  return (
+    <CalendarStyled
+      mode="range"
+      value={range}
+      onChange={setRange}
+    />
+  );
+}`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Multiple selection</H2>
+      <CodeBlock lang="tsx" code={`<CalendarStyled
+  mode="multiple"
+  value={dates}
+  onChange={setDates}
+/>`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Disabled dates</H2>
+      <CodeBlock lang="tsx" code={`// Disable specific dates
+<CalendarStyled
+  disabledDates={[new Date(2024, 11, 25), new Date(2024, 0, 1)]}
+/>
+
+// Disable with a predicate — e.g. weekends
+<CalendarStyled
+  disabledDates={(date) => date.getDay() === 0 || date.getDay() === 6}
+/>
+
+// Min/max bounds
+<CalendarStyled
+  minDate={new Date()}
+  maxDate={new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)}
+/>`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Headless usage</H2>
+      <CodeBlock lang="tsx" code={`import { useCalendar } from "@mshafiqyajid/react-calendar";
+
+const {
+  value,
+  setValue,
+  viewMonth,
+  setViewMonth,
+  view,
+  setView,
+  weeks,
+  weekDayLabels,
+  monthProps,
+  navProps,
+  getDateProps,
+  hoverDate,
+  setHoverDate,
+  yearMonths,
+  decadeYears,
+  goToPrev,
+  goToNext,
+  goToToday,
+} = useCalendar({
+  mode: "single",
+  firstDayOfWeek: 1,
+});
+
+// Render your own calendar UI using the returned props`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Keyboard</H2>
+      <table class="props-table">
+        <thead><tr><th>Key</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr><td>Arrow keys</td><td>Navigate day by day (up/down = 1 week)</td></tr>
+          <tr><td>Enter / Space</td><td>Select focused date</td></tr>
+          <tr><td>PageDown / PageUp</td><td>Next / previous month</td></tr>
+          <tr><td>Shift+PageDown / Shift+PageUp</td><td>Next / previous year</td></tr>
+          <tr><td>Home</td><td>Start of current week</td></tr>
+          <tr><td>End</td><td>End of current week</td></tr>
+          <tr><td>Ctrl+Home</td><td>First day of current month</td></tr>
+          <tr><td>Ctrl+End</td><td>Last day of current month</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pkg-section">
+      <H2>Props</H2>
+      <table class="props-table">
+        <thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>value</td><td>Date | null | [Date|null, Date|null] | Date[]</td><td>—</td><td>Controlled selection value</td></tr>
+          <tr><td>defaultValue</td><td>same</td><td>—</td><td>Uncontrolled initial value</td></tr>
+          <tr><td>onChange</td><td>(value) =&gt; void</td><td>—</td><td>Called on selection change</td></tr>
+          <tr><td>mode</td><td>"single" | "range" | "multiple"</td><td>"single"</td><td>Selection mode</td></tr>
+          <tr><td>view</td><td>"month" | "year" | "decade"</td><td>—</td><td>Controlled drill-down view</td></tr>
+          <tr><td>defaultView</td><td>same</td><td>"month"</td><td>Uncontrolled initial view</td></tr>
+          <tr><td>month</td><td>Date</td><td>—</td><td>Controlled viewport month</td></tr>
+          <tr><td>defaultMonth</td><td>Date</td><td>current month</td><td>Uncontrolled initial month</td></tr>
+          <tr><td>onMonthChange</td><td>(month: Date) =&gt; void</td><td>—</td><td>Called when viewport month changes</td></tr>
+          <tr><td>minDate</td><td>Date</td><td>—</td><td>Earliest selectable date</td></tr>
+          <tr><td>maxDate</td><td>Date</td><td>—</td><td>Latest selectable date</td></tr>
+          <tr><td>disabledDates</td><td>Date[] | ((date: Date) =&gt; boolean)</td><td>—</td><td>Disabled date list or predicate</td></tr>
+          <tr><td>firstDayOfWeek</td><td>0 | 1 | 6</td><td>0</td><td>First day of week (0=Sun, 1=Mon, 6=Sat)</td></tr>
+          <tr><td>locale</td><td>string</td><td>browser locale</td><td>Locale for day/month labels</td></tr>
+          <tr><td>showOutsideDays</td><td>boolean</td><td>true</td><td>Show days from adjacent months</td></tr>
+          <tr><td>showWeekNumbers</td><td>boolean</td><td>false</td><td>Show ISO week number column</td></tr>
+          <tr><td>fixedWeeks</td><td>boolean</td><td>false</td><td>Always render 6 rows</td></tr>
+          <tr><td>disabledDays</td><td>number[]</td><td>—</td><td>Disable specific days of the week (0=Sun … 6=Sat). E.g. [0, 6] disables weekends</td></tr>
+          <tr><td>markedDates</td><td>{"{ date: Date; color?: string }[]"}</td><td>—</td><td>Highlight arbitrary dates with a colored dot. Defaults to accent color when color is omitted</td></tr>
+          <tr><td>showTodayButton</td><td>boolean</td><td>false</td><td>Render a "Today" button in the header that navigates back to the current month</td></tr>
+          <tr><td>numberOfMonths</td><td>number</td><td>1</td><td>Show multiple months side by side. Prev/next navigate by this many months at once</td></tr>
+          <tr><td>renderDay</td><td>(date, isCurrentMonth, isToday, isSelected) =&gt; ReactNode</td><td>—</td><td>Custom renderer for button children. Replaces the default day number; the button itself (with ARIA/data attrs) is still rendered</td></tr>
+          <tr><td>size</td><td>"sm" | "md" | "lg"</td><td>"md"</td><td>Calendar size</td></tr>
+          <tr><td>className</td><td>string</td><td>—</td><td>Extra CSS class on root element</td></tr>
+          <tr><td>style</td><td>CSSProperties</td><td>—</td><td>Inline style on root element</td></tr>
+          <tr><td>ref</td><td>Ref&lt;HTMLDivElement&gt;</td><td>—</td><td>Forwarded to root div</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pkg-section">
+      <H2>Data attributes</H2>
+      <table class="props-table">
+        <thead><tr><th>Attribute</th><th>Where</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>data-mode</td><td>Root</td><td>"single" | "range" | "multiple"</td></tr>
+          <tr><td>data-view</td><td>Root</td><td>"month" | "year" | "decade"</td></tr>
+          <tr><td>data-size</td><td>Root</td><td>"sm" | "md" | "lg"</td></tr>
+          <tr><td>data-selected</td><td>Day cell</td><td>Present when date is selected</td></tr>
+          <tr><td>data-today</td><td>Day cell</td><td>Present on today's date</td></tr>
+          <tr><td>data-disabled</td><td>Day cell</td><td>Present when date is disabled</td></tr>
+          <tr><td>data-outside-month</td><td>Day cell</td><td>Present for days outside the current month</td></tr>
+          <tr><td>data-in-range</td><td>Day cell</td><td>Present for days within a selected range</td></tr>
+          <tr><td>data-range-start</td><td>Day cell</td><td>Present on the range start date</td></tr>
+          <tr><td>data-range-end</td><td>Day cell</td><td>Present on the range end date</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pkg-section">
+      <H2>CSS variables</H2>
+      <CodeBlock lang="css" code={`:root {
+  --rcal-bg: #ffffff;
+  --rcal-border: #e4e4e7;
+  --rcal-radius: 12px;
+  --rcal-fg: #18181b;
+  --rcal-fg-muted: #71717a;
+  --rcal-fg-outside: #a1a1aa;
+  --rcal-day-size: 2.25rem;
+  --rcal-day-radius: 50%;
+  --rcal-selected-bg: #18181b;
+  --rcal-selected-fg: #ffffff;
+  --rcal-today-ring: #18181b;
+  --rcal-range-bg: #f4f4f5;
+  --rcal-duration-slide: 250ms;
+  --rcal-duration-fade: 150ms;
+}`} />
+    </div>
+
+  </PackagePageShell>
+</DocLayout>

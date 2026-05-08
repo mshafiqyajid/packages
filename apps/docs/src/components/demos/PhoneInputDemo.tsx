@@ -47,14 +47,14 @@ export default function PhoneInputDemo() {
       componentName="PhoneInputStyled"
       importLine={`import { PhoneInputStyled } from "@mshafiqyajid/react-phone-input/styled";\nimport "@mshafiqyajid/react-phone-input/styles.css";`}
       props={[
-        { name: "size",                   control: { type: "segmented", options: ["sm","md","lg"] as const },                         defaultValue: "md",      omitWhen: "md" },
-        { name: "tone",                   control: { type: "segmented", options: ["neutral","primary","success","danger"] as const }, defaultValue: "neutral", omitWhen: "neutral" },
-        { name: "showFlag",               control: { type: "toggle" },                                                                defaultValue: true,      omitWhen: true },
-        { name: "outputFormat",           control: { type: "segmented", options: ["national","international","e164"] as const },      defaultValue: "national", omitWhen: "national" },
-        { name: "searchable",             control: { type: "toggle" }, defaultValue: true,  omitWhen: true  },
-        { name: "preferredCountries",     control: { type: "toggle" }, defaultValue: false, omitWhen: false },
-        { name: "disableCountrySelector", control: { type: "toggle" }, defaultValue: false, omitWhen: false },
-        { name: "disabled",               control: { type: "toggle" }, defaultValue: false, omitWhen: false },
+        { name: "size",                   group: "Appearance", control: { type: "segmented", options: ["sm","md","lg"] as const },                         defaultValue: "md",      omitWhen: "md" },
+        { name: "tone",                   group: "Appearance", control: { type: "segmented", options: ["neutral","primary","success","danger"] as const }, defaultValue: "neutral", omitWhen: "neutral" },
+        { name: "showFlag",               group: "Display",    control: { type: "toggle" },                                                                defaultValue: true,      omitWhen: true },
+        { name: "outputFormat",           group: "Behaviour",  control: { type: "segmented", options: ["national","international","e164"] as const },      defaultValue: "national", omitWhen: "national" },
+        { name: "searchable",             group: "Behaviour",  control: { type: "toggle" }, defaultValue: true,  omitWhen: true  },
+        { name: "preferredCountries",     group: "Behaviour",  control: { type: "toggle" }, defaultValue: false, omitWhen: false },
+        { name: "disableCountrySelector", group: "Behaviour",  control: { type: "toggle" }, defaultValue: false, omitWhen: false },
+        { name: "disabled",               group: "State",      control: { type: "toggle" }, defaultValue: false, omitWhen: false },
       ]}
       staticProps={{ value: "{value}", onChange: "{setValue}" }}
       render={(v) => (

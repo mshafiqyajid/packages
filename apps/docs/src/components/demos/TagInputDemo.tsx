@@ -86,16 +86,16 @@ export default function TagInputDemo() {
       componentName="TagInputStyled"
       importLine={`import { TagInputStyled } from "@mshafiqyajid/react-tag-input/styled";\nimport "@mshafiqyajid/react-tag-input/styles.css";`}
       props={[
-        { name: "size",                  control: { type: "segmented", options: ["sm","md","lg"] as const },                         defaultValue: "md",      omitWhen: "md" },
-        { name: "tone",                  control: { type: "segmented", options: ["neutral","primary","success","danger"] as const }, defaultValue: "neutral", omitWhen: "neutral" },
-        { name: "tagVariant",            control: { type: "segmented", options: ["solid","subtle","outline"] as const },             defaultValue: "solid",   omitWhen: "solid" },
-        { name: "disabled",              control: { type: "toggle" }, defaultValue: false, omitWhen: false },
-        { name: "reorderable",           control: { type: "toggle" }, defaultValue: false, omitWhen: false },
-        { name: "lowercase",             control: { type: "toggle" }, defaultValue: false, omitWhen: false },
-        { name: "backspaceEditsLastTag", control: { type: "toggle" }, defaultValue: false, omitWhen: false },
-        { name: "asyncOptions",          label: "loadSuggestions (mock async)", control: { type: "toggle" }, defaultValue: false, omitWhen: false },
-        { name: "colorize",              label: "colorize per tag",   control: { type: "toggle" }, defaultValue: false, omitWhen: false },
-        { name: "withActions",           label: "tagActions slot",    control: { type: "toggle" }, defaultValue: false, omitWhen: false },
+        { name: "size",                  group: "Appearance", control: { type: "segmented", options: ["sm","md","lg"] as const },                         defaultValue: "md",      omitWhen: "md" },
+        { name: "tone",                  group: "Appearance", control: { type: "segmented", options: ["neutral","primary","success","danger"] as const }, defaultValue: "neutral", omitWhen: "neutral" },
+        { name: "tagVariant",            group: "Appearance", control: { type: "segmented", options: ["solid","subtle","outline"] as const },             defaultValue: "solid",   omitWhen: "solid" },
+        { name: "disabled",              group: "State",      control: { type: "toggle" }, defaultValue: false, omitWhen: false },
+        { name: "reorderable",           group: "Behaviour",  control: { type: "toggle" }, defaultValue: false, omitWhen: false },
+        { name: "lowercase",             group: "Behaviour",  control: { type: "toggle" }, defaultValue: false, omitWhen: false },
+        { name: "backspaceEditsLastTag", group: "Behaviour",  control: { type: "toggle" }, defaultValue: false, omitWhen: false },
+        { name: "asyncOptions",          group: "Behaviour",  label: "loadSuggestions (mock async)", control: { type: "toggle" }, defaultValue: false, omitWhen: false },
+        { name: "colorize",              group: "Display",    label: "colorize per tag",   control: { type: "toggle" }, defaultValue: false, omitWhen: false },
+        { name: "withActions",           group: "Display",    label: "tagActions slot",    control: { type: "toggle" }, defaultValue: false, omitWhen: false },
       ]}
       staticProps={{ value: "{tags}", onChange: "{setTags}" }}
       render={(v) => (

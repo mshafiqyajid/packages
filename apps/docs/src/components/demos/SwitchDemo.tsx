@@ -3,7 +3,7 @@ import PropPlayground from "../PropPlayground";
 import { SwitchStyled } from "@mshafiqyajid/react-switch/styled";
 import "@mshafiqyajid/react-switch/styles.css";
 
-function asyncConfirm(next: boolean): Promise<boolean> {
+function asyncConfirm(_next: boolean): Promise<boolean> {
   return new Promise((resolve) => {
     setTimeout(() => resolve(Math.random() > 0.3), 900);
   });
@@ -18,15 +18,15 @@ export default function SwitchDemo() {
         componentName="SwitchStyled"
         importLine={`import { SwitchStyled } from "@mshafiqyajid/react-switch/styled";\nimport "@mshafiqyajid/react-switch/styles.css";`}
         props={[
-          { name: "size",          control: { type: "segmented", options: ["sm","md","lg"] as const },                        defaultValue: "md",      omitWhen: "md" },
-          { name: "tone",          control: { type: "segmented", options: ["neutral","primary","success","danger"] as const }, defaultValue: "primary",  omitWhen: "primary" },
-          { name: "labelPosition", control: { type: "segmented", options: ["left","right"] as const },                        defaultValue: "right",   omitWhen: "right" },
-          { name: "loading",       control: { type: "toggle" },                                                               defaultValue: false,     omitWhen: false },
-          { name: "disabled",      control: { type: "toggle" },                                                               defaultValue: false,     omitWhen: false },
-          { name: "onLabel",       control: { type: "toggle" },                                                               defaultValue: false,     omitWhen: false },
-          { name: "offLabel",      control: { type: "toggle" },                                                               defaultValue: false,     omitWhen: false },
-          { name: "thumbIconOn",   control: { type: "toggle" },                                                               defaultValue: false,     omitWhen: false },
-          { name: "thumbIconOff",  control: { type: "toggle" },                                                               defaultValue: false,     omitWhen: false },
+          { name: "size",          group: "Appearance", control: { type: "segmented", options: ["sm","md","lg"] as const },                        defaultValue: "md",      omitWhen: "md" },
+          { name: "tone",          group: "Appearance", control: { type: "segmented", options: ["neutral","primary","success","danger"] as const }, defaultValue: "primary",  omitWhen: "primary" },
+          { name: "labelPosition", group: "Appearance", control: { type: "segmented", options: ["left","right"] as const },                        defaultValue: "right",   omitWhen: "right" },
+          { name: "loading",       group: "State",      control: { type: "toggle" },                                                               defaultValue: false,     omitWhen: false },
+          { name: "disabled",      group: "State",      control: { type: "toggle" },                                                               defaultValue: false,     omitWhen: false },
+          { name: "onLabel",       group: "Content",    control: { type: "toggle" },                                                               defaultValue: false,     omitWhen: false },
+          { name: "offLabel",      group: "Content",    control: { type: "toggle" },                                                               defaultValue: false,     omitWhen: false },
+          { name: "thumbIconOn",   group: "Content",    control: { type: "toggle" },                                                               defaultValue: false,     omitWhen: false },
+          { name: "thumbIconOff",  group: "Content",    control: { type: "toggle" },                                                               defaultValue: false,     omitWhen: false },
         ]}
         staticProps={{ checked: "{checked}", onChange: "{setChecked}", label: '"Enable notifications"' }}
         render={(v) => (

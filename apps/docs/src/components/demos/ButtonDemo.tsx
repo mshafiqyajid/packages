@@ -10,16 +10,16 @@ export default function ButtonDemo() {
       componentName="ButtonStyled"
       importLine={`import { ButtonStyled } from "@mshafiqyajid/react-button/styled";\nimport "@mshafiqyajid/react-button/styles.css";`}
       props={[
-        { name: "variant",     control: { type: "segmented", options: ["solid","outline","ghost","link"] as const },              defaultValue: "solid",   omitWhen: "solid" },
-        { name: "tone",        control: { type: "segmented", options: ["neutral","primary","success","danger"] as const },         defaultValue: "primary", omitWhen: "primary" },
-        { name: "size",        control: { type: "segmented", options: ["sm","md","lg"] as const },                                  defaultValue: "md",      omitWhen: "md" },
-        { name: "radius",      control: { type: "segmented", options: ["default","pill","sharp"] as const },                        defaultValue: "default", omitWhen: "default" },
-        { name: "block",       control: { type: "toggle" },                                                                          defaultValue: false,     omitWhen: false },
-        { name: "loading",     control: { type: "toggle" },                                                                          defaultValue: false,     omitWhen: false },
-        { name: "loadingText", control: { type: "text", placeholder: "Saving…" },                                                   defaultValue: "",        omitWhen: "" },
-        { name: "pulse",       control: { type: "toggle" },                                                                          defaultValue: false,     omitWhen: false },
-        { name: "ripple",      control: { type: "toggle" },                                                                          defaultValue: true,      omitWhen: true },
-        { name: "disabled",    control: { type: "toggle" },                                                                          defaultValue: false,     omitWhen: false },
+        { name: "variant",     group: "Appearance", control: { type: "segmented", options: ["solid","outline","ghost","link"] as const },              defaultValue: "solid",   omitWhen: "solid" },
+        { name: "tone",        group: "Appearance", control: { type: "segmented", options: ["neutral","primary","success","danger"] as const },         defaultValue: "primary", omitWhen: "primary" },
+        { name: "size",        group: "Appearance", control: { type: "segmented", options: ["sm","md","lg"] as const },                                  defaultValue: "md",      omitWhen: "md" },
+        { name: "radius",      group: "Appearance", control: { type: "segmented", options: ["default","pill","sharp"] as const },                        defaultValue: "default", omitWhen: "default" },
+        { name: "block",       group: "Layout",     control: { type: "toggle" },                                                                          defaultValue: false,     omitWhen: false },
+        { name: "loading",     group: "State",      control: { type: "toggle" },                                                                          defaultValue: false,     omitWhen: false },
+        { name: "loadingText", group: "State",      control: { type: "text", placeholder: "Saving…" },                                                   defaultValue: "",        omitWhen: "" },
+        { name: "pulse",       group: "Behaviour",  control: { type: "toggle" },                                                                          defaultValue: false,     omitWhen: false },
+        { name: "ripple",      group: "Behaviour",  control: { type: "toggle" },                                                                          defaultValue: true,      omitWhen: true },
+        { name: "disabled",    group: "State",      control: { type: "toggle" },                                                                          defaultValue: false,     omitWhen: false },
       ]}
       staticProps={{ onClick: "{() => setCount(c => c + 1)}", children: '"Click me"' }}
       render={(v) => (

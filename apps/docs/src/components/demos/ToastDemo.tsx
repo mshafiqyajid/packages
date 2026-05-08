@@ -114,16 +114,16 @@ export default function ToastDemo() {
       componentName="ToastProvider"
       importLine={`import { ToastProvider } from "@mshafiqyajid/react-toast/styled";\nimport { useToast } from "@mshafiqyajid/react-toast";\nimport "@mshafiqyajid/react-toast/styles.css";`}
       props={[
-        { name: "type",       control: { type: "segmented", options: ["neutral","success","error","warning","info","loading"] as const },                              defaultValue: "success",      omitWhen: "success" },
-        { name: "position",   control: { type: "select",    options: ["top-left","top-center","top-right","bottom-left","bottom-center","bottom-right"] as const },   defaultValue: "bottom-right", omitWhen: "bottom-right" },
-        { name: "duration",   control: { type: "slider", min: 0, max: 8000, step: 500 },                                                                             defaultValue: 4000,           omitWhen: 4000 },
-        { name: "title",         control: { type: "text", placeholder: "Optional title…" },                                                              defaultValue: "",             omitWhen: "" },
-        { name: "showAction",    control: { type: "toggle" },                                                                                              defaultValue: false,          omitWhen: false },
-        { name: "actionVariant", control: { type: "segmented", options: ["primary","outline","ghost"] as const },                                          defaultValue: "primary",      omitWhen: "primary" },
-        { name: "withUndo",      label: "undo + countdown",       control: { type: "toggle" },                                                              defaultValue: false,          omitWhen: false },
-        { name: "showProgress",  label: "progress ring",          control: { type: "toggle" },                                                              defaultValue: false,          omitWhen: false },
-        { name: "pauseOnHover",  control: { type: "toggle" },                                                                                               defaultValue: true,           omitWhen: true },
-        { name: "draggable",     label: "draggable region",       control: { type: "toggle" },                                                              defaultValue: false,          omitWhen: false },
+        { name: "type",       group: "Appearance", control: { type: "segmented", options: ["neutral","success","error","warning","info","loading"] as const },                              defaultValue: "success",      omitWhen: "success" },
+        { name: "position",   group: "Layout",     control: { type: "select",    options: ["top-left","top-center","top-right","bottom-left","bottom-center","bottom-right"] as const },   defaultValue: "bottom-right", omitWhen: "bottom-right" },
+        { name: "duration",   group: "Behaviour",  control: { type: "slider", min: 0, max: 8000, step: 500 },                                                                             defaultValue: 4000,           omitWhen: 4000 },
+        { name: "pauseOnHover",  group: "Behaviour",  control: { type: "toggle" },                                                                                               defaultValue: true,           omitWhen: true },
+        { name: "draggable",     group: "Behaviour",  label: "draggable region",       control: { type: "toggle" },                                                              defaultValue: false,          omitWhen: false },
+        { name: "title",         group: "Content",    control: { type: "text", placeholder: "Optional title…" },                                                              defaultValue: "",             omitWhen: "" },
+        { name: "showAction",    group: "Content",    control: { type: "toggle" },                                                                                              defaultValue: false,          omitWhen: false },
+        { name: "actionVariant", group: "Content",    control: { type: "segmented", options: ["primary","outline","ghost"] as const },                                          defaultValue: "primary",      omitWhen: "primary" },
+        { name: "withUndo",      group: "Display",    label: "undo + countdown",       control: { type: "toggle" },                                                              defaultValue: false,          omitWhen: false },
+        { name: "showProgress",  group: "Display",    label: "progress ring",          control: { type: "toggle" },                                                              defaultValue: false,          omitWhen: false },
       ]}
       render={(v) => (
         <ToastTrigger

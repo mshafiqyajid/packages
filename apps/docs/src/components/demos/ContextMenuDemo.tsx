@@ -81,6 +81,7 @@ export default function ContextMenuDemo() {
       props={[
         {
           name: "mode",
+          group: "Content",
           label: "item set",
           control: { type: "segmented", options: ["file", "edit", "icons"] as const },
           defaultValue: "file",
@@ -88,6 +89,7 @@ export default function ContextMenuDemo() {
         },
         {
           name: "disabled",
+          group: "State",
           control: { type: "toggle" },
           defaultValue: false,
           omitWhen: false,

@@ -46,7 +46,7 @@ const items = [
         </span>
       </span>
     ),
-    renderHeader: ({ isOpen, toggle }: { isOpen: boolean; toggle: () => void }) => (
+    renderHeader: ({ isOpen }: { isOpen: boolean; toggle: () => void }) => (
       <span
         style={{
           display: "flex",
@@ -130,14 +130,14 @@ export default function AccordionDemo() {
       componentName="AccordionStyled"
       importLine={`import { AccordionStyled } from "@mshafiqyajid/react-accordion/styled";\nimport "@mshafiqyajid/react-accordion/styles.css";`}
       props={[
-        { name: "type",     control: { type: "segmented", options: ["single","multiple"] as const }, defaultValue: "single",   omitWhen: "single" },
-        { name: "size",     control: { type: "segmented", options: ["sm","md","lg"] as const },       defaultValue: "md",       omitWhen: "md" },
-        { name: "tone",     control: { type: "segmented", options: ["neutral","primary"] as const },  defaultValue: "neutral",  omitWhen: "neutral" },
-        { name: "variant",  control: { type: "segmented", options: ["bordered","separated","flush"] as const }, defaultValue: "bordered", omitWhen: "bordered" },
-        { name: "animated",    control: { type: "toggle" },                                              defaultValue: true,       omitWhen: true },
-        { name: "lazy",        control: { type: "toggle" },                                              defaultValue: false,      omitWhen: false },
-        { name: "collapsible", control: { type: "toggle" },                                              defaultValue: true,       omitWhen: true },
-        { name: "disabled",    control: { type: "toggle" },                                              defaultValue: false,      omitWhen: false },
+        { name: "type",     group: "Appearance", control: { type: "segmented", options: ["single","multiple"] as const }, defaultValue: "single",   omitWhen: "single" },
+        { name: "size",     group: "Appearance", control: { type: "segmented", options: ["sm","md","lg"] as const },       defaultValue: "md",       omitWhen: "md" },
+        { name: "tone",     group: "Appearance", control: { type: "segmented", options: ["neutral","primary"] as const },  defaultValue: "neutral",  omitWhen: "neutral" },
+        { name: "variant",  group: "Appearance", control: { type: "segmented", options: ["bordered","separated","flush"] as const }, defaultValue: "bordered", omitWhen: "bordered" },
+        { name: "animated",    group: "Behaviour", control: { type: "toggle" },                                              defaultValue: true,       omitWhen: true },
+        { name: "lazy",        group: "Behaviour", control: { type: "toggle" },                                              defaultValue: false,      omitWhen: false },
+        { name: "collapsible", group: "Behaviour", control: { type: "toggle" },                                              defaultValue: true,       omitWhen: true },
+        { name: "disabled",    group: "State",     control: { type: "toggle" },                                              defaultValue: false,      omitWhen: false },
       ]}
       staticProps={{ items: "{items}" }}
       render={(v) => (

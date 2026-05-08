@@ -15,15 +15,15 @@ export default function StepperDemo() {
       componentName="StepperStyled"
       importLine={`import { StepperStyled } from "@mshafiqyajid/react-stepper/styled";\nimport "@mshafiqyajid/react-stepper/styles.css";`}
       props={[
-        { name: "orientation",    control: { type: "segmented", options: ["horizontal","vertical"] as const },        defaultValue: "horizontal", omitWhen: "horizontal" },
-        { name: "tone",           control: { type: "segmented", options: ["primary","neutral"] as const },             defaultValue: "primary",    omitWhen: "primary" },
-        { name: "size",           control: { type: "segmented", options: ["sm","md","lg"] as const },                  defaultValue: "md",          omitWhen: "md" },
-        { name: "mode",           control: { type: "segmented", options: ["linear","non-linear"] as const },           defaultValue: "linear",     omitWhen: "linear" },
-        { name: "clickableSteps", control: { type: "toggle" },                                                          defaultValue: true,         omitWhen: true },
-        { name: "progressBar",    control: { type: "toggle" },                                                          defaultValue: false,        omitWhen: false },
-        { name: "lastOptional",   label: "last step optional", control: { type: "toggle" },                              defaultValue: false,        omitWhen: false },
-        { name: "billingError",   label: "billing has error",  control: { type: "toggle" },                              defaultValue: false,        omitWhen: false },
-        { name: "showFooter",     control: { type: "toggle" },                                                          defaultValue: true,         omitWhen: true },
+        { name: "orientation",    group: "Appearance", control: { type: "segmented", options: ["horizontal","vertical"] as const },        defaultValue: "horizontal", omitWhen: "horizontal" },
+        { name: "tone",           group: "Appearance", control: { type: "segmented", options: ["primary","neutral"] as const },             defaultValue: "primary",    omitWhen: "primary" },
+        { name: "size",           group: "Appearance", control: { type: "segmented", options: ["sm","md","lg"] as const },                  defaultValue: "md",          omitWhen: "md" },
+        { name: "mode",           group: "Behaviour",  control: { type: "segmented", options: ["linear","non-linear"] as const },           defaultValue: "linear",     omitWhen: "linear" },
+        { name: "clickableSteps", group: "Behaviour",  control: { type: "toggle" },                                                          defaultValue: true,         omitWhen: true },
+        { name: "progressBar",    group: "Display",    control: { type: "toggle" },                                                          defaultValue: false,        omitWhen: false },
+        { name: "lastOptional",   group: "Display",    label: "last step optional", control: { type: "toggle" },                              defaultValue: false,        omitWhen: false },
+        { name: "billingError",   group: "Display",    label: "billing has error",  control: { type: "toggle" },                              defaultValue: false,        omitWhen: false },
+        { name: "showFooter",     group: "Display",    control: { type: "toggle" },                                                          defaultValue: true,         omitWhen: true },
       ]}
       staticProps={{ steps: "{steps}", onFinish: "{() => /* submit */}" }}
       render={(v) => (

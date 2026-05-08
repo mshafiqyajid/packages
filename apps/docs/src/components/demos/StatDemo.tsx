@@ -41,11 +41,11 @@ export default function StatDemo() {
         componentName="StatStyled"
         importLine={`import { StatStyled } from "@mshafiqyajid/react-stat/styled";\nimport "@mshafiqyajid/react-stat/styles.css";`}
         props={[
-          { name: "size",        control: { type: "segmented", options: ["sm","md","lg"] as const },           defaultValue: "md",      omitWhen: "md" },
-          { name: "tone",        control: { type: "segmented", options: ["neutral","primary"] as const },       defaultValue: "neutral", omitWhen: "neutral" },
-          { name: "countUp",     control: { type: "toggle" },                                                   defaultValue: true,      omitWhen: true },
-          { name: "loading",     control: { type: "toggle" },                                                   defaultValue: false,     omitWhen: false },
-          { name: "trendFormat", control: { type: "segmented", options: ["percent","absolute"] as const },      defaultValue: "percent", omitWhen: "percent" },
+          { name: "size",        group: "Appearance", control: { type: "segmented", options: ["sm","md","lg"] as const },           defaultValue: "md",      omitWhen: "md" },
+          { name: "tone",        group: "Appearance", control: { type: "segmented", options: ["neutral","primary"] as const },       defaultValue: "neutral", omitWhen: "neutral" },
+          { name: "trendFormat", group: "Appearance", control: { type: "segmented", options: ["percent","absolute"] as const },      defaultValue: "percent", omitWhen: "percent" },
+          { name: "countUp",     group: "Behaviour",  control: { type: "toggle" },                                                   defaultValue: true,      omitWhen: true },
+          { name: "loading",     group: "State",      control: { type: "toggle" },                                                   defaultValue: false,     omitWhen: false },
         ]}
         render={(v) => (
           <StatStyled

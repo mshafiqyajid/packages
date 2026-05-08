@@ -39,45 +39,52 @@ export default function DividerDemo() {
         props={[
           {
             name: "orientation",
+            group: "Appearance",
             control: { type: "segmented", options: ["horizontal", "vertical"] as const },
             defaultValue: "horizontal",
             omitWhen: "horizontal",
           },
           {
             name: "tone",
+            group: "Appearance",
             control: { type: "segmented", options: ["neutral", "primary", "success", "warning", "danger", "info"] as const },
             defaultValue: "neutral",
             omitWhen: "neutral",
           },
           {
             name: "lineStyle",
+            group: "Appearance",
             control: { type: "segmented", options: ["solid", "dashed", "dotted"] as const },
             defaultValue: "solid",
             omitWhen: "solid",
           },
           {
             name: "size",
+            group: "Appearance",
             control: { type: "segmented", options: ["sm", "md", "lg"] as const },
             defaultValue: "md",
             omitWhen: "md",
           },
           {
             name: "spacing",
+            group: "Layout",
             control: { type: "segmented", options: ["sm", "md", "lg"] as const },
             defaultValue: "md",
             omitWhen: "md",
           },
           {
-            name: "labelAlign",
-            control: { type: "segmented", options: ["start", "center", "end"] as const },
-            defaultValue: "center",
-            omitWhen: "center",
-          },
-          {
             name: "label",
+            group: "Content",
             control: { type: "text", placeholder: "Label text (leave empty for none)" },
             defaultValue: "Or continue with",
             omitWhen: "",
+          },
+          {
+            name: "labelAlign",
+            group: "Content",
+            control: { type: "segmented", options: ["start", "center", "end"] as const },
+            defaultValue: "center",
+            omitWhen: "center",
           },
         ]}
         render={(v) => (

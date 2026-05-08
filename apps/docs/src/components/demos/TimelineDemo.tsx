@@ -81,17 +81,17 @@ export default function TimelineDemo() {
       componentName="TimelineStyled"
       importLine={`import { TimelineStyled } from "@mshafiqyajid/react-timeline/styled";\nimport "@mshafiqyajid/react-timeline/styles.css";`}
       props={[
-        { name: "orientation", control: { type: "segmented", options: ["vertical","horizontal"] as const }, defaultValue: "vertical", omitWhen: "vertical" },
-        { name: "size",        control: { type: "segmented", options: ["sm","md","lg"] as const },          defaultValue: "md",       omitWhen: "md" },
-        { name: "tone",        control: { type: "segmented", options: ["neutral","primary","success","danger"] as const }, defaultValue: "primary", omitWhen: "neutral" },
-        { name: "connector",   control: { type: "segmented", options: ["line","dashed","none"] as const },  defaultValue: "line",     omitWhen: "line" },
-        { name: "align",       control: { type: "segmented", options: ["left","right","center","alternate"] as const }, defaultValue: "left", omitWhen: "left" },
-        { name: "spacing",     control: { type: "segmented", options: ["uniform","time"] as const },        defaultValue: "uniform",  omitWhen: "uniform" },
-        { name: "reverse",     control: { type: "toggle" }, defaultValue: false, omitWhen: false },
-        { name: "animate",     control: { type: "toggle" }, defaultValue: false, omitWhen: false },
-        { name: "grouped",     control: { type: "toggle" }, defaultValue: false, omitWhen: false },
-        { name: "withPending", label: "pending tail", control: { type: "toggle" }, defaultValue: false, omitWhen: false },
-        { name: "customIcons", label: "custom statusIcons", control: { type: "toggle" }, defaultValue: false, omitWhen: false },
+        { name: "orientation", group: "Appearance", control: { type: "segmented", options: ["vertical","horizontal"] as const }, defaultValue: "vertical", omitWhen: "vertical" },
+        { name: "size",        group: "Appearance", control: { type: "segmented", options: ["sm","md","lg"] as const },          defaultValue: "md",       omitWhen: "md" },
+        { name: "tone",        group: "Appearance", control: { type: "segmented", options: ["neutral","primary","success","danger"] as const }, defaultValue: "primary", omitWhen: "neutral" },
+        { name: "connector",   group: "Appearance", control: { type: "segmented", options: ["line","dashed","none"] as const },  defaultValue: "line",     omitWhen: "line" },
+        { name: "align",       group: "Layout",     control: { type: "segmented", options: ["left","right","center","alternate"] as const }, defaultValue: "left", omitWhen: "left" },
+        { name: "spacing",     group: "Layout",     control: { type: "segmented", options: ["uniform","time"] as const },        defaultValue: "uniform",  omitWhen: "uniform" },
+        { name: "reverse",     group: "Layout",     control: { type: "toggle" }, defaultValue: false, omitWhen: false },
+        { name: "animate",     group: "Display",    control: { type: "toggle" }, defaultValue: false, omitWhen: false },
+        { name: "grouped",     group: "Display",    control: { type: "toggle" }, defaultValue: false, omitWhen: false },
+        { name: "withPending", group: "Display",    label: "pending tail", control: { type: "toggle" }, defaultValue: false, omitWhen: false },
+        { name: "customIcons", group: "Display",    label: "custom statusIcons", control: { type: "toggle" }, defaultValue: false, omitWhen: false },
       ]}
       staticProps={{ items: "{items}" }}
       render={(v) => (

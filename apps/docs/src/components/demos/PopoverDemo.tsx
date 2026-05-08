@@ -12,15 +12,15 @@ export default function PopoverDemo() {
       componentName="PopoverStyled"
       importLine={`import { PopoverStyled } from "@mshafiqyajid/react-popover/styled";\nimport "@mshafiqyajid/react-popover/styles.css";`}
       props={[
-        { name: "placement",         control: { type: "segmented", options: ["top","bottom","left","right"] as const }, defaultValue: "bottom",  omitWhen: "bottom" },
-        { name: "trigger",           control: { type: "segmented", options: ["click","hover"] as const },               defaultValue: "click",   omitWhen: "click" },
-        { name: "size",              control: { type: "segmented", options: ["sm","md","lg"] as const },                defaultValue: "md",      omitWhen: "md" },
-        { name: "showArrow",           control: { type: "toggle" },                                                     defaultValue: true,  omitWhen: true },
-        { name: "closeOnOutsideClick", control: { type: "toggle" },                                                     defaultValue: true,  omitWhen: true },
-        { name: "closeOnEsc",          control: { type: "toggle" },                                                     defaultValue: true,  omitWhen: true },
-        { name: "modal",               label: "modal-popover (focus trap)", control: { type: "toggle" },                defaultValue: false, omitWhen: false },
-        { name: "closeWhenAnchorHidden", label: "close when scrolled off", control: { type: "toggle" },                  defaultValue: false, omitWhen: false },
-        { name: "returnFocus",         control: { type: "toggle" },                                                     defaultValue: true,  omitWhen: true },
+        { name: "placement",             group: "Layout",    control: { type: "segmented", options: ["top","bottom","left","right"] as const }, defaultValue: "bottom",  omitWhen: "bottom" },
+        { name: "size",                  group: "Appearance", control: { type: "segmented", options: ["sm","md","lg"] as const },                defaultValue: "md",      omitWhen: "md" },
+        { name: "trigger",               group: "Behaviour",  control: { type: "segmented", options: ["click","hover"] as const },               defaultValue: "click",   omitWhen: "click" },
+        { name: "showArrow",             group: "Display",    control: { type: "toggle" },                                                     defaultValue: true,  omitWhen: true },
+        { name: "closeOnOutsideClick",   group: "Behaviour",  control: { type: "toggle" },                                                     defaultValue: true,  omitWhen: true },
+        { name: "closeOnEsc",            group: "Behaviour",  control: { type: "toggle" },                                                     defaultValue: true,  omitWhen: true },
+        { name: "modal",                 group: "Behaviour",  label: "modal-popover (focus trap)", control: { type: "toggle" },                defaultValue: false, omitWhen: false },
+        { name: "closeWhenAnchorHidden", group: "Behaviour",  label: "close when scrolled off", control: { type: "toggle" },                  defaultValue: false, omitWhen: false },
+        { name: "returnFocus",           group: "Behaviour",  control: { type: "toggle" },                                                     defaultValue: true,  omitWhen: true },
       ]}
       staticProps={{ title: '"More info"', content: '"This is the popover content."' }}
       render={(v) => (

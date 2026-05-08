@@ -34,12 +34,12 @@ export default function ChipDemo() {
         componentName="ChipStyled"
         importLine={`import { ChipStyled } from "@mshafiqyajid/react-chip/styled";\nimport "@mshafiqyajid/react-chip/styles.css";`}
         props={[
-          { name: "variant",     control: { type: "segmented", options: ["solid","subtle","outline","soft"] as const },                           defaultValue: "subtle",  omitWhen: "subtle" },
-          { name: "tone",        control: { type: "segmented", options: ["neutral","primary","success","warning","danger","info"] as const },      defaultValue: "neutral", omitWhen: "neutral" },
-          { name: "size",        control: { type: "segmented", options: ["sm","md","lg"] as const },                                              defaultValue: "md",      omitWhen: "md" },
-          { name: "selectable",  control: { type: "toggle" },                                                                                     defaultValue: false,     omitWhen: false },
-          { name: "dismissible", control: { type: "toggle" },                                                                                     defaultValue: false,     omitWhen: false },
-          { name: "disabled",    control: { type: "toggle" },                                                                                     defaultValue: false,     omitWhen: false },
+          { name: "variant",     group: "Appearance", control: { type: "segmented", options: ["solid","subtle","outline","soft"] as const },                           defaultValue: "subtle",  omitWhen: "subtle" },
+          { name: "tone",        group: "Appearance", control: { type: "segmented", options: ["neutral","primary","success","warning","danger","info"] as const },      defaultValue: "neutral", omitWhen: "neutral" },
+          { name: "size",        group: "Appearance", control: { type: "segmented", options: ["sm","md","lg"] as const },                                              defaultValue: "md",      omitWhen: "md" },
+          { name: "selectable",  group: "Behaviour",  control: { type: "toggle" },                                                                                     defaultValue: false,     omitWhen: false },
+          { name: "dismissible", group: "Behaviour",  control: { type: "toggle" },                                                                                     defaultValue: false,     omitWhen: false },
+          { name: "disabled",    group: "State",      control: { type: "toggle" },                                                                                     defaultValue: false,     omitWhen: false },
         ]}
         render={(v) => (
           <ChipStyled

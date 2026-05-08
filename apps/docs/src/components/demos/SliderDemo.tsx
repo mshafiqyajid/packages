@@ -103,21 +103,21 @@ export default function SliderDemo() {
         componentName="SliderStyled"
         importLine={`import { SliderStyled } from "@mshafiqyajid/react-slider/styled";\nimport "@mshafiqyajid/react-slider/styles.css";`}
         props={[
-          { name: "size",                 control: { type: "segmented", options: ["sm","md","lg"] as const },                        defaultValue: "md",      omitWhen: "md" },
-          { name: "tone",                 control: { type: "segmented", options: ["neutral","primary","success","danger"] as const }, defaultValue: "primary", omitWhen: "neutral" },
-          { name: "orientation",          control: { type: "segmented", options: ["horizontal","vertical"] as const },                defaultValue: "horizontal", omitWhen: "horizontal" },
-          { name: "range",                control: { type: "toggle" },                                                                defaultValue: false,     omitWhen: false },
-          { name: "showValue",            control: { type: "toggle" },                                                                defaultValue: false,     omitWhen: false },
-          { name: "showValueOnInteraction", label: "bubble on hover/active", control: { type: "toggle" },                             defaultValue: false,     omitWhen: false },
-          { name: "formatPercent",        label: "formatValue (% suffix)", control: { type: "toggle" },                               defaultValue: false,     omitWhen: false },
-          { name: "marks",                control: { type: "toggle" },                                                                defaultValue: false,     omitWhen: false },
-          { name: "labelledMarks",        label: "labelled marks",         control: { type: "toggle" },                              defaultValue: false,     omitWhen: false },
-          { name: "disabled",             control: { type: "toggle" },                                                                defaultValue: false,     omitWhen: false },
-          { name: "label",                control: { type: "text", placeholder: "e.g. Volume" },                                    defaultValue: "",        omitWhen: "" },
-          { name: "hint",                 control: { type: "text", placeholder: "Helper text…" },                                   defaultValue: "",        omitWhen: "" },
-          { name: "min",                  control: { type: "number", min: -100, max: 0, step: 1 },                                   defaultValue: 0,         omitWhen: 0 },
-          { name: "max",                  control: { type: "number", min: 100, max: 1000, step: 1 },                                 defaultValue: 100,       omitWhen: 100 },
-          { name: "step",                 control: { type: "number", min: 1, max: 25, step: 1 },                                     defaultValue: 1,         omitWhen: 1 },
+          { name: "size",                 group: "Appearance", control: { type: "segmented", options: ["sm","md","lg"] as const },                        defaultValue: "md",      omitWhen: "md" },
+          { name: "tone",                 group: "Appearance", control: { type: "segmented", options: ["neutral","primary","success","danger"] as const }, defaultValue: "primary", omitWhen: "neutral" },
+          { name: "orientation",          group: "Appearance", control: { type: "segmented", options: ["horizontal","vertical"] as const },                defaultValue: "horizontal", omitWhen: "horizontal" },
+          { name: "range",                group: "Behaviour",  control: { type: "toggle" },                                                                defaultValue: false,     omitWhen: false },
+          { name: "showValue",            group: "Display",    control: { type: "toggle" },                                                                defaultValue: false,     omitWhen: false },
+          { name: "showValueOnInteraction", group: "Display",  label: "bubble on hover/active", control: { type: "toggle" },                             defaultValue: false,     omitWhen: false },
+          { name: "formatPercent",        group: "Display",    label: "formatValue (% suffix)", control: { type: "toggle" },                               defaultValue: false,     omitWhen: false },
+          { name: "marks",                group: "Display",    control: { type: "toggle" },                                                                defaultValue: false,     omitWhen: false },
+          { name: "labelledMarks",        group: "Display",    label: "labelled marks",         control: { type: "toggle" },                              defaultValue: false,     omitWhen: false },
+          { name: "disabled",             group: "State",      control: { type: "toggle" },                                                                defaultValue: false,     omitWhen: false },
+          { name: "label",                group: "Content",    control: { type: "text", placeholder: "e.g. Volume" },                                    defaultValue: "",        omitWhen: "" },
+          { name: "hint",                 group: "Content",    control: { type: "text", placeholder: "Helper text…" },                                   defaultValue: "",        omitWhen: "" },
+          { name: "min",                  group: "Layout",     control: { type: "number", min: -100, max: 0, step: 1 },                                   defaultValue: 0,         omitWhen: 0 },
+          { name: "max",                  group: "Layout",     control: { type: "number", min: 100, max: 1000, step: 1 },                                 defaultValue: 100,       omitWhen: 100 },
+          { name: "step",                 group: "Layout",     control: { type: "number", min: 1, max: 25, step: 1 },                                     defaultValue: 1,         omitWhen: 1 },
         ]}
         staticProps={{ value: "{value}", onChange: "{setValue}" }}
         render={(v) => (

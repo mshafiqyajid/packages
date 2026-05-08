@@ -1,0 +1,123 @@
+/* react-skeleton — [data-theme="dark"] only for dark mode */
+:root {
+  --rsk-bg: #e4e4e7;
+  --rsk-wave-highlight: rgba(255, 255, 255, 0.7);
+  --rsk-radius-none: 0px;
+  --rsk-radius-sm: 4px;
+  --rsk-radius-md: 8px;
+  --rsk-radius-lg: 12px;
+  --rsk-duration-pulse: 1.4s;
+  --rsk-duration-wave: 1.6s;
+}
+
+[data-theme="dark"] {
+  --rsk-bg: #27272a;
+  --rsk-wave-highlight: rgba(255, 255, 255, 0.08);
+}
+
+/* Keyframes */
+@keyframes rsk-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+@keyframes rsk-wave {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Root */
+.rsk-root {
+  display: block;
+  background-color: var(--rsk-bg);
+  overflow: hidden;
+}
+
+/* Radius variants (non-circle) */
+.rsk-root[data-radius="none"] { border-radius: var(--rsk-radius-none); }
+.rsk-root[data-radius="sm"]   { border-radius: var(--rsk-radius-sm); }
+.rsk-root[data-radius="md"]   { border-radius: var(--rsk-radius-md); }
+.rsk-root[data-radius="lg"]   { border-radius: var(--rsk-radius-lg); }
+.rsk-root[data-radius="full"] { border-radius: 9999px; }
+
+/* Variant: circle */
+.rsk-root[data-variant="circle"] {
+  border-radius: 50%;
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+/* Variant: line */
+.rsk-root[data-variant="line"] {
+  width: 100%;
+  height: 1rem;
+}
+
+/* Variant: text — container, no background */
+.rsk-root[data-variant="text"] {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  background: none;
+}
+
+/* Individual line within text variant */
+.rsk-line {
+  display: block;
+  width: 100%;
+  height: 1rem;
+  background-color: var(--rsk-bg);
+  border-radius: var(--rsk-radius-sm);
+}
+
+.rsk-line[data-radius="none"] { border-radius: var(--rsk-radius-none); }
+.rsk-line[data-radius="sm"]   { border-radius: var(--rsk-radius-sm); }
+.rsk-line[data-radius="md"]   { border-radius: var(--rsk-radius-md); }
+.rsk-line[data-radius="lg"]   { border-radius: var(--rsk-radius-lg); }
+.rsk-line[data-radius="full"] { border-radius: 9999px; }
+
+/* Pulse animation */
+.rsk-root[data-animation="pulse"] {
+  animation: rsk-pulse var(--rsk-duration-pulse) ease-in-out infinite;
+}
+
+.rsk-line[data-animation="pulse"] {
+  animation: rsk-pulse var(--rsk-duration-pulse) ease-in-out infinite;
+}
+
+/* Wave animation */
+.rsk-root[data-animation="wave"] {
+  background: linear-gradient(
+    90deg,
+    var(--rsk-bg) 25%,
+    var(--rsk-wave-highlight) 50%,
+    var(--rsk-bg) 75%
+  );
+  background-size: 400% 100%;
+  animation: rsk-wave var(--rsk-duration-wave) linear infinite;
+}
+
+.rsk-line[data-animation="wave"] {
+  background: linear-gradient(
+    90deg,
+    var(--rsk-bg) 25%,
+    var(--rsk-wave-highlight) 50%,
+    var(--rsk-bg) 75%
+  );
+  background-size: 400% 100%;
+  animation: rsk-wave var(--rsk-duration-wave) linear infinite;
+}
+
+/* No animation */
+.rsk-root[data-animation="none"],
+.rsk-line[data-animation="none"] {
+  animation: none;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .rsk-root,
+  .rsk-line {
+    animation: none !important;
+  }
+}

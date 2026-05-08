@@ -59,16 +59,16 @@ export default function TabsDemo() {
       componentName="TabsStyled"
       importLine={`import { TabsStyled } from "@mshafiqyajid/react-tabs/styled";\nimport "@mshafiqyajid/react-tabs/styles.css";`}
       props={[
-        { name: "variant",        control: { type: "segmented", options: ["line","solid","pill"] as const },          defaultValue: "line",      omitWhen: "line" },
-        { name: "size",           control: { type: "segmented", options: ["sm","md","lg"] as const },                 defaultValue: "md",        omitWhen: "md" },
-        { name: "tone",           control: { type: "segmented", options: ["neutral","primary"] as const },            defaultValue: "neutral",   omitWhen: "neutral" },
-        { name: "activationMode", label: "activation mode", control: { type: "segmented", options: ["automatic","manual"] as const }, defaultValue: "automatic", omitWhen: "automatic" },
-        { name: "orientation",    control: { type: "segmented", options: ["horizontal","vertical"] as const }, defaultValue: "horizontal", omitWhen: "horizontal" },
-        { name: "scrollable",     label: "scroll overflow",    control: { type: "toggle" }, defaultValue: false, omitWhen: false },
-        { name: "reorderable",    label: "drag to reorder",    control: { type: "toggle" }, defaultValue: false, omitWhen: false },
-        { name: "closeable",      label: "closeable tabs (×)", control: { type: "toggle" }, defaultValue: false, omitWhen: false },
-        { name: "lazyMount",      label: "lazy mount panels",  control: { type: "toggle" }, defaultValue: false, omitWhen: false },
-        { name: "forceMount",     label: "force mount panels", control: { type: "toggle" }, defaultValue: false, omitWhen: false },
+        { name: "variant",        group: "Appearance", control: { type: "segmented", options: ["line","solid","pill"] as const },          defaultValue: "line",      omitWhen: "line" },
+        { name: "size",           group: "Appearance", control: { type: "segmented", options: ["sm","md","lg"] as const },                 defaultValue: "md",        omitWhen: "md" },
+        { name: "tone",           group: "Appearance", control: { type: "segmented", options: ["neutral","primary"] as const },            defaultValue: "neutral",   omitWhen: "neutral" },
+        { name: "activationMode", group: "Behaviour",  label: "activation mode", control: { type: "segmented", options: ["automatic","manual"] as const }, defaultValue: "automatic", omitWhen: "automatic" },
+        { name: "orientation",    group: "Behaviour",  control: { type: "segmented", options: ["horizontal","vertical"] as const }, defaultValue: "horizontal", omitWhen: "horizontal" },
+        { name: "scrollable",     group: "Behaviour",  label: "scroll overflow",    control: { type: "toggle" }, defaultValue: false, omitWhen: false },
+        { name: "reorderable",    group: "Behaviour",  label: "drag to reorder",    control: { type: "toggle" }, defaultValue: false, omitWhen: false },
+        { name: "closeable",      group: "Behaviour",  label: "closeable tabs (×)", control: { type: "toggle" }, defaultValue: false, omitWhen: false },
+        { name: "lazyMount",      group: "Display",    label: "lazy mount panels",  control: { type: "toggle" }, defaultValue: false, omitWhen: false },
+        { name: "forceMount",     group: "Display",    label: "force mount panels", control: { type: "toggle" }, defaultValue: false, omitWhen: false },
       ]}
       staticProps={{ tabs: "{tabs}", defaultValue: '"overview"' }}
       render={(v) => (

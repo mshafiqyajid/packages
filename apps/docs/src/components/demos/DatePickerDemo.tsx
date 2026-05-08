@@ -58,18 +58,18 @@ export default function DatePickerDemo() {
       componentName="DatePickerStyled"
       importLine={`import { DatePickerStyled } from "@mshafiqyajid/react-date-picker/styled";\nimport "@mshafiqyajid/react-date-picker/styles.css";`}
       props={[
-        { name: "mode",            control: { type: "segmented", options: ["single","range"] as const },          defaultValue: "single",  omitWhen: "single" },
-        { name: "size",            control: { type: "segmented", options: ["sm","md","lg"] as const },             defaultValue: "md",      omitWhen: "md" },
-        { name: "tone",            control: { type: "segmented", options: ["neutral","primary"] as const },        defaultValue: "neutral", omitWhen: "neutral" },
-        { name: "numberOfMonths",  control: { type: "segmented", options: ["1","2","3"] as const },                defaultValue: "1",       omitWhen: "1" },
-        { name: "captionLayout",   control: { type: "segmented", options: ["label","dropdown"] as const },         defaultValue: "label",   omitWhen: "label" },
-        { name: "inline",          control: { type: "toggle" }, defaultValue: false, omitWhen: false },
-        { name: "showOutsideDays", control: { type: "toggle" }, defaultValue: true,  omitWhen: true  },
-        { name: "fixedWeeks",      control: { type: "toggle" }, defaultValue: true,  omitWhen: true  },
-        { name: "clearable",       control: { type: "toggle" }, defaultValue: false, omitWhen: false },
-        { name: "disabled",        control: { type: "toggle" }, defaultValue: false, omitWhen: false },
-        { name: "showTime",        label: "show time (single)", control: { type: "toggle" }, defaultValue: false, omitWhen: false },
-        { name: "pagedBy",         control: { type: "segmented", options: ["1","all"] as const }, defaultValue: "1", omitWhen: "1" },
+        { name: "mode",            group: "Appearance", control: { type: "segmented", options: ["single","range"] as const },          defaultValue: "single",  omitWhen: "single" },
+        { name: "size",            group: "Appearance", control: { type: "segmented", options: ["sm","md","lg"] as const },             defaultValue: "md",      omitWhen: "md" },
+        { name: "tone",            group: "Appearance", control: { type: "segmented", options: ["neutral","primary"] as const },        defaultValue: "neutral", omitWhen: "neutral" },
+        { name: "numberOfMonths",  group: "Layout",     control: { type: "segmented", options: ["1","2","3"] as const },                defaultValue: "1",       omitWhen: "1" },
+        { name: "captionLayout",   group: "Layout",     control: { type: "segmented", options: ["label","dropdown"] as const },         defaultValue: "label",   omitWhen: "label" },
+        { name: "pagedBy",         group: "Layout",     control: { type: "segmented", options: ["1","all"] as const }, defaultValue: "1", omitWhen: "1" },
+        { name: "inline",          group: "Display",    control: { type: "toggle" }, defaultValue: false, omitWhen: false },
+        { name: "showOutsideDays", group: "Display",    control: { type: "toggle" }, defaultValue: true,  omitWhen: true  },
+        { name: "fixedWeeks",      group: "Display",    control: { type: "toggle" }, defaultValue: true,  omitWhen: true  },
+        { name: "showTime",        group: "Display",    label: "show time (single)", control: { type: "toggle" }, defaultValue: false, omitWhen: false },
+        { name: "clearable",       group: "Behaviour",  control: { type: "toggle" }, defaultValue: false, omitWhen: false },
+        { name: "disabled",        group: "State",      control: { type: "toggle" }, defaultValue: false, omitWhen: false },
       ]}
       staticProps={{ value: "{value}", onChange: "{setValue}" }}
       render={(v) => (

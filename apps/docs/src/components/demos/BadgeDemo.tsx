@@ -35,18 +35,18 @@ export default function BadgeDemo() {
         componentName="BadgeStyled"
         importLine={`import { BadgeStyled } from "@mshafiqyajid/react-badge/styled";\nimport "@mshafiqyajid/react-badge/styles.css";`}
         props={[
-          { name: "variant",     control: { type: "segmented", options: ["solid","subtle","outline"] as const },                              defaultValue: "subtle",   omitWhen: "subtle" },
-          { name: "size",        control: { type: "segmented", options: ["sm","md","lg"] as const },                                          defaultValue: "md",       omitWhen: "md" },
-          { name: "tone",        control: { type: "segmented", options: ["neutral","primary","success","warning","danger","info"] as const },  defaultValue: "primary",  omitWhen: "neutral" },
-          { name: "shape",       control: { type: "segmented", options: ["rounded","square"] as const },                                      defaultValue: "rounded",  omitWhen: "rounded" },
-          { name: "dot",         control: { type: "toggle" },                                                                                 defaultValue: false,      omitWhen: false },
-          { name: "pulse",       control: { type: "toggle" },                                                                                 defaultValue: false,      omitWhen: false },
-          { name: "uppercase",   control: { type: "toggle" },                                                                                 defaultValue: false,      omitWhen: false },
-          { name: "dismissible", control: { type: "toggle" },                                                                                 defaultValue: false,      omitWhen: false },
-          { name: "count",       control: { type: "slider", min: 0, max: 200, step: 1 },                                                       defaultValue: 0,          omitWhen: 0 },
-          { name: "maxCount",    control: { type: "slider", min: 9, max: 99, step: 1 },                                                        defaultValue: 99,         omitWhen: 99 },
-          { name: "hideOnZero",  control: { type: "toggle" },                                                                                  defaultValue: false,      omitWhen: false },
-          { name: "showZero",    control: { type: "toggle" },                                                                                  defaultValue: false,      omitWhen: false },
+          { name: "variant",     group: "Appearance", control: { type: "segmented", options: ["solid","subtle","outline"] as const },                              defaultValue: "subtle",   omitWhen: "subtle" },
+          { name: "size",        group: "Appearance", control: { type: "segmented", options: ["sm","md","lg"] as const },                                          defaultValue: "md",       omitWhen: "md" },
+          { name: "tone",        group: "Appearance", control: { type: "segmented", options: ["neutral","primary","success","warning","danger","info"] as const },  defaultValue: "primary",  omitWhen: "neutral" },
+          { name: "shape",       group: "Appearance", control: { type: "segmented", options: ["rounded","square"] as const },                                      defaultValue: "rounded",  omitWhen: "rounded" },
+          { name: "dot",         group: "Display",    control: { type: "toggle" },                                                                                 defaultValue: false,      omitWhen: false },
+          { name: "pulse",       group: "Display",    control: { type: "toggle" },                                                                                 defaultValue: false,      omitWhen: false },
+          { name: "uppercase",   group: "Display",    control: { type: "toggle" },                                                                                 defaultValue: false,      omitWhen: false },
+          { name: "dismissible", group: "Display",    control: { type: "toggle" },                                                                                 defaultValue: false,      omitWhen: false },
+          { name: "count",       group: "Count",      control: { type: "slider", min: 0, max: 200, step: 1 },                                                       defaultValue: 0,          omitWhen: 0 },
+          { name: "maxCount",    group: "Count",      control: { type: "slider", min: 9, max: 99, step: 1 },                                                        defaultValue: 99,         omitWhen: 99 },
+          { name: "hideOnZero",  group: "Count",      control: { type: "toggle" },                                                                                  defaultValue: false,      omitWhen: false },
+          { name: "showZero",    group: "Count",      control: { type: "toggle" },                                                                                  defaultValue: false,      omitWhen: false },
         ]}
         render={(v) => (
           <BadgeStyled

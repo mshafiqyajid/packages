@@ -144,15 +144,15 @@ export default function LightboxDemo() {
       componentName="LightboxStyled"
       importLine={`import { LightboxStyled } from "@mshafiqyajid/react-lightbox/styled";\nimport "@mshafiqyajid/react-lightbox/styles.css";`}
       props={[
-        { name: "loop",                 control: { type: "toggle" }, defaultValue: true,  omitWhen: true },
-        { name: "showThumbnails",       label: "thumbnails",        control: { type: "toggle" }, defaultValue: true,  omitWhen: true },
-        { name: "showCaption",          label: "caption",           control: { type: "toggle" }, defaultValue: true,  omitWhen: true },
-        { name: "showCounter",          label: "counter",           control: { type: "toggle" }, defaultValue: true,  omitWhen: true },
-        { name: "showClose",            label: "close button",      control: { type: "toggle" }, defaultValue: true,  omitWhen: true },
-        { name: "closeOnOverlayClick",  label: "overlay click",     control: { type: "toggle" }, defaultValue: true,  omitWhen: true },
-        { name: "closeOnEsc",           label: "Esc closes",        control: { type: "toggle" }, defaultValue: true,  omitWhen: true },
-        { name: "swipe",                label: "swipe nav",         control: { type: "toggle" }, defaultValue: true,  omitWhen: true },
-        { name: "zoom",                 label: "zoom enabled",      control: { type: "toggle" }, defaultValue: false, omitWhen: false },
+        { name: "loop",                 group: "Behaviour", control: { type: "toggle" }, defaultValue: true,  omitWhen: true },
+        { name: "showThumbnails",       group: "Display",   label: "thumbnails",        control: { type: "toggle" }, defaultValue: true,  omitWhen: true },
+        { name: "showCaption",          group: "Display",   label: "caption",           control: { type: "toggle" }, defaultValue: true,  omitWhen: true },
+        { name: "showCounter",          group: "Display",   label: "counter",           control: { type: "toggle" }, defaultValue: true,  omitWhen: true },
+        { name: "showClose",            group: "Display",   label: "close button",      control: { type: "toggle" }, defaultValue: true,  omitWhen: true },
+        { name: "closeOnOverlayClick",  group: "Behaviour", label: "overlay click",     control: { type: "toggle" }, defaultValue: true,  omitWhen: true },
+        { name: "closeOnEsc",           group: "Behaviour", label: "Esc closes",        control: { type: "toggle" }, defaultValue: true,  omitWhen: true },
+        { name: "swipe",                group: "Behaviour", label: "swipe nav",         control: { type: "toggle" }, defaultValue: true,  omitWhen: true },
+        { name: "zoom",                 group: "Behaviour", label: "zoom enabled",      control: { type: "toggle" }, defaultValue: false, omitWhen: false },
       ]}
       staticProps={{ images: "{images}", open: "{open}", index: "{index}", onOpenChange: "{setOpen}", onIndexChange: "{setIndex}" }}
       render={(v) => (

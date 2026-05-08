@@ -163,18 +163,21 @@ export default function SortableDemo() {
       props={[
         {
           name: "orientation",
+          group: "Appearance",
           control: { type: "segmented", options: ["vertical", "horizontal"] as const },
           defaultValue: "vertical",
           omitWhen: "vertical",
         },
         {
           name: "handle",
+          group: "Behaviour",
           control: { type: "toggle" },
           defaultValue: true,
           omitWhen: true,
         },
         {
           name: "disabled",
+          group: "Behaviour",
           control: { type: "toggle" },
           defaultValue: false,
           omitWhen: false,

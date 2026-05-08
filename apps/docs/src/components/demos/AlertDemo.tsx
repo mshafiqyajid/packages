@@ -23,13 +23,13 @@ export default function AlertDemo() {
         componentName="AlertStyled"
         importLine={`import { AlertStyled } from "@mshafiqyajid/react-alert/styled";\nimport "@mshafiqyajid/react-alert/styles.css";`}
         props={[
-          { name: "variant",     control: { type: "segmented", options: ["soft","filled","outline","banner"] as const },                           defaultValue: "soft",    omitWhen: "soft" },
-          { name: "tone",        control: { type: "segmented", options: ["neutral","primary","success","warning","danger","info"] as const },       defaultValue: "neutral", omitWhen: "neutral" },
-          { name: "size",        control: { type: "segmented", options: ["sm","md","lg"] as const },                                               defaultValue: "md",      omitWhen: "md" },
-          { name: "title",       control: { type: "text" },                                                                                        defaultValue: "Alert title" },
-          { name: "description", control: { type: "text" },                                                                                        defaultValue: "This is the alert description." },
-          { name: "showIcon",    control: { type: "toggle" },                                                                                      defaultValue: true,      omitWhen: true },
-          { name: "dismissible", control: { type: "toggle" },                                                                                      defaultValue: false,     omitWhen: false },
+          { name: "variant",     group: "Appearance", control: { type: "segmented", options: ["soft","filled","outline","banner"] as const },                           defaultValue: "soft",    omitWhen: "soft" },
+          { name: "tone",        group: "Appearance", control: { type: "segmented", options: ["neutral","primary","success","warning","danger","info"] as const },       defaultValue: "neutral", omitWhen: "neutral" },
+          { name: "size",        group: "Appearance", control: { type: "segmented", options: ["sm","md","lg"] as const },                                               defaultValue: "md",      omitWhen: "md" },
+          { name: "title",       group: "Content",    control: { type: "text" },                                                                                        defaultValue: "Alert title" },
+          { name: "description", group: "Content",    control: { type: "text" },                                                                                        defaultValue: "This is the alert description." },
+          { name: "showIcon",    group: "Display",    control: { type: "toggle" },                                                                                      defaultValue: true,      omitWhen: true },
+          { name: "dismissible", group: "Display",    control: { type: "toggle" },                                                                                      defaultValue: false,     omitWhen: false },
         ]}
         render={(v) => (
           <AlertStyled

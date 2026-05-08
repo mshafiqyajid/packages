@@ -1,5 +1,5 @@
 import PropPlayground from "../PropPlayground";
-import { Card, CardStyled } from "@mshafiqyajid/react-card/styled";
+import { CardStyled } from "@mshafiqyajid/react-card/styled";
 import "@mshafiqyajid/react-card/styles.css";
 
 function CardGrid() {
@@ -52,72 +52,84 @@ export default function CardDemo() {
         props={[
           {
             name: "variant",
+            group: "Appearance",
             control: { type: "segmented", options: ["elevated", "outlined", "filled", "ghost"] as const },
             defaultValue: "elevated",
             omitWhen: "elevated",
           },
           {
             name: "size",
+            group: "Appearance",
             control: { type: "segmented", options: ["sm", "md", "lg"] as const },
             defaultValue: "md",
             omitWhen: "md",
           },
           {
             name: "tone",
+            group: "Appearance",
             control: { type: "segmented", options: ["neutral", "primary", "success", "warning", "danger", "info"] as const },
             defaultValue: "neutral",
             omitWhen: "neutral",
           },
           {
             name: "radius",
+            group: "Appearance",
             control: { type: "segmented", options: ["none", "sm", "md", "lg"] as const },
             defaultValue: "md",
             omitWhen: "md",
           },
           {
             name: "shadow",
+            group: "Appearance",
             control: { type: "segmented", options: ["none", "sm", "md", "lg"] as const },
             defaultValue: "sm",
             omitWhen: "sm",
           },
           {
             name: "clickable",
-            control: { type: "toggle" },
-            defaultValue: false,
-            omitWhen: false,
-          },
-          {
-            name: "selected",
-            control: { type: "toggle" },
-            defaultValue: false,
-            omitWhen: false,
-          },
-          {
-            name: "disabled",
-            control: { type: "toggle" },
-            defaultValue: false,
-            omitWhen: false,
-          },
-          {
-            name: "loading",
+            group: "Behaviour",
             control: { type: "toggle" },
             defaultValue: false,
             omitWhen: false,
           },
           {
             name: "hoverable",
+            group: "Behaviour",
+            control: { type: "toggle" },
+            defaultValue: false,
+            omitWhen: false,
+          },
+          {
+            name: "selected",
+            group: "State",
+            control: { type: "toggle" },
+            defaultValue: false,
+            omitWhen: false,
+          },
+          {
+            name: "disabled",
+            group: "State",
+            control: { type: "toggle" },
+            defaultValue: false,
+            omitWhen: false,
+          },
+          {
+            name: "loading",
+            group: "State",
             control: { type: "toggle" },
             defaultValue: false,
             omitWhen: false,
           },
           {
             name: "bordered",
+            group: "Display",
             control: { type: "toggle" },
             defaultValue: false,
             omitWhen: false,
           },
           {
             name: "compact",
+            group: "Display",
             control: { type: "toggle" },
             defaultValue: false,
             omitWhen: false,

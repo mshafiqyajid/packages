@@ -18,13 +18,13 @@ export default function RadioDemo() {
         componentName="RadioGroupStyled"
         importLine={`import { RadioGroupStyled, RadioItem } from "@mshafiqyajid/react-radio/styled";\nimport "@mshafiqyajid/react-radio/styles.css";`}
         props={[
-          { name: "variant",     control: { type: "segmented", options: ["default", "card", "button-group"] as const }, defaultValue: "default", omitWhen: "default" },
-          { name: "size",        control: { type: "segmented", options: ["sm", "md", "lg"] as const },                  defaultValue: "md",      omitWhen: "md" },
-          { name: "tone",        control: { type: "segmented", options: ["neutral", "primary", "success", "danger"] as const }, defaultValue: "neutral", omitWhen: "neutral" },
-          { name: "orientation", control: { type: "segmented", options: ["vertical", "horizontal"] as const },           defaultValue: "vertical", omitWhen: "vertical" },
-          { name: "disabled",    control: { type: "toggle" },                                                            defaultValue: false,     omitWhen: false },
-          { name: "invalid",     control: { type: "toggle" },                                                            defaultValue: false,     omitWhen: false },
-          { name: "required",    control: { type: "toggle" },                                                            defaultValue: false,     omitWhen: false },
+          { name: "variant",     group: "Appearance", control: { type: "segmented", options: ["default", "card", "button-group"] as const }, defaultValue: "default", omitWhen: "default" },
+          { name: "size",        group: "Appearance", control: { type: "segmented", options: ["sm", "md", "lg"] as const },                  defaultValue: "md",      omitWhen: "md" },
+          { name: "tone",        group: "Appearance", control: { type: "segmented", options: ["neutral", "primary", "success", "danger"] as const }, defaultValue: "neutral", omitWhen: "neutral" },
+          { name: "orientation", group: "Appearance", control: { type: "segmented", options: ["vertical", "horizontal"] as const },           defaultValue: "vertical", omitWhen: "vertical" },
+          { name: "disabled",    group: "State",      control: { type: "toggle" },                                                            defaultValue: false,     omitWhen: false },
+          { name: "invalid",     group: "State",      control: { type: "toggle" },                                                            defaultValue: false,     omitWhen: false },
+          { name: "required",    group: "State",      control: { type: "toggle" },                                                            defaultValue: false,     omitWhen: false },
         ]}
         render={(v) => (
           <RadioGroupStyled

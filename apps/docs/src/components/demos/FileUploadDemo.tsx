@@ -8,11 +8,11 @@ export default function FileUploadDemo() {
       componentName="FileUploadStyled"
       importLine={`import { FileUploadStyled } from "@mshafiqyajid/react-file-upload/styled";\nimport "@mshafiqyajid/react-file-upload/styles.css";`}
       props={[
-        { name: "variant",     control: { type: "segmented", options: ["dropzone","button"] as const }, defaultValue: "dropzone", omitWhen: "dropzone" },
-        { name: "size",        control: { type: "segmented", options: ["sm","md","lg"] as const },       defaultValue: "md",       omitWhen: "md" },
-        { name: "multiple",    control: { type: "toggle" },                                              defaultValue: false,      omitWhen: false },
-        { name: "showPreview", control: { type: "toggle" },                                              defaultValue: true,       omitWhen: true },
-        { name: "disabled",    control: { type: "toggle" },                                              defaultValue: false,      omitWhen: false },
+        { name: "variant",     group: "Appearance", control: { type: "segmented", options: ["dropzone","button"] as const }, defaultValue: "dropzone", omitWhen: "dropzone" },
+        { name: "size",        group: "Appearance", control: { type: "segmented", options: ["sm","md","lg"] as const },       defaultValue: "md",       omitWhen: "md" },
+        { name: "multiple",    group: "Behaviour",  control: { type: "toggle" },                                              defaultValue: false,      omitWhen: false },
+        { name: "showPreview", group: "Display",    control: { type: "toggle" },                                              defaultValue: true,       omitWhen: true },
+        { name: "disabled",    group: "State",      control: { type: "toggle" },                                              defaultValue: false,      omitWhen: false },
       ]}
       render={(v) => (
         <FileUploadStyled

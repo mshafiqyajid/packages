@@ -89,12 +89,14 @@ export default function SheetDemo() {
       props={[
         {
           name: "side",
+          group: "Layout",
           control: { type: "segmented", options: ["bottom", "top", "left", "right"] as const },
           defaultValue: "bottom",
           omitWhen: "bottom",
         },
         {
           name: "swipeToDismiss",
+          group: "Behaviour",
           label: "swipe to dismiss",
           control: { type: "toggle" },
           defaultValue: true,
@@ -102,6 +104,7 @@ export default function SheetDemo() {
         },
         {
           name: "closeOnOverlayClick",
+          group: "Behaviour",
           label: "overlay click closes",
           control: { type: "toggle" },
           defaultValue: true,
@@ -109,6 +112,7 @@ export default function SheetDemo() {
         },
         {
           name: "closeOnEsc",
+          group: "Behaviour",
           label: "Esc closes",
           control: { type: "toggle" },
           defaultValue: true,
@@ -116,6 +120,7 @@ export default function SheetDemo() {
         },
         {
           name: "showHandle",
+          group: "Display",
           label: "show handle",
           control: { type: "toggle" },
           defaultValue: true,
@@ -123,6 +128,7 @@ export default function SheetDemo() {
         },
         {
           name: "showTitle",
+          group: "Content",
           label: "title",
           control: { type: "toggle" },
           defaultValue: true,
@@ -130,6 +136,7 @@ export default function SheetDemo() {
         },
         {
           name: "showDescription",
+          group: "Content",
           label: "description",
           control: { type: "toggle" },
           defaultValue: false,
@@ -137,6 +144,7 @@ export default function SheetDemo() {
         },
         {
           name: "showFooter",
+          group: "Content",
           label: "footer",
           control: { type: "toggle" },
           defaultValue: true,

@@ -76,22 +76,22 @@ export default function NumberInputDemo() {
       componentName="NumberInputStyled"
       importLine={`import { NumberInputStyled } from "@mshafiqyajid/react-number-input/styled";\nimport "@mshafiqyajid/react-number-input/styles.css";`}
       props={[
-        { name: "size",        control: { type: "segmented", options: ["sm","md","lg"] as const },                              defaultValue: "md",      omitWhen: "md" },
-        { name: "tone",        control: { type: "segmented", options: ["neutral","primary","success","danger"] as const },      defaultValue: "neutral", omitWhen: "neutral" },
-        { name: "format",      control: { type: "segmented", options: ["decimal","currency","percent"] as const },              defaultValue: "decimal", omitWhen: "decimal" },
-        { name: "step",        control: { type: "slider", min: 1, max: 50, step: 1 },                                           defaultValue: 1,         omitWhen: 1 },
-        { name: "bigStep",     control: { type: "slider", min: 0, max: 100, step: 1 },                                          defaultValue: 0,         omitWhen: 0 },
-        { name: "largeStep",   control: { type: "slider", min: 0, max: 200, step: 1 },                                          defaultValue: 0,         omitWhen: 0 },
-        { name: "showStepper", control: { type: "toggle" },                                                                     defaultValue: true,      omitWhen: true },
-        { name: "repeat",      control: { type: "toggle" },                                                                     defaultValue: true,      omitWhen: true },
-        { name: "scrubable",   control: { type: "toggle" },                                                                     defaultValue: false,     omitWhen: false },
-        { name: "disabled",    control: { type: "toggle" },                                                                     defaultValue: false,     omitWhen: false },
-        { name: "invalid",     control: { type: "toggle" },                                                                     defaultValue: false,     omitWhen: false },
-        { name: "required",    control: { type: "toggle" },                                                                     defaultValue: false,     omitWhen: false },
-        { name: "prefix",      control: { type: "text", placeholder: "e.g. $" },                                                defaultValue: "",        omitWhen: "" },
-        { name: "suffix",      control: { type: "text", placeholder: "e.g. kg" },                                               defaultValue: "",        omitWhen: "" },
-        { name: "min",         control: { type: "number", min: -1000, max: 0, step: 1 },                                         defaultValue: 0,         omitWhen: 0 },
-        { name: "max",         control: { type: "number", min: 0, max: 10000, step: 1 },                                         defaultValue: 0,         omitWhen: 0 },
+        { name: "size",        group: "Appearance", control: { type: "segmented", options: ["sm","md","lg"] as const },                              defaultValue: "md",      omitWhen: "md" },
+        { name: "tone",        group: "Appearance", control: { type: "segmented", options: ["neutral","primary","success","danger"] as const },      defaultValue: "neutral", omitWhen: "neutral" },
+        { name: "format",      group: "Appearance", control: { type: "segmented", options: ["decimal","currency","percent"] as const },              defaultValue: "decimal", omitWhen: "decimal" },
+        { name: "step",        group: "Behaviour",  control: { type: "slider", min: 1, max: 50, step: 1 },                                           defaultValue: 1,         omitWhen: 1 },
+        { name: "bigStep",     group: "Behaviour",  control: { type: "slider", min: 0, max: 100, step: 1 },                                          defaultValue: 0,         omitWhen: 0 },
+        { name: "largeStep",   group: "Behaviour",  control: { type: "slider", min: 0, max: 200, step: 1 },                                          defaultValue: 0,         omitWhen: 0 },
+        { name: "showStepper", group: "Display",    control: { type: "toggle" },                                                                     defaultValue: true,      omitWhen: true },
+        { name: "repeat",      group: "Behaviour",  control: { type: "toggle" },                                                                     defaultValue: true,      omitWhen: true },
+        { name: "scrubable",   group: "Behaviour",  control: { type: "toggle" },                                                                     defaultValue: false,     omitWhen: false },
+        { name: "disabled",    group: "State",      control: { type: "toggle" },                                                                     defaultValue: false,     omitWhen: false },
+        { name: "invalid",     group: "State",      control: { type: "toggle" },                                                                     defaultValue: false,     omitWhen: false },
+        { name: "required",    group: "State",      control: { type: "toggle" },                                                                     defaultValue: false,     omitWhen: false },
+        { name: "prefix",      group: "Content",    control: { type: "text", placeholder: "e.g. $" },                                                defaultValue: "",        omitWhen: "" },
+        { name: "suffix",      group: "Content",    control: { type: "text", placeholder: "e.g. kg" },                                               defaultValue: "",        omitWhen: "" },
+        { name: "min",         group: "Behaviour",  control: { type: "number", min: -1000, max: 0, step: 1 },                                         defaultValue: 0,         omitWhen: 0 },
+        { name: "max",         group: "Behaviour",  control: { type: "number", min: 0, max: 10000, step: 1 },                                         defaultValue: 0,         omitWhen: 0 },
       ]}
       staticProps={{ value: "{value}", onChange: "{setValue}" }}
       render={(v) => (

@@ -26,10 +26,10 @@ export default function BreadcrumbDemo() {
         componentName="BreadcrumbStyled"
         importLine={`import { BreadcrumbStyled } from "@mshafiqyajid/react-breadcrumb/styled";\nimport "@mshafiqyajid/react-breadcrumb/styles.css";`}
         props={[
-          { name: "variant",   control: { type: "segmented", options: ["plain", "pills", "underline"] as const },   defaultValue: "plain",   omitWhen: "plain" },
-          { name: "size",      control: { type: "segmented", options: ["sm", "md", "lg"] as const },                defaultValue: "md",      omitWhen: "md" },
-          { name: "separator", control: { type: "segmented", options: ["chevron", "slash", "arrow"] as const },     defaultValue: "chevron", omitWhen: "chevron" },
-          { name: "maxItems",  control: { type: "slider", min: 0, max: 5, step: 1 },                               defaultValue: 0,         omitWhen: 0 },
+          { name: "variant",   group: "Appearance", control: { type: "segmented", options: ["plain", "pills", "underline"] as const },   defaultValue: "plain",   omitWhen: "plain" },
+          { name: "size",      group: "Appearance", control: { type: "segmented", options: ["sm", "md", "lg"] as const },                defaultValue: "md",      omitWhen: "md" },
+          { name: "separator", group: "Appearance", control: { type: "segmented", options: ["chevron", "slash", "arrow"] as const },     defaultValue: "chevron", omitWhen: "chevron" },
+          { name: "maxItems",  group: "Behaviour",  control: { type: "slider", min: 0, max: 5, step: 1 },                               defaultValue: 0,         omitWhen: 0 },
         ]}
         render={(v) => (
           <BreadcrumbStyled

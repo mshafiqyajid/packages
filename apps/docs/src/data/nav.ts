@@ -18,7 +18,6 @@ export const NEW_SLUGS = new Set([
   "navbar", "sidebar", "sortable",
   "carousel", "calendar",
   "code-block", "skeleton",
-  "virtual-list", "scroll-area",
 ]);
 
 export const categories: NavCategory[] = [
@@ -73,7 +72,6 @@ export const categories: NavCategory[] = [
       { slug: "dropdown-menu",     label: "Dropdown Menu",     icon: "📋" },
       { slug: "context-menu",      label: "Context Menu",      icon: "🖱️" },
       { slug: "command-palette",   label: "Command Palette",   icon: "⌘"  },
-      { slug: "lightbox",          label: "Lightbox",          icon: "🖼️" },
     ],
   },
   {
@@ -97,19 +95,28 @@ export const categories: NavCategory[] = [
       { slug: "kanban",            label: "Kanban",            icon: "🗂️" },
       { slug: "timeline",          label: "Timeline",          icon: "📅" },
       { slug: "tree",              label: "Tree",              icon: "🌳" },
-      { slug: "virtual-list",      label: "Virtual List",      icon: "📋" },
+    ],
+  },
+  {
+    label: "Media",
+    items: [
+      { slug: "image",             label: "Image",             icon: "🖼️" },
+      { slug: "carousel",          label: "Carousel",          icon: "🎠" },
+      { slug: "lightbox",          label: "Lightbox",          icon: "🖼️" },
+      { slug: "avatar",            label: "Avatar",            icon: "👤" },
+      { slug: "avatar-group",      label: "Avatar Group",      icon: "👥" },
     ],
   },
   {
     label: "Display",
     items: [
-      { slug: "avatar",            label: "Avatar",            icon: "👤" },
-      { slug: "avatar-group",      label: "Avatar Group",      icon: "👥" },
       { slug: "badge",             label: "Badge",             icon: "🏷️" },
       { slug: "chip",              label: "Chip",              icon: "🔖" },
       { slug: "stat",              label: "Stat",              icon: "📈" },
-      { slug: "image",             label: "Image",             icon: "🖼️" },
       { slug: "progress",          label: "Progress",          icon: "📊" },
+      { slug: "card",              label: "Card",              icon: "🃏" },
+      { slug: "divider",           label: "Divider",           icon: "➖" },
+      { slug: "code-block",        label: "Code Block",        icon: "💻" },
     ],
   },
   {
@@ -120,21 +127,6 @@ export const categories: NavCategory[] = [
       { slug: "spinner",           label: "Spinner",           icon: "⏳" },
       { slug: "skeleton",          label: "Skeleton",          icon: "💀" },
       { slug: "empty-state",       label: "Empty State",       icon: "📭" },
-    ],
-  },
-  {
-    label: "Layout",
-    items: [
-      { slug: "card",              label: "Card",              icon: "🃏" },
-      { slug: "divider",           label: "Divider",           icon: "➖" },
-      { slug: "scroll-area",       label: "Scroll Area",       icon: "📜" },
-    ],
-  },
-  {
-    label: "Content",
-    items: [
-      { slug: "carousel",          label: "Carousel",          icon: "🎠" },
-      { slug: "code-block",        label: "Code Block",        icon: "💻" },
     ],
   },
 ];

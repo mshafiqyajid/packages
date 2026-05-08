@@ -20,11 +20,11 @@ export default function ImageDemo() {
         componentName="ImageStyled"
         importLine={`import { ImageStyled } from "@mshafiqyajid/react-image/styled";\nimport "@mshafiqyajid/react-image/styles.css";`}
         props={[
-          { name: "placeholder", control: { type: "segmented", options: ["skeleton","blur","color","none"] as const }, defaultValue: "skeleton", omitWhen: "skeleton" },
-          { name: "objectFit", control: { type: "segmented", options: ["cover","contain","fill","scale-down"] as const }, defaultValue: "cover", omitWhen: "cover" },
-          { name: "radius", control: { type: "segmented", options: ["none","xs","sm","md","lg","full"] as const }, defaultValue: "none", omitWhen: "none" },
-          { name: "lazy", control: { type: "toggle" }, defaultValue: false, omitWhen: false },
-          { name: "aspectRatio", control: { type: "segmented", options: ["16/9","4/3","1/1","3/2","2/3"] as const }, defaultValue: "4/3", omitWhen: "4/3" },
+          { name: "placeholder", group: "Appearance", control: { type: "segmented", options: ["skeleton","blur","color","none"] as const }, defaultValue: "skeleton", omitWhen: "skeleton" },
+          { name: "objectFit",   group: "Appearance", control: { type: "segmented", options: ["cover","contain","fill","scale-down"] as const }, defaultValue: "cover", omitWhen: "cover" },
+          { name: "radius",      group: "Appearance", control: { type: "segmented", options: ["none","xs","sm","md","lg","full"] as const }, defaultValue: "none", omitWhen: "none" },
+          { name: "aspectRatio", group: "Layout",     control: { type: "segmented", options: ["16/9","4/3","1/1","3/2","2/3"] as const }, defaultValue: "4/3", omitWhen: "4/3" },
+          { name: "lazy",        group: "Behaviour",  control: { type: "toggle" }, defaultValue: false, omitWhen: false },
         ]}
         render={(v) => {
           // Use different seed per aspectRatio so the image has a different intrinsic ratio

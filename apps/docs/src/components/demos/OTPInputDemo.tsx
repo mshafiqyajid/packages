@@ -52,13 +52,13 @@ export default function OTPInputDemo() {
         componentName="OTPInputStyled"
         importLine={`import { OTPInputStyled } from "@mshafiqyajid/react-otp-input/styled";\nimport "@mshafiqyajid/react-otp-input/styles.css";`}
         props={[
-          { name: "length",    control: { type: "slider", min: 3, max: 8 },                                              defaultValue: 6,           omitWhen: 6 },
-          { name: "variant",   control: { type: "segmented", options: ["solid","outline","underline"] as const },         defaultValue: "solid",     omitWhen: "solid" },
-          { name: "size",      control: { type: "segmented", options: ["sm","md","lg"] as const },                        defaultValue: "md",        omitWhen: "md" },
-          { name: "tone",      control: { type: "segmented", options: ["neutral","primary","success","danger"] as const },defaultValue: "neutral",   omitWhen: "neutral" },
-          { name: "pattern",   control: { type: "segmented", options: ["numeric","alphanumeric"] as const },              defaultValue: "numeric",   omitWhen: "numeric" },
-          { name: "mask",      control: { type: "segmented", options: ["none", "always", "after-blur", "after-complete"] as const }, defaultValue: "none", omitWhen: "none" },
-          { name: "autoFocus", control: { type: "toggle" },                                                               defaultValue: false,       omitWhen: false },
+          { name: "length",    group: "Appearance", control: { type: "slider", min: 3, max: 8 },                                              defaultValue: 6,           omitWhen: 6 },
+          { name: "variant",   group: "Appearance", control: { type: "segmented", options: ["solid","outline","underline"] as const },         defaultValue: "solid",     omitWhen: "solid" },
+          { name: "size",      group: "Appearance", control: { type: "segmented", options: ["sm","md","lg"] as const },                        defaultValue: "md",        omitWhen: "md" },
+          { name: "tone",      group: "Appearance", control: { type: "segmented", options: ["neutral","primary","success","danger"] as const },defaultValue: "neutral",   omitWhen: "neutral" },
+          { name: "pattern",   group: "Behaviour",  control: { type: "segmented", options: ["numeric","alphanumeric"] as const },              defaultValue: "numeric",   omitWhen: "numeric" },
+          { name: "mask",      group: "Behaviour",  control: { type: "segmented", options: ["none", "always", "after-blur", "after-complete"] as const }, defaultValue: "none", omitWhen: "none" },
+          { name: "autoFocus", group: "Behaviour",  control: { type: "toggle" },                                                               defaultValue: false,       omitWhen: false },
         ]}
         staticProps={{ onComplete: "{handleComplete}" }}
         render={(v) => (

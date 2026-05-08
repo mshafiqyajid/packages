@@ -24,14 +24,14 @@ export default function SegmentedControlDemo() {
       componentName="SegmentedControlStyled"
       importLine={`import { SegmentedControlStyled } from "@mshafiqyajid/react-segmented-control/styled";\nimport "@mshafiqyajid/react-segmented-control/styles.css";`}
       props={[
-        { name: "variant",     control: { type: "segmented", options: ["solid","pill","underline"] as const },            defaultValue: "solid",  omitWhen: "solid" },
-        { name: "size",        control: { type: "segmented", options: ["sm","md","lg"] as const },                        defaultValue: "md",     omitWhen: "md" },
-        { name: "tone",        control: { type: "segmented", options: ["neutral","primary","success","danger"] as const },defaultValue: "primary",omitWhen: "primary" },
-        { name: "fullWidth",   control: { type: "toggle" },                                                               defaultValue: false,    omitWhen: false },
-        { name: "withBadges",  label: "badge per segment",  control: { type: "toggle" },                                  defaultValue: false,    omitWhen: false },
-        { name: "scrollable",  label: "scrollable overflow", control: { type: "toggle" },                                  defaultValue: false,    omitWhen: false },
-        { name: "equalize",    label: "equalize widths",    control: { type: "toggle" },                                  defaultValue: false,    omitWhen: false },
-        { name: "disabled",    control: { type: "toggle" },                                                               defaultValue: false,    omitWhen: false },
+        { name: "variant",     group: "Appearance", control: { type: "segmented", options: ["solid","pill","underline"] as const },            defaultValue: "solid",  omitWhen: "solid" },
+        { name: "size",        group: "Appearance", control: { type: "segmented", options: ["sm","md","lg"] as const },                        defaultValue: "md",     omitWhen: "md" },
+        { name: "tone",        group: "Appearance", control: { type: "segmented", options: ["neutral","primary","success","danger"] as const },defaultValue: "primary",omitWhen: "primary" },
+        { name: "fullWidth",   group: "Layout",     control: { type: "toggle" },                                                               defaultValue: false,    omitWhen: false },
+        { name: "withBadges",  group: "Display",    label: "badge per segment",  control: { type: "toggle" },                                  defaultValue: false,    omitWhen: false },
+        { name: "scrollable",  group: "Display",    label: "scrollable overflow", control: { type: "toggle" },                                  defaultValue: false,    omitWhen: false },
+        { name: "equalize",    group: "Display",    label: "equalize widths",    control: { type: "toggle" },                                  defaultValue: false,    omitWhen: false },
+        { name: "disabled",    group: "State",      control: { type: "toggle" },                                                               defaultValue: false,    omitWhen: false },
       ]}
       staticProps={{ options: '[…]', value: "{value}", onChange: "{setValue}" }}
       render={(v) => {

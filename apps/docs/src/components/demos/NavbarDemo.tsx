@@ -144,6 +144,7 @@ export default function NavbarDemo() {
       props={[
         {
           name: "variant",
+          group: "Appearance",
           control: {
             type: "segmented",
             options: ["default", "bordered", "filled", "transparent"] as const,
@@ -153,18 +154,21 @@ export default function NavbarDemo() {
         },
         {
           name: "size",
+          group: "Appearance",
           control: { type: "segmented", options: ["sm", "md", "lg"] as const },
           defaultValue: "md",
           omitWhen: "md",
         },
         {
           name: "sticky",
+          group: "Behaviour",
           control: { type: "toggle" },
           defaultValue: false,
           omitWhen: false,
         },
         {
           name: "transparentOnTop",
+          group: "Behaviour",
           label: "transparent on top",
           control: { type: "toggle" },
           defaultValue: false,

@@ -78,13 +78,13 @@ export default function KanbanDemo() {
       componentName="KanbanStyled"
       importLine={`import { KanbanStyled } from "@mshafiqyajid/react-kanban/styled";\nimport "@mshafiqyajid/react-kanban/styles.css";`}
       props={[
-        { name: "size",                 control: { type: "segmented", options: ["sm", "md", "lg"] as const },     defaultValue: "md",      omitWhen: "md" },
-        { name: "tone",                 control: { type: "segmented", options: ["neutral", "primary"] as const }, defaultValue: "neutral", omitWhen: "neutral" },
-        { name: "disabled",             control: { type: "toggle" }, defaultValue: false, omitWhen: false },
-        { name: "collapsible",          control: { type: "toggle" }, defaultValue: false, omitWhen: false },
-        { name: "reorderable",          control: { type: "toggle" }, defaultValue: true,  omitWhen: false },
-        { name: "showCardRemoveButton", control: { type: "toggle" }, defaultValue: true,  omitWhen: false },
-        { name: "renameColumnInline",   control: { type: "toggle" }, defaultValue: true,  omitWhen: false },
+        { name: "size",                 group: "Appearance", control: { type: "segmented", options: ["sm", "md", "lg"] as const },     defaultValue: "md",      omitWhen: "md" },
+        { name: "tone",                 group: "Appearance", control: { type: "segmented", options: ["neutral", "primary"] as const }, defaultValue: "neutral", omitWhen: "neutral" },
+        { name: "reorderable",          group: "Behaviour",  control: { type: "toggle" }, defaultValue: true,  omitWhen: false },
+        { name: "collapsible",          group: "Behaviour",  control: { type: "toggle" }, defaultValue: false, omitWhen: false },
+        { name: "disabled",             group: "Behaviour",  control: { type: "toggle" }, defaultValue: false, omitWhen: false },
+        { name: "showCardRemoveButton", group: "Display",    control: { type: "toggle" }, defaultValue: true,  omitWhen: false },
+        { name: "renameColumnInline",   group: "Display",    control: { type: "toggle" }, defaultValue: true,  omitWhen: false },
       ]}
       staticProps={{ columns: "{columns}", onChange: "{setColumns}" }}
       render={(v) => (

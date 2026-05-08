@@ -14,17 +14,17 @@ export default function CheckboxDemo() {
         componentName="CheckboxStyled"
         importLine={`import { CheckboxStyled } from "@mshafiqyajid/react-checkbox/styled";\nimport "@mshafiqyajid/react-checkbox/styles.css";`}
         props={[
-          { name: "size",          control: { type: "segmented", options: ["sm","md","lg"] as const },                                 defaultValue: "md",      omitWhen: "md" },
-          { name: "tone",          control: { type: "segmented", options: ["neutral","primary","success","danger"] as const },          defaultValue: "primary", omitWhen: "primary" },
-          { name: "labelPosition", control: { type: "segmented", options: ["left","right"] as const },                                  defaultValue: "right",   omitWhen: "right" },
-          { name: "card",          control: { type: "toggle" },                                                                          defaultValue: false,     omitWhen: false },
-          { name: "description",   control: { type: "text", placeholder: "Helper text…" },                                              defaultValue: "",        omitWhen: "" },
-          { name: "withError",     label: "show error",     control: { type: "toggle" },                                                  defaultValue: false,     omitWhen: false },
-          { name: "required",      control: { type: "toggle" },                                                                          defaultValue: false,     omitWhen: false },
-          { name: "indeterminate", control: { type: "toggle" },                                                                          defaultValue: false,     omitWhen: false },
-          { name: "disabled",      control: { type: "toggle" },                                                                          defaultValue: false,     omitWhen: false },
-          { name: "invalid",       control: { type: "toggle" },                                                                          defaultValue: false,     omitWhen: false },
-          { name: "name",          control: { type: "text", placeholder: "form field name" },                                             defaultValue: "",        omitWhen: "" },
+          { name: "size",          group: "Appearance", control: { type: "segmented", options: ["sm","md","lg"] as const },                                 defaultValue: "md",      omitWhen: "md" },
+          { name: "tone",          group: "Appearance", control: { type: "segmented", options: ["neutral","primary","success","danger"] as const },          defaultValue: "primary", omitWhen: "primary" },
+          { name: "labelPosition", group: "Appearance", control: { type: "segmented", options: ["left","right"] as const },                                  defaultValue: "right",   omitWhen: "right" },
+          { name: "card",          group: "Appearance", control: { type: "toggle" },                                                                          defaultValue: false,     omitWhen: false },
+          { name: "description",   group: "Content",    control: { type: "text", placeholder: "Helper text…" },                                              defaultValue: "",        omitWhen: "" },
+          { name: "withError",     group: "Content",    label: "show error",     control: { type: "toggle" },                                                  defaultValue: false,     omitWhen: false },
+          { name: "required",      group: "State",      control: { type: "toggle" },                                                                          defaultValue: false,     omitWhen: false },
+          { name: "indeterminate", group: "State",      control: { type: "toggle" },                                                                          defaultValue: false,     omitWhen: false },
+          { name: "disabled",      group: "State",      control: { type: "toggle" },                                                                          defaultValue: false,     omitWhen: false },
+          { name: "invalid",       group: "State",      control: { type: "toggle" },                                                                          defaultValue: false,     omitWhen: false },
+          { name: "name",          group: "State",      control: { type: "text", placeholder: "form field name" },                                             defaultValue: "",        omitWhen: "" },
         ]}
         staticProps={{ checked: "{checked}", onChange: "{setChecked}", label: '"I agree to the terms"' }}
         render={(v) => (
@@ -50,8 +50,8 @@ export default function CheckboxDemo() {
         componentName="CheckboxGroup"
         importLine={`import { CheckboxGroup, CheckboxStyled } from "@mshafiqyajid/react-checkbox/styled";\nimport "@mshafiqyajid/react-checkbox/styles.css";`}
         props={[
-          { name: "disabled",  control: { type: "toggle" }, defaultValue: false, omitWhen: false },
-          { name: "withError", label: "show error", control: { type: "toggle" }, defaultValue: false, omitWhen: false },
+          { name: "disabled",  group: "State", control: { type: "toggle" }, defaultValue: false, omitWhen: false },
+          { name: "withError", group: "State", label: "show error", control: { type: "toggle" }, defaultValue: false, omitWhen: false },
         ]}
         staticProps={{ value: "{groupValues}", onChange: "{setGroupValues}", label: '"Notify me about…"' }}
         render={(v) => (

@@ -33,14 +33,14 @@ export default function ColorInputDemo() {
       componentName="ColorInputStyled"
       importLine={`import { ColorInputStyled } from "@mshafiqyajid/react-color-input/styled";\nimport "@mshafiqyajid/react-color-input/styles.css";`}
       props={[
-        { name: "size",           control: { type: "segmented", options: ["sm","md","lg"] as const },           defaultValue: "md",      omitWhen: "md" },
-        { name: "tone",           control: { type: "segmented", options: ["neutral","primary","danger"] as const }, defaultValue: "neutral", omitWhen: "neutral" },
-        { name: "format",         control: { type: "segmented", options: ["hex","rgb","hsl"] as const },         defaultValue: "hex",     omitWhen: "hex" },
-        { name: "showCopyButton", control: { type: "toggle" },                                                   defaultValue: true,      omitWhen: true },
-        { name: "showAlpha",      control: { type: "toggle" },                                                   defaultValue: false,     omitWhen: false },
-        { name: "showPresets",    control: { type: "toggle" },                                                   defaultValue: false,     omitWhen: false },
-        { name: "trackRecents",   label: "recentColors (auto)", control: { type: "toggle" },                    defaultValue: false,     omitWhen: false },
-        { name: "disabled",       control: { type: "toggle" },                                                   defaultValue: false,     omitWhen: false },
+        { name: "size",           group: "Appearance", control: { type: "segmented", options: ["sm","md","lg"] as const },           defaultValue: "md",      omitWhen: "md" },
+        { name: "tone",           group: "Appearance", control: { type: "segmented", options: ["neutral","primary","danger"] as const }, defaultValue: "neutral", omitWhen: "neutral" },
+        { name: "format",         group: "Appearance", control: { type: "segmented", options: ["hex","rgb","hsl"] as const },         defaultValue: "hex",     omitWhen: "hex" },
+        { name: "showCopyButton", group: "Display",    control: { type: "toggle" },                                                   defaultValue: true,      omitWhen: true },
+        { name: "showAlpha",      group: "Display",    control: { type: "toggle" },                                                   defaultValue: false,     omitWhen: false },
+        { name: "showPresets",    group: "Display",    control: { type: "toggle" },                                                   defaultValue: false,     omitWhen: false },
+        { name: "trackRecents",   group: "Display",    label: "recentColors (auto)", control: { type: "toggle" },                    defaultValue: false,     omitWhen: false },
+        { name: "disabled",       group: "State",      control: { type: "toggle" },                                                   defaultValue: false,     omitWhen: false },
       ]}
       staticProps={{ value: "{value}", onChange: "{setValue}" }}
       render={(v) => (

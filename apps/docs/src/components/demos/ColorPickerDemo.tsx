@@ -34,11 +34,11 @@ export default function ColorPickerDemo() {
       componentName="HexColorPicker"
       importLine={`import { HexColorPicker } from "@mshafiqyajid/react-color/styled";\nimport "@mshafiqyajid/react-color/styles.css";`}
       props={[
-        { name: "showAlpha",    control: { type: "toggle" },                           defaultValue: false, omitWhen: false },
-        { name: "showHexInput", control: { type: "toggle" },                           defaultValue: true,  omitWhen: true },
-        { name: "showPresets",  control: { type: "toggle" },                           defaultValue: false, omitWhen: false },
-        { name: "disabled",     control: { type: "toggle" },                           defaultValue: false, omitWhen: false },
-        { name: "width",        label: "--rcp-width (px)", control: { type: "slider", min: 200, max: 360 }, defaultValue: 240, omitWhen: 240 },
+        { name: "showAlpha",    group: "Display", control: { type: "toggle" },                           defaultValue: false, omitWhen: false },
+        { name: "showHexInput", group: "Display", control: { type: "toggle" },                           defaultValue: true,  omitWhen: true },
+        { name: "showPresets",  group: "Display", control: { type: "toggle" },                           defaultValue: false, omitWhen: false },
+        { name: "disabled",     group: "State",   control: { type: "toggle" },                           defaultValue: false, omitWhen: false },
+        { name: "width",        group: "Layout",  label: "--rcp-width (px)", control: { type: "slider", min: 200, max: 360 }, defaultValue: 240, omitWhen: 240 },
       ]}
       staticProps={{ value: "{color}", onChange: "{setColor}" }}
       render={(v) => (

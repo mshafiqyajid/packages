@@ -11,18 +11,18 @@ export default function TooltipDemo() {
         componentName="TooltipStyled"
         importLine={`import { TooltipStyled } from "@mshafiqyajid/react-tooltip/styled";\nimport "@mshafiqyajid/react-tooltip/styles.css";`}
         props={[
-          { name: "placement", control: { type: "segmented", options: ["top","bottom","left","right"] as const },         defaultValue: "top",     omitWhen: "top" },
-          { name: "size",      control: { type: "segmented", options: ["sm","md","lg"] as const },                        defaultValue: "md",      omitWhen: "md" },
-          { name: "tone",      control: { type: "segmented", options: ["neutral","primary","success","danger"] as const }, defaultValue: "neutral", omitWhen: "neutral" },
-          { name: "delay",     control: { type: "slider", min: 0, max: 1000, step: 100 },                                 defaultValue: 0,         omitWhen: 0 },
-          { name: "multiline",      control: { type: "toggle" },                                                          defaultValue: false,     omitWhen: false },
-          { name: "disabled",       control: { type: "toggle" },                                                          defaultValue: false,     omitWhen: false },
-          { name: "sticky",         label: "sticky-on-hover",         control: { type: "toggle" },                       defaultValue: false,     omitWhen: false },
-          { name: "interactive",    label: "interactive (cursor bridge)", control: { type: "toggle" },                   defaultValue: false,     omitWhen: false },
-          { name: "followCursor",   label: "followCursor",            control: { type: "toggle" },                       defaultValue: false,     omitWhen: false },
-          { name: "withSlots",      label: "header + footer slots",   control: { type: "toggle" },                       defaultValue: false,     omitWhen: false },
-          { name: "longPressDelay", control: { type: "slider", min: 0, max: 1500, step: 100 },                            defaultValue: 500,        omitWhen: 500 },
-          { name: "offset",         label: "offset (px)",     control: { type: "slider", min: 0, max: 24, step: 1 },      defaultValue: 8,          omitWhen: 8 },
+          { name: "placement", group: "Layout",     control: { type: "segmented", options: ["top","bottom","left","right"] as const },         defaultValue: "top",     omitWhen: "top" },
+          { name: "size",      group: "Appearance", control: { type: "segmented", options: ["sm","md","lg"] as const },                        defaultValue: "md",      omitWhen: "md" },
+          { name: "tone",      group: "Appearance", control: { type: "segmented", options: ["neutral","primary","success","danger"] as const }, defaultValue: "neutral", omitWhen: "neutral" },
+          { name: "delay",     group: "Behaviour",  control: { type: "slider", min: 0, max: 1000, step: 100 },                                 defaultValue: 0,         omitWhen: 0 },
+          { name: "multiline",      group: "Behaviour",  control: { type: "toggle" },                                                          defaultValue: false,     omitWhen: false },
+          { name: "disabled",       group: "State",      control: { type: "toggle" },                                                          defaultValue: false,     omitWhen: false },
+          { name: "sticky",         group: "Behaviour",  label: "sticky-on-hover",         control: { type: "toggle" },                       defaultValue: false,     omitWhen: false },
+          { name: "interactive",    group: "Behaviour",  label: "interactive (cursor bridge)", control: { type: "toggle" },                   defaultValue: false,     omitWhen: false },
+          { name: "followCursor",   group: "Behaviour",  label: "followCursor",            control: { type: "toggle" },                       defaultValue: false,     omitWhen: false },
+          { name: "withSlots",      group: "Content",    label: "header + footer slots",   control: { type: "toggle" },                       defaultValue: false,     omitWhen: false },
+          { name: "longPressDelay", group: "Behaviour",  control: { type: "slider", min: 0, max: 1500, step: 100 },                            defaultValue: 500,        omitWhen: 500 },
+          { name: "offset",         group: "Layout",     label: "offset (px)",     control: { type: "slider", min: 0, max: 24, step: 1 },      defaultValue: 8,          omitWhen: 8 },
         ]}
         staticProps={{ content: '"Copy to clipboard"' }}
         render={(v) => (

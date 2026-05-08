@@ -75,12 +75,12 @@ export default function TreeDemo() {
       componentName="TreeStyled"
       importLine={`import { TreeStyled } from "@mshafiqyajid/react-tree/styled";\nimport "@mshafiqyajid/react-tree/styles.css";`}
       props={[
-        { name: "size",           control: { type: "segmented", options: ["sm","md","lg"] as const },         defaultValue: "md",       omitWhen: "md" },
-        { name: "tone",           control: { type: "segmented", options: ["primary","neutral"] as const },    defaultValue: "primary",  omitWhen: "primary" },
-        { name: "showGuides",     control: { type: "toggle" },                                                  defaultValue: true,       omitWhen: true },
-        { name: "checkboxes",     control: { type: "toggle" },                                                  defaultValue: false,      omitWhen: false },
-        { name: "highlightMatches", control: { type: "toggle" },                                                defaultValue: true,       omitWhen: true },
-        { name: "selectionMode",  control: { type: "segmented", options: ["single","multiple"] as const },     defaultValue: "single",   omitWhen: "single" },
+        { name: "size",             group: "Appearance", control: { type: "segmented", options: ["sm","md","lg"] as const },         defaultValue: "md",       omitWhen: "md" },
+        { name: "tone",             group: "Appearance", control: { type: "segmented", options: ["primary","neutral"] as const },    defaultValue: "primary",  omitWhen: "primary" },
+        { name: "showGuides",       group: "Display",    control: { type: "toggle" },                                                  defaultValue: true,       omitWhen: true },
+        { name: "highlightMatches", group: "Display",    control: { type: "toggle" },                                                  defaultValue: true,       omitWhen: true },
+        { name: "selectionMode",    group: "Behaviour",  control: { type: "segmented", options: ["single","multiple"] as const },     defaultValue: "single",   omitWhen: "single" },
+        { name: "checkboxes",       group: "Behaviour",  control: { type: "toggle" },                                                  defaultValue: false,      omitWhen: false },
       ]}
       staticProps={{ items: "{items}", searchQuery: "{search}", defaultExpandedIds: '{["src", "components"]}' }}
       render={(v) => {

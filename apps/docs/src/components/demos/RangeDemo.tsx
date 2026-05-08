@@ -165,18 +165,21 @@ export default function RangeDemo() {
         props={[
           {
             name: "mode",
+            group: "Appearance",
             control: { type: "segmented", options: ["range", "single"] as const },
             defaultValue: "range",
             omitWhen: "range",
           },
           {
             name: "size",
+            group: "Appearance",
             control: { type: "segmented", options: ["sm", "md", "lg"] as const },
             defaultValue: "md",
             omitWhen: "md",
           },
           {
             name: "tone",
+            group: "Appearance",
             control: {
               type: "segmented",
               options: ["primary", "neutral", "success", "warning", "danger"] as const,
@@ -186,6 +189,7 @@ export default function RangeDemo() {
           },
           {
             name: "showTooltip",
+            group: "Display",
             control: {
               type: "segmented",
               options: ["drag", "always", "never"] as const,
@@ -195,12 +199,14 @@ export default function RangeDemo() {
           },
           {
             name: "marks",
+            group: "Display",
             control: { type: "toggle" },
             defaultValue: false,
             omitWhen: false,
           },
           {
             name: "labelledMarks",
+            group: "Display",
             label: "labelled marks",
             control: { type: "toggle" },
             defaultValue: false,
@@ -208,6 +214,7 @@ export default function RangeDemo() {
           },
           {
             name: "formatValue",
+            group: "Display",
             label: "tooltipFormat (% suffix)",
             control: { type: "toggle" },
             defaultValue: false,
@@ -215,42 +222,49 @@ export default function RangeDemo() {
           },
           {
             name: "inverted",
+            group: "Behaviour",
             control: { type: "toggle" },
             defaultValue: false,
             omitWhen: false,
           },
           {
             name: "disabled",
+            group: "State",
             control: { type: "toggle" },
             defaultValue: false,
             omitWhen: false,
           },
           {
             name: "label",
+            group: "Content",
             control: { type: "text", placeholder: "e.g. Price range" },
             defaultValue: "",
             omitWhen: "",
           },
           {
             name: "hint",
+            group: "Content",
             control: { type: "text", placeholder: "Helper text…" },
             defaultValue: "",
             omitWhen: "",
           },
           {
             name: "min",
+            group: "Behaviour",
             control: { type: "number", min: -100, max: 0, step: 1 },
             defaultValue: 0,
             omitWhen: 0,
           },
           {
             name: "max",
+            group: "Behaviour",
             control: { type: "number", min: 100, max: 1000, step: 1 },
             defaultValue: 100,
             omitWhen: 100,
           },
           {
             name: "step",
+            group: "Behaviour",
             control: { type: "number", min: 1, max: 25, step: 1 },
             defaultValue: 1,
             omitWhen: 1,

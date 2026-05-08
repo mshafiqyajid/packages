@@ -21,12 +21,12 @@ export default function AvatarGroupDemo() {
         componentName="AvatarGroupStyled"
         importLine={`import { AvatarGroupStyled } from "@mshafiqyajid/react-avatar-group/styled";\nimport "@mshafiqyajid/react-avatar-group/styles.css";`}
         props={[
-          { name: "size",        control: { type: "segmented", options: ["xs","sm","md","lg","xl"] as const }, defaultValue: "md",     omitWhen: "md" },
-          { name: "shape",       control: { type: "segmented", options: ["circle","square"] as const },        defaultValue: "circle", omitWhen: "circle" },
-          { name: "gap",         control: { type: "slider", min: -16, max: 8, step: 1 },                      defaultValue: -8,       omitWhen: -8 },
-          { name: "max",         control: { type: "slider", min: 1, max: 8, step: 1 },                        defaultValue: 4,        omitWhen: 4 },
-          { name: "overflow",    control: { type: "segmented", options: ["count","avatars"] as const },        defaultValue: "count",  omitWhen: "count" },
-          { name: "showTooltip", control: { type: "toggle" },                                                  defaultValue: true,     omitWhen: true },
+          { name: "size",        group: "Appearance", control: { type: "segmented", options: ["xs","sm","md","lg","xl"] as const }, defaultValue: "md",     omitWhen: "md" },
+          { name: "shape",       group: "Appearance", control: { type: "segmented", options: ["circle","square"] as const },        defaultValue: "circle", omitWhen: "circle" },
+          { name: "gap",         group: "Layout",     control: { type: "slider", min: -16, max: 8, step: 1 },                      defaultValue: -8,       omitWhen: -8 },
+          { name: "max",         group: "Layout",     control: { type: "slider", min: 1, max: 8, step: 1 },                        defaultValue: 4,        omitWhen: 4 },
+          { name: "overflow",    group: "Display",    control: { type: "segmented", options: ["count","avatars"] as const },        defaultValue: "count",  omitWhen: "count" },
+          { name: "showTooltip", group: "Display",    control: { type: "toggle" },                                                  defaultValue: true,     omitWhen: true },
         ]}
         render={(v) => (
           <AvatarGroupStyled

@@ -21,14 +21,14 @@ export default function ProgressDemo() {
         componentName="ProgressBar"
         importLine={`import { ProgressBar } from "@mshafiqyajid/react-progress/styled";\nimport "@mshafiqyajid/react-progress/styles.css";`}
         props={[
-          { name: "value",        control: { type: "slider", min: 0, max: 100 },                                                         defaultValue: 60,        omitWhen: 60 },
-          { name: "size",         control: { type: "segmented", options: ["sm","md","lg"] as const },                                     defaultValue: "md",      omitWhen: "md" },
-          { name: "tone",         control: { type: "segmented", options: ["neutral","primary","success","warning","danger"] as const },   defaultValue: "primary", omitWhen: "neutral" },
-          { name: "showValue",    control: { type: "toggle" },                                                                            defaultValue: false,     omitWhen: false },
-          { name: "animateValue", control: { type: "toggle" },                                                                            defaultValue: true,      omitWhen: true },
-          { name: "animated",     control: { type: "toggle" },                                                                            defaultValue: false,     omitWhen: false },
-          { name: "rounded",      control: { type: "toggle" },                                                                            defaultValue: true,      omitWhen: true },
-          { name: "segments",     control: { type: "slider", min: 0, max: 10, step: 1 },                                                  defaultValue: 0,         omitWhen: 0 },
+          { name: "value",        group: "Appearance", control: { type: "slider", min: 0, max: 100 },                                                         defaultValue: 60,        omitWhen: 60 },
+          { name: "size",         group: "Appearance", control: { type: "segmented", options: ["sm","md","lg"] as const },                                     defaultValue: "md",      omitWhen: "md" },
+          { name: "tone",         group: "Appearance", control: { type: "segmented", options: ["neutral","primary","success","warning","danger"] as const },   defaultValue: "primary", omitWhen: "neutral" },
+          { name: "rounded",      group: "Appearance", control: { type: "toggle" },                                                                            defaultValue: true,      omitWhen: true },
+          { name: "segments",     group: "Layout",     control: { type: "slider", min: 0, max: 10, step: 1 },                                                  defaultValue: 0,         omitWhen: 0 },
+          { name: "showValue",    group: "Display",    control: { type: "toggle" },                                                                            defaultValue: false,     omitWhen: false },
+          { name: "animateValue", group: "Display",    control: { type: "toggle" },                                                                            defaultValue: true,      omitWhen: true },
+          { name: "animated",     group: "Display",    control: { type: "toggle" },                                                                            defaultValue: false,     omitWhen: false },
         ]}
         render={(v) => (
           <ProgressBar
@@ -78,10 +78,10 @@ export default function ProgressDemo() {
         componentName="ProgressCircle"
         importLine={`import { ProgressCircle } from "@mshafiqyajid/react-progress/styled";\nimport "@mshafiqyajid/react-progress/styles.css";`}
         props={[
-          { name: "value",     control: { type: "slider", min: 0, max: 100 }, defaultValue: 60,        omitWhen: 60 },
-          { name: "size",      control: { type: "segmented", options: ["sm","md","lg"] as const },       defaultValue: "md",      omitWhen: "md" },
-          { name: "tone",      control: { type: "segmented", options: ["neutral","primary","success","warning","danger"] as const }, defaultValue: "primary", omitWhen: "neutral" },
-          { name: "showValue", control: { type: "toggle" },                                              defaultValue: false,     omitWhen: false },
+          { name: "value",     group: "Appearance", control: { type: "slider", min: 0, max: 100 }, defaultValue: 60,        omitWhen: 60 },
+          { name: "size",      group: "Appearance", control: { type: "segmented", options: ["sm","md","lg"] as const },       defaultValue: "md",      omitWhen: "md" },
+          { name: "tone",      group: "Appearance", control: { type: "segmented", options: ["neutral","primary","success","warning","danger"] as const }, defaultValue: "primary", omitWhen: "neutral" },
+          { name: "showValue", group: "Display",    control: { type: "toggle" },                                              defaultValue: false,     omitWhen: false },
         ]}
         staticProps={{ label: '"Upload"' }}
         render={(v) => (

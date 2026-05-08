@@ -26,17 +26,18 @@ export default function PaginationDemo() {
     <>
       <LivePaginationDemo />
       <PropPlayground
+        layout="stacked"
         componentName="PaginationStyled"
         importLine={`import { PaginationStyled } from "@mshafiqyajid/react-pagination/styled";\nimport "@mshafiqyajid/react-pagination/styles.css";`}
         props={[
-          { name: "size",          control: { type: "segmented", options: ["sm", "md", "lg"] as const },              defaultValue: "md",      omitWhen: "md" },
-          { name: "variant",       control: { type: "segmented", options: ["default", "outline", "ghost"] as const },  defaultValue: "default", omitWhen: "default" },
-          { name: "tone",          control: { type: "segmented", options: ["neutral", "primary"] as const },           defaultValue: "neutral", omitWhen: "neutral" },
-          { name: "showFirstLast", control: { type: "toggle" },                                                        defaultValue: true,      omitWhen: true },
-          { name: "showPrevNext",  control: { type: "toggle" },                                                        defaultValue: true,      omitWhen: true },
-          { name: "siblings",      control: { type: "slider", min: 0, max: 3, step: 1 },                              defaultValue: 1,         omitWhen: 1 },
-          { name: "boundaries",    control: { type: "slider", min: 1, max: 2, step: 1 },                              defaultValue: 1,         omitWhen: 1 },
-          { name: "showPageSize",  control: { type: "toggle" },                                                        defaultValue: false,     omitWhen: false },
+          { name: "size",          group: "Appearance", control: { type: "segmented", options: ["sm", "md", "lg"] as const },              defaultValue: "md",      omitWhen: "md" },
+          { name: "variant",       group: "Appearance", control: { type: "segmented", options: ["default", "outline", "ghost"] as const },  defaultValue: "default", omitWhen: "default" },
+          { name: "tone",          group: "Appearance", control: { type: "segmented", options: ["neutral", "primary"] as const },           defaultValue: "neutral", omitWhen: "neutral" },
+          { name: "showFirstLast", group: "Display",    control: { type: "toggle" },                                                        defaultValue: true,      omitWhen: true },
+          { name: "showPrevNext",  group: "Display",    control: { type: "toggle" },                                                        defaultValue: true,      omitWhen: true },
+          { name: "showPageSize",  group: "Display",    control: { type: "toggle" },                                                        defaultValue: false,     omitWhen: false },
+          { name: "siblings",      group: "Layout",     control: { type: "slider", min: 0, max: 3, step: 1 },                              defaultValue: 1,         omitWhen: 1 },
+          { name: "boundaries",    group: "Layout",     control: { type: "slider", min: 1, max: 2, step: 1 },                              defaultValue: 1,         omitWhen: 1 },
         ]}
         render={(v) => (
           <PaginationStyled

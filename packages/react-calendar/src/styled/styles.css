@@ -1,0 +1,566 @@
+/* ============================================================================
+ * react-calendar — styled component
+ *
+ * CSS prefix: rcal-
+ * Dark mode: [data-theme="dark"] only — never @media (prefers-color-scheme: dark)
+ * ========================================================================== */
+
+/* ============================================================================
+ * Tokens
+ * ========================================================================== */
+:root {
+  /* Surface */
+  --rcal-bg: #ffffff;
+  --rcal-border: #e4e4e7;
+  --rcal-radius: 12px;
+  --rcal-shadow: 0 4px 16px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.06);
+
+  /* Text */
+  --rcal-fg: #18181b;
+  --rcal-fg-muted: #71717a;
+  --rcal-fg-outside: #a1a1aa;
+
+  /* Day */
+  --rcal-day-size: 2.25rem;
+  --rcal-day-radius: 50%;
+  --rcal-day-hover-bg: #f4f4f5;
+  --rcal-day-hover-fg: #18181b;
+  --rcal-day-disabled-opacity: 0.35;
+
+  /* Selected / today */
+  --rcal-selected-bg: #18181b;
+  --rcal-selected-fg: #ffffff;
+  --rcal-today-ring: #18181b;
+
+  /* Range */
+  --rcal-range-bg: #f4f4f5;
+  --rcal-range-fg: #18181b;
+
+  /* Nav */
+  --rcal-nav-size: 2rem;
+  --rcal-nav-radius: 8px;
+  --rcal-nav-hover-bg: #f4f4f5;
+
+  /* Header */
+  --rcal-header-fg: #18181b;
+  --rcal-header-hover-bg: #f4f4f5;
+
+  /* Animation */
+  --rcal-duration-slide: 250ms;
+  --rcal-duration-fade: 150ms;
+  --rcal-ease-slide: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ============================================================================
+ * Dark mode — [data-theme="dark"] only
+ * ========================================================================== */
+[data-theme="dark"] .rcal-root {
+  --rcal-bg: #18181b;
+  --rcal-border: #3f3f46;
+  --rcal-fg: #fafafa;
+  --rcal-fg-muted: #a1a1aa;
+  --rcal-fg-outside: #52525b;
+  --rcal-day-hover-bg: #27272a;
+  --rcal-day-hover-fg: #fafafa;
+  --rcal-selected-bg: #fafafa;
+  --rcal-selected-fg: #18181b;
+  --rcal-today-ring: #fafafa;
+  --rcal-range-bg: #27272a;
+  --rcal-range-fg: #fafafa;
+  --rcal-nav-hover-bg: #27272a;
+  --rcal-header-fg: #fafafa;
+  --rcal-header-hover-bg: #27272a;
+}
+
+/* ============================================================================
+ * Root
+ * ========================================================================== */
+.rcal-root {
+  display: inline-flex;
+  flex-direction: column;
+  background: var(--rcal-bg);
+  border: 1px solid var(--rcal-border);
+  border-radius: var(--rcal-radius);
+  box-shadow: var(--rcal-shadow);
+  padding: 1rem;
+  color: var(--rcal-fg);
+  font-family: inherit;
+  user-select: none;
+  -webkit-user-select: none;
+  box-sizing: border-box;
+  gap: 0.5rem;
+}
+
+/* ============================================================================
+ * Sizes
+ * ========================================================================== */
+.rcal-root[data-size="sm"] {
+  --rcal-day-size: 1.875rem;
+  padding: 0.75rem;
+  font-size: 0.8125rem;
+}
+
+.rcal-root[data-size="lg"] {
+  --rcal-day-size: 2.75rem;
+  padding: 1.25rem;
+  font-size: 1rem;
+}
+
+/* ============================================================================
+ * Live region (visually hidden)
+ * ========================================================================== */
+.rcal-live {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* ============================================================================
+ * Header
+ * ========================================================================== */
+.rcal-header {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding-bottom: 0.25rem;
+}
+
+.rcal-header-label {
+  flex: 1;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--rcal-header-fg);
+  font-size: 0.9375em;
+  font-weight: 600;
+  line-height: 1.2;
+  padding: 0.375rem 0.5rem;
+  border-radius: var(--rcal-nav-radius);
+  text-align: center;
+  transition: background-color 140ms ease;
+}
+
+.rcal-header-label:hover {
+  background: var(--rcal-header-hover-bg);
+}
+
+.rcal-header-label:focus-visible {
+  outline: 2px solid var(--rcal-selected-bg);
+  outline-offset: 2px;
+}
+
+/* ============================================================================
+ * Nav buttons
+ * ========================================================================== */
+.rcal-nav-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--rcal-nav-size);
+  height: var(--rcal-nav-size);
+  border: none;
+  border-radius: var(--rcal-nav-radius);
+  background: transparent;
+  color: var(--rcal-fg-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background-color 140ms ease, color 140ms ease;
+}
+
+.rcal-nav-btn:hover {
+  background: var(--rcal-nav-hover-bg);
+  color: var(--rcal-fg);
+}
+
+.rcal-nav-btn:focus-visible {
+  outline: 2px solid var(--rcal-selected-bg);
+  outline-offset: 2px;
+}
+
+/* ============================================================================
+ * Grid wrapper (for slide animation)
+ * ========================================================================== */
+.rcal-grid-wrapper {
+  overflow: hidden;
+}
+
+@keyframes rcal-slide-in-left {
+  from { transform: translateX(16px); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+
+@keyframes rcal-slide-in-right {
+  from { transform: translateX(-16px); opacity: 0; }
+  to   { transform: translateX(0);     opacity: 1; }
+}
+
+.rcal-grid-wrapper.rcal-slide-left {
+  animation: rcal-slide-in-left var(--rcal-duration-slide) var(--rcal-ease-slide) both;
+}
+
+.rcal-grid-wrapper.rcal-slide-right {
+  animation: rcal-slide-in-right var(--rcal-duration-slide) var(--rcal-ease-slide) both;
+}
+
+/* ============================================================================
+ * Grid table
+ * ========================================================================== */
+.rcal-grid {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+/* ============================================================================
+ * Weekday headers
+ * ========================================================================== */
+.rcal-weekdays {
+  margin-bottom: 0.125rem;
+}
+
+.rcal-weekday {
+  color: var(--rcal-fg-muted);
+  font-size: 0.75em;
+  font-weight: 500;
+  text-align: center;
+  padding-bottom: 0.375rem;
+  width: var(--rcal-day-size);
+}
+
+.rcal-week-number-header {
+  color: var(--rcal-fg-muted);
+  font-size: 0.7em;
+  font-weight: 400;
+  text-align: center;
+  padding-bottom: 0.375rem;
+  width: 1.75rem;
+  opacity: 0.7;
+}
+
+/* ============================================================================
+ * Week rows
+ * ========================================================================== */
+.rcal-week {
+  /* Each row */
+}
+
+.rcal-week-number {
+  color: var(--rcal-fg-muted);
+  font-size: 0.7em;
+  font-weight: 400;
+  text-align: center;
+  vertical-align: middle;
+  opacity: 0.65;
+  width: 1.75rem;
+}
+
+.rcal-day-cell {
+  padding: 1px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+/* ============================================================================
+ * Day buttons
+ * ========================================================================== */
+.rcal-day {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: var(--rcal-day-size);
+  height: var(--rcal-day-size);
+  border: none;
+  border-radius: var(--rcal-day-radius);
+  background: transparent;
+  color: var(--rcal-fg);
+  cursor: pointer;
+  font-size: 0.875em;
+  font-weight: 400;
+  line-height: 1;
+  position: relative;
+  transition:
+    background-color 120ms ease,
+    color 120ms ease,
+    transform 80ms ease;
+}
+
+.rcal-day:hover:not(:disabled):not([data-selected]):not([data-range-start]):not([data-range-end]) {
+  background: var(--rcal-day-hover-bg);
+  color: var(--rcal-day-hover-fg);
+  transform: scale(1.08);
+}
+
+.rcal-day:focus-visible {
+  outline: 2px solid var(--rcal-selected-bg);
+  outline-offset: 2px;
+}
+
+/* Today indicator — ring */
+.rcal-day[data-today]:not([data-selected]):not([data-range-start]):not([data-range-end]) {
+  box-shadow: inset 0 0 0 2px var(--rcal-today-ring);
+  font-weight: 600;
+}
+
+/* Selected */
+.rcal-day[data-selected],
+.rcal-day[data-range-start],
+.rcal-day[data-range-end] {
+  background: var(--rcal-selected-bg);
+  color: var(--rcal-selected-fg);
+  font-weight: 600;
+  transform: scale(1);
+}
+
+.rcal-day[data-selected]:hover,
+.rcal-day[data-range-start]:hover,
+.rcal-day[data-range-end]:hover {
+  background: var(--rcal-selected-bg);
+  color: var(--rcal-selected-fg);
+  filter: brightness(0.9);
+}
+
+/* Active press */
+.rcal-day:active:not(:disabled) {
+  transform: scale(0.92) !important;
+}
+
+/* Outside month */
+.rcal-day[data-outside-month] {
+  color: var(--rcal-fg-outside);
+}
+
+/* Disabled */
+.rcal-day:disabled,
+.rcal-day[data-disabled] {
+  opacity: var(--rcal-day-disabled-opacity);
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* In-range highlight — background band */
+.rcal-day-cell:has([data-in-range]) {
+  background: var(--rcal-range-bg);
+}
+
+.rcal-day[data-in-range] {
+  background: transparent;
+  color: var(--rcal-range-fg);
+  border-radius: 0;
+}
+
+/* Range start — background extends right */
+.rcal-day-cell:has([data-range-start]) {
+  background: linear-gradient(to right, transparent 50%, var(--rcal-range-bg) 50%);
+}
+
+/* Range end — background extends left */
+.rcal-day-cell:has([data-range-end]) {
+  background: linear-gradient(to left, transparent 50%, var(--rcal-range-bg) 50%);
+}
+
+/* Range start + end on same day — no band */
+.rcal-day-cell:has([data-range-start][data-range-end]) {
+  background: transparent;
+}
+
+/* Screen-reader only text */
+.rcal-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.rcal-day-label {
+  position: relative;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* ============================================================================
+ * Year grid (12 months)
+ * ========================================================================== */
+.rcal-year-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.375rem;
+  animation: rcal-fade-in var(--rcal-duration-fade) ease both;
+}
+
+@keyframes rcal-fade-in {
+  from { opacity: 0; transform: scale(0.97); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.rcal-year-month-btn {
+  background: transparent;
+  border: 1px solid var(--rcal-border);
+  border-radius: 8px;
+  color: var(--rcal-fg);
+  cursor: pointer;
+  font-size: 0.875em;
+  font-weight: 400;
+  padding: 0.5rem 0.25rem;
+  text-align: center;
+  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
+}
+
+.rcal-year-month-btn:hover {
+  background: var(--rcal-day-hover-bg);
+}
+
+.rcal-year-month-btn:focus-visible {
+  outline: 2px solid var(--rcal-selected-bg);
+  outline-offset: 2px;
+}
+
+.rcal-year-month-btn[data-selected] {
+  background: var(--rcal-selected-bg);
+  color: var(--rcal-selected-fg);
+  border-color: var(--rcal-selected-bg);
+  font-weight: 600;
+}
+
+/* ============================================================================
+ * Decade grid (12 years)
+ * ========================================================================== */
+.rcal-decade-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.375rem;
+  animation: rcal-fade-in var(--rcal-duration-fade) ease both;
+}
+
+.rcal-decade-year-btn {
+  background: transparent;
+  border: 1px solid var(--rcal-border);
+  border-radius: 8px;
+  color: var(--rcal-fg);
+  cursor: pointer;
+  font-size: 0.875em;
+  font-weight: 400;
+  padding: 0.5rem 0.25rem;
+  text-align: center;
+  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
+}
+
+.rcal-decade-year-btn:hover {
+  background: var(--rcal-day-hover-bg);
+}
+
+.rcal-decade-year-btn:focus-visible {
+  outline: 2px solid var(--rcal-selected-bg);
+  outline-offset: 2px;
+}
+
+.rcal-decade-year-btn[data-selected] {
+  background: var(--rcal-selected-bg);
+  color: var(--rcal-selected-fg);
+  border-color: var(--rcal-selected-bg);
+  font-weight: 600;
+}
+
+.rcal-decade-year-btn[data-outside-decade] {
+  opacity: 0.4;
+}
+
+/* ============================================================================
+ * Dot for marked dates
+ * ========================================================================== */
+.rcal-day-dot {
+  display: block;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--rcal-accent, #6366f1);
+  margin: 0 auto;
+  margin-top: 2px;
+}
+
+/* ============================================================================
+ * Today button
+ * ========================================================================== */
+.rcal-today-btn {
+  font: inherit;
+  font-size: 0.72em;
+  font-weight: 500;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--rcal-border);
+  background: transparent;
+  color: var(--rcal-day-fg, var(--rcal-fg));
+  cursor: pointer;
+  transition: background 150ms ease, color 150ms ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.rcal-today-btn:hover {
+  background: var(--rcal-day-hover-bg);
+}
+
+.rcal-today-btn:focus-visible {
+  outline: 2px solid var(--rcal-selected-bg);
+  outline-offset: 2px;
+}
+
+/* ============================================================================
+ * Multi-month wrapper
+ * ========================================================================== */
+.rcal-multi {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+.rcal-month-label {
+  font-size: 0.8125em;
+  font-weight: 600;
+  color: var(--rcal-fg-muted);
+  text-align: center;
+  padding-bottom: 0.25rem;
+}
+
+/* ============================================================================
+ * Reduced motion — fade only, no slide/scale
+ * ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .rcal-grid-wrapper.rcal-slide-left,
+  .rcal-grid-wrapper.rcal-slide-right {
+    animation: rcal-fade-in var(--rcal-duration-fade) ease both !important;
+  }
+
+  .rcal-year-grid,
+  .rcal-decade-grid {
+    animation: none !important;
+  }
+
+  .rcal-day,
+  .rcal-nav-btn,
+  .rcal-header-label,
+  .rcal-year-month-btn,
+  .rcal-decade-year-btn {
+    transition: none !important;
+  }
+
+  .rcal-day:hover:not(:disabled):not([data-selected]):not([data-range-start]):not([data-range-end]) {
+    transform: none !important;
+  }
+
+  .rcal-day:active:not(:disabled) {
+    transform: none !important;
+  }
+}
