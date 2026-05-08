@@ -78,9 +78,14 @@ export function useSortable<T extends SortableItem = SortableItem>({
 }: UseSortableOptions<T>): UseSortableResult<T> {
   const [activeId, setActiveId] = useState<string | number | null>(null);
   const [overId, setOverId] = useState<string | number | null>(null);
-  const [keyboardActiveId, setKeyboardActiveId] = useState<
+  const [keyboardActiveId, setKeyboardActiveIdState] = useState<
     string | number | null
   >(null);
+  const keyboardActiveIdRef = useRef<string | number | null>(null);
+  const setKeyboardActiveId = useCallback((id: string | number | null) => {
+    keyboardActiveIdRef.current = id;
+    setKeyboardActiveIdState(id);
+  }, []);
   const [liveRegionText, setLiveRegionText] = useState("");
 
   const itemsRef = useRef(items);
@@ -249,7 +254,8 @@ export function useSortable<T extends SortableItem = SortableItem>({
       const prevKey = isVertical ? "ArrowUp" : "ArrowLeft";
       const nextKey = isVertical ? "ArrowDown" : "ArrowRight";
 
-      if (keyboardActiveId === null) {
+      const currentKbId = keyboardActiveIdRef.current;
+      if (currentKbId === null) {
         if (e.key === " " || e.key === "Enter") {
           e.preventDefault();
           setKeyboardActiveId(itemId);
@@ -265,7 +271,7 @@ export function useSortable<T extends SortableItem = SortableItem>({
           e.preventDefault();
           const currentItems = itemsRef.current;
           const fromIndex = currentItems.findIndex(
-            (it) => it.id === keyboardActiveId,
+            (it) => it.id === currentKbId,
           );
           if (fromIndex === -1) return;
           const delta = e.key === nextKey ? 1 : -1;
@@ -280,7 +286,7 @@ export function useSortable<T extends SortableItem = SortableItem>({
           e.preventDefault();
           const currentItems = itemsRef.current;
           const idx = currentItems.findIndex(
-            (it) => it.id === keyboardActiveId,
+            (it) => it.id === currentKbId,
           );
           announce(
             `Dropped at position ${idx + 1} of ${currentItems.length}.`,

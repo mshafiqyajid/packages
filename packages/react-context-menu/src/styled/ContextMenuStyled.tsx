@@ -269,6 +269,14 @@ export function ContextMenuStyled({
 
   const isOpen = isControlled ? (controlledOpen ?? false) : internalOpen;
 
+  // Support controlled open=true without a right-click event
+  useEffect(() => {
+    if (isOpen) {
+      if (exitTimerRef.current) { clearTimeout(exitTimerRef.current); exitTimerRef.current = null; }
+      setRendered(true);
+    }
+  }, [isOpen]);
+
   const setOpenState = useCallback(
     (next: boolean) => {
       if (!isControlled) setInternalOpen(next);

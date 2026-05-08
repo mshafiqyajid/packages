@@ -63,7 +63,7 @@ export interface UseFormResult {
   setError: (name: string, message: string) => void;
   clearErrors: (name?: string) => void;
   reset: (values?: Record<string, unknown>) => void;
-  handleSubmit: (e: FormEvent<HTMLFormElement>) => void;
+  handleSubmit: (e: FormEvent<HTMLFormElement>) => Promise<void>;
   formState: FormState;
 }
 
@@ -309,33 +309,29 @@ export function useForm(options: UseFormOptions = {}): UseFormResult {
   );
 
   const handleSubmit = useCallback(
-    (e: FormEvent<HTMLFormElement>) => {
+    async (e: FormEvent<HTMLFormElement>): Promise<void> => {
       e.preventDefault();
 
       const vals = getValuesRef.current();
 
-      const proceed = async () => {
-        setIsSubmitting(true);
+      setIsSubmitting(true);
 
-        const validationErrors = await runValidation(vals);
+      const validationErrors = await runValidation(vals);
 
-        if (Object.keys(validationErrors).length > 0) {
-          setErrors(validationErrors);
-          setIsSubmitting(false);
-          onErrorRef.current?.(validationErrors);
-          return;
-        }
+      if (Object.keys(validationErrors).length > 0) {
+        setErrors(validationErrors);
+        setIsSubmitting(false);
+        onErrorRef.current?.(validationErrors);
+        return;
+      }
 
-        setErrors({});
+      setErrors({});
 
-        try {
-          await onSubmitRef.current?.(vals, helpersRef.current);
-        } finally {
-          setIsSubmitting(false);
-        }
-      };
-
-      proceed();
+      try {
+        await onSubmitRef.current?.(vals, helpersRef.current);
+      } finally {
+        setIsSubmitting(false);
+      }
     },
     [runValidation]
   );

@@ -166,7 +166,7 @@ export function useRange({
     (index: number, raw: number) => {
       const tuple = toTuple(current, mode, min, max);
       const thumbMin = index === 0 ? min : tuple[0] + step;
-      const thumbMax = index === 1 ? max : tuple[1] - step;
+      const thumbMax = mode === "single" || index === 1 ? max : tuple[1] - step;
       const snapped = clamp(snapToStep(raw, min, step), thumbMin, thumbMax);
       const next = [...tuple] as [number, number];
       next[index] = snapped;
@@ -211,7 +211,7 @@ export function useRange({
       const afterTuple = toTuple(current, mode, min, max);
       const updatedTuple = [...afterTuple] as [number, number];
       const thumbMin = index === 0 ? min : updatedTuple[0] + step;
-      const thumbMax = index === 1 ? max : updatedTuple[1] - step;
+      const thumbMax = mode === "single" || index === 1 ? max : updatedTuple[1] - step;
       const clamped = clamp(snapToStep(next, min, step), thumbMin, thumbMax);
       updatedTuple[index] = clamped;
       const endVal = fromTuple(updatedTuple, mode);

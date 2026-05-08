@@ -382,7 +382,7 @@ describe("useForm", () => {
     );
 
     await act(async () => {
-      result.current.handleSubmit({
+      await result.current.handleSubmit({
         preventDefault: vi.fn(),
       } as unknown as React.FormEvent<HTMLFormElement>);
     });

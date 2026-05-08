@@ -293,7 +293,8 @@ export function useCombobox({
           break;
         }
         case "Backspace": {
-          if (query === "" && currentValue !== null && currentValue !== undefined) {
+          const isShowingLabel = selectedOption && query === selectedOption.label;
+          if ((query === "" || isShowingLabel) && currentValue !== null && currentValue !== undefined) {
             clearSelection();
           }
           break;
