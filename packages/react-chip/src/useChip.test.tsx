@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, renderHook } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
 import { useChip } from "./useChip";
 import { ChipStyled } from "./styled/ChipStyled";
@@ -17,13 +17,13 @@ function HookHarness(props: Parameters<typeof useChip>[0]) {
 
 describe("useChip", () => {
   it("isSelected starts false when no defaultSelected", () => {
-    const result = useChip({});
-    expect(result.isSelected).toBe(false);
+    const { result } = renderHook(() => useChip({}));
+    expect(result.current.isSelected).toBe(false);
   });
 
   it("isSelected is true when defaultSelected=true", () => {
-    const result = useChip({ defaultSelected: true });
-    expect(result.isSelected).toBe(true);
+    const { result } = renderHook(() => useChip({ defaultSelected: true }));
+    expect(result.current.isSelected).toBe(true);
   });
 
   it("select() toggles isSelected when selectable", () => {
@@ -43,15 +43,15 @@ describe("useChip", () => {
   });
 
   it("controlled: selected prop controls isSelected", () => {
-    const result = useChip({ selected: true });
-    expect(result.isSelected).toBe(true);
-    const result2 = useChip({ selected: false });
-    expect(result2.isSelected).toBe(false);
+    const { result } = renderHook(() => useChip({ selected: true }));
+    expect(result.current.isSelected).toBe(true);
+    const { result: result2 } = renderHook(() => useChip({ selected: false }));
+    expect(result2.current.isSelected).toBe(false);
   });
 
   it("isDismissed starts false", () => {
-    const result = useChip({});
-    expect(result.isDismissed).toBe(false);
+    const { result } = renderHook(() => useChip({}));
+    expect(result.current.isDismissed).toBe(false);
   });
 
   it("dismiss() sets isDismissed to true", () => {
@@ -69,20 +69,20 @@ describe("useChip", () => {
   });
 
   it("dismissProps['aria-label'] === 'Remove'", () => {
-    const result = useChip({ dismissible: true });
-    expect(result.dismissProps["aria-label"]).toBe("Remove");
+    const { result } = renderHook(() => useChip({ dismissible: true }));
+    expect(result.current.dismissProps["aria-label"]).toBe("Remove");
   });
 
   it("chipProps.role === 'option' when selectable", () => {
-    const result = useChip({ selectable: true });
-    expect(result.chipProps.role).toBe("option");
+    const { result } = renderHook(() => useChip({ selectable: true }));
+    expect(result.current.chipProps.role).toBe("option");
   });
 
   it("chipProps['aria-selected'] matches isSelected when selectable", () => {
-    const result = useChip({ selectable: true, defaultSelected: false });
-    expect(result.chipProps["aria-selected"]).toBe(false);
-    const result2 = useChip({ selectable: true, defaultSelected: true });
-    expect(result2.chipProps["aria-selected"]).toBe(true);
+    const { result } = renderHook(() => useChip({ selectable: true, defaultSelected: false }));
+    expect(result.current.chipProps["aria-selected"]).toBe(false);
+    const { result: result2 } = renderHook(() => useChip({ selectable: true, defaultSelected: true }));
+    expect(result2.current.chipProps["aria-selected"]).toBe(true);
   });
 
   it("disabled: onClick does not toggle selection", () => {

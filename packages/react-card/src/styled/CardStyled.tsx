@@ -11,6 +11,10 @@ export interface CardStyledProps {
   selected?: boolean;
   defaultSelected?: boolean;
   disabled?: boolean;
+  loading?: boolean;
+  bordered?: boolean;
+  hoverable?: boolean;
+  compact?: boolean;
   onClick?: (e: React.MouseEvent) => void;
   onSelect?: (selected: boolean) => void;
   href?: string;
@@ -82,6 +86,10 @@ export const CardStyled = forwardRef<HTMLElement, CardStyledProps>(
       selected,
       defaultSelected,
       disabled,
+      loading,
+      bordered,
+      hoverable,
+      compact,
       onClick,
       onSelect,
       href,
@@ -120,6 +128,10 @@ export const CardStyled = forwardRef<HTMLElement, CardStyledProps>(
       "data-selected": isSelected ? "true" : undefined,
       "data-disabled": disabled ? "true" : undefined,
       "data-focused": isFocused ? "true" : undefined,
+      "data-loading": loading ? "true" : undefined,
+      "data-bordered": bordered ? "true" : undefined,
+      "data-hoverable": hoverable ? "true" : undefined,
+      "data-compact": compact ? "true" : undefined,
       style,
     };
 
@@ -127,10 +139,18 @@ export const CardStyled = forwardRef<HTMLElement, CardStyledProps>(
       props.href = href;
     }
 
+    const bodyContent = loading ? (
+      <div className="rcrd-skeleton">
+        <div className="rcrd-skeleton-line" style={{ height: "1rem", width: "70%" }} />
+        <div className="rcrd-skeleton-line" style={{ height: "0.75rem", width: "90%" }} />
+        <div className="rcrd-skeleton-line" style={{ height: "0.75rem", width: "60%" }} />
+      </div>
+    ) : children;
+
     return (
       <Tag ref={ref} {...props}>
         {header && <CardHeader>{header}</CardHeader>}
-        <CardBody>{children}</CardBody>
+        <CardBody>{bodyContent}</CardBody>
         {footer && <CardFooter>{footer}</CardFooter>}
       </Tag>
     );

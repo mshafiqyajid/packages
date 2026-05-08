@@ -178,31 +178,40 @@ export const LightboxStyled = forwardRef<HTMLDivElement, LightboxStyledProps>(
       return () => el.removeEventListener("keydown", onKeyDown);
     }, [isOpen, rendered]);
 
-    // Image cross-fade on index change
+    // Image slide transition on index change
     const prevIndexRef = useRef(index);
+    const isFirstRenderRef = useRef(true);
     useEffect(() => {
+      if (isFirstRenderRef.current) {
+        isFirstRenderRef.current = false;
+        return;
+      }
       if (prevIndexRef.current === index) return;
       prevIndexRef.current = index;
 
       if (imgTimerRef.current) clearTimeout(imgTimerRef.current);
       if (reducedMotion.current) {
         setImgKey((k) => k + 1);
+        setImgVisible(true);
         return;
       }
+      // 1. Fade out current image
       setImgVisible(false);
+      // 2. After fade-out, swap to new image at the off-screen start position
       imgTimerRef.current = setTimeout(() => {
         setImgKey((k) => k + 1);
-        setImgVisible(true);
-      }, 100);
+        // imgVisible stays false — the new element starts at translateX offset
+        // 3. Double-RAF: let browser paint the initial off-screen position, then animate in
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            setImgVisible(true);
+          });
+        });
+      }, 120);
       return () => {
         if (imgTimerRef.current) clearTimeout(imgTimerRef.current);
       };
     }, [index]);
-
-    // Reset imgVisible when key changes
-    useEffect(() => {
-      setImgVisible(true);
-    }, [imgKey]);
 
     // Scroll active thumbnail into view
     useEffect(() => {

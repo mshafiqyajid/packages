@@ -1,5 +1,21 @@
 import { useState, useCallback, useMemo, useEffect, useRef, type ReactNode } from "react";
 import { tokenize } from "./highlight";
+import { SegmentedControlStyled } from "@mshafiqyajid/react-segmented-control/styled";
+import "@mshafiqyajid/react-segmented-control/styles.css";
+import { SwitchStyled } from "@mshafiqyajid/react-switch/styled";
+import "@mshafiqyajid/react-switch/styles.css";
+import { ButtonStyled } from "@mshafiqyajid/react-button/styled";
+import "@mshafiqyajid/react-button/styles.css";
+import { SelectStyled } from "@mshafiqyajid/react-select/styled";
+import "@mshafiqyajid/react-select/styles.css";
+import { TextInputStyled } from "@mshafiqyajid/react-text-input/styled";
+import "@mshafiqyajid/react-text-input/styles.css";
+import { SliderStyled } from "@mshafiqyajid/react-slider/styled";
+import "@mshafiqyajid/react-slider/styles.css";
+import { ColorInputStyled } from "@mshafiqyajid/react-color-input/styled";
+import "@mshafiqyajid/react-color-input/styles.css";
+import { CopyButtonStyled } from "@mshafiqyajid/react-copy-button/styled";
+import "@mshafiqyajid/react-copy-button/styles.css";
 
 // ============================================================================
 // Prop definition types
@@ -96,36 +112,27 @@ function SegmentedControl({
   value: string;
   onChange: (v: string) => void;
 }) {
+  const items = useMemo(
+    () => options.map((opt) => ({ value: opt, label: opt })),
+    [options],
+  );
   return (
-    <div className="pp-segmented" role="radiogroup">
-      {options.map((opt) => (
-        <button
-          key={opt}
-          type="button"
-          role="radio"
-          aria-checked={value === opt}
-          onClick={() => onChange(opt)}
-          data-active={value === opt ? "true" : undefined}
-        >
-          {opt}
-        </button>
-      ))}
-    </div>
+    <SegmentedControlStyled
+      options={items}
+      value={value}
+      onChange={onChange}
+      size="sm"
+    />
   );
 }
 
 function Toggle({ value, onChange }: { value: boolean; onChange: (v: boolean) => void }) {
   return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={value}
-      onClick={() => onChange(!value)}
-      className="pp-toggle"
-      data-on={value ? "true" : undefined}
-    >
-      <span className="pp-toggle__thumb" />
-    </button>
+    <SwitchStyled
+      checked={value}
+      onChange={onChange}
+      size="sm"
+    />
   );
 }
 
@@ -165,7 +172,6 @@ export default function PropPlayground({
   }, [props]);
 
   const [values, setValues] = useState(initial);
-  const [copied, setCopied] = useState(false);
   const [controlsOpen, setControlsOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showFade, setShowFade] = useState(false);
@@ -199,13 +205,6 @@ export default function PropPlayground({
   const jsx = generateCode(componentName, props, values, staticProps);
   const fullCode = `${importLine}\n\n${jsx}`;
 
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(fullCode);
-    } catch {}
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1800);
-  };
 
   const isStacked = layout === "stacked";
 
@@ -223,15 +222,16 @@ export default function PropPlayground({
         <div className={`pp__controls${isStacked && !controlsOpen ? " pp__controls--hidden" : ""}`}>
           <div className="pp__controls-header">
             <span>Props</span>
-            <button
-              type="button"
-              className="pp__reset"
+            <ButtonStyled
+              size="sm"
+              variant="ghost"
+              tone="neutral"
               onClick={reset}
               disabled={!isDirty}
               aria-label="Reset to defaults"
             >
               Reset
-            </button>
+            </ButtonStyled>
           </div>
           <div className="pp__controls-scroll" ref={scrollRef} onScroll={checkScroll}>
           <div className="pp__controls-body">
@@ -251,47 +251,40 @@ export default function PropPlayground({
                     />
                   )}
                   {prop.control.type === "select" && (
-                    <select
+                    <SelectStyled
+                      items={prop.control.options.map((opt) => ({ value: opt, label: opt }))}
                       value={value as string}
-                      onChange={(e) => set(prop.name, e.target.value)}
-                      className="pp-select"
-                    >
-                      {prop.control.options.map((opt) => (
-                        <option key={opt} value={opt}>{opt}</option>
-                      ))}
-                    </select>
+                      onChange={(v) => set(prop.name, v as string)}
+                      size="sm"
+                    />
                   )}
                   {prop.control.type === "toggle" && (
                     <Toggle value={value as boolean} onChange={(v) => set(prop.name, v)} />
                   )}
                   {prop.control.type === "text" && (
-                    <input
-                      type="text"
+                    <TextInputStyled
                       value={value as string}
                       placeholder={prop.control.placeholder}
-                      onChange={(e) => set(prop.name, e.target.value)}
-                      className="pp-text"
+                      onChange={(v) => set(prop.name, v)}
+                      size="sm"
                     />
                   )}
                   {(prop.control.type === "number" || prop.control.type === "slider") && (
-                    <div className="pp-slider-row">
-                      <input
-                        type="range"
-                        min={prop.control.min}
-                        max={prop.control.max}
-                        step={prop.control.step ?? 1}
-                        value={value as number}
-                        onChange={(e) => set(prop.name, Number(e.target.value))}
-                      />
-                      <span className="pp-slider-value">{value}</span>
-                    </div>
+                    <SliderStyled
+                      value={value as number}
+                      min={prop.control.min}
+                      max={prop.control.max}
+                      step={prop.control.step ?? 1}
+                      onChange={(v) => set(prop.name, typeof v === "number" ? v : (v as number[])[0]!)}
+                      size="sm"
+                      showValue
+                    />
                   )}
                   {prop.control.type === "color" && (
-                    <input
-                      type="color"
+                    <ColorInputStyled
                       value={value as string}
-                      onChange={(e) => set(prop.name, e.target.value)}
-                      className="pp-color"
+                      onChange={(v) => set(prop.name, v)}
+                      size="sm"
                     />
                   )}
                 </div>
@@ -306,24 +299,30 @@ export default function PropPlayground({
       {/* Stacked layout: toggle bar for controls */}
       {isStacked && (
         <div className="pp__stacked-bar">
-          <button
-            type="button"
-            className="pp__stacked-toggle"
+          <ButtonStyled
+            variant="ghost"
+            tone="neutral"
+            size="sm"
             onClick={() => setControlsOpen((o) => !o)}
             aria-expanded={controlsOpen}
+            className="pp__stacked-toggle"
+            iconLeft={
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M1 3h10M3 6h6M5 9h2" />
+              </svg>
+            }
+            iconRight={
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="pp__stacked-chevron" data-open={controlsOpen ? "true" : undefined}>
+                <path d="M2 3.5l3 3 3-3" />
+              </svg>
+            }
           >
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="M1 3h10M3 6h6M5 9h2" />
-            </svg>
             Props
-            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="pp__stacked-chevron" data-open={controlsOpen ? "true" : undefined}>
-              <path d="M2 3.5l3 3 3-3" />
-            </svg>
-          </button>
+          </ButtonStyled>
           {isDirty && (
-            <button type="button" className="pp__reset pp__reset--inline" onClick={reset}>
+            <ButtonStyled size="sm" variant="ghost" tone="neutral" onClick={reset}>
               Reset
-            </button>
+            </ButtonStyled>
           )}
         </div>
       )}
@@ -334,14 +333,12 @@ export default function PropPlayground({
           <div className="pp__code-header-left">
             <span className="pp__code-lang">TSX</span>
           </div>
-          <button
-            type="button"
-            onClick={handleCopy}
+          <CopyButtonStyled
+            text={fullCode}
+            size="sm"
+            variant="ghost"
             className="pp__copy"
-            data-copied={copied ? "true" : undefined}
-          >
-            {copied ? "Copied!" : "Copy"}
-          </button>
+          />
         </div>
         <HighlightedCode source={fullCode} />
       </div>

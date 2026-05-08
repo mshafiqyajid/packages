@@ -189,13 +189,15 @@ export interface RadioItemProps {
   value: string;
   label: ReactNode;
   description?: ReactNode;
+  /** Icon shown in the card variant (left slot). */
+  icon?: ReactNode;
   disabled?: boolean;
   className?: string;
   style?: CSSProperties;
 }
 
 export const RadioItem = forwardRef<HTMLDivElement, RadioItemProps>(
-  function RadioItem({ value, label, description, disabled = false, className, style }, ref) {
+  function RadioItem({ value, label, description, icon, disabled = false, className, style }, ref) {
     const ctx = useRadioGroupContext();
     const { getItemProps, variant, size, tone, name } = ctx;
 
@@ -281,16 +283,17 @@ export const RadioItem = forwardRef<HTMLDivElement, RadioItemProps>(
             data-size={size}
             data-tone={tone}
           >
-            <span className="rrad-card-radio">
-              <span className="rrad-circle" data-checked={isChecked ? "true" : undefined} data-tone={tone}>
-                <span className="rrad-dot" />
-              </span>
-            </span>
+            {icon && <span className="rrad-card-icon">{icon}</span>}
             <span className="rrad-card-content">
               <span className="rrad-card-label">{label}</span>
               {description && (
                 <span className="rrad-card-description">{description}</span>
               )}
+            </span>
+            <span className="rrad-card-indicator">
+              <span className="rrad-circle" data-checked={isChecked ? "true" : undefined} data-tone={tone} data-size={size}>
+                <span className="rrad-dot" />
+              </span>
             </span>
           </div>
         </div>

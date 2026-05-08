@@ -8,6 +8,7 @@ export interface BreadcrumbStyledProps {
   maxItems?: number;
   expandLabel?: string;
   size?: "sm" | "md" | "lg";
+  variant?: "plain" | "pills" | "underline";
   className?: string;
   style?: React.CSSProperties;
 }
@@ -29,6 +30,7 @@ export const BreadcrumbStyled = forwardRef<HTMLElement, BreadcrumbStyledProps>(
       maxItems,
       expandLabel = "Show all",
       size = "md",
+      variant = "plain",
       className,
       style,
     },
@@ -40,7 +42,7 @@ export const BreadcrumbStyled = forwardRef<HTMLElement, BreadcrumbStyledProps>(
       expandLabel,
     });
 
-    const rootClass = ["rbrc-nav", className].filter(Boolean).join(" ");
+    const rootClass = ["rbrc-root rbrc-nav", className].filter(Boolean).join(" ");
     const separatorNode = getSeparatorNode(separator);
 
     return (
@@ -50,6 +52,7 @@ export const BreadcrumbStyled = forwardRef<HTMLElement, BreadcrumbStyledProps>(
         className={rootClass}
         style={style}
         data-size={size}
+        data-variant={variant}
         data-collapsed={isCollapsed ? "true" : undefined}
       >
         <ol className="rbrc-list">

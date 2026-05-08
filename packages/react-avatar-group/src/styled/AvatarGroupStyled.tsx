@@ -7,7 +7,10 @@ export interface AvatarGroupStyledProps {
   max?: number;
   size?: "xs" | "sm" | "md" | "lg" | "xl";
   shape?: "circle" | "square";
-  spacing?: "tight" | "normal" | "loose";
+  /** Gap between avatars in pixels. Negative = overlap (e.g. -8 for standard overlap). Default: -8 */
+  gap?: number;
+  /** Custom ring border color around each avatar. Useful when the component is on a non-white background. */
+  borderColor?: string;
   showTooltip?: boolean;
   overflow?: "count" | "avatars";
   onOverflowClick?: () => void;
@@ -31,7 +34,8 @@ export const AvatarGroupStyled = forwardRef<HTMLDivElement, AvatarGroupStyledPro
       max = 4,
       size = "md",
       shape = "circle",
-      spacing = "normal",
+      gap = -8,
+      borderColor,
       showTooltip = true,
       overflow = "count",
       onOverflowClick,
@@ -45,14 +49,19 @@ export const AvatarGroupStyled = forwardRef<HTMLDivElement, AvatarGroupStyledPro
 
     const rootClass = ["ravg-root", className].filter(Boolean).join(" ");
 
+    const inlineStyle = {
+      ...(gap !== undefined ? { "--ravg-gap-override": `${gap}px` } : {}),
+      ...(borderColor !== undefined ? { "--ravg-ring-color": borderColor } : {}),
+      ...style,
+    } as React.CSSProperties;
+
     return (
       <div
         ref={ref}
         className={rootClass}
         data-size={size}
         data-shape={shape}
-        data-spacing={spacing}
-        style={style}
+        style={inlineStyle}
         {...groupProps}
       >
         {visibleAvatars.map((avatar, index) => {

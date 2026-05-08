@@ -114,6 +114,7 @@ const SECTIONS: SidebarSection[] = [
 
 export default function SidebarDemo() {
   const [activeId, setActiveId] = useState("dashboard");
+  const [collapsed, setCollapsed] = useState(false);
 
   return (
     <PropPlayground
@@ -139,49 +140,70 @@ export default function SidebarDemo() {
           defaultValue: true,
           omitWhen: true,
         },
-        {
-          name: "defaultCollapsed",
-          control: { type: "toggle" },
-          defaultValue: false,
-          omitWhen: false,
-        },
       ]}
       staticProps={{
         items: "{items}",
         activeId: `"${activeId}"`,
         onItemClick: "{(id) => setActiveId(id)}",
+        collapsed: "{collapsed}",
+        onCollapse: "{setCollapsed}",
       }}
       render={(v) => (
-        <div
-          style={{
-            display: "flex",
-            height: 480,
-            background: "var(--bg-subtle, #f4f4f5)",
-            borderRadius: 10,
-            overflow: "hidden",
-            border: "1px solid var(--border, #e4e4e7)",
-          }}
-        >
-          <SidebarStyled
-            items={SECTIONS}
-            variant={v.variant as "default" | "bordered" | "filled" | "floating"}
-            size={v.size as "sm" | "md" | "lg"}
-            showCollapseButton={v.showCollapseButton as boolean}
-            defaultCollapsed={v.defaultCollapsed as boolean}
-            activeId={activeId}
-            onItemClick={(id: string) => setActiveId(id)}
-          />
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            <button
+              type="button"
+              onClick={() => setCollapsed((c) => !c)}
+              style={{
+                appearance: "none",
+                background: "var(--bg-subtle, #f4f4f5)",
+                border: "1px solid var(--border, #e4e4e7)",
+                borderRadius: 6,
+                padding: "0.3rem 0.75rem",
+                fontSize: "0.8125rem",
+                color: "var(--fg, #18181b)",
+                cursor: "pointer",
+                fontFamily: "inherit",
+              }}
+            >
+              {collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            </button>
+            <span style={{ fontSize: "0.8rem", color: "var(--fg-muted, #71717a)" }}>
+              Active: <strong>{activeId}</strong>
+            </span>
+          </div>
           <div
             style={{
-              flex: 1,
               display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "var(--fg-muted, #71717a)",
-              fontSize: "0.85rem",
+              height: 480,
+              background: "var(--bg-subtle, #f4f4f5)",
+              borderRadius: 10,
+              overflow: "hidden",
+              border: "1px solid var(--border, #e4e4e7)",
             }}
           >
-            Active: <strong style={{ marginLeft: "0.3rem" }}>{activeId}</strong>
+            <SidebarStyled
+              items={SECTIONS}
+              variant={v.variant as "default" | "bordered" | "filled" | "floating"}
+              size={v.size as "sm" | "md" | "lg"}
+              showCollapseButton={v.showCollapseButton as boolean}
+              collapsed={collapsed}
+              onCollapse={setCollapsed}
+              activeId={activeId}
+              onItemClick={(id: string) => setActiveId(id)}
+            />
+            <div
+              style={{
+                flex: 1,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "var(--fg-muted, #71717a)",
+                fontSize: "0.85rem",
+              }}
+            >
+              Select an item from the sidebar
+            </div>
           </div>
         </div>
       )}

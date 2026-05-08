@@ -4,6 +4,7 @@ import {
   type ReactNode,
   type CSSProperties,
 } from "react";
+import { createPortal } from "react-dom";
 import type React from "react";
 import { useSortable } from "../useSortable";
 import type { SortableItem, ItemState } from "../useSortable";
@@ -53,14 +54,19 @@ function SortableStyledInner<T extends SortableItem = SortableItem>(
   forwardedRef: React.Ref<HTMLDivElement>,
 ) {
   const {
+    previewItems,
     containerProps,
     getItemProps,
     getItemState,
+    activeId,
+    isDragging,
+    ghostPos,
     liveRegionText,
   } = useSortable({
     items,
     onReorder,
     orientation,
+    handle,
     disabled,
     animationDuration,
   });
@@ -73,8 +79,7 @@ function SortableStyledInner<T extends SortableItem = SortableItem>(
       if (typeof forwardedRef === "function") {
         forwardedRef(el);
       } else if (forwardedRef) {
-        (forwardedRef as React.MutableRefObject<HTMLDivElement | null>).current =
-          el;
+        (forwardedRef as React.MutableRefObject<HTMLDivElement | null>).current = el;
       }
     },
     [hookRef, forwardedRef],
@@ -85,67 +90,107 @@ function SortableStyledInner<T extends SortableItem = SortableItem>(
     ...style,
   } as CSSProperties;
 
-  return (
-    <div
-      ref={mergedRef}
-      {...restContainerProps}
-      className={[
-        "rsort-container",
-        `rsort-container--${orientation}`,
-        disabled ? "rsort-container--disabled" : "",
-        className,
-      ]
-        .filter(Boolean)
-        .join(" ")}
-      style={cssVarStyle}
-      data-orientation={orientation}
-    >
-      {items.map((item) => {
-        const itemProps = getItemProps(item);
-        const itemState = getItemState(item);
-        const { handleProps, isDragging: itemIsDragging, isOver } = itemState;
+  // Ghost renders original item data (before reorder)
+  const ghostItem: T | null =
+    activeId !== null ? (items.find((it) => it.id === activeId) ?? null) : null;
 
-        return (
-          <div
-            key={item.id}
-            {...itemProps}
-            className="rsort-item"
-            data-active={itemIsDragging ? "true" : undefined}
-            data-over={isOver ? "true" : undefined}
-            data-disabled={disabled ? "true" : undefined}
-          >
-            {handle && !disabled && (
-              <span
-                className="rsort-handle"
-                aria-hidden={handleProps["aria-hidden"]}
-                tabIndex={handleProps.tabIndex}
-                onPointerDown={(e) => {
-                  e.stopPropagation();
-                  if (handleProps.onPointerDown) {
-                    handleProps.onPointerDown(
-                      e as unknown as React.PointerEvent<HTMLElement>,
-                    );
-                  }
-                }}
-              >
-                <GripIcon />
-              </span>
-            )}
-            <span className="rsort-item-content">
-              {renderItem(item, itemState)}
-            </span>
-          </div>
-        );
-      })}
+  return (
+    <>
       <div
-        role="status"
-        aria-live="assertive"
-        aria-atomic="true"
-        className="rsort-live-region"
+        ref={mergedRef}
+        {...restContainerProps}
+        className={[
+          "rsort-container",
+          `rsort-container--${orientation}`,
+          disabled ? "rsort-container--disabled" : "",
+          className,
+        ]
+          .filter(Boolean)
+          .join(" ")}
+        style={cssVarStyle}
+        data-orientation={orientation}
       >
-        {liveRegionText}
+        {previewItems.map((item) => {
+          const itemProps = getItemProps(item);
+          const itemState = getItemState(item);
+          const { handleProps: stateHandleProps } = itemState;
+          const isPlaceholder = item.id === activeId;
+
+          return (
+            <div
+              key={item.id}
+              {...itemProps}
+              className="rsort-item"
+              data-active={isPlaceholder ? "true" : undefined}
+              data-disabled={disabled ? "true" : undefined}
+            >
+              {handle && !disabled && (
+                <span
+                  className="rsort-handle"
+                  aria-hidden={stateHandleProps["aria-hidden"]}
+                  tabIndex={stateHandleProps.tabIndex}
+                  style={{ touchAction: "none", cursor: isDragging ? "grabbing" : "grab" }}
+                  onPointerDown={(e) => {
+                    e.stopPropagation();
+                    if (stateHandleProps.onPointerDown) {
+                      stateHandleProps.onPointerDown(
+                        e as unknown as React.PointerEvent<HTMLElement>,
+                      );
+                    }
+                  }}
+                >
+                  <GripIcon />
+                </span>
+              )}
+              <span className={`rsort-item-content${isPlaceholder ? " rsort-item-content--ghost" : ""}`}>
+                {renderItem(item, itemState)}
+              </span>
+            </div>
+          );
+        })}
+
+        <div
+          role="status"
+          aria-live="assertive"
+          aria-atomic="true"
+          className="rsort-live-region"
+        >
+          {liveRegionText}
+        </div>
       </div>
-    </div>
+
+      {ghostItem !== null &&
+        createPortal(
+          <div
+            className="rsort-ghost"
+            aria-hidden="true"
+            style={{
+              position: "fixed",
+              left: ghostPos.x,
+              top: ghostPos.y,
+              width: ghostPos.width,
+              pointerEvents: "none",
+              zIndex: 9999,
+            }}
+          >
+            <div className="rsort-item rsort-ghost-item">
+              {handle && (
+                <span className="rsort-handle" aria-hidden="true">
+                  <GripIcon />
+                </span>
+              )}
+              <span className="rsort-item-content">
+                {renderItem(ghostItem, {
+                  isDragging: true,
+                  isOver: false,
+                  handleProps: { "aria-hidden": true },
+                })}
+              </span>
+            </div>
+          </div>,
+          document.body,
+        )}
+    </>
   );
 }
 

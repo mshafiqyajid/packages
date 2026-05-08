@@ -33,8 +33,9 @@ export interface UseAvatarGroupResult {
 export function useAvatarGroup(options: UseAvatarGroupOptions): UseAvatarGroupResult {
   const { avatars, max = 4, onOverflowClick } = options;
   const total = avatars.length;
-  const overflowCount = Math.max(0, total - max);
-  const visibleAvatars = avatars.slice(0, overflowCount > 0 ? max - 1 : max);
+  const hasOverflow = total > max;
+  const overflowCount = hasOverflow ? total - (max - 1) : 0;
+  const visibleAvatars = hasOverflow ? avatars.slice(0, max - 1) : avatars.slice(0, max);
 
   return {
     groupProps: {

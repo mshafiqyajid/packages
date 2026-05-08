@@ -16,13 +16,16 @@
   --ravg-fs-lg: 1rem;
   --ravg-fs-xl: 1.25rem;
 
-  /* Ring (border separating overlapping avatars) */
-  --ravg-ring: 2px solid #ffffff;
+  /* Ring color (border separating overlapping avatars) */
+  --ravg-ring-color: #ffffff;
 
   /* Spacing (negative margin for overlap) */
   --ravg-spacing-tight: -10px;
   --ravg-spacing-normal: -8px;
   --ravg-spacing-loose: 0px;
+
+  /* Gap: resolved from override (set by gap prop) or spacing data-attribute */
+  --ravg-gap: var(--ravg-gap-override, var(--ravg-spacing-normal));
 
   /* Fallback avatar colors */
   --ravg-fallback-bg: #e4e4e7;
@@ -35,7 +38,7 @@
 }
 
 [data-theme="dark"] {
-  --ravg-ring: 2px solid #18181b;
+  --ravg-ring-color: #18181b;
   --ravg-fallback-bg: #3f3f46;
   --ravg-fallback-fg: #fafafa;
   --ravg-overflow-bg: #27272a;
@@ -51,23 +54,24 @@
   flex-wrap: nowrap;
 }
 
-/* Spacing variants — applied as margin-left on each avatar after the first */
-.ravg-root[data-spacing="tight"] .ravg-avatar,
-.ravg-root[data-spacing="tight"] .ravg-avatar-link,
-.ravg-root[data-spacing="tight"] .ravg-overflow {
-  margin-left: var(--ravg-spacing-tight);
+/* Spacing variants — set the gap variable per preset when no override is present */
+.ravg-root[data-spacing="tight"] {
+  --ravg-gap: var(--ravg-gap-override, var(--ravg-spacing-tight));
 }
 
-.ravg-root[data-spacing="normal"] .ravg-avatar,
-.ravg-root[data-spacing="normal"] .ravg-avatar-link,
-.ravg-root[data-spacing="normal"] .ravg-overflow {
-  margin-left: var(--ravg-spacing-normal);
+.ravg-root[data-spacing="normal"] {
+  --ravg-gap: var(--ravg-gap-override, var(--ravg-spacing-normal));
 }
 
-.ravg-root[data-spacing="loose"] .ravg-avatar,
-.ravg-root[data-spacing="loose"] .ravg-avatar-link,
-.ravg-root[data-spacing="loose"] .ravg-overflow {
-  margin-left: var(--ravg-spacing-loose);
+.ravg-root[data-spacing="loose"] {
+  --ravg-gap: var(--ravg-gap-override, var(--ravg-spacing-loose));
+}
+
+/* Apply gap to all direct children after the first */
+.ravg-root .ravg-avatar,
+.ravg-root .ravg-avatar-link,
+.ravg-root .ravg-overflow {
+  margin-left: var(--ravg-gap);
 }
 
 /* Remove margin from first child */
@@ -87,17 +91,18 @@
   background: var(--ravg-fallback-bg);
   color: var(--ravg-fallback-fg);
   font-weight: 600;
-  border: var(--ravg-ring);
+  box-shadow: 0 0 0 2.5px var(--ravg-ring-color), 0 1px 4px rgba(0, 0, 0, 0.12);
   cursor: default;
   user-select: none;
-  transition: transform var(--ravg-duration) var(--ravg-ease),
-    z-index 0ms;
+  transition: transform 150ms cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 150ms ease;
   z-index: 0;
 }
 
 .ravg-avatar:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px) scale(1.08);
   z-index: 10;
+  box-shadow: 0 0 0 2.5px var(--ravg-ring-color), 0 4px 12px rgba(0, 0, 0, 0.18);
 }
 
 /* Avatar link wrapper */
@@ -208,20 +213,21 @@
   flex-shrink: 0;
   background: var(--ravg-overflow-bg);
   color: var(--ravg-overflow-fg);
-  border: 1px solid var(--ravg-overflow-border);
-  font-weight: 600;
-  font-size: inherit;
+  box-shadow: 0 0 0 2.5px var(--ravg-ring-color), 0 1px 4px rgba(0, 0, 0, 0.12);
+  font-weight: 700;
+  font-size: 0.7em;
+  letter-spacing: -0.02em;
   cursor: default;
   user-select: none;
-  transition: transform var(--ravg-duration) var(--ravg-ease);
+  transition: transform 150ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.ravg-overflow:hover {
+  transform: translateY(-2px) scale(1.05);
 }
 
 .ravg-overflow[role="button"] {
   cursor: pointer;
-}
-
-.ravg-overflow[role="button"]:hover {
-  transform: translateY(-2px);
 }
 
 .ravg-overflow[role="button"]:focus-visible {
@@ -246,17 +252,17 @@
 }
 
 .ravg-avatar[data-index="0"] { animation-delay: 0ms; }
-.ravg-avatar[data-index="1"] { animation-delay: 40ms; }
-.ravg-avatar[data-index="2"] { animation-delay: 80ms; }
-.ravg-avatar[data-index="3"] { animation-delay: 120ms; }
-.ravg-avatar[data-index="4"] { animation-delay: 160ms; }
-.ravg-avatar[data-index="5"] { animation-delay: 200ms; }
-.ravg-avatar[data-index="6"] { animation-delay: 240ms; }
-.ravg-avatar[data-index="7"] { animation-delay: 280ms; }
+.ravg-avatar[data-index="1"] { animation-delay: 30ms; }
+.ravg-avatar[data-index="2"] { animation-delay: 60ms; }
+.ravg-avatar[data-index="3"] { animation-delay: 90ms; }
+.ravg-avatar[data-index="4"] { animation-delay: 120ms; }
+.ravg-avatar[data-index="5"] { animation-delay: 150ms; }
+.ravg-avatar[data-index="6"] { animation-delay: 180ms; }
+.ravg-avatar[data-index="7"] { animation-delay: 210ms; }
 
 .ravg-overflow {
   animation: ravg-avatar-in var(--ravg-duration) var(--ravg-ease) both;
-  animation-delay: 320ms;
+  animation-delay: 240ms;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -274,7 +280,7 @@
     transition: none;
   }
 
-  .ravg-overflow[role="button"]:hover {
+  .ravg-overflow:hover {
     transform: none;
   }
 }

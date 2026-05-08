@@ -43,7 +43,7 @@ export function useStat(options: UseStatOptions): UseStatResult {
 
     const prefersReduced =
       typeof window !== "undefined" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
     if (prefersReduced) {
       setAnimatedValue(value);
       return;

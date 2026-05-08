@@ -352,6 +352,16 @@ export const SheetStyled = forwardRef<HTMLDivElement, SheetStyledProps>(
           {title !== undefined && (
             <div className="rsh-header">
               <h2 id={titleId} className="rsh-title">{title}</h2>
+              <button
+                type="button"
+                className="rsh-close"
+                onClick={requestClose}
+                aria-label="Close"
+              >
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M2 2l12 12M14 2L2 14" />
+                </svg>
+              </button>
             </div>
           )}
           {description !== undefined && (

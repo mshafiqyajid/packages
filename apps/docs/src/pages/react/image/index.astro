@@ -100,9 +100,14 @@ return (
         <tr><td>aspectRatio</td><td>string | number</td><td>—</td><td>CSS aspect-ratio (e.g. "4/3", "16/9")</td></tr>
         <tr><td>objectFit</td><td>"cover" | "contain" | "fill" | "none" | "scale-down"</td><td>"cover"</td><td>CSS object-fit</td></tr>
         <tr><td>objectPosition</td><td>string</td><td>"center"</td><td>CSS object-position</td></tr>
-        <tr><td>radius</td><td>"none" | "sm" | "md" | "lg" | "full"</td><td>"none"</td><td>Border radius</td></tr>
+        <tr><td>width</td><td>number | string</td><td>—</td><td>Explicit width on the wrapper element</td></tr>
+        <tr><td>height</td><td>number | string</td><td>—</td><td>Explicit height on the wrapper element</td></tr>
+        <tr><td>crossOrigin</td><td>"anonymous" | "use-credentials"</td><td>—</td><td>Sets the crossorigin attribute on the img element</td></tr>
+        <tr><td>radius</td><td>"none" | "xs" | "sm" | "md" | "lg" | "full"</td><td>"none"</td><td>Border radius</td></tr>
         <tr><td>onLoad</td><td>() =&gt; void</td><td>—</td><td>Callback when image successfully loads</td></tr>
         <tr><td>onError</td><td>() =&gt; void</td><td>—</td><td>Callback when all load attempts fail</td></tr>
+        <tr><td>className</td><td>string</td><td>—</td><td>Extra class on the root wrapper element</td></tr>
+        <tr><td>style</td><td>CSSProperties</td><td>—</td><td>Inline style override</td></tr>
       </tbody></table>
     </div>
 

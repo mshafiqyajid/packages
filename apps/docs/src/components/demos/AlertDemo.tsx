@@ -1,14 +1,16 @@
 import PropPlayground from "../PropPlayground";
 import { AlertStyled } from "@mshafiqyajid/react-alert/styled";
 import "@mshafiqyajid/react-alert/styles.css";
+import { ButtonStyled } from "@mshafiqyajid/react-button/styled";
+import "@mshafiqyajid/react-button/styles.css";
 
 function AlertExamples() {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem", marginBottom: "1.5rem" }}>
-      <AlertStyled tone="success" title="Changes saved" description="Your changes have been saved successfully." />
-      <AlertStyled tone="warning" title="Attention required" description="Your subscription expires in 3 days." dismissible />
-      <AlertStyled tone="danger" title="Error" description="Failed to process your request. Please try again." dismissible />
-      <AlertStyled tone="info" title="New feature" description="You can now export reports as PDF." action={<button style={{fontSize:"0.8125rem",padding:"0.25rem 0.75rem",borderRadius:"6px",border:"1px solid currentColor",background:"transparent",cursor:"pointer",color:"inherit"}}>Learn more</button>} />
+      <AlertStyled variant="soft" tone="success" title="Changes saved" description="Your changes have been saved successfully." />
+      <AlertStyled variant="soft" tone="warning" title="Attention required" description="Your subscription expires in 3 days." dismissible />
+      <AlertStyled variant="soft" tone="danger" title="Error" description="Failed to process your request. Please try again." dismissible />
+      <AlertStyled variant="soft" tone="info" title="New feature" description="You can now export reports as PDF." action={<ButtonStyled size="sm" variant="outline" tone="neutral">Learn more</ButtonStyled>} />
     </div>
   );
 }

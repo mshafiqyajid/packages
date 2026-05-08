@@ -57,7 +57,7 @@ export const DividerStyled = forwardRef<HTMLElement, DividerStyledProps>(
       );
     }
 
-    return <hr ref={ref as React.Ref<HTMLHRElement>} {...commonProps} />;
+    return <div ref={ref as React.Ref<HTMLDivElement>} {...commonProps} />;
   }
 );
 DividerStyled.displayName = "DividerStyled";

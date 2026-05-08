@@ -25,15 +25,23 @@ export default function EmptyStateDemo() {
         componentName="EmptyStateStyled"
         importLine={`import { EmptyStateStyled } from "@mshafiqyajid/react-empty-state/styled";\nimport "@mshafiqyajid/react-empty-state/styles.css";`}
         props={[
-          { name: "preset",      control: { type: "segmented", options: ["no-data","no-results","error","offline","empty-search"] as const }, defaultValue: "no-data", omitWhen: "no-data" },
-          { name: "size",        control: { type: "segmented", options: ["sm","md","lg"] as const },                                          defaultValue: "md",     omitWhen: "md" },
-          { name: "orientation", control: { type: "segmented", options: ["vertical","horizontal"] as const },                                 defaultValue: "vertical", omitWhen: "vertical" },
+          { name: "preset",              control: { type: "segmented", options: ["no-data","no-results","error","offline","empty-search"] as const }, defaultValue: "no-data",   omitWhen: "no-data" },
+          { name: "size",                control: { type: "segmented", options: ["sm","md","lg"] as const },                                          defaultValue: "md",        omitWhen: "md" },
+          { name: "orientation",         control: { type: "segmented", options: ["vertical","horizontal"] as const },                                 defaultValue: "vertical",  omitWhen: "vertical" },
+          { name: "title",               control: { type: "text" },                                                                                   defaultValue: "",          omitWhen: "" },
+          { name: "description",         control: { type: "text" },                                                                                   defaultValue: "",          omitWhen: "" },
+          { name: "showAction",          control: { type: "toggle" },                                                                                 defaultValue: false,       omitWhen: false },
+          { name: "showSecondaryAction", control: { type: "toggle" },                                                                                defaultValue: false,       omitWhen: false },
         ]}
         render={(v) => (
           <EmptyStateStyled
             preset={v.preset as "no-data"|"no-results"|"error"|"offline"|"empty-search"}
             size={v.size as "sm"|"md"|"lg"}
             orientation={v.orientation as "vertical"|"horizontal"}
+            title={(v.title as string) || undefined}
+            description={(v.description as string) || undefined}
+            action={v.showAction ? <ButtonStyled size="sm" tone="primary">Get started</ButtonStyled> : undefined}
+            secondaryAction={v.showSecondaryAction ? <ButtonStyled size="sm" variant="ghost" tone="neutral">Learn more</ButtonStyled> : undefined}
           />
         )}
       />

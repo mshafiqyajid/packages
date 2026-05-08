@@ -5,6 +5,7 @@ export interface UseImageOptions {
   alt: string;
   fallbackSrc?: string;
   lazy?: boolean;
+  crossOrigin?: "anonymous" | "use-credentials";
   onLoad?: () => void;
   onError?: () => void;
 }
@@ -14,6 +15,7 @@ export interface UseImageResult {
     src: string;
     alt: string;
     loading: "lazy" | "eager";
+    crossOrigin?: "anonymous" | "use-credentials";
     onLoad: () => void;
     onError: () => void;
     "aria-hidden": true | undefined;
@@ -24,7 +26,7 @@ export interface UseImageResult {
 }
 
 export function useImage(options: UseImageOptions): UseImageResult {
-  const { src, alt, fallbackSrc, lazy = true, onLoad, onError } = options;
+  const { src, alt, fallbackSrc, lazy = true, crossOrigin, onLoad, onError } = options;
 
   const [currentSrc, setCurrentSrc] = useState(src);
   const [isLoading, setIsLoading] = useState(true);
@@ -64,6 +66,7 @@ export function useImage(options: UseImageOptions): UseImageResult {
       src: currentSrc,
       alt,
       loading: lazy ? "lazy" : "eager",
+      crossOrigin,
       onLoad: handleLoad,
       onError: handleError,
       "aria-hidden": alt === "" ? true : undefined,

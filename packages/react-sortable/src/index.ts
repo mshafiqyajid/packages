@@ -6,4 +6,5 @@ export type {
   ItemState,
   ItemProps,
   ContainerProps,
+  GhostPos,
 } from "./useSortable";

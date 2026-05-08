@@ -17,7 +17,7 @@ export interface UsePaginationOptions {
 export interface UsePaginationResult {
   page: number;
   setPage: (page: number) => void;
-  pages: (number | "...")[];
+  pages: (number | "..." | "ghost")[];
   totalPages: number;
   hasPrev: boolean;
   hasNext: boolean;
@@ -44,9 +44,12 @@ function computePages(
   totalPages: number,
   siblings: number,
   boundaries: number,
-): (number | "...")[] {
+): (number | "..." | "ghost")[] {
   if (totalPages <= 1) return [1];
-  if (totalPages <= 2 * boundaries + 2 * siblings + 3) {
+
+  const maxItems = 2 * boundaries + 2 * siblings + 3;
+
+  if (totalPages <= maxItems) {
     return range(1, totalPages);
   }
 
@@ -55,7 +58,7 @@ function computePages(
   const showLeftEllipsis = leftSiblingIndex > boundaries + 2;
   const showRightEllipsis = rightSiblingIndex < totalPages - boundaries - 1;
 
-  const result: (number | "...")[] = [...range(1, boundaries)];
+  const result: (number | "..." | "ghost")[] = [...range(1, boundaries)];
 
   if (showLeftEllipsis) {
     result.push("...");
@@ -72,6 +75,20 @@ function computePages(
   }
 
   result.push(...range(totalPages - boundaries + 1, totalPages));
+
+  // Pad to maxItems with invisible ghost slots so total width stays stable
+  const ghosts = maxItems - result.length;
+  if (ghosts > 0) {
+    if (showRightEllipsis) {
+      const idx = result.lastIndexOf("...");
+      for (let i = 0; i < ghosts; i++) result.splice(idx, 0, "ghost");
+    } else if (showLeftEllipsis) {
+      const idx = result.indexOf("...") + 1;
+      for (let i = 0; i < ghosts; i++) result.splice(idx, 0, "ghost");
+    } else {
+      for (let i = 0; i < ghosts; i++) result.push("ghost");
+    }
+  }
 
   return result;
 }

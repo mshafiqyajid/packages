@@ -3,14 +3,15 @@
  * All transitions respect prefers-reduced-motion.
  */
 :root {
-  --rpgn-duration: 150ms;
+  --rpgn-duration: 120ms;
   --rpgn-ease: cubic-bezier(0.4, 0, 0.2, 1);
-  --rpgn-gap: 4px;
+  --rpgn-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --rpgn-gap: 2px;
 
   /* Sizes */
   --rpgn-size-sm: 28px;
   --rpgn-fs-sm: 0.8125rem;
-  --rpgn-radius-sm: 6px;
+  --rpgn-radius-sm: 5px;
   --rpgn-size-md: 36px;
   --rpgn-fs-md: 0.875rem;
   --rpgn-radius-md: 8px;
@@ -20,7 +21,7 @@
 
   /* Colors */
   --rpgn-bg: transparent;
-  --rpgn-fg: #18181b;
+  --rpgn-fg: #3f3f46;
   --rpgn-border: #d4d4d8;
   --rpgn-hover-bg: #f4f4f5;
   --rpgn-active-bg: #18181b;
@@ -30,16 +31,17 @@
   --rpgn-focus-ring: #6366f1;
   --rpgn-select-bg: #ffffff;
   --rpgn-select-border: #d4d4d8;
+  --rpgn-disabled-opacity: 0.35;
 }
 
 [data-theme="dark"] {
-  --rpgn-fg: #fafafa;
+  --rpgn-fg: #d4d4d8;
   --rpgn-border: #3f3f46;
   --rpgn-hover-bg: #27272a;
   --rpgn-active-bg: #fafafa;
   --rpgn-active-fg: #18181b;
   --rpgn-primary-active-bg: #818cf8;
-  --rpgn-primary-active-fg: #18181b;
+  --rpgn-primary-active-fg: #1e1b4b;
   --rpgn-focus-ring: #818cf8;
   --rpgn-select-bg: #18181b;
   --rpgn-select-border: #3f3f46;
@@ -51,11 +53,12 @@
   align-items: center;
   gap: 0.75rem;
   flex-wrap: wrap;
+  font-family: inherit;
 }
 
 /* ── List ──────────────────────────────────────────────────── */
 .rpgn-list {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: var(--rpgn-gap);
   list-style: none;
@@ -82,7 +85,8 @@
     background var(--rpgn-duration) var(--rpgn-ease),
     border-color var(--rpgn-duration) var(--rpgn-ease),
     color var(--rpgn-duration) var(--rpgn-ease),
-    box-shadow var(--rpgn-duration) var(--rpgn-ease);
+    box-shadow var(--rpgn-duration) var(--rpgn-ease),
+    transform 100ms var(--rpgn-spring);
   outline: none;
 }
 
@@ -96,14 +100,23 @@
 }
 
 .rpgn-btn:active:not([data-disabled="true"]) {
-  transform: scale(0.95);
+  transform: scale(0.94);
+}
+
+/* Nav control buttons (first/prev/next/last) — slightly muted at rest */
+.rpgn-btn[data-nav="true"] {
+  opacity: 0.65;
+}
+
+.rpgn-btn[data-nav="true"]:hover:not([data-disabled="true"]) {
+  opacity: 1;
 }
 
 /* Disabled state */
 .rpgn-btn[data-disabled="true"] {
-  opacity: 0.4;
+  opacity: var(--rpgn-disabled-opacity);
+  cursor: not-allowed;
   pointer-events: none;
-  cursor: default;
 }
 
 /* ── Sizes ─────────────────────────────────────────────────── */
@@ -136,6 +149,8 @@
   background: var(--rpgn-active-bg);
   color: var(--rpgn-active-fg);
   border-color: var(--rpgn-active-bg);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+  transform: scale(1.05);
 }
 
 /* ── Variant: outline ──────────────────────────────────────── */
@@ -144,9 +159,10 @@
 }
 
 .rpgn-nav[data-variant="outline"] .rpgn-btn[data-active="true"] {
-  background: var(--rpgn-active-bg);
-  color: var(--rpgn-active-fg);
-  border-color: var(--rpgn-active-bg);
+  background: transparent;
+  border: 1.5px solid var(--rpgn-active-bg);
+  color: var(--rpgn-active-bg);
+  transform: scale(1.05);
 }
 
 /* ── Variant: ghost ────────────────────────────────────────── */
@@ -157,16 +173,22 @@
 
 .rpgn-nav[data-variant="ghost"] .rpgn-btn[data-active="true"] {
   background: var(--rpgn-hover-bg);
-  color: var(--rpgn-fg);
+  color: var(--rpgn-active-bg);
   font-weight: 700;
 }
 
 /* ── Tone: primary — overrides active background ───────────── */
-.rpgn-nav[data-tone="primary"][data-variant="default"] .rpgn-btn[data-active="true"],
-.rpgn-nav[data-tone="primary"][data-variant="outline"] .rpgn-btn[data-active="true"] {
+.rpgn-nav[data-tone="primary"][data-variant="default"] .rpgn-btn[data-active="true"] {
   background: var(--rpgn-primary-active-bg);
   color: var(--rpgn-primary-active-fg);
   border-color: var(--rpgn-primary-active-bg);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--rpgn-primary-active-bg) 40%, transparent);
+}
+
+.rpgn-nav[data-tone="primary"][data-variant="outline"] .rpgn-btn[data-active="true"] {
+  background: transparent;
+  border-color: var(--rpgn-primary-active-bg);
+  color: var(--rpgn-primary-active-bg);
 }
 
 .rpgn-nav[data-tone="primary"][data-variant="ghost"] .rpgn-btn[data-active="true"] {
@@ -180,9 +202,10 @@
   align-items: center;
   justify-content: center;
   color: var(--rpgn-fg);
-  opacity: 0.5;
+  opacity: 0.4;
   user-select: none;
   pointer-events: none;
+  letter-spacing: 0.05em;
 }
 
 .rpgn-nav[data-size="sm"] .rpgn-ellipsis {
@@ -244,6 +267,28 @@
   border-color: color-mix(in srgb, var(--rpgn-border) 70%, var(--rpgn-fg));
 }
 
+/* ── Ghost (invisible spacer for stable width) ─────────────── */
+.rpgn-ghost {
+  display: inline-flex;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.rpgn-nav[data-size="sm"] .rpgn-ghost {
+  width: var(--rpgn-size-sm);
+  height: var(--rpgn-size-sm);
+}
+
+.rpgn-nav[data-size="md"] .rpgn-ghost {
+  width: var(--rpgn-size-md);
+  height: var(--rpgn-size-md);
+}
+
+.rpgn-nav[data-size="lg"] .rpgn-ghost {
+  width: var(--rpgn-size-lg);
+  height: var(--rpgn-size-lg);
+}
+
 /* ── Screen-reader live region ─────────────────────────────── */
 .rpgn-sr-only {
   position: absolute;
@@ -260,9 +305,16 @@
 /* ── Reduced motion ────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   .rpgn-btn {
-    transition: none;
+    transition: background var(--rpgn-duration) var(--rpgn-ease),
+      border-color var(--rpgn-duration) var(--rpgn-ease),
+      color var(--rpgn-duration) var(--rpgn-ease),
+      box-shadow var(--rpgn-duration) var(--rpgn-ease);
   }
   .rpgn-btn:active:not([data-disabled="true"]) {
+    transform: none;
+  }
+  .rpgn-nav[data-variant="default"] .rpgn-btn[data-active="true"],
+  .rpgn-nav[data-variant="outline"] .rpgn-btn[data-active="true"] {
     transform: none;
   }
   .rpgn-size-select {

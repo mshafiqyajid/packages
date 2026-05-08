@@ -13,15 +13,15 @@
   --rsort-item-border: #e4e4e7;
   --rsort-item-radius: 8px;
   --rsort-item-shadow: 0 1px 3px rgba(0, 0, 0, 0.07), 0 1px 2px rgba(0, 0, 0, 0.04);
-  --rsort-item-shadow-drag: 0 8px 24px rgba(0, 0, 0, 0.14), 0 2px 6px rgba(0, 0, 0, 0.08);
   --rsort-item-padding: 10px 14px;
   --rsort-handle-color: #a1a1aa;
   --rsort-handle-hover-color: #71717a;
+  --rsort-handle-hover-bg: rgba(0, 0, 0, 0.05);
   --rsort-gap: 6px;
   --rsort-font-size: 0.875rem;
-  --rsort-over-bg: #f0f0ff;
-  --rsort-over-border: #6366f1;
-  --rsort-active-opacity: 0.4;
+  --rsort-over-transform: translateY(-2px);
+  --rsort-over-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  --rsort-active-opacity: 0.35;
   --rsort-duration: 200ms;
   --rsort-ease: cubic-bezier(0.16, 1, 0.3, 1);
   --rsort-disabled-opacity: 0.5;
@@ -73,7 +73,8 @@
   box-sizing: border-box;
   cursor: grab;
   user-select: none;
-  transition: transform var(--rsort-duration) var(--rsort-ease),
+  transition:
+    transform var(--rsort-duration) var(--rsort-ease),
     opacity var(--rsort-duration) var(--rsort-ease),
     box-shadow var(--rsort-duration) var(--rsort-ease),
     background var(--rsort-duration) var(--rsort-ease),
@@ -91,15 +92,15 @@
   box-shadow: var(--rsort-focus-ring);
 }
 
+/* Placeholder for the item being dragged — looks like an empty slot */
 .rsort-item[data-active="true"] {
-  opacity: var(--rsort-active-opacity);
+  opacity: 0;
   cursor: grabbing;
-  box-shadow: var(--rsort-item-shadow);
-}
-
-.rsort-item[data-over="true"] {
-  background: var(--rsort-over-bg);
-  border-color: var(--rsort-over-border);
+  box-shadow: none;
+  border-style: dashed;
+  border-color: color-mix(in srgb, currentColor 25%, transparent);
+  background: transparent;
+  pointer-events: none;
 }
 
 .rsort-item[data-disabled="true"] {
@@ -124,24 +125,28 @@
  * ========================================================================== */
 
 .rsort-handle {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
   color: var(--rsort-handle-color);
   cursor: grab;
-  border-radius: 4px;
-  transition: color var(--rsort-duration) var(--rsort-ease);
   touch-action: none;
+  transition:
+    color var(--rsort-duration) var(--rsort-ease),
+    background var(--rsort-duration) var(--rsort-ease);
 }
 
 .rsort-handle:hover {
   color: var(--rsort-handle-hover-color);
+  background: var(--rsort-handle-hover-bg);
 }
 
-.rsort-item[data-active="true"] .rsort-handle {
+.rsort-item[data-active="true"] .rsort-handle,
+.rsort-container[data-dragging="true"] .rsort-handle {
   cursor: grabbing;
 }
 
@@ -159,6 +164,25 @@
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+/* ============================================================================
+ * Ghost — portaled to body, follows pointer
+ * ========================================================================== */
+
+.rsort-ghost {
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.rsort-ghost-item {
+  opacity: 0.95;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.2), 0 2px 8px rgba(0, 0, 0, 0.1);
+  transform: rotate(1deg) scale(1.02);
+  cursor: grabbing !important;
+  border-color: var(--rsort-item-border);
+  background: var(--rsort-item-bg);
+  transition: none;
 }
 
 /* ============================================================================
@@ -188,16 +212,15 @@
   --rsort-item-fg: #f4f4f5;
   --rsort-item-border: #3f3f46;
   --rsort-item-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
-  --rsort-item-shadow-drag: 0 8px 24px rgba(0, 0, 0, 0.5), 0 2px 6px rgba(0, 0, 0, 0.3);
   --rsort-handle-color: #71717a;
   --rsort-handle-hover-color: #a1a1aa;
-  --rsort-over-bg: #312e81;
-  --rsort-over-border: #818cf8;
+  --rsort-handle-hover-bg: rgba(255, 255, 255, 0.06);
+  --rsort-over-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
   --rsort-focus-ring: 0 0 0 2px #818cf8;
 }
 
 /* ============================================================================
- * Reduced motion — instant reorder, no transitions
+ * Reduced motion
  * ========================================================================== */
 
 @media (prefers-reduced-motion: reduce) {
@@ -207,5 +230,9 @@
 
   .rsort-handle {
     transition: none;
+  }
+
+  .rsort-ghost-item {
+    transform: none;
   }
 }

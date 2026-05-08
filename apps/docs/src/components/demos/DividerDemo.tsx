@@ -1,4 +1,3 @@
-import { useState } from "react";
 import PropPlayground from "../PropPlayground";
 import { DividerStyled } from "@mshafiqyajid/react-divider/styled";
 import "@mshafiqyajid/react-divider/styles.css";
@@ -31,8 +30,6 @@ function DividerExamples() {
 }
 
 export default function DividerDemo() {
-  const [label, setLabel] = useState("Or continue with");
-
   return (
     <>
       <DividerExamples />
@@ -84,7 +81,7 @@ export default function DividerDemo() {
           },
         ]}
         render={(v) => (
-          <div style={v.orientation === "vertical" ? { display: "flex", alignItems: "center", height: "3rem" } : {}}>
+          <div style={v.orientation === "vertical" ? { display: "flex", alignItems: "center", height: "3rem" } : { width: "100%" }}>
             {v.orientation === "vertical" && <span style={{ fontSize: "0.875rem" }}>Left</span>}
             <DividerStyled
               orientation={v.orientation as "horizontal" | "vertical"}

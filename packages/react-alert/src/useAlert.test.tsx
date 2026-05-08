@@ -32,7 +32,7 @@ describe("useAlert", () => {
     function TestComponent() {
       const { alertProps, isDismissed } = useAlert({ dismissible: true });
       return (
-        <div {...alertProps} data-testid="alert" data-dismissed={String(isDismissed)}>
+        <div {...alertProps} tabIndex={-1} data-testid="alert" data-dismissed={String(isDismissed)}>
           Alert content
         </div>
       );

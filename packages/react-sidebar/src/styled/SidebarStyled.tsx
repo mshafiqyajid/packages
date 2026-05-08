@@ -113,18 +113,20 @@ function ItemRenderer({
       aria-current={isActive ? "page" : undefined}
       title={isCollapsed && depth === 0 ? item.label : undefined}
     >
-      {item.icon && (
-        <span className="rsb-item-icon" aria-hidden="true">
-          {item.icon}
-        </span>
-      )}
-      <span className="rsb-item-label">{item.label}</span>
-      {item.badge !== undefined && !isCollapsed && (
-        <span className="rsb-item-badge">{item.badge}</span>
-      )}
-      {hasChildren && !isCollapsed && (
-        <ChevronDownIcon className={expanded ? "rsb-item-chevron--open" : ""} />
-      )}
+      <span className="rsb-item-inner">
+        {item.icon && (
+          <span className="rsb-item-icon" aria-hidden="true">
+            {item.icon}
+          </span>
+        )}
+        <span className="rsb-item-label">{item.label}</span>
+        {item.badge !== undefined && (
+          <span className="rsb-item-badge">{item.badge}</span>
+        )}
+        {hasChildren && (
+          <ChevronDownIcon className={expanded ? "rsb-item-chevron--open" : ""} />
+        )}
+      </span>
     </div>
   );
 
@@ -231,17 +233,21 @@ export const SidebarStyled = forwardRef<HTMLElement, SidebarStyledProps>(
         role={sidebarProps.role}
         aria-label={sidebarProps["aria-label"]}
         className={["rsb-root", className].filter(Boolean).join(" ")}
-        data-collapsed={isCollapsed ? "" : undefined}
+        data-collapsed={isCollapsed ? "true" : undefined}
         data-variant={variant}
         data-size={size}
         style={style}
       >
-        {header && <div className="rsb-header">{header}</div>}
+        {header && (
+          <div className="rsb-header">
+            <span className="rsb-header-content">{header}</span>
+          </div>
+        )}
 
         <div className="rsb-content">
           {sections.map((section, sIdx) => (
             <div key={sIdx} className="rsb-section">
-              {section.label && !isCollapsed && (
+              {section.label && (
                 <div className="rsb-section-label" aria-hidden="true">
                   {section.label}
                 </div>

@@ -98,6 +98,30 @@ export default function CardDemo() {
             defaultValue: false,
             omitWhen: false,
           },
+          {
+            name: "loading",
+            control: { type: "toggle" },
+            defaultValue: false,
+            omitWhen: false,
+          },
+          {
+            name: "hoverable",
+            control: { type: "toggle" },
+            defaultValue: false,
+            omitWhen: false,
+          },
+          {
+            name: "bordered",
+            control: { type: "toggle" },
+            defaultValue: false,
+            omitWhen: false,
+          },
+          {
+            name: "compact",
+            control: { type: "toggle" },
+            defaultValue: false,
+            omitWhen: false,
+          },
         ]}
         render={(v) => (
           <CardStyled
@@ -109,6 +133,10 @@ export default function CardDemo() {
             clickable={v.clickable as boolean}
             selected={v.selected as boolean}
             disabled={v.disabled as boolean}
+            loading={v.loading as boolean}
+            hoverable={v.hoverable as boolean}
+            bordered={v.bordered as boolean}
+            compact={v.compact as boolean}
             header="Card title"
             footer="Card footer"
           >

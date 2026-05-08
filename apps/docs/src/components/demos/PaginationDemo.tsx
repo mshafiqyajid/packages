@@ -5,11 +5,17 @@ import "@mshafiqyajid/react-pagination/styles.css";
 
 function LivePaginationDemo() {
   const [page, setPage] = useState(1);
+  const totalItems = 100;
+  const pageSize = 10;
+  const totalPages = Math.ceil(totalItems / pageSize);
+  const rangeStart = (page - 1) * pageSize + 1;
+  const rangeEnd = Math.min(page * pageSize, totalItems);
+
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "1rem", marginBottom: "1.5rem" }}>
-      <PaginationStyled page={page} onChange={setPage} total={100} pageSize={10} />
-      <p style={{ fontSize: "0.875rem", opacity: 0.6 }}>
-        Page {page} of 10 — showing items {(page - 1) * 10 + 1}–{Math.min(page * 10, 100)} of 100
+    <div style={{ display: "flex", flexDirection: "column", gap: "0.875rem", marginBottom: "1.5rem" }}>
+      <PaginationStyled page={page} onChange={setPage} total={totalItems} pageSize={pageSize} />
+      <p style={{ fontSize: "0.8125rem", color: "var(--color-fg, #3f3f46)", opacity: 0.55, margin: 0, lineHeight: 1.5 }}>
+        Page <strong style={{ opacity: 1 }}>{page}</strong> of {totalPages} &mdash; showing items {rangeStart}&ndash;{rangeEnd} of {totalItems}
       </p>
     </div>
   );
@@ -29,6 +35,8 @@ export default function PaginationDemo() {
           { name: "showFirstLast", control: { type: "toggle" },                                                        defaultValue: true,      omitWhen: true },
           { name: "showPrevNext",  control: { type: "toggle" },                                                        defaultValue: true,      omitWhen: true },
           { name: "siblings",      control: { type: "slider", min: 0, max: 3, step: 1 },                              defaultValue: 1,         omitWhen: 1 },
+          { name: "boundaries",    control: { type: "slider", min: 1, max: 2, step: 1 },                              defaultValue: 1,         omitWhen: 1 },
+          { name: "showPageSize",  control: { type: "toggle" },                                                        defaultValue: false,     omitWhen: false },
         ]}
         render={(v) => (
           <PaginationStyled
@@ -41,6 +49,8 @@ export default function PaginationDemo() {
             showFirstLast={v.showFirstLast as boolean}
             showPrevNext={v.showPrevNext as boolean}
             siblings={v.siblings as number}
+            boundaries={v.boundaries as number}
+            showPageSize={v.showPageSize as boolean}
           />
         )}
       />

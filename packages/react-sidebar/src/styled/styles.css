@@ -19,11 +19,11 @@
   --rsb-active-fg: #6366f1;
   --rsb-disabled-opacity: 0.45;
 
-  /* Sizing */
+  /* Sizing — --rsb-width is the active expanded width, overridden per size */
+  --rsb-width: 240px;
   --rsb-width-sm: 200px;
-  --rsb-width-md: 240px;
   --rsb-width-lg: 280px;
-  --rsb-collapsed-width: 56px;
+  --rsb-width-collapsed: 64px;
 
   /* Item sizing */
   --rsb-item-pad-y: 0.375rem;
@@ -35,7 +35,7 @@
   --rsb-nested-indent: 1rem;
 
   /* Motion */
-  --rsb-duration-width: 250ms;
+  --rsb-duration: 250ms;
   --rsb-duration-label: 150ms;
   --rsb-duration-section: 200ms;
   --rsb-duration-fast: 120ms;
@@ -68,33 +68,33 @@
   overflow: hidden;
   position: relative;
   height: 100%;
+  flex-shrink: 0;
 
-  /* Width with animated collapse */
-  width: var(--rsb-width-md);
-  transition: width var(--rsb-duration-width) var(--rsb-ease);
+  /* Width with smooth collapse animation */
+  width: var(--rsb-width);
+  transition: width var(--rsb-duration) var(--rsb-ease);
   will-change: width;
 }
 
-/* Size variants */
+/* Size variants — override --rsb-width so collapsed state still uses --rsb-width-collapsed */
 .rsb-root[data-size="sm"] {
+  --rsb-width: var(--rsb-width-sm);
   --rsb-item-font-size: 0.8125rem;
   --rsb-item-pad-y: 0.3rem;
-  width: var(--rsb-width-sm);
 }
 .rsb-root[data-size="lg"] {
+  --rsb-width: var(--rsb-width-lg);
   --rsb-item-font-size: 0.9375rem;
   --rsb-item-pad-y: 0.45rem;
-  width: var(--rsb-width-lg);
 }
 
-/* Collapsed state */
-.rsb-root[data-collapsed] {
-  width: var(--rsb-collapsed-width);
+/* Collapsed state — single source of truth for the collapsed width */
+.rsb-root[data-collapsed="true"] {
+  width: var(--rsb-width-collapsed);
 }
 
 /* ─── Variants ──────────────────────────────────────────────────────────────── */
 
-/* default — no border, transparent bg */
 .rsb-root[data-variant="bordered"] {
   border-right: 1px solid var(--rsb-border);
 }
@@ -118,10 +118,30 @@
 
 /* ─── Header / footer ───────────────────────────────────────────────────────── */
 .rsb-header {
-  padding: 0.75rem var(--rsb-item-pad-x);
+  display: flex;
+  align-items: center;
+  min-height: 56px;
+  padding: 0.75rem 1rem;
   border-bottom: 1px solid var(--rsb-border);
   flex-shrink: 0;
   overflow: hidden;
+  transition: padding var(--rsb-duration) var(--rsb-ease);
+}
+.rsb-root[data-collapsed="true"] .rsb-header {
+  padding: 0.75rem;
+  justify-content: center;
+}
+
+.rsb-header-content {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  opacity: 1;
+  transition: opacity var(--rsb-duration-label) var(--rsb-ease);
+}
+.rsb-root[data-collapsed="true"] .rsb-header-content {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .rsb-footer {
@@ -166,11 +186,11 @@
   color: var(--rsb-fg-subtle);
   white-space: nowrap;
   overflow: hidden;
-  /* Fade label out when collapsing */
+  /* Labels fade before the width animates */
   opacity: 1;
   transition: opacity var(--rsb-duration-label) var(--rsb-ease);
 }
-.rsb-root[data-collapsed] .rsb-section-label {
+.rsb-root[data-collapsed="true"] .rsb-section-label {
   opacity: 0;
   pointer-events: none;
 }
@@ -186,7 +206,6 @@
 .rsb-nested-list {
   overflow: hidden;
   padding-left: var(--rsb-nested-indent);
-  /* Animated expand/collapse */
   animation: rsb-expand var(--rsb-duration-section) var(--rsb-ease) both;
 }
 @keyframes rsb-expand {
@@ -204,7 +223,6 @@
 .rsb-item {
   display: flex;
   align-items: center;
-  gap: var(--rsb-item-gap);
   padding: var(--rsb-item-pad-y) var(--rsb-item-pad-x);
   border-radius: var(--rsb-item-radius);
   color: var(--rsb-fg-muted);
@@ -212,13 +230,18 @@
   user-select: none;
   outline: none;
   position: relative;
-  white-space: nowrap;
   overflow: hidden;
   transition:
     background var(--rsb-duration-fast) var(--rsb-ease),
     color var(--rsb-duration-fast) var(--rsb-ease),
-    transform var(--rsb-duration-fast) var(--rsb-ease);
+    transform var(--rsb-duration-fast) var(--rsb-ease),
+    padding var(--rsb-duration) var(--rsb-ease);
   will-change: background, color;
+}
+
+.rsb-root[data-collapsed="true"] .rsb-item {
+  padding-left: 0;
+  padding-right: 0;
 }
 
 .rsb-item:hover {
@@ -257,6 +280,20 @@
   font-size: 0.8125em;
 }
 
+/* ─── Item inner row ────────────────────────────────────────────────────────── */
+.rsb-item-inner {
+  display: flex;
+  align-items: center;
+  gap: var(--rsb-item-gap);
+  width: 100%;
+  overflow: hidden;
+  transition: justify-content var(--rsb-duration) var(--rsb-ease);
+}
+.rsb-root[data-collapsed="true"] .rsb-item-inner {
+  justify-content: center;
+  gap: 0;
+}
+
 /* ─── Icon ──────────────────────────────────────────────────────────────────── */
 .rsb-item-icon {
   display: inline-flex;
@@ -276,24 +313,23 @@
   color: var(--rsb-fg);
 }
 
-/* ─── Label ─────────────────────────────────────────────────────────────────── */
+/* ─── Label — fades out before width animates ────────────────────────────────── */
 .rsb-item-label {
   flex: 1;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  /* Fade out label when sidebar collapses */
   opacity: 1;
-  max-width: 200px;
   transition:
     opacity var(--rsb-duration-label) var(--rsb-ease),
-    max-width var(--rsb-duration-label) var(--rsb-ease);
+    width var(--rsb-duration-label) var(--rsb-ease);
 }
-.rsb-root[data-collapsed] .rsb-item-label {
+.rsb-root[data-collapsed="true"] .rsb-item-label {
   opacity: 0;
-  max-width: 0;
-  overflow: hidden;
+  flex: 0 0 0px;
+  min-width: 0;
+  pointer-events: none;
 }
 
 /* ─── Badge ─────────────────────────────────────────────────────────────────── */
@@ -311,10 +347,15 @@
   font-weight: 700;
   line-height: 1;
   flex-shrink: 0;
+  opacity: 1;
   transition: opacity var(--rsb-duration-label) var(--rsb-ease);
 }
-.rsb-root[data-collapsed] .rsb-item-badge {
+.rsb-root[data-collapsed="true"] .rsb-item-badge {
   opacity: 0;
+  min-width: 0;
+  width: 0;
+  padding: 0;
+  overflow: hidden;
   pointer-events: none;
 }
 
@@ -331,8 +372,11 @@
 .rsb-item-chevron--open {
   transform: rotate(0deg);
 }
-.rsb-root[data-collapsed] .rsb-item-chevron {
+.rsb-root[data-collapsed="true"] .rsb-item-chevron {
   opacity: 0;
+  width: 0;
+  margin-left: 0;
+  overflow: hidden;
   pointer-events: none;
 }
 
@@ -374,33 +418,25 @@
   transform: scale(0.96);
 }
 
-/* Rotate chevron when collapsed */
+/* Rotate chevron icon when sidebar is collapsed */
 .rsb-collapse-icon {
-  transition: transform var(--rsb-duration-width) var(--rsb-ease);
+  transition: transform var(--rsb-duration) var(--rsb-ease);
   flex-shrink: 0;
 }
-.rsb-root[data-collapsed] .rsb-collapse-icon {
+.rsb-root[data-collapsed="true"] .rsb-collapse-icon {
   transform: rotate(180deg);
-}
-
-/* ─── Collapsed icon-only layout ─────────────────────────────────────────────── */
-.rsb-root[data-collapsed] .rsb-item {
-  justify-content: center;
-  padding-left: 0;
-  padding-right: 0;
-}
-.rsb-root[data-collapsed] .rsb-item-icon {
-  width: var(--rsb-collapsed-width);
-  justify-content: center;
 }
 
 /* ─── Reduced motion ────────────────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   .rsb-root,
   .rsb-item,
+  .rsb-item-inner,
   .rsb-item-label,
   .rsb-item-badge,
   .rsb-item-chevron,
+  .rsb-header,
+  .rsb-header-content,
   .rsb-collapse-btn,
   .rsb-collapse-icon,
   .rsb-section-label {

@@ -244,8 +244,8 @@ export const HoverCardStyled = forwardRef<HTMLDivElement, HoverCardStyledProps>(
     }, [placementProp, offset, collisionPadding, flip, shift, strategy]);
 
     useEffect(() => {
-      if (isOpen) updateCoords();
-    }, [isOpen, updateCoords]);
+      if (isOpen && rendered) updateCoords();
+    }, [isOpen, rendered, updateCoords]);
 
     // Reposition on scroll/resize
     useEffect(() => {

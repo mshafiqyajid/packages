@@ -208,16 +208,18 @@
 
 .rst-skeleton-value {
   height: 2.25rem;
-  width: 60%;
+  width: 7rem;
 }
 
 .rst-skeleton-label {
   height: 0.875rem;
-  width: 40%;
+  width: 5rem;
 }
 
-.rst-root[data-size="sm"] .rst-skeleton-value { height: 1.75rem; }
-.rst-root[data-size="lg"] .rst-skeleton-value { height: 2.75rem; }
+.rst-root[data-size="sm"] .rst-skeleton-value { height: 1.75rem; width: 5.5rem; }
+.rst-root[data-size="sm"] .rst-skeleton-label { width: 4rem; }
+.rst-root[data-size="lg"] .rst-skeleton-value { height: 2.75rem; width: 9rem; }
+.rst-root[data-size="lg"] .rst-skeleton-label { width: 6rem; }
 
 @keyframes rst-shimmer {
   0% { background-position: -200% 0; }

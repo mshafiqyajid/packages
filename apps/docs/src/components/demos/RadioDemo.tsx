@@ -24,6 +24,7 @@ export default function RadioDemo() {
           { name: "orientation", control: { type: "segmented", options: ["vertical", "horizontal"] as const },           defaultValue: "vertical", omitWhen: "vertical" },
           { name: "disabled",    control: { type: "toggle" },                                                            defaultValue: false,     omitWhen: false },
           { name: "invalid",     control: { type: "toggle" },                                                            defaultValue: false,     omitWhen: false },
+          { name: "required",    control: { type: "toggle" },                                                            defaultValue: false,     omitWhen: false },
         ]}
         render={(v) => (
           <RadioGroupStyled
@@ -34,6 +35,7 @@ export default function RadioDemo() {
             orientation={v.orientation as "vertical" | "horizontal"}
             disabled={v.disabled as boolean}
             invalid={v.invalid as boolean}
+            required={v.required as boolean}
             label="Choose an option"
           >
             <RadioItem value="a" label="Option A" description="First choice" />

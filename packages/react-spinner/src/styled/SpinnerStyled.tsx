@@ -20,6 +20,8 @@ export interface SpinnerStyledProps {
   speed?: SpinnerSpeed;
   label?: string;
   overlay?: boolean;
+  /** Direct color shortcut — sets the spinner color without needing tone="current" + style. */
+  color?: string;
   className?: string;
   style?: CSSProperties;
 }
@@ -87,6 +89,7 @@ export const SpinnerStyled = forwardRef<HTMLSpanElement, SpinnerStyledProps>(
       speed = "normal",
       label = "Loading",
       overlay = false,
+      color,
       className,
       style,
     },
@@ -95,6 +98,10 @@ export const SpinnerStyled = forwardRef<HTMLSpanElement, SpinnerStyledProps>(
     const { spinnerProps } = useSpinner({ label });
 
     const rootClass = ["rspn-root", className].filter(Boolean).join(" ");
+    const resolvedTone = color ? "current" : tone;
+    const resolvedStyle: CSSProperties = color
+      ? { color, ...style }
+      : style ?? {};
 
     return (
       <span
@@ -103,10 +110,10 @@ export const SpinnerStyled = forwardRef<HTMLSpanElement, SpinnerStyledProps>(
         className={rootClass}
         data-variant={variant}
         data-size={size}
-        data-tone={tone}
+        data-tone={resolvedTone}
         data-speed={speed}
         data-overlay={overlay ? "true" : undefined}
-        style={style}
+        style={resolvedStyle}
       >
         {renderVariant(variant)}
         <span className="rspn-sr-only">{label}</span>

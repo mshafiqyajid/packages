@@ -77,59 +77,29 @@ const [plan, setPlan] = useState("pro");
       <p>Use <code>useRadioGroup</code> directly for full styling control. The hook handles value state, ARIA attributes, and keyboard navigation.</p>
       <CodeBlock lang="tsx" code={`import { useRadioGroup } from "@mshafiqyajid/react-radio";
 
-const { groupProps, getItemProps, value } = useRadioGroup({
-  defaultValue: "a",
-  onChange: (v) => console.log(v),
-});
-
 const options = [
   { value: "a", label: "Option A" },
   { value: "b", label: "Option B" },
   { value: "c", label: "Option C" },
 ];
 
-return (
-  <div {...groupProps}>
-    {options.map((opt) => (
-      <div
-        key={opt.value}
-        {...getItemProps(opt.value)}
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "8px",
-          cursor: "pointer",
-          padding: "4px",
-        }}
-      >
-        <span
-          style={{
-            width: 16,
-            height: 16,
-            borderRadius: "50%",
-            border: "2px solid",
-            borderColor: value === opt.value ? "#6366f1" : "#d4d4d8",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          {value === opt.value && (
-            <span
-              style={{
-                width: 6,
-                height: 6,
-                borderRadius: "50%",
-                background: "#6366f1",
-              }}
-            />
-          )}
-        </span>
-        {opt.label}
-      </div>
-    ))}
-  </div>
-);`} />
+function MyRadioGroup() {
+  const { groupProps, getItemProps, value } = useRadioGroup({
+    defaultValue: "a",
+    onChange: (v) => console.log(v),
+  });
+
+  return (
+    <div {...groupProps} className="my-group">
+      {options.map((opt) => (
+        <div key={opt.value} {...getItemProps(opt.value)} className="my-item">
+          <span className={\`my-circle \${value === opt.value ? "my-circle--checked" : ""}\`} />
+          <span>{opt.label}</span>
+        </div>
+      ))}
+    </div>
+  );
+}`} />
     </div>
 
     <div class="pkg-section">

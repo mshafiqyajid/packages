@@ -56,6 +56,26 @@
   gap: var(--rems-gap-lg);
 }
 
+.rems-icon-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--rems-icon-fg) 10%, transparent);
+  padding: 0.75rem;
+  flex-shrink: 0;
+}
+
+.rems-root[data-size="sm"] .rems-icon-wrap {
+  padding: 0.5rem;
+  border-radius: 10px;
+}
+
+.rems-root[data-size="lg"] .rems-icon-wrap {
+  padding: 1rem;
+  border-radius: 20px;
+}
+
 .rems-icon {
   color: var(--rems-icon-fg);
   flex-shrink: 0;
@@ -132,7 +152,7 @@
 
 .rems-actions {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.625rem;
   flex-wrap: wrap;
   margin-top: 0.25rem;
 }

@@ -1,6 +1,38 @@
 import { forwardRef, useId } from "react";
 import { usePagination } from "../usePagination";
 
+function ChevronLeft() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M9 2L4 7l5 5" />
+    </svg>
+  );
+}
+
+function ChevronRight() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M5 2l5 5-5 5" />
+    </svg>
+  );
+}
+
+function ChevronDoubleLeft() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M8 2L3 7l5 5M13 2L8 7l5 5" />
+    </svg>
+  );
+}
+
+function ChevronDoubleRight() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M6 2l5 5-5 5M1 2l5 5-5 5" />
+    </svg>
+  );
+}
+
 export interface PaginationStyledProps {
   page?: number;
   defaultPage?: number;
@@ -18,10 +50,10 @@ export interface PaginationStyledProps {
   variant?: "default" | "outline" | "ghost";
   tone?: "neutral" | "primary";
   labels?: {
-    prev?: string;
-    next?: string;
-    first?: string;
-    last?: string;
+    prev?: React.ReactNode;
+    next?: React.ReactNode;
+    first?: React.ReactNode;
+    last?: React.ReactNode;
   };
   className?: string;
   style?: React.CSSProperties;
@@ -72,10 +104,10 @@ export const PaginationStyled = forwardRef<HTMLElement, PaginationStyledProps>(
       boundaries,
     });
 
-    const prevLabel = labels?.prev ?? "‹";
-    const nextLabel = labels?.next ?? "›";
-    const firstLabel = labels?.first ?? "«";
-    const lastLabel = labels?.last ?? "»";
+    const firstContent = labels?.first ?? <ChevronDoubleLeft />;
+    const prevContent = labels?.prev ?? <ChevronLeft />;
+    const nextContent = labels?.next ?? <ChevronRight />;
+    const lastContent = labels?.last ?? <ChevronDoubleRight />;
 
     const rootClass = ["rpgn-nav", className].filter(Boolean).join(" ");
 
@@ -100,9 +132,10 @@ export const PaginationStyled = forwardRef<HTMLElement, PaginationStyledProps>(
                 aria-label={firstProps["aria-label"]}
                 aria-disabled={firstProps["aria-disabled"]}
                 data-disabled={firstProps["aria-disabled"] ? "true" : undefined}
+                data-nav="true"
                 tabIndex={firstProps["aria-disabled"] ? -1 : 0}
               >
-                {firstLabel}
+                {firstContent}
               </button>
             </li>
           )}
@@ -116,15 +149,20 @@ export const PaginationStyled = forwardRef<HTMLElement, PaginationStyledProps>(
                 aria-label={prevProps["aria-label"]}
                 aria-disabled={prevProps["aria-disabled"]}
                 data-disabled={prevProps["aria-disabled"] ? "true" : undefined}
+                data-nav="true"
                 tabIndex={prevProps["aria-disabled"] ? -1 : 0}
               >
-                {prevLabel}
+                {prevContent}
               </button>
             </li>
           )}
 
           {pages.map((p, i) =>
-            p === "..." ? (
+            p === "ghost" ? (
+              <li key={`ghost-${i}`} aria-hidden="true">
+                <span className="rpgn-ghost" />
+              </li>
+            ) : p === "..." ? (
               <li key={`ellipsis-${i}`} aria-hidden="true">
                 <span className="rpgn-ellipsis">…</span>
               </li>
@@ -150,9 +188,10 @@ export const PaginationStyled = forwardRef<HTMLElement, PaginationStyledProps>(
                 aria-label={nextProps["aria-label"]}
                 aria-disabled={nextProps["aria-disabled"]}
                 data-disabled={nextProps["aria-disabled"] ? "true" : undefined}
+                data-nav="true"
                 tabIndex={nextProps["aria-disabled"] ? -1 : 0}
               >
-                {nextLabel}
+                {nextContent}
               </button>
             </li>
           )}
@@ -166,9 +205,10 @@ export const PaginationStyled = forwardRef<HTMLElement, PaginationStyledProps>(
                 aria-label={lastProps["aria-label"]}
                 aria-disabled={lastProps["aria-disabled"]}
                 data-disabled={lastProps["aria-disabled"] ? "true" : undefined}
+                data-nav="true"
                 tabIndex={lastProps["aria-disabled"] ? -1 : 0}
               >
-                {lastLabel}
+                {lastContent}
               </button>
             </li>
           )}

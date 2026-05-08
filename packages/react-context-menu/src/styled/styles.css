@@ -8,8 +8,9 @@
 :root {
   --rctx-bg: #ffffff;
   --rctx-border: #e4e4e7;
-  --rctx-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.07);
-  --rctx-radius: 10px;
+  --rctx-shadow: 0 12px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.07), 0 0 0 1px rgba(0, 0, 0, 0.04);
+  --rctx-radius: 12px;
+  --rctx-item-radius: 6px;
   --rctx-item-fg: #18181b;
   --rctx-item-fg-muted: #71717a;
   --rctx-item-fg-disabled: #a1a1aa;
@@ -17,12 +18,13 @@
   --rctx-item-bg-focused: #f4f4f5;
   --rctx-divider: #e4e4e7;
   --rctx-label-fg: #a1a1aa;
-  --rctx-shortcut-fg: #a1a1aa;
-  --rctx-shortcut-bg: #f4f4f5;
-  --rctx-shortcut-border: #d4d4d8;
-  --rctx-duration-in: 180ms;
-  --rctx-duration-out: 120ms;
+  --rctx-shortcut-fg: #9ca3af;
+  --rctx-shortcut-bg: transparent;
+  --rctx-shortcut-border: transparent;
+  --rctx-duration-in: 160ms;
+  --rctx-duration-out: 100ms;
   --rctx-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --rctx-padding: 5px;
 }
 
 /* ============================================================================
@@ -38,8 +40,8 @@
 .rctx-menu {
   list-style: none;
   margin: 0;
-  padding: 0;
-  min-width: 180px;
+  padding: var(--rctx-padding);
+  min-width: 200px;
   max-width: 320px;
   background: var(--rctx-bg);
   border: 1px solid var(--rctx-border);
@@ -78,7 +80,7 @@
 .rctx-item-list {
   list-style: none;
   margin: 0;
-  padding: 4px 0;
+  padding: 0;
 }
 
 /* ============================================================================
@@ -89,8 +91,8 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  height: 32px;
-  padding: 0 8px;
+  height: 30px;
+  padding: 0 10px;
   font-size: 0.875rem;
   font-family: inherit;
   line-height: 1;
@@ -99,8 +101,8 @@
   user-select: none;
   white-space: nowrap;
   outline: none;
+  border-radius: var(--rctx-item-radius);
   transition: background 80ms ease;
-  border-radius: 0;
 }
 
 .rctx-item:hover,
@@ -111,18 +113,18 @@
 .rctx-item:focus-visible {
   background: var(--rctx-item-bg-focused);
   outline: 2px solid #6366f1;
-  outline-offset: -2px;
+  outline-offset: -1px;
 }
 
 .rctx-item[data-disabled="true"] {
-  opacity: 0.5;
+  opacity: 0.45;
   cursor: not-allowed;
   pointer-events: none;
 }
 
 /* Item with submenu — leave room for chevron */
 .rctx-item--has-submenu {
-  padding-right: 24px;
+  padding-right: 28px;
 }
 
 /* ============================================================================
@@ -132,10 +134,11 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   flex-shrink: 0;
   color: var(--rctx-item-fg-muted);
+  opacity: 0.8;
 }
 
 /* ============================================================================
@@ -153,15 +156,16 @@
 .rctx-label {
   display: flex;
   align-items: center;
-  height: 24px;
-  padding: 0 8px;
-  font-size: 0.72rem;
+  height: 22px;
+  padding: 0 10px;
+  font-size: 0.68rem;
   font-weight: 600;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--rctx-label-fg);
   user-select: none;
   pointer-events: none;
+  margin-top: 2px;
 }
 
 /* ============================================================================
@@ -169,8 +173,9 @@
  * ========================================================================== */
 .rctx-separator {
   height: 1px;
-  margin: 4px 0;
+  margin: 4px -2px;
   background: var(--rctx-divider);
+  opacity: 0.7;
 }
 
 /* ============================================================================
@@ -180,18 +185,16 @@
   display: inline-flex;
   align-items: center;
   margin-left: auto;
-  padding: 1px 5px;
-  font-size: 0.72em;
+  padding-left: 12px;
+  font-size: 0.75em;
   font-family: inherit;
-  line-height: 1.6;
+  line-height: 1;
   color: var(--rctx-shortcut-fg);
-  background: var(--rctx-shortcut-bg);
-  border: 1px solid var(--rctx-shortcut-border);
-  border-radius: 4px;
   white-space: nowrap;
   pointer-events: none;
   user-select: none;
   flex-shrink: 0;
+  letter-spacing: 0.02em;
 }
 
 /* ============================================================================
@@ -230,19 +233,19 @@
  * Dark mode — via [data-theme="dark"] ancestor only
  * ========================================================================== */
 [data-theme="dark"] {
-  --rctx-bg: #18181b;
-  --rctx-border: #3f3f46;
-  --rctx-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 2px 6px rgba(0, 0, 0, 0.35);
-  --rctx-item-fg: #fafafa;
+  --rctx-bg: #1c1c1f;
+  --rctx-border: #38383d;
+  --rctx-shadow: 0 12px 32px rgba(0, 0, 0, 0.55), 0 2px 8px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.04);
+  --rctx-item-fg: #f4f4f5;
   --rctx-item-fg-muted: #a1a1aa;
   --rctx-item-fg-disabled: #52525b;
-  --rctx-item-bg-hover: #27272a;
-  --rctx-item-bg-focused: #27272a;
-  --rctx-divider: #3f3f46;
+  --rctx-item-bg-hover: #2c2c30;
+  --rctx-item-bg-focused: #2c2c30;
+  --rctx-divider: #38383d;
   --rctx-label-fg: #71717a;
-  --rctx-shortcut-fg: #a1a1aa;
-  --rctx-shortcut-bg: #27272a;
-  --rctx-shortcut-border: #52525b;
+  --rctx-shortcut-fg: #71717a;
+  --rctx-shortcut-bg: transparent;
+  --rctx-shortcut-border: transparent;
 }
 
 /* ============================================================================

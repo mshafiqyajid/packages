@@ -207,16 +207,37 @@
 }
 
 .rrng-mark[data-has-label] {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  /* Allow label to render below without being clipped */
+  overflow: visible;
 }
 
 .rrng-mark-label {
-  margin-top: 0.65rem;
+  /* Place below the thumb area, not just below the mark dot.
+     top: markSize/2 (bottom of dot) + thumbSize/2 (to track bottom) + gap */
+  position: absolute;
+  top: calc(var(--rrng-mark-size) / 2 + var(--rrng-thumb-size) / 2 + 5px);
+  left: 50%;
+  transform: translateX(-50%);
   font-size: 0.72rem;
+  font-weight: 500;
   color: var(--rrng-mark-label-fg);
   white-space: nowrap;
+  line-height: 1;
+  letter-spacing: 0.01em;
+}
+
+/* Expand track vertically to reserve room for labels */
+.rrng-track:has(.rrng-mark-label) {
+  height: calc(var(--rrng-thumb-size) + 1.625rem);
+  align-items: flex-start;
+}
+
+/* Keep rail, fill, thumb, and mark dots centered in the thumb-height zone */
+.rrng-track:has(.rrng-mark-label) .rrng-rail,
+.rrng-track:has(.rrng-mark-label) .rrng-fill,
+.rrng-track:has(.rrng-mark-label) .rrng-thumb,
+.rrng-track:has(.rrng-mark-label) .rrng-mark {
+  top: calc(var(--rrng-thumb-size) / 2);
 }
 
 /* ============================================================================
@@ -236,6 +257,10 @@
 
 .rrng-root[data-size="sm"] .rrng-mark-label { font-size: 0.68rem; }
 .rrng-root[data-size="lg"] .rrng-mark-label { font-size: 0.78rem; }
+
+/* Re-anchor :has selectors for size variants (thumb-size changes) */
+.rrng-root[data-size="sm"] .rrng-track:has(.rrng-mark-label) { height: calc(var(--rrng-thumb-size) + 1.5rem); }
+.rrng-root[data-size="lg"] .rrng-track:has(.rrng-mark-label) { height: calc(var(--rrng-thumb-size) + 1.75rem); }
 
 /* ============================================================================
  * Tones

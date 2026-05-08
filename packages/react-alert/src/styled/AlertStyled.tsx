@@ -30,35 +30,35 @@ export interface AlertStyledProps {
 }
 
 const InfoIcon = () => (
-  <svg viewBox="0 0 20 20" width="20" height="20" fill="none" aria-hidden="true">
+  <svg viewBox="0 0 20 20" width="100%" height="100%" fill="none" aria-hidden="true">
     <circle cx="10" cy="10" r="9" stroke="currentColor" strokeWidth="1.5" />
     <path d="M10 9v4M10 7h.01" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
   </svg>
 );
 
 const CheckIcon = () => (
-  <svg viewBox="0 0 20 20" width="20" height="20" fill="none" aria-hidden="true">
+  <svg viewBox="0 0 20 20" width="100%" height="100%" fill="none" aria-hidden="true">
     <circle cx="10" cy="10" r="9" stroke="currentColor" strokeWidth="1.5" />
     <path d="M6.5 10.5l2.5 2.5 4.5-4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
   </svg>
 );
 
 const WarningIcon = () => (
-  <svg viewBox="0 0 20 20" width="20" height="20" fill="none" aria-hidden="true">
+  <svg viewBox="0 0 20 20" width="100%" height="100%" fill="none" aria-hidden="true">
     <path d="M10 3L18 17H2L10 3z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
     <path d="M10 9v3M10 14h.01" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
   </svg>
 );
 
 const DangerIcon = () => (
-  <svg viewBox="0 0 20 20" width="20" height="20" fill="none" aria-hidden="true">
+  <svg viewBox="0 0 20 20" width="100%" height="100%" fill="none" aria-hidden="true">
     <circle cx="10" cy="10" r="9" stroke="currentColor" strokeWidth="1.5" />
     <path d="M7.5 7.5l5 5M12.5 7.5l-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
   </svg>
 );
 
 const DismissIcon = () => (
-  <svg viewBox="0 0 20 20" width="16" height="16" fill="none" aria-hidden="true">
+  <svg viewBox="0 0 20 20" width="14" height="14" fill="none" aria-hidden="true">
     <path d="M5 5l10 10M15 5L5 15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
   </svg>
 );
@@ -150,14 +150,14 @@ export const AlertStyled = forwardRef<HTMLDivElement, AlertStyledProps>(
         style={style}
       >
         {showIcon && (
-          <span className="ralt-icon" aria-hidden="true">
-            {resolvedIcon}
+          <span className="ralt-icon-wrap">
+            <span className="ralt-icon" aria-hidden="true">{resolvedIcon}</span>
           </span>
         )}
         <div className="ralt-body">
-          {title && <div className="ralt-title">{title}</div>}
-          {description && <div className="ralt-description">{description}</div>}
-          {children}
+          {title && <p className="ralt-title">{title}</p>}
+          {description && <p className="ralt-description">{description}</p>}
+          {children && <div className="ralt-children">{children}</div>}
           {action && <div className="ralt-action">{action}</div>}
         </div>
         {dismissible && (

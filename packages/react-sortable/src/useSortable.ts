@@ -3,6 +3,7 @@ import {
   useCallback,
   useRef,
   useEffect,
+  useMemo,
   type KeyboardEvent,
 } from "react";
 import type React from "react";
@@ -16,6 +17,7 @@ export interface UseSortableOptions<T extends SortableItem = SortableItem> {
   items: T[];
   onReorder: (items: T[]) => void;
   orientation?: "vertical" | "horizontal";
+  handle?: boolean;
   disabled?: boolean;
   animationDuration?: number;
 }
@@ -32,7 +34,6 @@ export interface ItemProps {
   "aria-grabbed": boolean;
   tabIndex: number;
   "data-active"?: string;
-  "data-over"?: string;
   "data-sortable-id": string;
   onPointerDown: (e: React.PointerEvent<HTMLElement>) => void;
   onKeyDown: (e: KeyboardEvent<HTMLElement>) => void;
@@ -46,14 +47,24 @@ export interface ContainerProps {
   ref: (el: HTMLElement | null) => void;
 }
 
+export interface GhostPos {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
 export interface UseSortableResult<T extends SortableItem = SortableItem> {
   items: T[];
+  previewItems: T[];
   containerProps: ContainerProps;
   getItemProps: (item: T) => ItemProps;
   getItemState: (item: T) => ItemState;
+  handleProps: (item: T) => React.HTMLAttributes<HTMLElement> & { "aria-hidden": boolean };
   activeId: string | number | null;
-  overId: string | number | null;
   isDragging: boolean;
+  dragIndex: number | null;
+  ghostPos: GhostPos;
   liveRegionText: string;
 }
 
@@ -73,178 +84,148 @@ export function useSortable<T extends SortableItem = SortableItem>({
   items,
   onReorder,
   orientation = "vertical",
+  handle = true,
   disabled = false,
   animationDuration: _animationDuration = 200,
 }: UseSortableOptions<T>): UseSortableResult<T> {
   const [activeId, setActiveId] = useState<string | number | null>(null);
-  const [overId, setOverId] = useState<string | number | null>(null);
-  const [keyboardActiveId, setKeyboardActiveIdState] = useState<
-    string | number | null
-  >(null);
+  const [overIndex, setOverIndex] = useState<number | null>(null);
+  const [ghostPos, setGhostPos] = useState<GhostPos>({ x: 0, y: 0, width: 0, height: 0 });
+  const [keyboardActiveId, setKeyboardActiveIdState] = useState<string | number | null>(null);
+  const [liveRegionText, setLiveRegionText] = useState("");
+
   const keyboardActiveIdRef = useRef<string | number | null>(null);
   const setKeyboardActiveId = useCallback((id: string | number | null) => {
     keyboardActiveIdRef.current = id;
     setKeyboardActiveIdState(id);
   }, []);
-  const [liveRegionText, setLiveRegionText] = useState("");
 
   const itemsRef = useRef(items);
   itemsRef.current = items;
+  const onReorderRef = useRef(onReorder);
+  onReorderRef.current = onReorder;
+  const orientationRef = useRef(orientation);
+  orientationRef.current = orientation;
 
-  const dragNodeRef = useRef<HTMLElement | null>(null);
   const containerRef = useRef<HTMLElement | null>(null);
   const originalItemsRef = useRef<T[]>([]);
+  const pointerOffsetRef = useRef({ x: 0, y: 0 });
+  const activeIdRef = useRef<string | number | null>(null);
+  const overIndexRef = useRef<number | null>(null);
+  const dragCleanupRef = useRef<(() => void) | null>(null);
+
   const isDragging = activeId !== null;
+  const dragIndex = activeId !== null ? items.findIndex((it) => it.id === activeId) : null;
 
-  const announce = useCallback((text: string) => {
-    setLiveRegionText(text);
-  }, []);
+  // Live preview: reorder items to show where the dragged item will land
+  const previewItems = useMemo<T[]>(() => {
+    if (activeId === null || overIndex === null || dragIndex === null || dragIndex === overIndex) {
+      return items;
+    }
+    return reorder(items, dragIndex, overIndex);
+  }, [items, activeId, overIndex, dragIndex]);
 
-  const getItemElements = useCallback((): HTMLElement[] => {
-    if (!containerRef.current) return [];
-    return Array.from(
-      containerRef.current.querySelectorAll<HTMLElement>("[data-sortable-id]"),
-    );
-  }, []);
+  const announce = useCallback((text: string) => setLiveRegionText(text), []);
 
-  const getItemIdFromElement = useCallback(
-    (el: HTMLElement): string | number | null => {
-      const raw = el.dataset["sortableId"];
-      if (raw === undefined) return null;
-      const asNum = Number(raw);
-      return isNaN(asNum) ? raw : asNum;
-    },
-    [],
-  );
-
-  const getOverIdFromPointer = useCallback(
-    (clientX: number, clientY: number): string | number | null => {
-      const els = getItemElements();
-      for (const el of els) {
-        const rect = el.getBoundingClientRect();
-        if (
-          clientX >= rect.left &&
-          clientX <= rect.right &&
-          clientY >= rect.top &&
-          clientY <= rect.bottom
-        ) {
-          return getItemIdFromElement(el);
-        }
-      }
-      return null;
-    },
-    [getItemElements, getItemIdFromElement],
-  );
-
-  const onPointerMove = useCallback(
-    (e: PointerEvent) => {
-      if (dragNodeRef.current) {
-        const ghostEl = document.getElementById("rsort-drag-ghost");
-        if (ghostEl) {
-          ghostEl.style.transform = `translate(${e.clientX - 20}px, ${e.clientY - 20}px)`;
-        }
-      }
-      const newOverId = getOverIdFromPointer(e.clientX, e.clientY);
-      setOverId(newOverId);
-    },
-    [getOverIdFromPointer],
-  );
-
-  const onPointerUp = useCallback(
-    (e: PointerEvent) => {
-      e.preventDefault();
-      document.removeEventListener("pointermove", onPointerMove);
-      document.removeEventListener("pointerup", onPointerUp);
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      dragCleanupRef.current?.();
       document.body.style.removeProperty("cursor");
-
-      const ghostEl = document.getElementById("rsort-drag-ghost");
-      if (ghostEl) ghostEl.remove();
-
-      setActiveId((currentActiveId) => {
-        setOverId((currentOverId) => {
-          if (
-            currentActiveId !== null &&
-            currentOverId !== null &&
-            currentActiveId !== currentOverId
-          ) {
-            const currentItems = itemsRef.current;
-            const fromIndex = currentItems.findIndex(
-              (it) => it.id === currentActiveId,
-            );
-            const toIndex = currentItems.findIndex(
-              (it) => it.id === currentOverId,
-            );
-            if (fromIndex !== -1 && toIndex !== -1) {
-              onReorder(reorder(currentItems, fromIndex, toIndex));
-            }
-          }
-          return null;
-        });
-        return null;
-      });
-
-      dragNodeRef.current = null;
-    },
-    [onPointerMove, onReorder],
-  );
+    };
+  }, []);
 
   const startDrag = useCallback(
     (e: React.PointerEvent<HTMLElement>, itemId: string | number) => {
       if (disabled) return;
       e.preventDefault();
-      (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+      e.stopPropagation();
 
-      dragNodeRef.current = e.currentTarget as HTMLElement;
+      const captureEl = e.currentTarget as HTMLElement;
+      captureEl.setPointerCapture(e.pointerId);
+
+      if (!containerRef.current) return;
+      const allEls = Array.from(
+        containerRef.current.querySelectorAll<HTMLElement>("[data-sortable-id]"),
+      );
+      const itemEl = allEls.find((el) => el.dataset["sortableId"] === String(itemId));
+      if (!itemEl) return;
+
+      const rect = itemEl.getBoundingClientRect();
+      pointerOffsetRef.current = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+
+      const startIndex = itemsRef.current.findIndex((it) => it.id === itemId);
       originalItemsRef.current = [...itemsRef.current];
+      activeIdRef.current = itemId;
+      overIndexRef.current = startIndex;
 
-      const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-
-      const ghost = document.createElement("div");
-      ghost.id = "rsort-drag-ghost";
-      ghost.setAttribute("aria-hidden", "true");
-      ghost.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: ${rect.width}px;
-        pointer-events: none;
-        z-index: 9999;
-        transform: translate(${e.clientX - 20}px, ${e.clientY - 20}px);
-        opacity: 0.85;
-        box-shadow: 0 8px 24px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.1);
-        border-radius: 6px;
-        background: var(--rsort-item-bg, #fff);
-        padding: var(--rsort-item-padding, 10px 14px);
-        font-size: var(--rsort-font-size, 0.875rem);
-        color: var(--rsort-item-fg, #18181b);
-        display: flex;
-        align-items: center;
-        gap: var(--rsort-gap, 8px);
-        border: 1px solid var(--rsort-item-border, #e4e4e7);
-      `;
-      ghost.textContent =
-        (e.currentTarget as HTMLElement).textContent?.trim() ?? "";
-      document.body.appendChild(ghost);
-
+      setGhostPos({ x: rect.left, y: rect.top, width: rect.width, height: rect.height });
       document.body.style.cursor = "grabbing";
 
-      document.addEventListener("pointermove", onPointerMove);
-      document.addEventListener("pointerup", onPointerUp);
+      // Add listeners synchronously — never miss a pointerup even on fast click-release
+      const handleMove = (ev: PointerEvent) => {
+        ev.preventDefault();
+        const offset = pointerOffsetRef.current;
+        setGhostPos((prev) => ({
+          ...prev,
+          x: ev.clientX - offset.x,
+          y: ev.clientY - offset.y,
+        }));
+
+        // Midpoint hit-test: find which slot the pointer maps to
+        if (!containerRef.current) return;
+        const els = Array.from(
+          containerRef.current.querySelectorAll<HTMLElement>("[data-sortable-id]"),
+        );
+        const o = orientationRef.current;
+        let newIndex = Math.max(0, els.length - 1);
+        for (let i = 0; i < els.length; i++) {
+          const r = els[i]!.getBoundingClientRect();
+          const mid = o === "vertical" ? r.top + r.height / 2 : r.left + r.width / 2;
+          const pos = o === "vertical" ? ev.clientY : ev.clientX;
+          if (pos <= mid) {
+            newIndex = i;
+            break;
+          }
+        }
+        overIndexRef.current = newIndex;
+        setOverIndex(newIndex);
+      };
+
+      const handleUp = () => {
+        window.removeEventListener("pointermove", handleMove);
+        document.body.style.removeProperty("cursor");
+
+        const savedActiveId = activeIdRef.current;
+        const savedOverIndex = overIndexRef.current;
+        activeIdRef.current = null;
+        overIndexRef.current = null;
+        dragCleanupRef.current = null;
+
+        setActiveId(null);
+        setOverIndex(null);
+
+        if (savedActiveId !== null && savedOverIndex !== null) {
+          const currentItems = itemsRef.current;
+          const di = currentItems.findIndex((it) => it.id === savedActiveId);
+          if (di !== -1 && di !== savedOverIndex) {
+            onReorderRef.current(reorder(currentItems, di, savedOverIndex));
+          }
+        }
+      };
+
+      window.addEventListener("pointermove", handleMove, { passive: false });
+      window.addEventListener("pointerup", handleUp, { once: true });
+      dragCleanupRef.current = () => {
+        window.removeEventListener("pointermove", handleMove);
+        window.removeEventListener("pointerup", handleUp);
+      };
 
       setActiveId(itemId);
-      setOverId(itemId);
+      setOverIndex(startIndex);
     },
-    [disabled, onPointerMove, onPointerUp],
+    [disabled],
   );
-
-  useEffect(() => {
-    return () => {
-      document.removeEventListener("pointermove", onPointerMove);
-      document.removeEventListener("pointerup", onPointerUp);
-      document.body.style.removeProperty("cursor");
-      document.getElementById("rsort-drag-ghost")?.remove();
-    };
-  }, [onPointerMove, onPointerUp]);
 
   const handleItemKeyDown = useCallback(
     (e: KeyboardEvent<HTMLElement>, itemId: string | number) => {
@@ -259,48 +240,37 @@ export function useSortable<T extends SortableItem = SortableItem>({
         if (e.key === " " || e.key === "Enter") {
           e.preventDefault();
           setKeyboardActiveId(itemId);
-          const currentItems = itemsRef.current;
-          const idx = currentItems.findIndex((it) => it.id === itemId);
+          const idx = itemsRef.current.findIndex((it) => it.id === itemId);
           announce(
-            `Picked up item at position ${idx + 1} of ${currentItems.length}. Use arrow keys to move, Space or Enter to drop, Escape to cancel.`,
+            `Picked up item at position ${idx + 1} of ${itemsRef.current.length}. Use arrow keys to move, Space or Enter to drop, Escape to cancel.`,
           );
-          originalItemsRef.current = [...currentItems];
+          originalItemsRef.current = [...itemsRef.current];
         }
       } else {
         if (e.key === prevKey || e.key === nextKey) {
           e.preventDefault();
           const currentItems = itemsRef.current;
-          const fromIndex = currentItems.findIndex(
-            (it) => it.id === currentKbId,
-          );
+          const fromIndex = currentItems.findIndex((it) => it.id === currentKbId);
           if (fromIndex === -1) return;
           const delta = e.key === nextKey ? 1 : -1;
           const toIndex = clamp(fromIndex + delta, 0, currentItems.length - 1);
           if (toIndex === fromIndex) return;
-          const reordered = reorder(currentItems, fromIndex, toIndex);
-          onReorder(reordered);
-          announce(
-            `Moved to position ${toIndex + 1} of ${currentItems.length}.`,
-          );
+          onReorderRef.current(reorder(currentItems, fromIndex, toIndex));
+          announce(`Moved to position ${toIndex + 1} of ${currentItems.length}.`);
         } else if (e.key === " " || e.key === "Enter") {
           e.preventDefault();
-          const currentItems = itemsRef.current;
-          const idx = currentItems.findIndex(
-            (it) => it.id === currentKbId,
-          );
-          announce(
-            `Dropped at position ${idx + 1} of ${currentItems.length}.`,
-          );
+          const idx = itemsRef.current.findIndex((it) => it.id === currentKbId);
+          announce(`Dropped at position ${idx + 1} of ${itemsRef.current.length}.`);
           setKeyboardActiveId(null);
         } else if (e.key === "Escape") {
           e.preventDefault();
-          onReorder(originalItemsRef.current);
+          onReorderRef.current(originalItemsRef.current);
           announce("Reordering cancelled.");
           setKeyboardActiveId(null);
         }
       }
     },
-    [disabled, keyboardActiveId, orientation, onReorder, announce],
+    [disabled, orientation, announce, setKeyboardActiveId],
   );
 
   const getContainerRef = useCallback((el: HTMLElement | null) => {
@@ -312,18 +282,12 @@ export function useSortable<T extends SortableItem = SortableItem>({
     "aria-orientation": orientation,
     "aria-label": "Sortable list",
     ref: getContainerRef,
-    ...(isDragging || keyboardActiveId !== null
-      ? { "data-dragging": "true" }
-      : {}),
+    ...(isDragging || keyboardActiveId !== null ? { "data-dragging": "true" } : {}),
   };
 
   const getItemProps = useCallback(
     (item: T): ItemProps => {
-      const isActive =
-        item.id === activeId || item.id === keyboardActiveId;
-      const isKeyboardActive = item.id === keyboardActiveId;
-      const isOver = item.id === overId && item.id !== activeId;
-
+      const isActive = item.id === activeId || item.id === keyboardActiveId;
       return {
         role: "option",
         "aria-roledescription": "sortable item",
@@ -331,51 +295,59 @@ export function useSortable<T extends SortableItem = SortableItem>({
         tabIndex: 0,
         "data-sortable-id": String(item.id),
         ...(isActive ? { "data-active": "true" } : {}),
-        ...(isOver || isKeyboardActive ? { "data-over": "true" } : {}),
         onPointerDown: (e: React.PointerEvent<HTMLElement>) => {
-          startDrag(e, item.id);
+          if (!handle) startDrag(e, item.id);
         },
         onKeyDown: (e: KeyboardEvent<HTMLElement>) => {
           handleItemKeyDown(e, item.id);
         },
       };
     },
-    [activeId, overId, keyboardActiveId, startDrag, handleItemKeyDown],
+    [activeId, keyboardActiveId, handle, startDrag, handleItemKeyDown],
   );
 
   const getItemState = useCallback(
     (item: T): ItemState => {
-      const isActive =
-        item.id === activeId || item.id === keyboardActiveId;
-      const isOver =
-        (item.id === overId && item.id !== activeId) ||
-        item.id === keyboardActiveId;
-
-      const handleProps: ItemState["handleProps"] = {
-        "aria-hidden": true,
-        tabIndex: -1,
-        onPointerDown: (e: React.PointerEvent<HTMLElement>) => {
-          startDrag(e, item.id);
-        },
-      };
-
+      const isActive = item.id === activeId || item.id === keyboardActiveId;
       return {
         isDragging: isActive,
-        isOver,
-        handleProps,
+        isOver: false,
+        handleProps: {
+          "aria-hidden": true,
+          tabIndex: -1,
+          onPointerDown: (e: React.PointerEvent<HTMLElement>) => {
+            startDrag(e, item.id);
+          },
+        },
       };
     },
-    [activeId, overId, keyboardActiveId, startDrag],
+    [activeId, keyboardActiveId, startDrag],
+  );
+
+  const handleProps = useCallback(
+    (item: T): React.HTMLAttributes<HTMLElement> & { "aria-hidden": boolean } => ({
+      "aria-hidden": true,
+      tabIndex: -1,
+      style: { cursor: isDragging ? "grabbing" : "grab", touchAction: "none" } as React.CSSProperties,
+      onPointerDown: (e: React.PointerEvent<HTMLElement>) => {
+        e.stopPropagation();
+        startDrag(e, item.id);
+      },
+    }),
+    [isDragging, startDrag],
   );
 
   return {
     items,
+    previewItems,
     containerProps,
     getItemProps,
     getItemState,
+    handleProps,
     activeId,
-    overId,
     isDragging,
+    dragIndex,
+    ghostPos,
     liveRegionText,
   };
 }

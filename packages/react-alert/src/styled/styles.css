@@ -97,8 +97,8 @@
 }
 
 /* Size variants */
-.ralt-root[data-size="sm"] { padding: 0.625rem 0.875rem; font-size: 0.8125rem; }
-.ralt-root[data-size="lg"] { padding: 1.125rem 1.25rem; font-size: 0.9375rem; }
+.ralt-root[data-size="sm"] { padding: 0.625rem 0.875rem; gap: 0.625rem; font-size: 0.8125rem; }
+.ralt-root[data-size="lg"] { padding: 1.125rem 1.25rem; gap: 0.875rem; font-size: 0.9375rem; }
 
 /* soft (default) */
 .ralt-root[data-variant="soft"][data-tone="neutral"] { background: var(--ralt-neutral-bg); border-color: var(--ralt-neutral-border); color: var(--ralt-neutral-fg); }
@@ -107,6 +107,25 @@
 .ralt-root[data-variant="soft"][data-tone="warning"] { background: var(--ralt-warning-bg); border-color: var(--ralt-warning-border); color: var(--ralt-warning-fg); }
 .ralt-root[data-variant="soft"][data-tone="danger"]  { background: var(--ralt-danger-bg);  border-color: var(--ralt-danger-border);  color: var(--ralt-danger-fg);  }
 .ralt-root[data-variant="soft"][data-tone="info"]    { background: var(--ralt-info-bg);    border-color: var(--ralt-info-border);    color: var(--ralt-info-fg);    }
+
+/* Left accent bar for soft and outline */
+.ralt-root[data-variant="soft"],
+.ralt-root[data-variant="outline"] {
+  border-left-width: 4px;
+}
+
+.ralt-root[data-variant="soft"][data-tone="neutral"],
+.ralt-root[data-variant="outline"][data-tone="neutral"] { border-left-color: var(--ralt-neutral-icon); }
+.ralt-root[data-variant="soft"][data-tone="primary"],
+.ralt-root[data-variant="outline"][data-tone="primary"] { border-left-color: var(--ralt-primary-icon); }
+.ralt-root[data-variant="soft"][data-tone="success"],
+.ralt-root[data-variant="outline"][data-tone="success"] { border-left-color: var(--ralt-success-icon); }
+.ralt-root[data-variant="soft"][data-tone="warning"],
+.ralt-root[data-variant="outline"][data-tone="warning"] { border-left-color: var(--ralt-warning-icon); }
+.ralt-root[data-variant="soft"][data-tone="danger"],
+.ralt-root[data-variant="outline"][data-tone="danger"]  { border-left-color: var(--ralt-danger-icon);  }
+.ralt-root[data-variant="soft"][data-tone="info"],
+.ralt-root[data-variant="outline"][data-tone="info"]    { border-left-color: var(--ralt-info-icon);    }
 
 /* outline */
 .ralt-root[data-variant="outline"] { background: transparent; }
@@ -134,15 +153,41 @@
 .ralt-root[data-variant="banner"][data-tone="danger"]  { background: var(--ralt-danger-bg);  border-color: var(--ralt-danger-border);  color: var(--ralt-danger-fg);  }
 .ralt-root[data-variant="banner"][data-tone="info"]    { background: var(--ralt-info-bg);    border-color: var(--ralt-info-border);    color: var(--ralt-info-fg);    }
 
-.ralt-icon {
+/* Icon wrap — tinted rounded square container */
+.ralt-icon-wrap {
   flex-shrink: 0;
-  width: 1.25rem;
-  height: 1.25rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: 0.0625rem;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 8px;
+  align-self: flex-start;
 }
+
+.ralt-root[data-size="sm"] .ralt-icon-wrap { width: 1.5rem; height: 1.5rem; border-radius: 6px; }
+.ralt-root[data-size="lg"] .ralt-icon-wrap { width: 2.25rem; height: 2.25rem; border-radius: 10px; }
+
+.ralt-root[data-tone="neutral"] .ralt-icon-wrap { background: color-mix(in srgb, var(--ralt-neutral-icon) 15%, transparent); }
+.ralt-root[data-tone="primary"] .ralt-icon-wrap { background: color-mix(in srgb, var(--ralt-primary-icon) 15%, transparent); }
+.ralt-root[data-tone="success"] .ralt-icon-wrap { background: color-mix(in srgb, var(--ralt-success-icon) 15%, transparent); }
+.ralt-root[data-tone="warning"] .ralt-icon-wrap { background: color-mix(in srgb, var(--ralt-warning-icon) 15%, transparent); }
+.ralt-root[data-tone="danger"]  .ralt-icon-wrap { background: color-mix(in srgb, var(--ralt-danger-icon)  15%, transparent); }
+.ralt-root[data-tone="info"]    .ralt-icon-wrap { background: color-mix(in srgb, var(--ralt-info-icon)    15%, transparent); }
+
+.ralt-root[data-variant="filled"] .ralt-icon-wrap { background: rgba(255, 255, 255, 0.2); }
+
+/* Icon itself */
+.ralt-icon {
+  width: 1.125rem;
+  height: 1.125rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ralt-root[data-size="sm"] .ralt-icon { width: 0.875rem; height: 0.875rem; }
+.ralt-root[data-size="lg"] .ralt-icon { width: 1.25rem; height: 1.25rem; }
 
 .ralt-root[data-tone="neutral"] .ralt-icon { color: var(--ralt-neutral-icon); }
 .ralt-root[data-tone="primary"] .ralt-icon { color: var(--ralt-primary-icon); }
@@ -151,32 +196,57 @@
 .ralt-root[data-tone="danger"]  .ralt-icon { color: var(--ralt-danger-icon); }
 .ralt-root[data-tone="info"]    .ralt-icon { color: var(--ralt-info-icon); }
 
-/* filled variant: icon inherits white */
 .ralt-root[data-variant="filled"] .ralt-icon { color: inherit; }
 
+/* Body */
 .ralt-body { flex: 1; min-width: 0; }
-.ralt-title { font-weight: 600; margin-bottom: 0.125rem; }
-.ralt-description { opacity: 0.85; }
+
+/* Title — bolder and slightly larger */
+.ralt-title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.ralt-root[data-size="sm"] .ralt-title { font-size: 0.8125rem; }
+.ralt-root[data-size="lg"] .ralt-title { font-size: 1rem; }
+
+/* Description — slightly muted below title */
+.ralt-description {
+  font-size: 0.875rem;
+  opacity: 0.9;
+  line-height: 1.5;
+  margin: 0.2rem 0 0;
+}
+
+.ralt-root[data-size="sm"] .ralt-description { font-size: 0.8125rem; }
+
+.ralt-children { margin-top: 0.5rem; }
 .ralt-action { margin-top: 0.625rem; }
 
+/* Dismiss button */
 .ralt-dismiss {
   appearance: none;
-  background: none;
-  border: none;
   cursor: pointer;
-  padding: 0.125rem;
-  color: inherit;
-  opacity: 0.6;
-  border-radius: 4px;
+  padding: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  transition: opacity var(--ralt-duration) var(--ralt-ease), transform var(--ralt-duration) var(--ralt-ease);
-  margin-top: 0.0625rem;
+  align-self: flex-start;
+  width: 1.625rem;
+  height: 1.625rem;
+  border-radius: 6px;
+  background: color-mix(in srgb, currentColor 8%, transparent);
+  border: 1px solid color-mix(in srgb, currentColor 12%, transparent);
+  color: inherit;
+  opacity: 0.75;
+  transition: opacity 120ms ease, background 120ms ease, transform 100ms ease;
 }
 
-.ralt-dismiss:hover { opacity: 1; }
+.ralt-dismiss:hover { opacity: 1; background: color-mix(in srgb, currentColor 14%, transparent); }
 .ralt-dismiss:active { transform: scale(0.9); }
 .ralt-dismiss:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; opacity: 1; }
 

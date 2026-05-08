@@ -9,13 +9,13 @@
   --rdvd-spacing-sm: 8px;
   --rdvd-spacing-md: 16px;
   --rdvd-spacing-lg: 24px;
-  /* Colors per tone */
-  --rdvd-neutral-color: #e4e4e7;
-  --rdvd-primary-color: #c7d2fe;
-  --rdvd-success-color: #bbf7d0;
-  --rdvd-warning-color: #fde68a;
-  --rdvd-danger-color: #fecaca;
-  --rdvd-info-color: #bae6fd;
+  /* Colors per tone — use saturated brand colors so tones are clearly distinct */
+  --rdvd-neutral-color: #d4d4d8;
+  --rdvd-primary-color: #6366f1;
+  --rdvd-success-color: #16a34a;
+  --rdvd-warning-color: #d97706;
+  --rdvd-danger-color:  #dc2626;
+  --rdvd-info-color:    #0ea5e9;
   /* Label */
   --rdvd-label-fg: #6b7280;
   --rdvd-label-fs: 0.8125rem;
@@ -23,11 +23,11 @@
 
 [data-theme="dark"] {
   --rdvd-neutral-color: #3f3f46;
-  --rdvd-primary-color: #3730a3;
-  --rdvd-success-color: #14532d;
-  --rdvd-warning-color: #78350f;
-  --rdvd-danger-color: #450a0a;
-  --rdvd-info-color: #0c4a6e;
+  --rdvd-primary-color: #818cf8;
+  --rdvd-success-color: #4ade80;
+  --rdvd-warning-color: #fbbf24;
+  --rdvd-danger-color:  #f87171;
+  --rdvd-info-color:    #38bdf8;
   --rdvd-label-fg: #9ca3af;
 }
 
@@ -35,7 +35,10 @@
 .rdvd-root[data-orientation="horizontal"] {
   display: block;
   border: none;
+  background: none;
+  width: 100%;
   margin: 0;
+  padding: 0;
 }
 
 .rdvd-root[data-orientation="horizontal"][data-spacing="sm"] {
@@ -51,31 +54,65 @@
   margin-bottom: var(--rdvd-spacing-lg);
 }
 
-/* No label: simple line */
+/* No label — use height + background instead of border-top (avoids <hr> UA stylesheet conflicts) */
 .rdvd-root[data-orientation="horizontal"]:not([data-has-label]) {
-  height: 0;
-  border-top-style: solid;
-  border-top-width: 1px;
+  height: 1px;
+  background-color: var(--rdvd-neutral-color);
 }
 
 .rdvd-root[data-orientation="horizontal"][data-size="lg"]:not([data-has-label]) {
-  border-top-width: 2px;
+  height: 2px;
 }
 
+/* Dashed / dotted via background-image gradient trick */
 .rdvd-root[data-orientation="horizontal"][data-line-style="dashed"]:not([data-has-label]) {
-  border-top-style: dashed;
+  background-color: transparent;
+  background-image: repeating-linear-gradient(
+    90deg,
+    var(--rdvd-neutral-color) 0,
+    var(--rdvd-neutral-color) 8px,
+    transparent 8px,
+    transparent 14px
+  );
+  height: 1px;
 }
-.rdvd-root[data-orientation="horizontal"][data-line-style="dotted"]:not([data-has-label]) {
-  border-top-style: dotted;
+.rdvd-root[data-orientation="horizontal"][data-size="lg"][data-line-style="dashed"]:not([data-has-label]) {
+  height: 2px;
 }
 
-/* Tone colors on simple line */
-.rdvd-root[data-tone="neutral"]:not([data-has-label]) { border-top-color: var(--rdvd-neutral-color); }
-.rdvd-root[data-tone="primary"]:not([data-has-label]) { border-top-color: var(--rdvd-primary-color); }
-.rdvd-root[data-tone="success"]:not([data-has-label]) { border-top-color: var(--rdvd-success-color); }
-.rdvd-root[data-tone="warning"]:not([data-has-label]) { border-top-color: var(--rdvd-warning-color); }
-.rdvd-root[data-tone="danger"]:not([data-has-label])  { border-top-color: var(--rdvd-danger-color); }
-.rdvd-root[data-tone="info"]:not([data-has-label])    { border-top-color: var(--rdvd-info-color); }
+.rdvd-root[data-orientation="horizontal"][data-line-style="dotted"]:not([data-has-label]) {
+  background-color: transparent;
+  background-image: repeating-linear-gradient(
+    90deg,
+    var(--rdvd-neutral-color) 0,
+    var(--rdvd-neutral-color) 3px,
+    transparent 3px,
+    transparent 7px
+  );
+  height: 1px;
+}
+
+/* Tone colors on simple lines — override background-color */
+.rdvd-root[data-orientation="horizontal"][data-tone="neutral"]:not([data-has-label]) { background-color: var(--rdvd-neutral-color); }
+.rdvd-root[data-orientation="horizontal"][data-tone="primary"]:not([data-has-label]) { background-color: var(--rdvd-primary-color); }
+.rdvd-root[data-orientation="horizontal"][data-tone="success"]:not([data-has-label]) { background-color: var(--rdvd-success-color); }
+.rdvd-root[data-orientation="horizontal"][data-tone="warning"]:not([data-has-label]) { background-color: var(--rdvd-warning-color); }
+.rdvd-root[data-orientation="horizontal"][data-tone="danger"]:not([data-has-label])  { background-color: var(--rdvd-danger-color);  }
+.rdvd-root[data-orientation="horizontal"][data-tone="info"]:not([data-has-label])    { background-color: var(--rdvd-info-color);    }
+
+/* Dashed/dotted tone overrides — update gradient color */
+.rdvd-root[data-orientation="horizontal"][data-line-style="dashed"][data-tone="primary"]:not([data-has-label]),
+.rdvd-root[data-orientation="horizontal"][data-line-style="dotted"][data-tone="primary"]:not([data-has-label]) {
+  background-image: repeating-linear-gradient(90deg, var(--rdvd-primary-color) 0, var(--rdvd-primary-color) 8px, transparent 8px, transparent 14px);
+}
+.rdvd-root[data-orientation="horizontal"][data-line-style="dashed"][data-tone="success"]:not([data-has-label]),
+.rdvd-root[data-orientation="horizontal"][data-line-style="dotted"][data-tone="success"]:not([data-has-label]) {
+  background-image: repeating-linear-gradient(90deg, var(--rdvd-success-color) 0, var(--rdvd-success-color) 8px, transparent 8px, transparent 14px);
+}
+.rdvd-root[data-orientation="horizontal"][data-line-style="dashed"][data-tone="danger"]:not([data-has-label]),
+.rdvd-root[data-orientation="horizontal"][data-line-style="dotted"][data-tone="danger"]:not([data-has-label]) {
+  background-image: repeating-linear-gradient(90deg, var(--rdvd-danger-color) 0, var(--rdvd-danger-color) 8px, transparent 8px, transparent 14px);
+}
 
 /* With label: flex container */
 .rdvd-root[data-orientation="horizontal"][data-has-label] {

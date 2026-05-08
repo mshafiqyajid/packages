@@ -12,9 +12,12 @@ export interface ImageStyledProps {
   placeholderColor?: string;
   lazy?: boolean;
   aspectRatio?: string | number;
+  width?: number | string;
+  height?: number | string;
   objectFit?: "cover" | "contain" | "fill" | "none" | "scale-down";
   objectPosition?: string;
-  radius?: "none" | "sm" | "md" | "lg" | "full";
+  radius?: "none" | "xs" | "sm" | "md" | "lg" | "full";
+  crossOrigin?: "anonymous" | "use-credentials";
   onLoad?: () => void;
   onError?: () => void;
   className?: string;
@@ -33,9 +36,12 @@ export const ImageStyled = forwardRef<HTMLImageElement, ImageStyledProps>(
       placeholderColor,
       lazy = true,
       aspectRatio,
+      width,
+      height,
       objectFit = "cover",
       objectPosition = "center",
       radius = "none",
+      crossOrigin,
       onLoad,
       onError,
       className,
@@ -48,11 +54,15 @@ export const ImageStyled = forwardRef<HTMLImageElement, ImageStyledProps>(
       alt,
       fallbackSrc,
       lazy,
+      crossOrigin,
       onLoad,
       onError,
     });
 
     const wrapperClass = ["rimg-wrapper", className].filter(Boolean).join(" ");
+
+    const resolvedPlaceholderColor =
+      placeholder === "color" ? (placeholderColor ?? "#f4f4f5") : undefined;
 
     return (
       <div
@@ -65,8 +75,9 @@ export const ImageStyled = forwardRef<HTMLImageElement, ImageStyledProps>(
         aria-busy={isLoading ? true : undefined}
         style={{
           aspectRatio: aspectRatio ? String(aspectRatio) : undefined,
-          backgroundColor:
-            placeholder === "color" ? placeholderColor : undefined,
+          width: width !== undefined ? width : undefined,
+          height: height !== undefined ? height : undefined,
+          backgroundColor: resolvedPlaceholderColor,
           ...style,
         }}
       >
@@ -92,12 +103,18 @@ export const ImageStyled = forwardRef<HTMLImageElement, ImageStyledProps>(
           />
         )}
 
-        {isError &&
-          (fallback !== undefined ? (
-            fallback
-          ) : (
-            <div className="rimg-fallback">&#9888;</div>
-          ))}
+        {isError && (
+          fallback ?? (
+            <div className="rimg-fallback">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" aria-hidden="true">
+                <rect x="3" y="3" width="18" height="18" rx="2"/>
+                <path d="M3 17l5-5 4 4 3-3 6 6"/>
+                <circle cx="8.5" cy="8.5" r="1.5" fill="currentColor" stroke="none"/>
+              </svg>
+              <span>Failed to load</span>
+            </div>
+          )
+        )}
       </div>
     );
   },

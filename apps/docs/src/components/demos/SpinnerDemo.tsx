@@ -28,6 +28,7 @@ export default function SpinnerDemo() {
           { name: "size",    control: { type: "segmented", options: ["xs","sm","md","lg","xl"] as const },            defaultValue: "md",   omitWhen: "md" },
           { name: "tone",    control: { type: "segmented", options: ["neutral","primary","success","warning","danger","info","current"] as const }, defaultValue: "primary", omitWhen: "primary" },
           { name: "speed",   control: { type: "segmented", options: ["slow","normal","fast"] as const },              defaultValue: "normal", omitWhen: "normal" },
+          { name: "label",   control: { type: "text" },                                                              defaultValue: "Loading" },
           { name: "overlay", control: { type: "toggle" },                                                             defaultValue: false,  omitWhen: false },
         ]}
         render={(v) => (
@@ -37,6 +38,7 @@ export default function SpinnerDemo() {
               size={v.size as "xs"|"sm"|"md"|"lg"|"xl"}
               tone={v.tone as "neutral"|"primary"|"success"|"warning"|"danger"|"info"|"current"}
               speed={v.speed as "slow"|"normal"|"fast"}
+              label={v.label as string}
               overlay={v.overlay as boolean}
             />
           </div>

@@ -209,9 +209,12 @@ export function useCombobox({
 
   const handleInputFocus = useCallback(
     (_e: FocusEvent<HTMLInputElement>) => {
+      // Clear query so the full list shows when re-focusing with a selection.
+      // The selected label is restored on blur.
+      if (currentValue) setQueryRaw("");
       open();
     },
-    [open],
+    [open, currentValue],
   );
 
   const handleInputBlur = useCallback(
