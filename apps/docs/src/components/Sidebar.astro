@@ -32,9 +32,18 @@ const NEW_SLUGS = new Set([
 
 const categories = [
   {
-    label: "Inputs",
+    // Clickable primitives — not form-bound values
+    label: "Actions",
     items: [
       { slug: "button",            label: "Button",            icon: "⬜" },
+      { slug: "segmented-control", label: "Segmented Control", icon: "🎚️" },
+      { slug: "copy-button",       label: "Copy Button",       icon: "📋" },
+    ],
+  },
+  {
+    // Direct value-entry form controls + toggles + form wrapper
+    label: "Inputs",
+    items: [
       { slug: "checkbox",          label: "Checkbox",          icon: "☑️" },
       { slug: "radio",             label: "Radio",             icon: "🔵" },
       { slug: "switch",            label: "Switch",            icon: "🔘" },
@@ -46,61 +55,55 @@ const categories = [
       { slug: "color-input",       label: "Color Input",       icon: "🖌️" },
       { slug: "tag-input",         label: "Tag Input",         icon: "🏷️" },
       { slug: "rating",            label: "Rating",            icon: "⭐" },
-      { slug: "slider",            label: "Slider",            icon: "🎛️" },
-      { slug: "range",             label: "Range",             icon: "↔️",},
-      { slug: "segmented-control", label: "Segmented Control", icon: "🎚️" },
-      { slug: "combobox",          label: "Combobox",          icon: "🔍",},
-      { slug: "multi-select",      label: "Multi Select",      icon: "☑️",},
-      { slug: "form",              label: "Form",              icon: "📋",},
+      { slug: "rich-text",         label: "Rich Text",         icon: "✍️" },
+      { slug: "form",              label: "Form",              icon: "📋" },
     ],
   },
   {
-    label: "Overlays",
+    // Pick / choose from options — all open a dropdown or panel
+    label: "Selection",
     items: [
       { slug: "select",            label: "Select",            icon: "📝" },
+      { slug: "combobox",          label: "Combobox",          icon: "🔍" },
+      { slug: "multi-select",      label: "Multi Select",      icon: "☑️" },
+      { slug: "slider",            label: "Slider",            icon: "🎛️" },
+      { slug: "range",             label: "Range",             icon: "↔️" },
       { slug: "date-picker",       label: "Date Picker",       icon: "📆" },
+      { slug: "color",             label: "Color Picker",      icon: "🎨" },
+      { slug: "file-upload",       label: "File Upload",       icon: "📁" },
+    ],
+  },
+  {
+    // Float above the page — all portal to document.body
+    label: "Overlays",
+    items: [
       { slug: "modal",             label: "Modal",             icon: "🪟" },
-      { slug: "sheet",             label: "Sheet",             icon: "📄",},
-      { slug: "hover-card",        label: "Hover Card",        icon: "🃏",},
+      { slug: "sheet",             label: "Sheet",             icon: "📄" },
       { slug: "tooltip",           label: "Tooltip",           icon: "💬" },
       { slug: "popover",           label: "Popover",           icon: "💭" },
+      { slug: "hover-card",        label: "Hover Card",        icon: "🃏" },
       { slug: "dropdown-menu",     label: "Dropdown Menu",     icon: "📋" },
-      { slug: "context-menu",      label: "Context Menu",      icon: "🖱️",},
+      { slug: "context-menu",      label: "Context Menu",      icon: "🖱️" },
       { slug: "command-palette",   label: "Command Palette",   icon: "⌘"  },
-      { slug: "lightbox",          label: "Lightbox",          icon: "🖼️",},
-      { slug: "color",             label: "Color",             icon: "🎨" },
+      { slug: "lightbox",          label: "Lightbox",          icon: "🖼️" },
     ],
   },
   {
-    label: "Feedback",
+    // Help users move between pages or sections
+    label: "Navigation",
     items: [
-      { slug: "alert",             label: "Alert",             icon: "🔔" },
-      { slug: "spinner",           label: "Spinner",           icon: "⏳" },
-      { slug: "toast",             label: "Toast",             icon: "🍞" },
-      { slug: "badge",             label: "Badge",             icon: "🏷️" },
-      { slug: "chip",              label: "Chip",              icon: "🔖" },
-      { slug: "empty-state",       label: "Empty State",       icon: "📭" },
-      { slug: "avatar",            label: "Avatar",            icon: "👤" },
-      { slug: "progress",          label: "Progress",          icon: "📊" },
-      { slug: "copy-button",       label: "Copy Button",       icon: "📋" },
+      { slug: "navbar",            label: "Navbar",            icon: "🧭" },
+      { slug: "sidebar",           label: "Sidebar",           icon: "◀️" },
+      { slug: "tabs",              label: "Tabs",              icon: "🗂️" },
+      { slug: "accordion",         label: "Accordion",         icon: "🪗" },
+      { slug: "breadcrumb",        label: "Breadcrumb",        icon: "🔗" },
+      { slug: "pagination",        label: "Pagination",        icon: "📑" },
+      { slug: "stepper",           label: "Stepper",           icon: "📶" },
+      { slug: "sortable",          label: "Sortable",          icon: "↕️" },
     ],
   },
   {
-    label: "Layout",
-    items: [
-      { slug: "card",              label: "Card",              icon: "🃏" },
-      { slug: "divider",           label: "Divider",           icon: "➖" },
-    ],
-  },
-  {
-    label: "Display",
-    items: [
-      { slug: "avatar-group",      label: "Avatar Group",      icon: "👥" },
-      { slug: "stat",              label: "Stat",              icon: "📈" },
-      { slug: "image",             label: "Image",             icon: "🖼️" },
-    ],
-  },
-  {
+    // Complex structured data — tables, charts, trees
     label: "Data",
     items: [
       { slug: "table",             label: "Table",             icon: "📊" },
@@ -108,21 +111,37 @@ const categories = [
       { slug: "kanban",            label: "Kanban",            icon: "🗂️" },
       { slug: "timeline",          label: "Timeline",          icon: "📅" },
       { slug: "tree",              label: "Tree",              icon: "🌳" },
-      { slug: "rich-text",         label: "Rich Text",         icon: "✍️" },
-      { slug: "file-upload",       label: "File Upload",       icon: "📁" },
     ],
   },
   {
-    label: "Navigation",
+    // Show content and identity — avatars, badges, stats, media
+    label: "Display",
     items: [
-      { slug: "tabs",              label: "Tabs",              icon: "🗂️" },
-      { slug: "accordion",         label: "Accordion",         icon: "🪗" },
-      { slug: "pagination",        label: "Pagination",        icon: "📑" },
-      { slug: "breadcrumb",        label: "Breadcrumb",        icon: "🔗" },
-      { slug: "stepper",           label: "Stepper",           icon: "📶" },
-      { slug: "navbar",             label: "Navbar",            icon: "🧭",},
-      { slug: "sidebar",           label: "Sidebar",           icon: "◀️",},
-      { slug: "sortable",          label: "Sortable",          icon: "↕️",},
+      { slug: "avatar",            label: "Avatar",            icon: "👤" },
+      { slug: "avatar-group",      label: "Avatar Group",      icon: "👥" },
+      { slug: "badge",             label: "Badge",             icon: "🏷️" },
+      { slug: "chip",              label: "Chip",              icon: "🔖" },
+      { slug: "stat",              label: "Stat",              icon: "📈" },
+      { slug: "image",             label: "Image",             icon: "🖼️" },
+      { slug: "progress",          label: "Progress",          icon: "📊" },
+    ],
+  },
+  {
+    // Communicate status and system events to the user
+    label: "Feedback",
+    items: [
+      { slug: "toast",             label: "Toast",             icon: "🍞" },
+      { slug: "alert",             label: "Alert",             icon: "🔔" },
+      { slug: "spinner",           label: "Spinner",           icon: "⏳" },
+      { slug: "empty-state",       label: "Empty State",       icon: "📭" },
+    ],
+  },
+  {
+    // Structural / container primitives
+    label: "Layout",
+    items: [
+      { slug: "card",              label: "Card",              icon: "🃏" },
+      { slug: "divider",           label: "Divider",           icon: "➖" },
     ],
   },
 ];
@@ -263,22 +282,19 @@ const categoriesWithVersions = categories.map((cat) => ({
   .sidebar__link--active .sidebar__version { opacity: 1; }
   .sidebar__link--active .sidebar__version { color: var(--accent); opacity: 0.7; }
   .sidebar__new {
-    font-size: 0.58rem;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    padding: 0.05em 0.38em;
-    border-radius: 3px;
-    background: color-mix(in srgb, #16a34a 13%, transparent);
+    font-size: 0.6rem;
+    font-weight: 600;
+    line-height: 1;
+    padding: 2px 5px;
+    border-radius: 99px;
+    background: color-mix(in srgb, #16a34a 12%, transparent);
     color: #16a34a;
-    border: 1px solid color-mix(in srgb, #16a34a 28%, transparent);
     flex-shrink: 0;
-    line-height: 1.6;
+    align-self: center;
   }
   [data-theme="dark"] .sidebar__new {
+    background: color-mix(in srgb, #4ade80 12%, transparent);
     color: #4ade80;
-    background: color-mix(in srgb, #4ade80 13%, transparent);
-    border-color: color-mix(in srgb, #4ade80 28%, transparent);
   }
   @media (max-width: 768px) { .sidebar { display: none; } }
 </style>
