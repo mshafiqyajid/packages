@@ -53,6 +53,13 @@ export default function InputMaskDemo() {
           omitWhen: false,
         },
         {
+          name: "readOnly",
+          group: "State",
+          control: { type: "toggle" },
+          defaultValue: false,
+          omitWhen: false,
+        },
+        {
           name: "invalid",
           group: "State",
           control: { type: "toggle" },
@@ -84,7 +91,7 @@ export default function InputMaskDemo() {
           name: "lazy",
           group: "Behaviour",
           control: { type: "toggle" },
-          defaultValue: true,
+          defaultValue: false,
           omitWhen: true,
         },
         {
@@ -110,6 +117,7 @@ export default function InputMaskDemo() {
         const size = v.size as "sm" | "md" | "lg";
         const tone = v.tone as "neutral" | "primary" | "danger";
         const disabled = v.disabled as boolean;
+        const readOnly = v.readOnly as boolean;
         const invalid = v.invalid as boolean;
         const showLabel = v.label as boolean;
         const showHint = v.hint as boolean;
@@ -138,6 +146,7 @@ export default function InputMaskDemo() {
               size={size}
               tone={tone}
               disabled={disabled}
+              readOnly={readOnly}
               invalid={invalid}
               lazy={lazy}
               showMask={showMask}

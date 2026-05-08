@@ -30,11 +30,16 @@ export default function SkeletonDemo() {
           { name: "variant",         group: "Appearance", control: { type: "segmented", options: ["rect", "line", "circle", "text"] as const },  defaultValue: "rect",  omitWhen: "rect" },
           { name: "animation",       group: "Appearance", control: { type: "segmented", options: ["pulse", "wave", "none"] as const },            defaultValue: "pulse", omitWhen: "pulse" },
           { name: "radius",          group: "Appearance", control: { type: "segmented", options: ["none", "sm", "md", "lg", "full"] as const },   defaultValue: "sm",    omitWhen: "sm" },
-          { name: "inline",          group: "Appearance", control: { type: "switch" },                                                            defaultValue: false,   omitWhen: false },
-          { name: "enableAnimation", group: "Appearance", control: { type: "switch" },                                                            defaultValue: true,    omitWhen: true },
+          { name: "inline",          group: "Appearance", control: { type: "toggle" },                                                            defaultValue: false,   omitWhen: false },
+          { name: "enableAnimation", group: "Appearance", control: { type: "toggle" },                                                            defaultValue: true,    omitWhen: true },
           { name: "lines",           group: "Content",    control: { type: "slider", min: 1, max: 5, step: 1 },                                   defaultValue: 3,       omitWhen: 3 },
-          { name: "count",           group: "Layout",     control: { type: "slider", min: 1, max: 5, step: 1 },                                   defaultValue: 1,       omitWhen: 1 },
-          { name: "spacing",         group: "Layout",     control: { type: "slider", min: 0, max: 32, step: 4 },                                  defaultValue: 8,       omitWhen: 8 },
+          { name: "count",           group: "Layout",   control: { type: "slider", min: 1, max: 5, step: 1 },                                              defaultValue: 1,     omitWhen: 1 },
+          { name: "spacing",         group: "Layout",   control: { type: "slider", min: 0, max: 32, step: 4 },                                             defaultValue: 8,     omitWhen: 8 },
+          { name: "fitContent",      group: "Layout",   control: { type: "toggle" },                                                                       defaultValue: false, omitWhen: false },
+          { name: "lastLineWidth",   group: "Content",  control: { type: "select", options: ["40%", "60%", "80%", "100%"] as const },                      defaultValue: "60%", omitWhen: "60%" },
+          { name: "baseColor",       group: "Theme",    control: { type: "select", options: ["", "#e4e4e7", "#bfdbfe", "#fde68a"] as const },               defaultValue: "",    omitWhen: "" },
+          { name: "highlightColor",  group: "Theme",    control: { type: "select", options: ["", "#f4f4f5", "#dbeafe", "#fef3c7"] as const },               defaultValue: "",    omitWhen: "" },
+          { name: "borderRadius",    group: "Theme",    control: { type: "select", options: ["", "0px", "4px", "8px", "16px"] as const },                  defaultValue: "",    omitWhen: "" },
         ]}
         render={(v) => (
           <div style={{ width: 240 }}>
@@ -47,6 +52,11 @@ export default function SkeletonDemo() {
               spacing={v.spacing as number}
               inline={v.inline as boolean}
               enableAnimation={v.enableAnimation as boolean}
+              fitContent={v.fitContent as boolean}
+              lastLineWidth={v.lastLineWidth as string}
+              baseColor={v.baseColor ? String(v.baseColor) : undefined}
+              highlightColor={v.highlightColor ? String(v.highlightColor) : undefined}
+              borderRadius={v.borderRadius ? String(v.borderRadius) : undefined}
               width={v.variant === "rect" ? "100%" : undefined}
               height={v.variant === "rect" ? 60 : undefined}
             />

@@ -127,6 +127,9 @@ export default function CodeBlockDemo() {
         { name: "focusLines", label: "focus lines", group: "Code",
           control: { type: "select", options: ["", "1,2,3", "3,4,5,6"] },
           defaultValue: "", omitWhen: "" },
+        { name: "highlightLines", label: "highlight lines", group: "Code",
+          control: { type: "select", options: ["", "1,2", "3,4,5", "6,7"] },
+          defaultValue: "", omitWhen: "" },
 
         /* ── Display ── */
         { name: "size",   group: "Display",
@@ -173,6 +176,7 @@ export default function CodeBlockDemo() {
               badge={v.badge ? String(v.badge) : undefined}
               maxLines={v.maxLines ? Number(v.maxLines) : undefined}
               focusLines={v.focusLines ? String(v.focusLines).split(",").map(Number) : undefined}
+              highlightLines={v.highlightLines ? String(v.highlightLines).split(",").map(Number) : undefined}
               fontFamily={v.fontFamily ? String(v.fontFamily) : undefined}
             />
           </div>

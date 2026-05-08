@@ -127,8 +127,10 @@ function buildDisplayValue(
   for (let i = 0; i < segments.length; i++) {
     const seg = segments[i]!;
     if (seg.type === "fixed") {
-      if (lazy) {
-        // Only show fixed chars that are before or at the next slot to fill
+      // In lazy mode OR when showMask=false: only show fixed chars that sit
+      // at or before the next slot to fill (i.e. adjacent to filled content).
+      // In eager+showMask mode: always show all fixed chars.
+      if (lazy || !showMask) {
         if (slotIdx <= filledCount) {
           result += seg.char;
         }
@@ -193,7 +195,7 @@ export function useInputMask({
   onBlur,
   allowedChars,
   formatChars,
-  lazy = true,
+  lazy = false,
   showMask = true,
   autoUnmask = false,
   disabled = false,

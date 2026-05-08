@@ -148,12 +148,6 @@ export default function CarouselDemo() {
       componentName="CarouselStyled"
       importLine={`import { CarouselStyled } from "@mshafiqyajid/react-carousel/styled";\nimport "@mshafiqyajid/react-carousel/styles.css";`}
       props={[
-        {
-          name: "orientation",
-          control: { type: "select", options: ["horizontal", "vertical"] },
-          defaultValue: "horizontal",
-          omitWhen: "horizontal",
-        },
         /* ── Navigation ── */
         { name: "loop",       group: "Navigation", control: { type: "toggle" }, defaultValue: true,  omitWhen: true },
         { name: "swipe",      group: "Navigation", control: { type: "toggle" }, defaultValue: true,  omitWhen: true },

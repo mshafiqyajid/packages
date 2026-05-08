@@ -13,6 +13,7 @@
   --rdrw-border: #e4e4e7;
   --rdrw-overlay-bg: rgba(0, 0, 0, 0.45);
   --rdrw-shadow: -4px 0 24px rgba(0, 0, 0, 0.12);
+  --rdrw-shadow-left: 4px 0 24px rgba(0, 0, 0, 0.12);
   --rdrw-radius: 0px;
   --rdrw-header-border: #e4e4e7;
   --rdrw-fg: #18181b;
@@ -109,7 +110,7 @@
  * Left drawer slide
  * ========================================================================== */
 .rdrw-panel[data-side="left"] {
-  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.12);
+  box-shadow: var(--rdrw-shadow-left);
   transform: translateX(-100%);
   transition: transform var(--rdrw-duration) var(--rdrw-ease);
 }
@@ -223,6 +224,7 @@
   --rdrw-border: #27272a;
   --rdrw-overlay-bg: rgba(0, 0, 0, 0.65);
   --rdrw-shadow: -4px 0 24px rgba(0, 0, 0, 0.4);
+  --rdrw-shadow-left: 4px 0 24px rgba(0, 0, 0, 0.4);
   --rdrw-fg: #fafafa;
   --rdrw-fg-muted: #a1a1aa;
   --rdrw-header-border: #27272a;
@@ -236,6 +238,7 @@
   --rdrw-border: #27272a;
   --rdrw-overlay-bg: rgba(0, 0, 0, 0.65);
   --rdrw-shadow: -4px 0 24px rgba(0, 0, 0, 0.4);
+  --rdrw-shadow-left: 4px 0 24px rgba(0, 0, 0, 0.4);
   --rdrw-fg: #fafafa;
   --rdrw-fg-muted: #a1a1aa;
   --rdrw-header-border: #27272a;

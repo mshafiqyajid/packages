@@ -18,6 +18,7 @@ function DrawerWrapper({
   showCloseButton,
   swipeable,
   keepMounted,
+  width,
 }: {
   side: string;
   size: string;
@@ -31,6 +32,7 @@ function DrawerWrapper({
   showCloseButton: boolean;
   swipeable: boolean;
   keepMounted: boolean;
+  width: string;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -52,6 +54,7 @@ function DrawerWrapper({
         showCloseButton={showCloseButton}
         swipeable={swipeable}
         keepMounted={keepMounted}
+        width={width !== "" ? width : undefined}
         title={showTitle ? "Navigation" : undefined}
         description={showDescription ? "Browse sections of the application." : undefined}
         footer={
@@ -112,6 +115,14 @@ export default function DrawerDemo() {
           control: { type: "segmented", options: ["sm", "md", "lg"] as const },
           defaultValue: "md",
           omitWhen: "md",
+        },
+        {
+          name: "width",
+          group: "Appearance",
+          label: "custom width",
+          control: { type: "select", options: ["", "240px", "320px", "480px"] as const },
+          defaultValue: "",
+          omitWhen: "",
         },
         {
           name: "variant",
@@ -208,6 +219,7 @@ export default function DrawerDemo() {
           showCloseButton={v.showCloseButton as boolean}
           swipeable={v.swipeable as boolean}
           keepMounted={v.keepMounted as boolean}
+          width={v.width as string}
         />
       )}
     />

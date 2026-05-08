@@ -204,12 +204,9 @@ function getSegmentAtCursor(
   // Hours segment: before first colon
   if (cursorPos <= colonOne) return "hours";
 
-  const afterFirstColon = colonOne + 1;
-
   if (showSeconds && colonTwo !== -1) {
     // minutes: between first and second colon
     if (cursorPos <= colonTwo) return "minutes";
-    const afterSecondColon = colonTwo + 1;
     if (fmt === "12h" && spacePos !== -1) {
       if (cursorPos <= spacePos) return "seconds";
       return "period";
@@ -234,7 +231,7 @@ export function useTimePicker(opts: UseTimePickerOptions = {}): UseTimePickerRet
     showSeconds = false,
     min,
     max,
-    step: _step = 1,
+    step = 1,
     disabled = false,
     readOnly = false,
     onFocus: onFocusCb,
@@ -449,8 +446,11 @@ export function useTimePicker(opts: UseTimePickerOptions = {}): UseTimePickerRet
           const next = computedH + delta;
           changeHours(next < minH ? maxH : next > maxH ? minH : next);
         } else if (segment === "minutes") {
-          const next = computedM + delta;
-          changeMinutes(next < 0 ? 59 : next > 59 ? 0 : next);
+          const effectiveStep = step > 1 ? step : 1;
+          const next = computedM + delta * effectiveStep;
+          // Round down to nearest step boundary when stepping, then wrap
+          const clamped = next < 0 ? 60 - effectiveStep : next >= 60 ? 0 : next;
+          changeMinutes(clamped);
         } else if (segment === "seconds") {
           const next = computedS + delta;
           changeSeconds(next < 0 ? 59 : next > 59 ? 0 : next);
@@ -459,7 +459,7 @@ export function useTimePicker(opts: UseTimePickerOptions = {}): UseTimePickerRet
         }
       }
     },
-    [isOpen, disabled, readOnly, format, showSeconds, computedH, computedM, computedS, computedPeriod, changeHours, changeMinutes, changeSeconds, changePeriod],
+    [isOpen, disabled, readOnly, format, showSeconds, step, computedH, computedM, computedS, computedPeriod, changeHours, changeMinutes, changeSeconds, changePeriod],
   );
 
   const handleFocus = useCallback(() => {

@@ -271,13 +271,13 @@ describe("useInputMask", () => {
   // ── Lazy mode (default) ─────────────────────────────────────────────────────
 
   it("lazy mode: shows only first slot when empty", () => {
-    render(<Field mask="__/__/____" />);
+    render(<Field mask="__/__/____" lazy={true} />);
     expect(screen.getByTestId("input")).toHaveValue("_");
   });
 
   it("lazy mode: expands mask as user types", async () => {
     const user = userEvent.setup();
-    render(<Field mask="__/__/____" />);
+    render(<Field mask="__/__/____" lazy={true} />);
     const input = screen.getByTestId("input");
     await user.click(input);
     await user.keyboard("1");
@@ -287,7 +287,7 @@ describe("useInputMask", () => {
 
   it("lazy mode: includes fixed chars when slots around them are reached", async () => {
     const user = userEvent.setup();
-    render(<Field mask="__/__/____" />);
+    render(<Field mask="__/__/____" lazy={true} />);
     const input = screen.getByTestId("input");
     await user.click(input);
     await user.keyboard("12");
@@ -295,8 +295,8 @@ describe("useInputMask", () => {
     expect(screen.getByTestId("input")).toHaveValue("12/_");
   });
 
-  it("lazy=false shows full mask immediately (eager)", () => {
-    render(<Field mask="____ ____ ____ ____" lazy={false} />);
+  it("lazy=false (default) shows full mask immediately", () => {
+    render(<Field mask="____ ____ ____ ____" />);
     expect(screen.getByTestId("input")).toHaveValue("____ ____ ____ ____");
   });
 
@@ -304,6 +304,7 @@ describe("useInputMask", () => {
 
   it("showMask=false hides maskChar — empty input shows empty string", () => {
     render(<Field mask="__/__/____" showMask={false} />);
+    // fixed chars are also hidden until adjacent to filled content
     expect(screen.getByTestId("input")).toHaveValue("");
   });
 

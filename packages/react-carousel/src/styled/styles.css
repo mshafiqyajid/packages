@@ -296,6 +296,7 @@
 .rcar-root[data-transition="fade"] .rcar-slide[aria-hidden="false"] {
   opacity: 1;
   pointer-events: auto;
+  z-index: 1;
 }
 
 /* ============================================================================

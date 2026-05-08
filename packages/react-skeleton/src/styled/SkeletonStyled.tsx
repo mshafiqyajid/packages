@@ -126,7 +126,7 @@ function SkeletonItem({
     ...(borderRadius !== undefined
       ? ({ "--rsk-custom-radius": toCSSValue(borderRadius) } as CSSProperties)
       : {}),
-    ...(fitContent ? { width: "fit-content", height: "fit-content" } : {}),
+    ...(fitContent && variant !== "circle" ? { width: "fit-content", height: "fit-content" } : {}),
     ...style,
   };
 

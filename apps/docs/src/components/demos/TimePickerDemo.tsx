@@ -7,6 +7,8 @@ function TimePickerWrapper({
   format,
   showSeconds,
   step,
+  min,
+  max,
   size,
   tone,
   disabled,
@@ -22,6 +24,8 @@ function TimePickerWrapper({
   format: string;
   showSeconds: boolean;
   step: number;
+  min: string;
+  max: string;
   size: string;
   tone: string;
   disabled: boolean;
@@ -42,6 +46,8 @@ function TimePickerWrapper({
       format={format as "12h" | "24h"}
       showSeconds={showSeconds}
       step={step}
+      min={min || undefined}
+      max={max || undefined}
       size={size as "sm" | "md" | "lg"}
       tone={tone as "neutral" | "primary" | "success" | "danger"}
       disabled={disabled}
@@ -63,9 +69,11 @@ export default function TimePickerDemo() {
       componentName="TimePickerStyled"
       importLine={`import { TimePickerStyled } from "@mshafiqyajid/react-time-picker/styled";\nimport "@mshafiqyajid/react-time-picker/styles.css";`}
       props={[
-        { name: "format",      group: "Format",     control: { type: "segmented", options: ["24h", "12h"] as const },                           defaultValue: "24h",     omitWhen: "24h" },
-        { name: "showSeconds", group: "Format",     control: { type: "toggle" },                                                                 defaultValue: false,     omitWhen: false },
-        { name: "step",        group: "Format",     label: "minute step", control: { type: "select", options: ["1", "5", "15", "30"] as const }, defaultValue: "1",       omitWhen: "1" },
+        { name: "format",      group: "Format",     control: { type: "segmented", options: ["24h", "12h"] as const },                           defaultValue: "24h",  omitWhen: "24h" },
+        { name: "showSeconds", group: "Format",     control: { type: "toggle" },                                                                 defaultValue: false,  omitWhen: false },
+        { name: "step",        group: "Format",     label: "minute step", control: { type: "select", options: ["1", "5", "15", "30"] as const }, defaultValue: "1",    omitWhen: "1" },
+        { name: "min",         group: "Format",     label: "min time",    control: { type: "select", options: ["", "06:00", "08:00", "09:00"] as const }, defaultValue: "", omitWhen: "" },
+        { name: "max",         group: "Format",     label: "max time",    control: { type: "select", options: ["", "17:00", "18:00", "22:00"] as const }, defaultValue: "", omitWhen: "" },
         { name: "size",        group: "Appearance", control: { type: "segmented", options: ["sm", "md", "lg"] as const },                        defaultValue: "md",      omitWhen: "md" },
         { name: "tone",        group: "Appearance", control: { type: "segmented", options: ["neutral", "primary", "danger"] as const },          defaultValue: "neutral", omitWhen: "neutral" },
         { name: "disabled",    group: "State",      control: { type: "toggle" },                                                                 defaultValue: false,     omitWhen: false },
@@ -85,6 +93,8 @@ export default function TimePickerDemo() {
           format={v.format as string}
           showSeconds={v.showSeconds as boolean}
           step={Number(v.step)}
+          min={v.min as string}
+          max={v.max as string}
           size={v.size as string}
           tone={v.tone as string}
           disabled={v.disabled as boolean}

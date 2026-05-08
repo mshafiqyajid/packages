@@ -223,7 +223,6 @@ function buildWeeks(
   minDate: Date | undefined,
   maxDate: Date | undefined,
   disabledDates: Date[] | ((d: Date) => boolean) | undefined,
-  showOutsideDays: boolean,
   focusedDate: Date | null,
   disabledDays?: number[],
   markedDates?: { date: Date; color?: string }[],
@@ -238,16 +237,9 @@ function buildWeeks(
   const gridStart = addDays(firstOfMonth, -startDay);
 
   const lastOfMonth = new Date(year, month + 1, 0);
-  let endDay = (firstDayOfWeek - 1 - lastOfMonth.getDay() + 7) % 7;
-  if (endDay === 0 && !fixedWeeks) endDay = 0;
-  else if (endDay < 6) {
-    endDay = 6 - lastOfMonth.getDay() + firstDayOfWeek;
-    if (endDay >= 7) endDay -= 7;
-    endDay = (7 - ((lastOfMonth.getDay() - firstDayOfWeek + 7) % 7) - 1) % 7;
-  }
 
   // Number of days we need
-  const daysNeeded = startDay + (lastOfMonth.getDate());
+  const daysNeeded = startDay + lastOfMonth.getDate();
   const totalRows = fixedWeeks ? 6 : Math.ceil(daysNeeded / 7);
   const totalDays = totalRows * 7;
 
@@ -325,14 +317,6 @@ function buildWeeks(
     }
   }
 
-  if (!showOutsideDays) {
-    return weeks.map((week) =>
-      week.map((cell) =>
-        cell.isCurrentMonth ? cell : { ...cell, date: cell.date },
-      ),
-    );
-  }
-
   return weeks;
 }
 
@@ -357,7 +341,6 @@ export function useCalendar(options: UseCalendarOptions = {}): UseCalendarResult
     disabledDays,
     firstDayOfWeek = 0,
     locale,
-    showOutsideDays = true,
     showWeekNumbers = false,
     fixedWeeks = false,
     markedDates,
@@ -480,7 +463,6 @@ export function useCalendar(options: UseCalendarOptions = {}): UseCalendarResult
         minDate,
         maxDate,
         disabledDates,
-        showOutsideDays,
         focusedDate,
         disabledDays,
         markedDates,
@@ -497,7 +479,6 @@ export function useCalendar(options: UseCalendarOptions = {}): UseCalendarResult
       minDate,
       maxDate,
       disabledDates,
-      showOutsideDays,
       focusedDate,
       disabledDays,
       markedDates,
@@ -520,7 +501,6 @@ export function useCalendar(options: UseCalendarOptions = {}): UseCalendarResult
           minDate,
           maxDate,
           disabledDates,
-          showOutsideDays,
           focusedDate,
           disabledDays,
           markedDates,
@@ -538,7 +518,6 @@ export function useCalendar(options: UseCalendarOptions = {}): UseCalendarResult
       minDate,
       maxDate,
       disabledDates,
-      showOutsideDays,
       focusedDate,
       disabledDays,
       markedDates,
@@ -761,6 +740,9 @@ export function useCalendar(options: UseCalendarOptions = {}): UseCalendarResult
         isSelected =
           (rv[0] != null && rv[0].getFullYear() === year && rv[0].getMonth() === i) ||
           (rv[1] != null && rv[1].getFullYear() === year && rv[1].getMonth() === i);
+      } else if (mode === "multiple") {
+        const mv = value as CalendarMultipleValue;
+        isSelected = mv.some((d) => d.getFullYear() === year && d.getMonth() === i);
       }
       return {
         date,

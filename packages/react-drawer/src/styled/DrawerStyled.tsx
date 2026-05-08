@@ -139,6 +139,7 @@ export const DrawerStyled = forwardRef<HTMLDivElement, DrawerStyledProps>(
         // Clean up push offset when closing
         if (variant === "push") {
           document.documentElement.style.removeProperty("--rdrw-push-offset");
+          document.documentElement.removeAttribute("data-rdrw-push-side");
         }
       }
     }, [isActuallyOpen, lockBodyScroll, keepMounted, variant]);
@@ -149,10 +150,13 @@ export const DrawerStyled = forwardRef<HTMLDivElement, DrawerStyledProps>(
         if (enterTimerRef.current) clearTimeout(enterTimerRef.current);
         if (lockBodyScroll) document.body.style.overflow = originalOverflowRef.current;
         document.documentElement.style.removeProperty("--rdrw-push-offset");
+        document.documentElement.removeAttribute("data-rdrw-push-side");
       };
     }, [lockBodyScroll]);
 
-    // Push variant: set CSS variable when panel is visible and width is known
+    // Push variant: set CSS variable when panel is visible and width is known.
+    // Also sets data-rdrw-push-side on documentElement so consumers can apply
+    // margin-left or margin-right depending on which side the drawer opens from.
     useEffect(() => {
       if (variant !== "push" || !isActuallyOpen || !panelRef.current) return;
       const updateOffset = () => {
@@ -160,13 +164,14 @@ export const DrawerStyled = forwardRef<HTMLDivElement, DrawerStyledProps>(
         const w = panelRef.current.getBoundingClientRect().width;
         if (w > 0) {
           document.documentElement.style.setProperty("--rdrw-push-offset", `${w}px`);
+          document.documentElement.setAttribute("data-rdrw-push-side", side);
         }
       };
       // Try immediately and after transition
       updateOffset();
       const t = setTimeout(updateOffset, 50);
       return () => clearTimeout(t);
-    }, [isActuallyOpen, variant, visible]);
+    }, [isActuallyOpen, variant, visible, side]);
 
     // Focus management
     useEffect(() => {
@@ -290,7 +295,7 @@ export const DrawerStyled = forwardRef<HTMLDivElement, DrawerStyledProps>(
     const shouldRenderPortal = mounted && (rendered || keepMounted);
 
     // For keepMounted: keep portal in DOM but hide it when closed
-    const isHidden = keepMounted && !rendered && !isActuallyOpen;
+    const isHidden = keepMounted && !isActuallyOpen;
 
     if (!shouldRenderPortal) return null;
 

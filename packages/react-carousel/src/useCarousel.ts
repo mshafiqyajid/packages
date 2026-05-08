@@ -164,9 +164,13 @@ export function useCarousel({
   const currentDragOffsetRef = useRef(0);
   const isFocusedRef = useRef(false);
   const isHoveredRef = useRef(false);
+  // Always reflects the latest activeIndex so interval callbacks avoid stale closures
+  const activeIndexRef = useRef(activeIndex);
+  activeIndexRef.current = activeIndex;
 
   const clampIndex = useCallback(
     (i: number): number => {
+      if (total === 0) return 0;
       if (loop) return ((i % total) + total) % total;
       return Math.max(0, Math.min(i, total - 1));
     },
@@ -208,15 +212,16 @@ export function useCarousel({
     if (!autoPlay || isPaused) return;
     autoPlayRef.current = setInterval(() => {
       if (!loop) {
-        setUncontrolledIndex((prev) => {
-          const next = prev + 1;
-          if (next >= total) {
-            clearAutoPlay();
-            return prev;
-          }
-          onIndexChange?.(next);
-          return next;
-        });
+        // Use the ref to read the latest index without a stale closure.
+        const currentIndex = activeIndexRef.current;
+        const nextIndex = currentIndex + 1;
+        if (nextIndex >= total) {
+          clearAutoPlay();
+        } else {
+          setUncontrolledIndex(nextIndex);
+          onIndexChange?.(nextIndex);
+          setProgressKey((k) => k + 1);
+        }
       } else {
         if (!isControlled) {
           setUncontrolledIndex((prev) => {
@@ -224,12 +229,19 @@ export function useCarousel({
             onIndexChange?.(next);
             return next;
           });
+          setProgressKey((k) => k + 1);
         } else {
-          next();
+          // Controlled + loop: read the latest index from the ref to avoid
+          // a stale closure, then signal the caller via onIndexChange and
+          // increment progressKey here (goTo is not called so we must do it).
+          const currentIndex = activeIndexRef.current;
+          const nextIndex = ((currentIndex + 1) % total + total) % total;
+          onIndexChange?.(nextIndex);
+          setProgressKey((k) => k + 1);
         }
       }
     }, autoPlayInterval);
-  }, [autoPlay, isPaused, loop, total, autoPlayInterval, clearAutoPlay, isControlled, next, onIndexChange]);
+  }, [autoPlay, isPaused, loop, total, autoPlayInterval, clearAutoPlay, isControlled, onIndexChange]);
 
   useEffect(() => {
     startAutoPlay();
@@ -413,7 +425,13 @@ export function useCarousel({
       role: "group",
       "aria-roledescription": "slide",
       "aria-label": `${slideIndex + 1} of ${total}`,
-      "aria-hidden": slideIndex !== activeIndex,
+      // A slide is visible when it falls within the current viewport window.
+      // For fade mode or single-view, only the active slide is visible.
+      // For multi-view slide mode, slides [activeIndex, activeIndex + slidesPerView) are visible.
+      "aria-hidden":
+        transitionEffect === "fade" || slidesPerView <= 1
+          ? slideIndex !== activeIndex
+          : slideIndex < activeIndex || slideIndex >= activeIndex + slidesPerView,
       style: {
         flexShrink: 0,
         width: `calc(100% / ${slidesPerView})`,

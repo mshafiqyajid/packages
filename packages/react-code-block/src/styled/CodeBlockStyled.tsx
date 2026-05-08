@@ -452,6 +452,7 @@ export const CodeBlockStyled = forwardRef<HTMLDivElement, CodeBlockStyledProps>(
 
         {maxLines !== undefined && expandable && (
           <button
+            type="button"
             className="rcblk-expand-btn"
             onClick={() => setIsExpanded((v) => !v)}
             aria-expanded={isExpanded}

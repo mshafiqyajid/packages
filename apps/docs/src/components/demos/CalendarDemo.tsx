@@ -18,6 +18,26 @@ function getMarkedDates() {
   ];
 }
 
+function resolveRelativeDate(token: string): Date | undefined {
+  if (!token || token === "none") return undefined;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  if (token === "today") return today;
+  const match = token.match(/^today([+-]\d+)$/);
+  if (match) {
+    const d = new Date(today);
+    d.setDate(d.getDate() + Number(match[1]));
+    return d;
+  }
+  return undefined;
+}
+
+function resolveDisabledDays(token: string): number[] | undefined {
+  if (token === "weekends") return [0, 6];
+  if (token === "weekdays") return [1, 2, 3, 4, 5];
+  return undefined;
+}
+
 function CalendarWrapper({
   mode,
   size,
@@ -28,6 +48,9 @@ function CalendarWrapper({
   showTodayButton,
   numberOfMonths,
   useMarkedDates,
+  disabledDaysToken,
+  minDateToken,
+  maxDateToken,
 }: {
   mode: CalendarMode;
   size: "sm" | "md" | "lg";
@@ -38,6 +61,9 @@ function CalendarWrapper({
   showTodayButton: boolean;
   numberOfMonths: number;
   useMarkedDates: boolean;
+  disabledDaysToken: string;
+  minDateToken: string;
+  maxDateToken: string;
 }) {
   const [value, setValue] = useState<CalendarValue>(
     mode === "range" ? [null, null] : mode === "multiple" ? [] : null,
@@ -78,6 +104,9 @@ function CalendarWrapper({
         showTodayButton={showTodayButton}
         numberOfMonths={numberOfMonths}
         markedDates={useMarkedDates ? getMarkedDates() : undefined}
+        disabledDays={resolveDisabledDays(disabledDaysToken)}
+        minDate={resolveRelativeDate(minDateToken)}
+        maxDate={resolveRelativeDate(maxDateToken)}
       />
       <p
         style={{
@@ -137,6 +166,16 @@ export default function CalendarDemo() {
           defaultValue: "1", omitWhen: "1" },
         { name: "useMarkedDates",  group: "Features", label: "mark dates",
           control: { type: "toggle" }, defaultValue: false, omitWhen: false },
+        /* ── Constraints ── */
+        { name: "disabledDaysToken", group: "Constraints", label: "disabled days",
+          control: { type: "select", options: ["none", "weekends", "weekdays"] },
+          defaultValue: "none", omitWhen: "none" },
+        { name: "minDateToken", group: "Constraints", label: "min date",
+          control: { type: "select", options: ["none", "today-30", "today-7", "today"] },
+          defaultValue: "none", omitWhen: "none" },
+        { name: "maxDateToken", group: "Constraints", label: "max date",
+          control: { type: "select", options: ["none", "today", "today+7", "today+30"] },
+          defaultValue: "none", omitWhen: "none" },
       ]}
       render={(v) => (
         // key on CalendarWrapper forces full remount (including value state) when
@@ -152,6 +191,9 @@ export default function CalendarDemo() {
           showTodayButton={v.showTodayButton as boolean}
           numberOfMonths={Number(v.numberOfMonths)}
           useMarkedDates={v.useMarkedDates as boolean}
+          disabledDaysToken={v.disabledDaysToken as string}
+          minDateToken={v.minDateToken as string}
+          maxDateToken={v.maxDateToken as string}
         />
       )}
     />
