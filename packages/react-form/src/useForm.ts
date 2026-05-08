@@ -30,7 +30,7 @@ export interface RegisterOptions {
 export interface RegisterResult {
   name: string;
   id: string;
-  value: unknown;
+  value: string | number | readonly string[] | undefined;
   onChange: (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
   onBlur: (e: FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
   ref: RefCallback<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>;
@@ -218,7 +218,10 @@ export function useForm(options: UseFormOptions = {}): UseFormResult {
       const errorId = `${id}-error`;
 
       const currentValues = getValuesRef.current();
-      const value = currentValues[name] ?? "";
+      const rawVal = currentValues[name] ?? "";
+      const value = (typeof rawVal === "string" || typeof rawVal === "number" || Array.isArray(rawVal))
+        ? (rawVal as string | number | readonly string[])
+        : String(rawVal);
       const hasError = Boolean(errorsRef.current[name]);
 
       const describedByParts: string[] = [];
