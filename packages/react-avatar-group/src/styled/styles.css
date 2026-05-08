@@ -19,8 +19,8 @@
   /* Ring color (border separating overlapping avatars) */
   --ravg-ring-color: #ffffff;
 
-  /* Gap: controlled via --ravg-gap-override inline style (gap prop). Default -8px overlap. */
-  --ravg-gap: var(--ravg-gap-override, -8px);
+  /* Fallback gap when no override is set */
+  --ravg-gap-override: -8px;
 
   /* Fallback avatar colors */
   --ravg-fallback-bg: #e4e4e7;
@@ -53,7 +53,7 @@
 .ravg-root .ravg-avatar,
 .ravg-root .ravg-avatar-link,
 .ravg-root .ravg-overflow {
-  margin-left: var(--ravg-gap);
+  margin-left: var(--ravg-gap-override);
 }
 
 /* Remove margin from first child */
