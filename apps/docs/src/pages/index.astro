@@ -1,6 +1,14 @@
 ---
+import { readdirSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import path from "node:path";
 import "~/styles/global.css";
 import Header from "~/components/Header.astro";
+
+const ROOT = fileURLToPath(new URL("../../../../", import.meta.url));
+const totalPackages = readdirSync(path.join(ROOT, "packages"), { withFileTypes: true })
+  .filter((d) => d.isDirectory() && d.name.startsWith("react-"))
+  .length;
 import {
   CopyButtonPreview,
   OTPInputPreview,
@@ -126,7 +134,7 @@ const byCategory = categories.map((cat) => ({
         <div class="hero__inner">
           <div class="hero__eyebrow">
             <span class="hero__dot"></span>
-            35 packages · React · TypeScript · Zero deps
+            {totalPackages} packages · React · TypeScript · Zero deps
           </div>
           <h1 class="hero__title">
             Tiny, polished<br />
@@ -150,7 +158,7 @@ const byCategory = categories.map((cat) => ({
         <div class="packages__inner">
           <div class="packages__header">
             <h2 class="packages__heading">All packages</h2>
-            <span class="packages__count">35 packages</span>
+            <span class="packages__count">{totalPackages} packages</span>
           </div>
           {byCategory.map((cat) => (
             <div class="packages__category">
