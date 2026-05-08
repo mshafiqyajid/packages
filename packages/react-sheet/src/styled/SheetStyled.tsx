@@ -212,6 +212,9 @@ export const SheetStyled = forwardRef<HTMLDivElement, SheetStyledProps>(
     const handlePointerDown = useCallback(
       (e: React.PointerEvent<HTMLDivElement>) => {
         if (!swipeToDismiss) return;
+        // Don't capture if the pointer started on an interactive element — let clicks through
+        const target = e.target as HTMLElement;
+        if (target.closest('button, a, input, select, textarea, [role="button"], [tabindex]')) return;
         dragStartRef.current = isVertical ? e.clientY : e.clientX;
         setSwiping(true);
         setSnapping(false);
