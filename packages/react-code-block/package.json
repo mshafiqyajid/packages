@@ -1,6 +1,6 @@
 {
   "name": "@mshafiqyajid/react-code-block",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Headless code block hook and styled syntax-highlighted code component for React.",
   "license": "MIT",
   "author": "Shafiq Yajid",
@@ -9,20 +9,36 @@
     "url": "git+https://github.com/mshafiqyajid/packages.git",
     "directory": "packages/react-code-block"
   },
-  "bugs": { "url": "https://github.com/mshafiqyajid/packages/issues" },
+  "bugs": {
+    "url": "https://github.com/mshafiqyajid/packages/issues"
+  },
   "homepage": "https://docs.shafiqyajid.com/react/code-block/",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
-    ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js", "require": "./dist/index.cjs" },
-    "./styled": { "types": "./dist/styled.d.ts", "import": "./dist/styled.js", "require": "./dist/styled.cjs" },
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./styled": {
+      "types": "./dist/styled.d.ts",
+      "import": "./dist/styled.js",
+      "require": "./dist/styled.cjs"
+    },
     "./styles.css": "./dist/styles.css",
     "./package.json": "./package.json"
   },
-  "files": ["dist", "README.md", "LICENSE"],
-  "sideEffects": ["**/*.css"],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": [
+    "**/*.css"
+  ],
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
@@ -36,7 +52,9 @@
     "shiki": ">=1.0.0"
   },
   "peerDependenciesMeta": {
-    "shiki": { "optional": true }
+    "shiki": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.4.0",
@@ -54,6 +72,10 @@
     "typescript": "^5.6.0",
     "vitest": "^2.1.0"
   },
-  "publishConfig": { "access": "public" },
-  "engines": { "node": ">=18" }
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=18"
+  }
 }
