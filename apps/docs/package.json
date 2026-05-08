@@ -69,6 +69,13 @@
     "@mshafiqyajid/react-stat": "*",
     "@mshafiqyajid/react-image": "*",
     "@mshafiqyajid/react-combobox": "*",
+    "@mshafiqyajid/react-carousel": "*",
+    "@mshafiqyajid/react-calendar": "*",
+    "@mshafiqyajid/react-code-block": "*",
+    "shiki": "^1.0.0",
+    "@mshafiqyajid/react-skeleton": "*",
+    "@mshafiqyajid/react-virtual-list": "*",
+    "@mshafiqyajid/react-scroll-area": "*",
     "react": "^18.3.0",
     "react-dom": "^18.3.0"
   },

@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo, useEffect, useRef, type ReactNode } from "react";
+import React, { useState, useCallback, useMemo, useEffect, useRef, type ReactNode } from "react";
 import { tokenize } from "./highlight";
 import { SegmentedControlStyled } from "@mshafiqyajid/react-segmented-control/styled";
 import "@mshafiqyajid/react-segmented-control/styles.css";
@@ -37,6 +37,12 @@ export interface PropDef {
   defaultValue: string | number | boolean;
   /** Don't include in generated code when value matches this. */
   omitWhen?: string | number | boolean;
+  /**
+   * Group name. Props sharing the same group are visually grouped together
+   * with a header label in stacked layout. When any prop has a group, auto-sort
+   * is disabled so the declared order is preserved.
+   */
+  group?: string;
 }
 
 export interface PropPlaygroundProps {
@@ -208,6 +214,20 @@ export default function PropPlayground({
 
   const isStacked = layout === "stacked";
 
+  // In stacked mode: auto-sort toggles → segmented/select → text/slider/color,
+  // unless any prop defines a group (which implies intentional ordering).
+  const hasGroups = props.some((p) => p.group !== undefined);
+  const displayProps = useMemo(() => {
+    if (!isStacked || hasGroups) return props;
+    const order = (p: PropDef) => {
+      if (p.control.type === "toggle") return 0;
+      if (p.control.type === "segmented") return 1;
+      if (p.control.type === "select") return 2;
+      return 3;
+    };
+    return [...props].sort((a, b) => order(a) - order(b));
+  }, [props, isStacked, hasGroups]);
+
   return (
     <div className="pp" data-layout={layout}>
       {/* Top: preview (+ controls if side-by-side) */}
@@ -235,11 +255,17 @@ export default function PropPlayground({
           </div>
           <div className="pp__controls-scroll" ref={scrollRef} onScroll={checkScroll}>
           <div className="pp__controls-body">
-            {props.map((prop) => {
+            {displayProps.map((prop, idx) => {
+              const prevGroup = idx > 0 ? displayProps[idx - 1]?.group : undefined;
+              const showGroupHeader = prop.group !== undefined && prop.group !== prevGroup;
               const value = values[prop.name]!;
               const label = prop.label ?? prop.name;
-              return (
-                <div key={prop.name} className="pp__field">
+                return (
+                  <React.Fragment key={prop.name}>
+                    {showGroupHeader && (
+                      <div className="pp__group-header" aria-hidden="true">{prop.group}</div>
+                    )}
+                    <div className="pp__field">
                   <label className="pp__field-label">
                     <span className="pp__field-name">{label}</span>
                   </label>
@@ -287,8 +313,9 @@ export default function PropPlayground({
                       size="sm"
                     />
                   )}
-                </div>
-              );
+                    </div>
+                  </React.Fragment>
+                );
             })}
           </div>
           {showFade && <div className="pp__controls-fade" aria-hidden="true" />}

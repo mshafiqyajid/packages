@@ -1,0 +1,469 @@
+/* ============================================================================
+ * react-code-block — styled component
+ *
+ * CSS prefix: rcblk-
+ * Light mode by default; dark mode via [data-theme="dark"] only.
+ * NEVER @media (prefers-color-scheme: dark)
+ * All custom properties prefixed --rcblk-*
+ * ========================================================================== */
+
+/* ============================================================================
+ * Tokens — light mode (default)
+ * ========================================================================== */
+:root {
+  /* Surfaces */
+  --rcblk-bg:         #f6f8fa;
+  --rcblk-header-bg:  #eaeef2;
+  --rcblk-border:     #d0d7de;
+
+  /* Text */
+  --rcblk-fg:              #24292e;
+  --rcblk-line-number-fg:  #8b949e;
+  --rcblk-title-fg:        #57606a;
+  --rcblk-lang-label-fg:   #6e7681;
+
+  /* Line decorations */
+  --rcblk-line-highlight-bg:     rgba(255, 213, 0, 0.15);
+  --rcblk-line-highlight-border: #d4a017;
+  --rcblk-diff-add-bg:           rgba(22, 163, 74, 0.10);
+  --rcblk-diff-add-border:       #16a34a;
+  --rcblk-diff-remove-bg:        rgba(220, 38, 38, 0.10);
+  --rcblk-diff-remove-border:    #dc2626;
+
+  /* Copy button */
+  --rcblk-copy-bg:           rgba(0, 0, 0, 0.04);
+  --rcblk-copy-fg:           #57606a;
+  --rcblk-copy-border:       #d0d7de;
+  --rcblk-copy-bg-hover:     rgba(0, 0, 0, 0.08);
+  --rcblk-copy-fg-hover:     #24292e;
+  --rcblk-copy-border-hover: #afb8c1;
+  --rcblk-copy-fg-copied:    #16a34a;
+  --rcblk-copy-border-copied: rgba(22, 163, 74, 0.35);
+
+  /* Shape */
+  --rcblk-radius:      var(--radius, 8px);
+  --rcblk-radius-none: 0px;
+  --rcblk-radius-sm:   4px;
+  --rcblk-radius-md:   8px;
+  --rcblk-radius-lg:   12px;
+
+  /* Typography */
+  --rcblk-font-family: "JetBrains Mono", ui-monospace, "Cascadia Code", "Fira Code",
+    "Source Code Pro", Menlo, Consolas, monospace;
+  --rcblk-font-size-sm: 0.75rem;
+  --rcblk-font-size-md: 0.82rem;
+  --rcblk-font-size-lg: 0.9rem;
+  --rcblk-line-height:  1.75;
+
+  /* Spacing */
+  --rcblk-padding-sm:        0.65rem 0.85rem;
+  --rcblk-padding-md:        1.1rem 1.25rem;
+  --rcblk-padding-lg:        1.35rem 1.5rem;
+  --rcblk-header-padding-sm: 0.3rem 0.85rem;
+  --rcblk-header-padding-md: 0.45rem 1rem;
+  --rcblk-header-padding-lg: 0.55rem 1.25rem;
+  --rcblk-line-number-width:  2.5ch;
+
+  /* Shadow */
+  --rcblk-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+
+  /* Motion */
+  --rcblk-duration-copy:      150ms;
+  --rcblk-duration-highlight: 250ms;
+  --rcblk-ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ============================================================================
+ * Dark mode
+ * ========================================================================== */
+[data-theme="dark"] {
+  --rcblk-bg:         #0d0d0f;
+  --rcblk-header-bg:  #0d0d0f;
+  --rcblk-border:     rgba(255, 255, 255, 0.08);
+
+  --rcblk-fg:              #e2e8f0;
+  --rcblk-line-number-fg:  rgba(255, 255, 255, 0.22);
+  --rcblk-title-fg:        rgba(255, 255, 255, 0.3);
+  --rcblk-lang-label-fg:   rgba(255, 255, 255, 0.3);
+
+  --rcblk-line-highlight-bg:     rgba(255, 213, 0, 0.08);
+  --rcblk-line-highlight-border: #d4a017;
+  --rcblk-diff-add-bg:           rgba(46, 160, 67, 0.15);
+  --rcblk-diff-add-border:       #2ea043;
+  --rcblk-diff-remove-bg:        rgba(248, 81, 73, 0.15);
+  --rcblk-diff-remove-border:    #f85149;
+
+  --rcblk-copy-bg:           rgba(255, 255, 255, 0.06);
+  --rcblk-copy-fg:           rgba(255, 255, 255, 0.4);
+  --rcblk-copy-border:       rgba(255, 255, 255, 0.1);
+  --rcblk-copy-bg-hover:     rgba(255, 255, 255, 0.1);
+  --rcblk-copy-fg-hover:     rgba(255, 255, 255, 0.75);
+  --rcblk-copy-border-hover: rgba(255, 255, 255, 0.18);
+  --rcblk-copy-fg-copied:    #4ade80;
+  --rcblk-copy-border-copied: rgba(74, 222, 128, 0.25);
+
+  --rcblk-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+}
+
+/* ============================================================================
+ * Root
+ * ========================================================================== */
+.rcblk-root {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--rcblk-bg);
+  color: var(--rcblk-fg);
+  border: 1px solid var(--rcblk-border);
+  border-radius: var(--rcblk-radius);
+  box-shadow: var(--rcblk-shadow);
+  overflow: hidden;
+  font-family: var(--rcblk-font-family);
+  font-size: var(--rcblk-font-size-md);
+  line-height: var(--rcblk-line-height);
+}
+
+/* Radius variants */
+.rcblk-root[data-radius="none"] { border-radius: var(--rcblk-radius-none); }
+.rcblk-root[data-radius="sm"]   { border-radius: var(--rcblk-radius-sm); }
+.rcblk-root[data-radius="md"]   { border-radius: var(--rcblk-radius-md); }
+.rcblk-root[data-radius="lg"]   { border-radius: var(--rcblk-radius-lg); }
+
+/* Size variants */
+.rcblk-root[data-size="sm"] { font-size: var(--rcblk-font-size-sm); }
+.rcblk-root[data-size="md"] { font-size: var(--rcblk-font-size-md); }
+.rcblk-root[data-size="lg"] { font-size: var(--rcblk-font-size-lg); }
+
+/* ============================================================================
+ * Header (title + language label)
+ * ========================================================================== */
+.rcblk-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: var(--rcblk-header-padding-md);
+  background: var(--rcblk-header-bg);
+  border-bottom: 1px solid var(--rcblk-border);
+  min-height: 2rem;
+}
+
+.rcblk-root[data-size="sm"] .rcblk-header { padding: var(--rcblk-header-padding-sm); }
+.rcblk-root[data-size="lg"] .rcblk-header { padding: var(--rcblk-header-padding-lg); }
+
+.rcblk-title {
+  flex: 1;
+  font-size: 0.72em;
+  font-weight: 600;
+  color: var(--rcblk-title-fg);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.rcblk-lang-label {
+  flex-shrink: 0;
+  font-size: 0.72em;
+  font-weight: 600;
+  color: var(--rcblk-lang-label-fg);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-left: auto;
+}
+
+/* ============================================================================
+ * Body
+ * ========================================================================== */
+.rcblk-body {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* ============================================================================
+ * Pre / code
+ * ========================================================================== */
+.rcblk-pre {
+  margin: 0;
+  padding: var(--rcblk-padding-md);
+  overflow: auto;
+  background: transparent;
+  color: inherit;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.rcblk-root[data-size="sm"] .rcblk-pre { padding: var(--rcblk-padding-sm); }
+.rcblk-root[data-size="lg"] .rcblk-pre { padding: var(--rcblk-padding-lg); }
+
+.rcblk-root[data-wrap="true"] .rcblk-pre {
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.rcblk-code {
+  display: block;
+  background: transparent;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+/* ============================================================================
+ * Lines
+ * ========================================================================== */
+.rcblk-line {
+  display: block;
+  padding: 0 0.25rem;
+  margin: 0 -0.25rem;
+  min-height: calc(1em * var(--rcblk-line-height));
+  border-left: 2px solid transparent;
+  transition:
+    background-color var(--rcblk-duration-highlight) var(--rcblk-ease),
+    border-color var(--rcblk-duration-highlight) var(--rcblk-ease);
+}
+
+.rcblk-line[data-highlighted="true"] {
+  background-color: var(--rcblk-line-highlight-bg);
+  border-left-color: var(--rcblk-line-highlight-border);
+}
+
+.rcblk-line[data-diff-type="add"] {
+  background-color: var(--rcblk-diff-add-bg);
+  border-left-color: var(--rcblk-diff-add-border);
+}
+
+.rcblk-line[data-diff-type="remove"] {
+  background-color: var(--rcblk-diff-remove-bg);
+  border-left-color: var(--rcblk-diff-remove-border);
+}
+
+/* ============================================================================
+ * Line numbers
+ * ========================================================================== */
+.rcblk-line-number {
+  display: inline-block;
+  width: var(--rcblk-line-number-width);
+  margin-right: 1.25rem;
+  color: var(--rcblk-line-number-fg);
+  text-align: right;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+/* ============================================================================
+ * Line content
+ * ========================================================================== */
+.rcblk-line-content {
+  display: inline;
+}
+
+/* ============================================================================
+ * Shiki raw output wrapper
+ * ========================================================================== */
+.rcblk-shiki-raw {
+  overflow: auto;
+  padding: var(--rcblk-padding-md);
+}
+
+.rcblk-shiki-raw pre {
+  margin: 0;
+  background: transparent !important;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.rcblk-root[data-size="sm"] .rcblk-shiki-raw { padding: var(--rcblk-padding-sm); }
+.rcblk-root[data-size="lg"] .rcblk-shiki-raw { padding: var(--rcblk-padding-lg); }
+
+/* ============================================================================
+ * Copy button — icon only
+ * ========================================================================== */
+.rcblk-copy-btn {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.4rem;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: var(--rcblk-copy-bg);
+  color: var(--rcblk-copy-fg);
+  border: 1px solid var(--rcblk-copy-border);
+  border-radius: 6px;
+  cursor: pointer;
+  opacity: 0;
+  transition:
+    opacity 160ms ease,
+    color 160ms ease,
+    background-color 160ms ease,
+    border-color 160ms ease;
+  z-index: 1;
+}
+
+.rcblk-body:hover .rcblk-copy-btn,
+.rcblk-copy-btn:focus-visible {
+  opacity: 1;
+}
+
+.rcblk-copy-btn:hover {
+  background-color: var(--rcblk-copy-bg-hover);
+  color: var(--rcblk-copy-fg-hover);
+  border-color: var(--rcblk-copy-border-hover);
+}
+
+.rcblk-copy-btn:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 1px;
+}
+
+.rcblk-copy-btn--copied {
+  color: var(--rcblk-copy-fg-copied);
+  border-color: var(--rcblk-copy-border-copied);
+  opacity: 1;
+}
+
+/* ============================================================================
+ * Terminal bar
+ * ========================================================================== */
+.rcblk-terminal-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: var(--rcblk-header-padding-md);
+  background: #080809;
+  border-bottom: 1px solid var(--rcblk-border);
+  min-height: 2.25rem;
+  position: relative;
+}
+
+.rcblk-root[data-size="sm"] .rcblk-terminal-bar { padding: var(--rcblk-header-padding-sm); }
+.rcblk-root[data-size="lg"] .rcblk-terminal-bar { padding: var(--rcblk-header-padding-lg); }
+
+.rcblk-terminal-dots {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.rcblk-terminal-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: block;
+}
+
+.rcblk-terminal-dot--red    { background: #ff5f57; }
+.rcblk-terminal-dot--yellow { background: #febc2e; }
+.rcblk-terminal-dot--green  { background: #28c840; }
+
+.rcblk-terminal-title {
+  position: absolute;
+  left: 50%;
+  translate: -50% 0;
+  font-size: 0.72em;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.4);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* Light mode: slightly darker than code bg */
+.rcblk-root:not([data-theme="dark"]) .rcblk-terminal-bar {
+  background: #dde1e6;
+}
+
+.rcblk-root:not([data-theme="dark"]) .rcblk-terminal-title {
+  color: rgba(0, 0, 0, 0.35);
+}
+
+/* ============================================================================
+ * Collapse / expand
+ * ========================================================================== */
+.rcblk-expand-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  width: 100%;
+  padding: 0.55rem 1rem;
+  background: var(--rcblk-header-bg);
+  border: none;
+  border-top: 1px solid var(--rcblk-border);
+  color: var(--rcblk-lang-label-fg);
+  font-family: var(--rcblk-font-family);
+  font-size: 0.75em;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 140ms ease, color 140ms ease;
+  letter-spacing: 0.02em;
+}
+
+.rcblk-expand-btn:hover {
+  color: var(--rcblk-fg);
+  background: color-mix(in srgb, var(--rcblk-header-bg) 80%, var(--rcblk-border) 20%);
+}
+
+.rcblk-collapsed-fade {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3rem;
+  background: linear-gradient(to bottom, transparent, var(--rcblk-bg));
+  pointer-events: none;
+}
+
+/* ============================================================================
+ * Focus lines
+ * ========================================================================== */
+.rcblk-root[data-has-focus="true"] .rcblk-line[data-unfocused="true"] {
+  opacity: 0.3;
+  transition: opacity 200ms ease;
+}
+
+.rcblk-root[data-has-focus="true"] .rcblk-line[data-focused="true"] {
+  opacity: 1;
+  transition: opacity 200ms ease;
+}
+
+/* ============================================================================
+ * Badge
+ * ========================================================================== */
+.rcblk-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.65em;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: #6366f1;
+  color: #fff;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+/* When a title is present, badge sits between title and lang label */
+.rcblk-title ~ .rcblk-badge {
+  margin-left: 0.5rem;
+}
+
+/* ============================================================================
+ * Reduced motion
+ * ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .rcblk-line,
+  .rcblk-copy-btn,
+  .rcblk-expand-btn {
+    transition: none !important;
+  }
+}

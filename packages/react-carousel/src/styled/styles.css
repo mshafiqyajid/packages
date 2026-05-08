@@ -1,0 +1,381 @@
+/* ============================================================================
+ * react-carousel — styled component
+ *
+ * CSS prefix: rcar-
+ * Dark mode: [data-theme="dark"] only. Never @media (prefers-color-scheme: dark).
+ * ========================================================================== */
+
+:root {
+  /* Shape */
+  --rcar-radius: 12px;
+
+  /* Arrow */
+  --rcar-arrow-size:       2.5rem;
+  --rcar-arrow-bg:         rgba(255, 255, 255, 0.15);
+  --rcar-arrow-bg-hover:   rgba(255, 255, 255, 0.28);
+  --rcar-arrow-border:     rgba(255, 255, 255, 0.22);
+  --rcar-arrow-fg:         #ffffff;
+  --rcar-arrow-blur:       blur(12px);
+  --rcar-arrow-shadow:     0 2px 12px rgba(0, 0, 0, 0.2);
+
+  /* Dot */
+  --rcar-dot-size:         8px;
+  --rcar-dot-size-active:  26px;
+  --rcar-dot-gap:          5px;
+  --rcar-dot-bg:           rgba(255, 255, 255, 0.45);
+  --rcar-dot-bg-active:    #ffffff;
+  --rcar-dot-radius:       9999px;
+  --rcar-dots-pill-bg:     rgba(0, 0, 0, 0.38);
+  --rcar-dots-pill-blur:   blur(12px);
+  --rcar-dots-pill-border: rgba(255, 255, 255, 0.1);
+
+  /* Slide background (shown when slide has no bg) */
+  --rcar-bg: #f4f4f5;
+
+  /* Motion */
+  --rcar-duration:       300ms;
+  --rcar-ease:           cubic-bezier(0.32, 0.72, 0, 1);
+  --rcar-ease-spring:    cubic-bezier(0.34, 1.56, 0.64, 1);
+  --rcar-duration-ui:    200ms;
+  --rcar-duration-fade:  180ms;
+}
+
+/* ============================================================================
+ * Dark mode
+ * ========================================================================== */
+[data-theme="dark"] .rcar-root {
+  --rcar-bg: #18181b;
+}
+
+/* ============================================================================
+ * Root
+ * ========================================================================== */
+.rcar-root {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--rcar-radius);
+  background: var(--rcar-bg);
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: pan-y;
+  outline: none;
+}
+
+.rcar-root[data-orientation="vertical"] {
+  touch-action: pan-x;
+}
+
+.rcar-root[data-dragging="true"] {
+  cursor: grabbing;
+}
+
+/* Focus ring on the root for keyboard users */
+.rcar-root:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.7);
+  outline-offset: 2px;
+}
+
+/* ============================================================================
+ * Viewport
+ * ========================================================================== */
+.rcar-viewport {
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+}
+
+/* ============================================================================
+ * Track
+ * ========================================================================== */
+.rcar-track {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+  transition: transform var(--rcar-duration) var(--rcar-ease);
+}
+
+.rcar-root[data-orientation="vertical"] .rcar-track {
+  flex-direction: column;
+}
+
+.rcar-root[data-dragging="true"] .rcar-track {
+  transition: none;
+}
+
+/* ============================================================================
+ * Slide
+ * ========================================================================== */
+.rcar-slide {
+  flex-shrink: 0;
+  min-width: 0;
+  min-height: 0;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ============================================================================
+ * Arrow buttons — fade in on container hover, glass style
+ * ========================================================================== */
+.rcar-arrows {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 0.875rem;
+  z-index: 2;
+}
+
+.rcar-root[data-orientation="vertical"] .rcar-arrows {
+  flex-direction: column;
+  padding: 0.875rem;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+
+.rcar-arrow {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--rcar-arrow-size);
+  height: var(--rcar-arrow-size);
+  border-radius: 50%;
+  border: 1px solid var(--rcar-arrow-border);
+  background: var(--rcar-arrow-bg);
+  backdrop-filter: var(--rcar-arrow-blur);
+  -webkit-backdrop-filter: var(--rcar-arrow-blur);
+  color: var(--rcar-arrow-fg);
+  box-shadow: var(--rcar-arrow-shadow);
+  cursor: pointer;
+  /* Hidden by default, fades in on container hover */
+  opacity: 0;
+  translate: 0 0;
+  transition:
+    opacity     var(--rcar-duration-fade) ease,
+    background  var(--rcar-duration-ui)   ease,
+    scale       var(--rcar-duration-ui)   var(--rcar-ease-spring),
+    border-color var(--rcar-duration-ui)  ease;
+}
+
+/* Show on container hover or keyboard focus */
+.rcar-root:hover .rcar-arrow,
+.rcar-root:focus-within .rcar-arrow {
+  opacity: 1;
+}
+
+/* Always visible on touch devices (no hover state) */
+@media (hover: none) {
+  .rcar-arrow { opacity: 1; }
+}
+
+.rcar-arrow:hover:not(:disabled):not([aria-disabled="true"]) {
+  background: var(--rcar-arrow-bg-hover);
+  border-color: rgba(255, 255, 255, 0.35);
+  scale: 1.08;
+}
+
+.rcar-arrow:active:not(:disabled):not([aria-disabled="true"]) {
+  scale: 0.93;
+}
+
+.rcar-arrow:disabled,
+.rcar-arrow[aria-disabled="true"] {
+  opacity: 0 !important;
+  pointer-events: none;
+}
+
+/* Keep disabled arrows invisible even on hover */
+.rcar-root:hover .rcar-arrow:disabled,
+.rcar-root:hover .rcar-arrow[aria-disabled="true"] {
+  opacity: 0 !important;
+}
+
+.rcar-arrow:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.8);
+  outline-offset: 2px;
+}
+
+/* Arrow icon */
+.rcar-arrow-icon {
+  width: 1rem;
+  height: 1rem;
+  stroke: currentColor;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+  flex-shrink: 0;
+}
+
+/* ============================================================================
+ * Dots — frosted glass pill container
+ * ========================================================================== */
+.rcar-dots {
+  position: absolute;
+  bottom: 1rem;
+  right: 1rem;
+  display: flex;
+  align-items: center;
+  gap: var(--rcar-dot-gap);
+  z-index: 2;
+  pointer-events: auto;
+  /* Frosted glass pill */
+  background: var(--rcar-dots-pill-bg);
+  backdrop-filter: var(--rcar-dots-pill-blur);
+  -webkit-backdrop-filter: var(--rcar-dots-pill-blur);
+  border: 1px solid var(--rcar-dots-pill-border);
+  border-radius: 999px;
+  padding: 6px 10px;
+}
+
+.rcar-root[data-orientation="vertical"] .rcar-dots {
+  bottom: auto;
+  left: 1rem;
+  right: auto;
+  top: 50%;
+  translate: 0 -50%;
+  flex-direction: column;
+  padding: 10px 6px;
+}
+
+.rcar-dot {
+  display: block;
+  height: var(--rcar-dot-size);
+  width: var(--rcar-dot-size);
+  border-radius: var(--rcar-dot-radius);
+  background: var(--rcar-dot-bg);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition:
+    background  var(--rcar-duration-ui) ease,
+    width       var(--rcar-duration-ui) var(--rcar-ease-spring),
+    opacity     var(--rcar-duration-ui) ease;
+}
+
+.rcar-dot[aria-current="true"] {
+  background: var(--rcar-dot-bg-active);
+  width: var(--rcar-dot-size-active);
+}
+
+.rcar-root[data-orientation="vertical"] .rcar-dot[aria-current="true"] {
+  width: var(--rcar-dot-size);
+  height: var(--rcar-dot-size-active);
+}
+
+.rcar-dot:hover:not([aria-current="true"]) {
+  background: rgba(255, 255, 255, 0.75);
+}
+
+.rcar-dot:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.8);
+  outline-offset: 2px;
+}
+
+/* ============================================================================
+ * Fade transition
+ * ========================================================================== */
+.rcar-root[data-transition="fade"] .rcar-track {
+  position: relative;
+  transition: none;
+}
+
+.rcar-root[data-transition="fade"] .rcar-slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 400ms ease;
+  pointer-events: none;
+}
+
+.rcar-root[data-transition="fade"] .rcar-slide[aria-hidden="false"] {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ============================================================================
+ * Peek
+ * ========================================================================== */
+.rcar-root[data-peek="true"] .rcar-viewport {
+  overflow: visible;
+}
+
+/* ============================================================================
+ * Counter pill — top-right, frosted glass matching dots pill
+ * ========================================================================== */
+.rcar-counter {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 2;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #fff;
+  background: var(--rcar-dots-pill-bg);
+  backdrop-filter: var(--rcar-dots-pill-blur);
+  -webkit-backdrop-filter: var(--rcar-dots-pill-blur);
+  border: 1px solid var(--rcar-dots-pill-border);
+  border-radius: 999px;
+  padding: 4px 10px;
+  pointer-events: none;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============================================================================
+ * AutoPlay progress bar
+ * ========================================================================== */
+.rcar-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  z-index: 3;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.rcar-progress-bar {
+  height: 100%;
+  width: 0%;
+  background: rgba(255, 255, 255, 0.85);
+  transform-origin: left;
+}
+
+.rcar-progress-bar[data-playing="true"] {
+  animation: rcar-progress linear forwards;
+}
+
+@keyframes rcar-progress {
+  from { width: 0%; }
+  to   { width: 100%; }
+}
+
+/* ============================================================================
+ * Reduced motion
+ * ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .rcar-track {
+    transition: none !important;
+  }
+  .rcar-arrow,
+  .rcar-dot {
+    transition:
+      opacity     var(--rcar-duration-fade) ease,
+      background  var(--rcar-duration-ui)   ease !important;
+    scale: 1 !important;
+  }
+  .rcar-root[data-transition="fade"] .rcar-slide {
+    transition: none !important;
+  }
+  .rcar-progress-bar[data-playing="true"] {
+    animation: none !important;
+    width: 100% !important;
+  }
+}

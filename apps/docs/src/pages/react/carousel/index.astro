@@ -1,0 +1,270 @@
+---
+import DocLayout from "~/layouts/DocLayout.astro";
+import PackagePageShell from "~/components/PackagePageShell.astro";
+import H2 from "~/components/H2.astro";
+import CodeBlock from "~/components/CodeBlock.astro";
+import CarouselDemo from "~/components/demos/CarouselDemo";
+---
+
+<DocLayout title="react-carousel" description="Headless carousel hook and styled slide component for React. Touch swipe, drag, keyboard navigation, autoplay, fade/slide transition, peek, counter overlay, progress bar, dots, arrows, multi-slide view, full ARIA compliance." pkg="carousel">
+  <PackagePageShell name="react-carousel" description="Headless carousel hook and styled slide component for React. Touch swipe, drag, keyboard navigation, autoplay with pause-on-hover/focus, fade or slide transition, peek adjacent slides, counter overlay, autoplay progress bar, multi-slide view, dots, arrows, controlled/uncontrolled index, full ARIA compliance, and smooth motion with reduced-motion support." size="~5 KB">
+
+    <div class="pkg-section">
+      <H2>Playground</H2>
+      <CarouselDemo client:load />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Install</H2>
+      <CodeBlock lang="bash" code="npm install @mshafiqyajid/react-carousel" />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Quick start</H2>
+      <CodeBlock lang="tsx" code={`import { CarouselStyled } from "@mshafiqyajid/react-carousel/styled";
+import "@mshafiqyajid/react-carousel/styles.css";
+
+const SLIDES = [
+  {
+    src: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80",
+    alt: "Swiss Alps at golden hour",
+    caption: "Swiss Alps — golden hour above the clouds",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1493246507139-91e8fad9978e?w=800&q=80",
+    alt: "Moraine Lake, Banff",
+    caption: "Moraine Lake, Banff — Canadian Rockies",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800&q=80",
+    alt: "Morning forest light",
+    caption: "Morning light, Black Forest, Germany",
+  },
+];
+
+const slides = SLIDES.map((s) => (
+  <div key={s.src} style={{ position: "relative", width: "100%", height: "100%" }}>
+    <img
+      src={s.src}
+      alt={s.alt}
+      style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+    />
+    <div style={{
+      position: "absolute", bottom: 0, left: 0, right: 0,
+      padding: "2rem 1.25rem 1rem",
+      background: "linear-gradient(to top, rgba(0,0,0,0.55), transparent)",
+    }}>
+      <p style={{ margin: 0, color: "#fff", fontSize: "0.8125rem", fontWeight: 500 }}>
+        {s.caption}
+      </p>
+    </div>
+  </div>
+));
+
+export function Gallery() {
+  return (
+    <div style={{ width: "100%", height: 360, borderRadius: 12, overflow: "hidden" }}>
+      <CarouselStyled
+        items={slides}
+        loop
+        showDots
+        showArrows
+        autoPlay
+        autoPlayInterval={4000}
+        counter
+        style={{ width: "100%", height: "100%" }}
+      />
+    </div>
+  );
+}`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Controlled index</H2>
+      <p>Use <code>index</code> and <code>onIndexChange</code> for full control over the active slide.</p>
+      <CodeBlock lang="tsx" code={`import { useState } from "react";
+import { CarouselStyled } from "@mshafiqyajid/react-carousel/styled";
+import "@mshafiqyajid/react-carousel/styles.css";
+
+export function ControlledCarousel() {
+  const [index, setIndex] = useState(0);
+  return (
+    <>
+      <p>Active: {index}</p>
+      <CarouselStyled
+        items={slides}
+        index={index}
+        onIndexChange={setIndex}
+      />
+    </>
+  );
+}`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Multi-slide view</H2>
+      <p>Show multiple slides at once with <code>slidesPerView</code> and <code>spacing</code>.</p>
+      <CodeBlock lang="tsx" code={`<CarouselStyled
+  items={slides}
+  slidesPerView={2}
+  spacing={16}
+  loop
+/>`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Headless usage</H2>
+      <CodeBlock lang="tsx" code={`import { useCarousel } from "@mshafiqyajid/react-carousel";
+
+function MyCarousel({ items }) {
+  const {
+    containerProps,
+    trackProps,
+    getSlideProps,
+    prevProps,
+    nextProps,
+    getDotProps,
+    index,
+    total,
+  } = useCarousel({
+    items,
+    loop: true,
+    autoPlay: true,
+    autoPlayInterval: 3000,
+  });
+
+  return (
+    <div {...containerProps} style={{ overflow: "hidden", position: "relative" }}>
+      <div {...trackProps} style={{ display: "flex", ...trackProps.style }}>
+        {items.map((item, i) => (
+          <div key={i} {...getSlideProps(i)}>{item}</div>
+        ))}
+      </div>
+
+      <button {...prevProps}>←</button>
+      <button {...nextProps}>→</button>
+
+      <div>
+        {Array.from({ length: total }, (_, i) => (
+          <button key={i} {...getDotProps(i)}>
+            {i === index ? "●" : "○"}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Keyboard</H2>
+      <table class="props-table">
+        <thead><tr><th>Key</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr><td>ArrowLeft / ArrowRight</td><td>Previous / next slide (horizontal)</td></tr>
+          <tr><td>ArrowUp / ArrowDown</td><td>Previous / next slide (vertical)</td></tr>
+          <tr><td>Home</td><td>First slide</td></tr>
+          <tr><td>End</td><td>Last slide</td></tr>
+          <tr><td>Tab</td><td>Focus prev/next buttons</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pkg-section">
+      <H2>Props</H2>
+      <table class="props-table">
+        <thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>items</td><td>ReactNode[]</td><td>—</td><td>Slides to render</td></tr>
+          <tr><td>index</td><td>number</td><td>—</td><td>Controlled active index</td></tr>
+          <tr><td>defaultIndex</td><td>number</td><td>0</td><td>Uncontrolled initial index</td></tr>
+          <tr><td>onIndexChange</td><td>(index: number) =&gt; void</td><td>—</td><td>Called when index changes</td></tr>
+          <tr><td>orientation</td><td>"horizontal" | "vertical"</td><td>"horizontal"</td><td>Slide axis</td></tr>
+          <tr><td>loop</td><td>boolean</td><td>true</td><td>Wrap around at boundaries</td></tr>
+          <tr><td>autoPlay</td><td>boolean</td><td>false</td><td>Auto-advance slides</td></tr>
+          <tr><td>autoPlayInterval</td><td>number</td><td>4000</td><td>Auto-advance interval in ms</td></tr>
+          <tr><td>pauseOnHover</td><td>boolean</td><td>true</td><td>Pause autoPlay on hover</td></tr>
+          <tr><td>pauseOnFocus</td><td>boolean</td><td>true</td><td>Pause autoPlay on focus</td></tr>
+          <tr><td>slidesPerView</td><td>number</td><td>1</td><td>Slides visible at once</td></tr>
+          <tr><td>spacing</td><td>number | string</td><td>0</td><td>Gap between slides</td></tr>
+          <tr><td>showDots</td><td>boolean</td><td>true</td><td>Show dot indicators</td></tr>
+          <tr><td>showArrows</td><td>boolean</td><td>true</td><td>Show prev/next arrow buttons</td></tr>
+          <tr><td>swipe</td><td>boolean</td><td>true</td><td>Enable touch swipe</td></tr>
+          <tr><td>drag</td><td>boolean</td><td>true</td><td>Enable mouse drag</td></tr>
+          <tr><td>dragThreshold</td><td>number</td><td>50</td><td>Min px distance to commit swipe</td></tr>
+          <tr><td>onSwipeStart</td><td>() =&gt; void</td><td>—</td><td>Called when drag starts</td></tr>
+          <tr><td>onSwipeEnd</td><td>(committed: boolean) =&gt; void</td><td>—</td><td>Called when drag ends</td></tr>
+          <tr><td>renderDot</td><td>(index, active) =&gt; ReactNode</td><td>—</td><td>Custom dot renderer</td></tr>
+          <tr><td>renderArrow</td><td>(dir, disabled) =&gt; ReactNode</td><td>—</td><td>Custom arrow renderer</td></tr>
+          <tr><td>className</td><td>string</td><td>—</td><td>Extra class on root element</td></tr>
+          <tr><td>style</td><td>CSSProperties</td><td>—</td><td>Inline style on root element</td></tr>
+          <tr><td>ref</td><td>Ref&lt;HTMLDivElement&gt;</td><td>—</td><td>Forwarded to root wrapper div</td></tr>
+          <tr><td>transitionEffect</td><td>"slide" | "fade"</td><td>"slide"</td><td>Slide transition style</td></tr>
+          <tr><td>peek</td><td>number | string</td><td>0</td><td>Show a sliver of adjacent slides (px or CSS string like "10%")</td></tr>
+          <tr><td>counter</td><td>boolean</td><td>false</td><td>Show "N / M" counter overlay (top-right)</td></tr>
+          <tr><td>autoPlayProgress</td><td>boolean</td><td>false</td><td>Show a progress bar filling over each autoPlay interval</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pkg-section">
+      <H2>Fade transition</H2>
+      <p>Set <code>transitionEffect="fade"</code> to crossfade between slides instead of sliding. Drag/swipe still works — dragging past the threshold commits the slide change.</p>
+      <CodeBlock lang="tsx" code={`<CarouselStyled
+  items={slides}
+  transitionEffect="fade"
+  showDots
+  autoPlay
+/>`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Peek</H2>
+      <p>Pass a <code>peek</code> value (number in px or a CSS string) to reveal the edges of the previous and next slides. The root element still clips, but the viewport lets adjacent slides bleed through.</p>
+      <CodeBlock lang="tsx" code={`<CarouselStyled
+  items={slides}
+  peek={40}
+  loop
+/>`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Counter overlay</H2>
+      <p>Enable <code>counter</code> to show a frosted-glass "N / M" pill in the top-right corner — useful when dots are hidden or as an additional visual cue.</p>
+      <CodeBlock lang="tsx" code={`<CarouselStyled
+  items={slides}
+  counter
+  showDots={false}
+/>`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>AutoPlay progress bar</H2>
+      <p>When <code>autoPlay</code> is enabled, add <code>autoPlayProgress</code> to show a thin bar at the bottom of the carousel that fills over the interval. It resets on each slide change and pauses when the carousel is paused.</p>
+      <CodeBlock lang="tsx" code={`<CarouselStyled
+  items={slides}
+  autoPlay
+  autoPlayInterval={4000}
+  autoPlayProgress
+/>`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>CSS variables</H2>
+      <CodeBlock lang="css" code={`:root {
+  --rcar-radius: 12px;
+  --rcar-arrow-size: 2.5rem;
+  --rcar-dot-size: 8px;
+  --rcar-dot-size-active: 24px;
+  --rcar-dot-gap: 6px;
+  --rcar-arrow-bg: rgba(255, 255, 255, 0.92);
+  --rcar-arrow-fg: #18181b;
+  --rcar-dot-bg: rgba(0, 0, 0, 0.22);
+  --rcar-dot-bg-active: #18181b;
+  --rcar-duration: 300ms;
+  --rcar-ease: cubic-bezier(0.32, 0.72, 0, 1);
+}`} />
+    </div>
+
+  </PackagePageShell>
+</DocLayout>

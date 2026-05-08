@@ -16,6 +16,9 @@ export const NEW_SLUGS = new Set([
   "range", "combobox", "multi-select", "form",
   "sheet", "hover-card", "context-menu", "lightbox",
   "navbar", "sidebar", "sortable",
+  "carousel", "calendar",
+  "code-block", "skeleton",
+  "virtual-list", "scroll-area",
 ]);
 
 export const categories: NavCategory[] = [
@@ -54,6 +57,7 @@ export const categories: NavCategory[] = [
       { slug: "slider",            label: "Slider",            icon: "🎛️" },
       { slug: "range",             label: "Range",             icon: "↔️" },
       { slug: "date-picker",       label: "Date Picker",       icon: "📆" },
+      { slug: "calendar",          label: "Calendar",          icon: "📅" },
       { slug: "color",             label: "Color Picker",      icon: "🎨" },
       { slug: "file-upload",       label: "File Upload",       icon: "📁" },
     ],
@@ -93,6 +97,7 @@ export const categories: NavCategory[] = [
       { slug: "kanban",            label: "Kanban",            icon: "🗂️" },
       { slug: "timeline",          label: "Timeline",          icon: "📅" },
       { slug: "tree",              label: "Tree",              icon: "🌳" },
+      { slug: "virtual-list",      label: "Virtual List",      icon: "📋" },
     ],
   },
   {
@@ -113,6 +118,7 @@ export const categories: NavCategory[] = [
       { slug: "toast",             label: "Toast",             icon: "🍞" },
       { slug: "alert",             label: "Alert",             icon: "🔔" },
       { slug: "spinner",           label: "Spinner",           icon: "⏳" },
+      { slug: "skeleton",          label: "Skeleton",          icon: "💀" },
       { slug: "empty-state",       label: "Empty State",       icon: "📭" },
     ],
   },
@@ -121,6 +127,14 @@ export const categories: NavCategory[] = [
     items: [
       { slug: "card",              label: "Card",              icon: "🃏" },
       { slug: "divider",           label: "Divider",           icon: "➖" },
+      { slug: "scroll-area",       label: "Scroll Area",       icon: "📜" },
+    ],
+  },
+  {
+    label: "Content",
+    items: [
+      { slug: "carousel",          label: "Carousel",          icon: "🎠" },
+      { slug: "code-block",        label: "Code Block",        icon: "💻" },
     ],
   },
 ];
