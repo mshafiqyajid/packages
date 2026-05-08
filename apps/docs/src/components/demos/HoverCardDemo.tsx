@@ -13,9 +13,9 @@ export default function HoverCardDemo() {
         { name: "placement",   control: { type: "segmented", options: ["auto", "top", "bottom", "left", "right"] as const }, defaultValue: "auto",  omitWhen: "auto" },
         { name: "openDelay",   control: { type: "number", min: 0, max: 1000, step: 50 },                                    defaultValue: 300,    omitWhen: 300 },
         { name: "closeDelay",  control: { type: "number", min: 0, max: 500, step: 25 },                                     defaultValue: 100,    omitWhen: 100 },
+        { name: "offset",      control: { type: "number", min: 0, max: 32, step: 2 },                                       defaultValue: 8,      omitWhen: 8 },
         { name: "arrow",       control: { type: "toggle" },                                                                  defaultValue: true,   omitWhen: true },
         { name: "flip",        control: { type: "toggle" },                                                                  defaultValue: true,   omitWhen: true },
-        { name: "shift",       control: { type: "toggle" },                                                                  defaultValue: true,   omitWhen: true },
       ]}
       staticProps={{ content: '"Hover card content"' }}
       render={(v) => (
@@ -23,9 +23,9 @@ export default function HoverCardDemo() {
           placement={v.placement as "auto" | "top" | "bottom" | "left" | "right"}
           openDelay={v.openDelay as number}
           closeDelay={v.closeDelay as number}
+          offset={v.offset as number}
           arrow={v.arrow as boolean}
           flip={v.flip as boolean}
-          shift={v.shift as boolean}
           content={
             <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
