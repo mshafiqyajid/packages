@@ -1,6 +1,6 @@
 {
   "name": "@mshafiqyajid/react-hover-card",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Headless hover card hook and styled component for React. Mouse and keyboard triggered, smart auto-placement, open/close delay, portal-based positioning, animated, SSR-safe, fully typed.",
   "keywords": [
     "react",

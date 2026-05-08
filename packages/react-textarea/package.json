@@ -1,6 +1,6 @@
 {
   "name": "@mshafiqyajid/react-textarea",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Auto-resizing textarea with character count and form-control integration.",
   "keywords": [
     "react",

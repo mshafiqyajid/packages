@@ -1,6 +1,6 @@
 {
   "name": "@mshafiqyajid/react-card",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Flexible card component with variants, tones, clickable state, and sub-components.",
   "license": "MIT",
   "author": "Shafiq Yajid",
@@ -31,8 +31,14 @@
     "./styles.css": "./dist/styles.css",
     "./package.json": "./package.json"
   },
-  "files": ["dist", "README.md", "LICENSE"],
-  "sideEffects": ["**/*.css"],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": [
+    "**/*.css"
+  ],
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",

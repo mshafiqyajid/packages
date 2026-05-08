@@ -1,6 +1,6 @@
 {
   "name": "@mshafiqyajid/react-spinner",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Accessible loading spinner with five animation variants and six tones.",
   "keywords": [
     "react",
@@ -39,8 +39,14 @@
     "./styles.css": "./dist/styles.css",
     "./package.json": "./package.json"
   },
-  "files": ["dist", "README.md", "LICENSE"],
-  "sideEffects": ["**/*.css"],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": [
+    "**/*.css"
+  ],
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
