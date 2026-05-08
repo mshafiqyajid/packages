@@ -1,0 +1,418 @@
+/* react-sidebar — rsb-
+ * Dark mode via [data-theme="dark"] ancestor only.
+ * Never @media (prefers-color-scheme: dark).
+ * All transitions respect prefers-reduced-motion.
+ */
+
+/* ─── CSS variables ─────────────────────────────────────────────────────────── */
+:root {
+  /* Palette */
+  --rsb-bg: #ffffff;
+  --rsb-fg: #18181b;
+  --rsb-fg-muted: #71717a;
+  --rsb-fg-subtle: #a1a1aa;
+  --rsb-border: #e4e4e7;
+  --rsb-accent: #6366f1;
+  --rsb-accent-bg: rgba(99, 102, 241, 0.1);
+  --rsb-hover-bg: rgba(0, 0, 0, 0.04);
+  --rsb-active-bg: rgba(99, 102, 241, 0.1);
+  --rsb-active-fg: #6366f1;
+  --rsb-disabled-opacity: 0.45;
+
+  /* Sizing */
+  --rsb-width-sm: 200px;
+  --rsb-width-md: 240px;
+  --rsb-width-lg: 280px;
+  --rsb-collapsed-width: 56px;
+
+  /* Item sizing */
+  --rsb-item-pad-y: 0.375rem;
+  --rsb-item-pad-x: 0.625rem;
+  --rsb-item-gap: 0.5rem;
+  --rsb-item-radius: 6px;
+  --rsb-item-font-size: 0.875rem;
+  --rsb-icon-size: 18px;
+  --rsb-nested-indent: 1rem;
+
+  /* Motion */
+  --rsb-duration-width: 250ms;
+  --rsb-duration-label: 150ms;
+  --rsb-duration-section: 200ms;
+  --rsb-duration-fast: 120ms;
+  --rsb-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --rsb-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+[data-theme="dark"] {
+  --rsb-bg: #18181b;
+  --rsb-fg: #fafafa;
+  --rsb-fg-muted: #a1a1aa;
+  --rsb-fg-subtle: #71717a;
+  --rsb-border: #3f3f46;
+  --rsb-accent: #818cf8;
+  --rsb-accent-bg: rgba(129, 140, 248, 0.12);
+  --rsb-hover-bg: rgba(255, 255, 255, 0.05);
+  --rsb-active-bg: rgba(129, 140, 248, 0.14);
+  --rsb-active-fg: #818cf8;
+}
+
+/* ─── Root nav ──────────────────────────────────────────────────────────────── */
+.rsb-root {
+  display: flex;
+  flex-direction: column;
+  background: var(--rsb-bg);
+  color: var(--rsb-fg);
+  font-family: inherit;
+  font-size: var(--rsb-item-font-size);
+  line-height: 1.5;
+  overflow: hidden;
+  position: relative;
+  height: 100%;
+
+  /* Width with animated collapse */
+  width: var(--rsb-width-md);
+  transition: width var(--rsb-duration-width) var(--rsb-ease);
+  will-change: width;
+}
+
+/* Size variants */
+.rsb-root[data-size="sm"] {
+  --rsb-item-font-size: 0.8125rem;
+  --rsb-item-pad-y: 0.3rem;
+  width: var(--rsb-width-sm);
+}
+.rsb-root[data-size="lg"] {
+  --rsb-item-font-size: 0.9375rem;
+  --rsb-item-pad-y: 0.45rem;
+  width: var(--rsb-width-lg);
+}
+
+/* Collapsed state */
+.rsb-root[data-collapsed] {
+  width: var(--rsb-collapsed-width);
+}
+
+/* ─── Variants ──────────────────────────────────────────────────────────────── */
+
+/* default — no border, transparent bg */
+.rsb-root[data-variant="bordered"] {
+  border-right: 1px solid var(--rsb-border);
+}
+
+.rsb-root[data-variant="filled"] {
+  background: color-mix(in srgb, var(--rsb-accent) 4%, var(--rsb-bg));
+}
+[data-theme="dark"] .rsb-root[data-variant="filled"] {
+  background: color-mix(in srgb, var(--rsb-accent) 6%, var(--rsb-bg));
+}
+
+.rsb-root[data-variant="floating"] {
+  border-radius: 12px;
+  border: 1px solid var(--rsb-border);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+  height: auto;
+}
+[data-theme="dark"] .rsb-root[data-variant="floating"] {
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+}
+
+/* ─── Header / footer ───────────────────────────────────────────────────────── */
+.rsb-header {
+  padding: 0.75rem var(--rsb-item-pad-x);
+  border-bottom: 1px solid var(--rsb-border);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.rsb-footer {
+  padding: 0.75rem var(--rsb-item-pad-x);
+  border-top: 1px solid var(--rsb-border);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+/* ─── Content area ──────────────────────────────────────────────────────────── */
+.rsb-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0.5rem 0;
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  transition: scrollbar-color var(--rsb-duration-fast) ease;
+}
+.rsb-content:hover {
+  scrollbar-color: var(--rsb-border) transparent;
+}
+.rsb-content::-webkit-scrollbar { width: 4px; }
+.rsb-content::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 2px;
+}
+.rsb-content:hover::-webkit-scrollbar-thumb { background: var(--rsb-border); }
+
+/* ─── Section ───────────────────────────────────────────────────────────────── */
+.rsb-section {
+  padding: 0 0.375rem;
+  margin-bottom: 0.25rem;
+}
+
+.rsb-section-label {
+  padding: 0.5rem 0.375rem 0.2rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--rsb-fg-subtle);
+  white-space: nowrap;
+  overflow: hidden;
+  /* Fade label out when collapsing */
+  opacity: 1;
+  transition: opacity var(--rsb-duration-label) var(--rsb-ease);
+}
+.rsb-root[data-collapsed] .rsb-section-label {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ─── Lists ─────────────────────────────────────────────────────────────────── */
+.rsb-list,
+.rsb-nested-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.rsb-nested-list {
+  overflow: hidden;
+  padding-left: var(--rsb-nested-indent);
+  /* Animated expand/collapse */
+  animation: rsb-expand var(--rsb-duration-section) var(--rsb-ease) both;
+}
+@keyframes rsb-expand {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ─── Item ──────────────────────────────────────────────────────────────────── */
+.rsb-item {
+  display: flex;
+  align-items: center;
+  gap: var(--rsb-item-gap);
+  padding: var(--rsb-item-pad-y) var(--rsb-item-pad-x);
+  border-radius: var(--rsb-item-radius);
+  color: var(--rsb-fg-muted);
+  cursor: pointer;
+  user-select: none;
+  outline: none;
+  position: relative;
+  white-space: nowrap;
+  overflow: hidden;
+  transition:
+    background var(--rsb-duration-fast) var(--rsb-ease),
+    color var(--rsb-duration-fast) var(--rsb-ease),
+    transform var(--rsb-duration-fast) var(--rsb-ease);
+  will-change: background, color;
+}
+
+.rsb-item:hover {
+  background: var(--rsb-hover-bg);
+  color: var(--rsb-fg);
+}
+.rsb-item:active {
+  transform: scale(0.98);
+}
+.rsb-item:focus-visible {
+  outline: 2px solid var(--rsb-accent);
+  outline-offset: -2px;
+}
+
+/* Active / selected */
+.rsb-item--active,
+.rsb-item[aria-current="page"] {
+  background: var(--rsb-active-bg);
+  color: var(--rsb-active-fg);
+  font-weight: 500;
+}
+.rsb-item--active:hover,
+.rsb-item[aria-current="page"]:hover {
+  background: color-mix(in srgb, var(--rsb-accent) 16%, transparent);
+}
+
+/* Disabled */
+.rsb-item--disabled {
+  opacity: var(--rsb-disabled-opacity);
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Nested */
+.rsb-item--nested {
+  font-size: 0.8125em;
+}
+
+/* ─── Icon ──────────────────────────────────────────────────────────────────── */
+.rsb-item-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--rsb-icon-size);
+  height: var(--rsb-icon-size);
+  flex-shrink: 0;
+  color: var(--rsb-fg-muted);
+  transition: color var(--rsb-duration-fast) var(--rsb-ease);
+}
+.rsb-item--active .rsb-item-icon,
+.rsb-item[aria-current="page"] .rsb-item-icon {
+  color: var(--rsb-active-fg);
+}
+.rsb-item:hover .rsb-item-icon {
+  color: var(--rsb-fg);
+}
+
+/* ─── Label ─────────────────────────────────────────────────────────────────── */
+.rsb-item-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  /* Fade out label when sidebar collapses */
+  opacity: 1;
+  max-width: 200px;
+  transition:
+    opacity var(--rsb-duration-label) var(--rsb-ease),
+    max-width var(--rsb-duration-label) var(--rsb-ease);
+}
+.rsb-root[data-collapsed] .rsb-item-label {
+  opacity: 0;
+  max-width: 0;
+  overflow: hidden;
+}
+
+/* ─── Badge ─────────────────────────────────────────────────────────────────── */
+.rsb-item-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--rsb-accent) 14%, transparent);
+  color: var(--rsb-accent);
+  font-size: 0.65rem;
+  font-weight: 700;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: opacity var(--rsb-duration-label) var(--rsb-ease);
+}
+.rsb-root[data-collapsed] .rsb-item-badge {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ─── Chevron (nested expand/collapse indicator) ─────────────────────────────── */
+.rsb-item-chevron {
+  flex-shrink: 0;
+  margin-left: auto;
+  color: var(--rsb-fg-subtle);
+  transform: rotate(-90deg);
+  transition:
+    transform var(--rsb-duration-section) var(--rsb-ease-spring),
+    opacity var(--rsb-duration-label) var(--rsb-ease);
+}
+.rsb-item-chevron--open {
+  transform: rotate(0deg);
+}
+.rsb-root[data-collapsed] .rsb-item-chevron {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ─── Item link wrapper ─────────────────────────────────────────────────────── */
+.rsb-item-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+.rsb-item-link:hover { text-decoration: none; }
+
+/* ─── Collapse button ───────────────────────────────────────────────────────── */
+.rsb-collapse-btn {
+  appearance: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 0.5rem;
+  color: var(--rsb-fg-muted);
+  border-top: 1px solid var(--rsb-border);
+  flex-shrink: 0;
+  transition:
+    background var(--rsb-duration-fast) var(--rsb-ease),
+    color var(--rsb-duration-fast) var(--rsb-ease);
+}
+.rsb-collapse-btn:hover {
+  background: var(--rsb-hover-bg);
+  color: var(--rsb-fg);
+}
+.rsb-collapse-btn:focus-visible {
+  outline: 2px solid var(--rsb-accent);
+  outline-offset: -2px;
+}
+.rsb-collapse-btn:active {
+  transform: scale(0.96);
+}
+
+/* Rotate chevron when collapsed */
+.rsb-collapse-icon {
+  transition: transform var(--rsb-duration-width) var(--rsb-ease);
+  flex-shrink: 0;
+}
+.rsb-root[data-collapsed] .rsb-collapse-icon {
+  transform: rotate(180deg);
+}
+
+/* ─── Collapsed icon-only layout ─────────────────────────────────────────────── */
+.rsb-root[data-collapsed] .rsb-item {
+  justify-content: center;
+  padding-left: 0;
+  padding-right: 0;
+}
+.rsb-root[data-collapsed] .rsb-item-icon {
+  width: var(--rsb-collapsed-width);
+  justify-content: center;
+}
+
+/* ─── Reduced motion ────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .rsb-root,
+  .rsb-item,
+  .rsb-item-label,
+  .rsb-item-badge,
+  .rsb-item-chevron,
+  .rsb-collapse-btn,
+  .rsb-collapse-icon,
+  .rsb-section-label {
+    transition: none;
+  }
+  .rsb-nested-list {
+    animation: none;
+  }
+  .rsb-item:active {
+    transform: none;
+  }
+  .rsb-collapse-btn:active {
+    transform: none;
+  }
+}

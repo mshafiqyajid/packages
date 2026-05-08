@@ -1,0 +1,211 @@
+/* ============================================================================
+ * react-sortable — styled component
+ *
+ * Dark mode via [data-theme="dark"] ancestor only.
+ * No @media (prefers-color-scheme: dark).
+ * CSS prefix: rsort-
+ * ========================================================================== */
+
+:root {
+  --rsort-bg: #f4f4f5;
+  --rsort-item-bg: #ffffff;
+  --rsort-item-fg: #18181b;
+  --rsort-item-border: #e4e4e7;
+  --rsort-item-radius: 8px;
+  --rsort-item-shadow: 0 1px 3px rgba(0, 0, 0, 0.07), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --rsort-item-shadow-drag: 0 8px 24px rgba(0, 0, 0, 0.14), 0 2px 6px rgba(0, 0, 0, 0.08);
+  --rsort-item-padding: 10px 14px;
+  --rsort-handle-color: #a1a1aa;
+  --rsort-handle-hover-color: #71717a;
+  --rsort-gap: 6px;
+  --rsort-font-size: 0.875rem;
+  --rsort-over-bg: #f0f0ff;
+  --rsort-over-border: #6366f1;
+  --rsort-active-opacity: 0.4;
+  --rsort-duration: 200ms;
+  --rsort-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --rsort-disabled-opacity: 0.5;
+  --rsort-focus-ring: 0 0 0 2px #6366f1;
+}
+
+/* ============================================================================
+ * Container
+ * ========================================================================== */
+
+.rsort-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rsort-gap);
+  padding: var(--rsort-gap);
+  background: var(--rsort-bg);
+  border-radius: calc(var(--rsort-item-radius) + 4px);
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.rsort-container--horizontal {
+  flex-direction: row;
+  align-items: stretch;
+}
+
+.rsort-container--disabled {
+  cursor: not-allowed;
+  opacity: var(--rsort-disabled-opacity);
+  pointer-events: none;
+}
+
+/* ============================================================================
+ * Item
+ * ========================================================================== */
+
+.rsort-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--rsort-gap);
+  padding: var(--rsort-item-padding);
+  background: var(--rsort-item-bg);
+  color: var(--rsort-item-fg);
+  border: 1px solid var(--rsort-item-border);
+  border-radius: var(--rsort-item-radius);
+  box-shadow: var(--rsort-item-shadow);
+  font-size: var(--rsort-font-size);
+  box-sizing: border-box;
+  cursor: grab;
+  user-select: none;
+  transition: transform var(--rsort-duration) var(--rsort-ease),
+    opacity var(--rsort-duration) var(--rsort-ease),
+    box-shadow var(--rsort-duration) var(--rsort-ease),
+    background var(--rsort-duration) var(--rsort-ease),
+    border-color var(--rsort-duration) var(--rsort-ease);
+  outline: none;
+  position: relative;
+}
+
+.rsort-container--horizontal .rsort-item {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.rsort-item:focus-visible {
+  box-shadow: var(--rsort-focus-ring);
+}
+
+.rsort-item[data-active="true"] {
+  opacity: var(--rsort-active-opacity);
+  cursor: grabbing;
+  box-shadow: var(--rsort-item-shadow);
+}
+
+.rsort-item[data-over="true"] {
+  background: var(--rsort-over-bg);
+  border-color: var(--rsort-over-border);
+}
+
+.rsort-item[data-disabled="true"] {
+  cursor: not-allowed;
+  opacity: var(--rsort-disabled-opacity);
+}
+
+/* ============================================================================
+ * Container dragging state
+ * ========================================================================== */
+
+.rsort-container[data-dragging="true"] {
+  cursor: grabbing;
+}
+
+.rsort-container[data-dragging="true"] .rsort-item {
+  cursor: grabbing;
+}
+
+/* ============================================================================
+ * Handle
+ * ========================================================================== */
+
+.rsort-handle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  color: var(--rsort-handle-color);
+  cursor: grab;
+  border-radius: 4px;
+  transition: color var(--rsort-duration) var(--rsort-ease);
+  touch-action: none;
+}
+
+.rsort-handle:hover {
+  color: var(--rsort-handle-hover-color);
+}
+
+.rsort-item[data-active="true"] .rsort-handle {
+  cursor: grabbing;
+}
+
+.rsort-container--horizontal .rsort-handle {
+  align-self: center;
+}
+
+/* ============================================================================
+ * Item content
+ * ========================================================================== */
+
+.rsort-item-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ============================================================================
+ * Live region (visually hidden, screen-reader accessible)
+ * ========================================================================== */
+
+.rsort-live-region {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+  pointer-events: none;
+}
+
+/* ============================================================================
+ * Dark mode — only via [data-theme="dark"] ancestor
+ * ========================================================================== */
+
+[data-theme="dark"] .rsort-container {
+  --rsort-bg: #18181b;
+  --rsort-item-bg: #27272a;
+  --rsort-item-fg: #f4f4f5;
+  --rsort-item-border: #3f3f46;
+  --rsort-item-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
+  --rsort-item-shadow-drag: 0 8px 24px rgba(0, 0, 0, 0.5), 0 2px 6px rgba(0, 0, 0, 0.3);
+  --rsort-handle-color: #71717a;
+  --rsort-handle-hover-color: #a1a1aa;
+  --rsort-over-bg: #312e81;
+  --rsort-over-border: #818cf8;
+  --rsort-focus-ring: 0 0 0 2px #818cf8;
+}
+
+/* ============================================================================
+ * Reduced motion — instant reorder, no transitions
+ * ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .rsort-item {
+    transition: none;
+  }
+
+  .rsort-handle {
+    transition: none;
+  }
+}

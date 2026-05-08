@@ -1,0 +1,205 @@
+---
+import DocLayout from "~/layouts/DocLayout.astro";
+import PackagePageShell from "~/components/PackagePageShell.astro";
+import H2 from "~/components/H2.astro";
+import CodeBlock from "~/components/CodeBlock.astro";
+import ComboboxDemo from "~/components/demos/ComboboxDemo";
+---
+
+<DocLayout title="react-combobox" description="Searchable combobox with async loading, option grouping, and creatable option support." pkg="combobox">
+  <PackagePageShell name="react-combobox" description="Headless combobox hook and styled component. Type-to-filter, async loadOptions with debounce, grouped options, creatable, clearable, full keyboard navigation, portal dropdown, ARIA combobox pattern." size="~8 KB">
+
+    <div class="pkg-section">
+      <H2>Playground</H2>
+      <ComboboxDemo client:load />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Install</H2>
+      <CodeBlock lang="bash" code="npm install @mshafiqyajid/react-combobox" />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Quick start</H2>
+      <CodeBlock lang="tsx" code={`import { useState } from "react";
+import { ComboboxStyled } from "@mshafiqyajid/react-combobox/styled";
+import "@mshafiqyajid/react-combobox/styles.css";
+
+const options = [
+  { value: "react",  label: "React" },
+  { value: "vue",    label: "Vue" },
+  { value: "svelte", label: "Svelte" },
+];
+
+function App() {
+  const [value, setValue] = useState<string | null>(null);
+  return (
+    <ComboboxStyled
+      options={options}
+      value={value}
+      onChange={setValue}
+      placeholder="Search frameworks…"
+      clearable
+    />
+  );
+}`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Async loadOptions</H2>
+      <CodeBlock lang="tsx" code={`<ComboboxStyled
+  value={value}
+  onChange={setValue}
+  loadOptions={async (query) => {
+    const res = await fetch(\`/api/search?q=\${encodeURIComponent(query)}\`);
+    return res.json(); // ComboboxOption[]
+  }}
+  debounceMs={300}
+  loadingText="Searching…"
+  emptyText="No results"
+  errorText="Couldn't load — try again"
+/>`} />
+      <p>Debounced on input query; stale requests cancelled via <code>AbortController</code>. Hook exposes <code>isLoading</code> and <code>loadError</code>; listbox sets <code>aria-busy</code> while in flight.</p>
+    </div>
+
+    <div class="pkg-section">
+      <H2>Grouped options</H2>
+      <CodeBlock lang="tsx" code={`const options = [
+  { value: "react",  label: "React",  group: "Frontend" },
+  { value: "vue",    label: "Vue",    group: "Frontend" },
+  { value: "django", label: "Django", group: "Backend" },
+  { value: "rails",  label: "Rails",  group: "Backend" },
+];
+
+<ComboboxStyled options={options} value={value} onChange={setValue} />`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Creatable</H2>
+      <CodeBlock lang="tsx" code={`<ComboboxStyled
+  options={options}
+  value={value}
+  onChange={setValue}
+  creatable
+  createLabel={(q) => \`Add "\${q}"\`}
+  onCreateOption={(newValue) => {
+    // add to your options list and set value
+    setOptions((prev) => [...prev, { value: newValue, label: newValue }]);
+    setValue(newValue);
+  }}
+/>`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Form fields</H2>
+      <CodeBlock lang="tsx" code={`<ComboboxStyled
+  options={options}
+  value={value}
+  onChange={setValue}
+  label="Framework"
+  hint="Choose your primary framework"
+  placeholder="Search…"
+  required
+/>
+
+{/* With validation error */}
+<ComboboxStyled
+  options={options}
+  value={value}
+  onChange={setValue}
+  label="Framework"
+  invalid
+  error="Please select a framework"
+/>`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Headless</H2>
+      <CodeBlock lang="tsx" code={`import { useCombobox } from "@mshafiqyajid/react-combobox";
+
+const options = [
+  { value: "react", label: "React" },
+  { value: "vue",   label: "Vue" },
+];
+
+const {
+  inputProps,
+  listboxProps,
+  getOptionProps,
+  isOpen,
+  filteredOptions,
+  selectedOption,
+  clearSelection,
+} = useCombobox({ options, value, onChange });
+
+return (
+  <div style={{ position: "relative" }}>
+    <input {...inputProps} placeholder="Search…" />
+    {isOpen && (
+      <ul {...listboxProps} className="listbox">
+        {filteredOptions.map((opt, i) => (
+          <li key={opt.value} {...getOptionProps(opt, i)}>
+            {opt.label}
+          </li>
+        ))}
+      </ul>
+    )}
+  </div>
+);`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>API</H2>
+      <table class="props-table">
+        <thead>
+          <tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>value</td><td>string | null</td><td>—</td><td>Controlled selected value</td></tr>
+          <tr><td>defaultValue</td><td>string</td><td>—</td><td>Uncontrolled initial value</td></tr>
+          <tr><td>onChange</td><td>(v: string | null) =&gt; void</td><td>—</td><td>Called when selection changes</td></tr>
+          <tr><td>options</td><td>ComboboxOption[]</td><td>[]</td><td>Static options. Each: {`{ value, label, disabled?, group? }`}</td></tr>
+          <tr><td>loadOptions</td><td>(q: string) =&gt; Promise&lt;ComboboxOption[]&gt;</td><td>—</td><td>Async option loader (debounced, cancellable)</td></tr>
+          <tr><td>debounceMs</td><td>number</td><td>300</td><td>Debounce delay for loadOptions</td></tr>
+          <tr><td>placeholder</td><td>string</td><td>"Search…"</td><td>Input placeholder</td></tr>
+          <tr><td>emptyText</td><td>string</td><td>"No options"</td><td>Message when no options match</td></tr>
+          <tr><td>loadingText</td><td>string</td><td>"Loading…"</td><td>Message while loading async options</td></tr>
+          <tr><td>errorText</td><td>string</td><td>—</td><td>Message on load error</td></tr>
+          <tr><td>creatable</td><td>boolean</td><td>false</td><td>Show a "Create" option for unmatched queries</td></tr>
+          <tr><td>createLabel</td><td>(q: string) =&gt; string</td><td>—</td><td>Custom label for the create option</td></tr>
+          <tr><td>onCreateOption</td><td>(v: string) =&gt; void</td><td>—</td><td>Called when user confirms creating a new option</td></tr>
+          <tr><td>clearable</td><td>boolean</td><td>true</td><td>Show clear button when a value is selected</td></tr>
+          <tr><td>size</td><td>"sm" | "md" | "lg"</td><td>"md"</td><td>Control size (32 / 40 / 48 px)</td></tr>
+          <tr><td>tone</td><td>"neutral" | "primary" | "success" | "danger"</td><td>"neutral"</td><td>Color tone applied to focus ring and selected state</td></tr>
+          <tr><td>disabled</td><td>boolean</td><td>false</td><td>Disable the combobox</td></tr>
+          <tr><td>readOnly</td><td>boolean</td><td>false</td><td>Input is read-only</td></tr>
+          <tr><td>required</td><td>boolean</td><td>false</td><td>Marks the field as required</td></tr>
+          <tr><td>invalid</td><td>boolean</td><td>false</td><td>Show error state styling</td></tr>
+          <tr><td>label</td><td>string</td><td>—</td><td>Label text above the control</td></tr>
+          <tr><td>hint</td><td>string</td><td>—</td><td>Hint text below the control</td></tr>
+          <tr><td>error</td><td>string</td><td>—</td><td>Error message below the control</td></tr>
+          <tr><td>placement</td><td>"auto" | "top" | "bottom"</td><td>"auto"</td><td>Dropdown side. "auto" picks bottom unless there isn't room.</td></tr>
+          <tr><td>offset</td><td>number</td><td>4</td><td>Gap (px) between control and dropdown</td></tr>
+          <tr><td>flip</td><td>boolean</td><td>true</td><td>Auto-flip when there isn't room on the chosen side</td></tr>
+          <tr><td>renderOption</td><td>(opt, state) =&gt; ReactNode</td><td>—</td><td>Custom option renderer</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pkg-section">
+      <H2>Keyboard</H2>
+      <table class="props-table">
+        <thead><tr><th>Key</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr><td>Type</td><td>Filter options by query</td></tr>
+          <tr><td>ArrowDown / ArrowUp</td><td>Navigate options</td></tr>
+          <tr><td>Enter</td><td>Select focused option (or trigger create)</td></tr>
+          <tr><td>Escape</td><td>Close dropdown / clear query</td></tr>
+          <tr><td>Backspace (empty)</td><td>Clear current selection</td></tr>
+          <tr><td>Tab</td><td>Close dropdown</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </PackagePageShell>
+</DocLayout>

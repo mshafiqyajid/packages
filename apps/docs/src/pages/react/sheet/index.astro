@@ -1,0 +1,219 @@
+---
+import DocLayout from "~/layouts/DocLayout.astro";
+import PackagePageShell from "~/components/PackagePageShell.astro";
+import H2 from "~/components/H2.astro";
+import CodeBlock from "~/components/CodeBlock.astro";
+import SheetDemo from "~/components/demos/SheetDemo";
+---
+
+<DocLayout title="react-sheet" description="Accessible bottom/side sheet with snap points, swipe-to-dismiss, focus trap, and smooth spring animations." pkg="sheet">
+  <PackagePageShell name="react-sheet" description="Headless hook and styled sheet component for React. Bottom, top, left, and right positions, snap points, swipe-to-dismiss, focus trap, body scroll lock, Escape to close, and smooth spring slide animations. Zero dependencies." size="~6 KB">
+
+    <div class="pkg-section">
+      <H2>Playground</H2>
+      <SheetDemo client:load />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Install</H2>
+      <CodeBlock lang="bash" code="npm install @mshafiqyajid/react-sheet" />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Quick start</H2>
+      <CodeBlock lang="tsx" code={`import { useState } from "react";
+import { SheetStyled } from "@mshafiqyajid/react-sheet/styled";
+import "@mshafiqyajid/react-sheet/styles.css";
+
+const [open, setOpen] = useState(false);
+
+<button onClick={() => setOpen(true)}>Open sheet</button>
+
+<SheetStyled
+  open={open}
+  onOpenChange={setOpen}
+  title="Options"
+  footer={<button onClick={() => setOpen(false)}>Done</button>}
+>
+  <p>Sheet content goes here.</p>
+</SheetStyled>`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Side variants</H2>
+      <p>Set <code>side</code> to control which edge the sheet slides in from. Default is <code>"bottom"</code>.</p>
+      <CodeBlock lang="tsx" code={`<SheetStyled open={open} onOpenChange={setOpen} side="right" title="Settings">
+  <p>Slides in from the right.</p>
+</SheetStyled>
+
+<SheetStyled open={open} onOpenChange={setOpen} side="top" title="Notifications">
+  <p>Slides down from the top.</p>
+</SheetStyled>
+
+<SheetStyled open={open} onOpenChange={setOpen} side="left" title="Navigation">
+  <p>Slides in from the left.</p>
+</SheetStyled>`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Snap points</H2>
+      <p>Pass <code>snapPoints</code> to allow the sheet to snap to intermediate heights. Drag past the last snap point to dismiss.</p>
+      <CodeBlock lang="tsx" code={`<SheetStyled
+  open={open}
+  onOpenChange={setOpen}
+  snapPoints={["40vh", "80vh"]}
+  defaultSnapPoint="40vh"
+  onSnapPointChange={(snap) => console.log("snapped to", snap)}
+>
+  <p>Drag up to expand to 80 vh, drag past threshold to dismiss.</p>
+</SheetStyled>`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Swipe-to-dismiss</H2>
+      <p><code>swipeToDismiss</code> is enabled by default. Set a custom <code>swipeThreshold</code> (pixels) if needed.</p>
+      <CodeBlock lang="tsx" code={`<SheetStyled
+  open={open}
+  onOpenChange={setOpen}
+  swipeToDismiss={true}
+  swipeThreshold={80}
+>
+  <p>Drag more than 80 px to dismiss.</p>
+</SheetStyled>
+
+{/* Disable swipe */}
+<SheetStyled open={open} onOpenChange={setOpen} swipeToDismiss={false}>
+  <p>Swipe disabled — use the overlay or Escape to close.</p>
+</SheetStyled>`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Focus management</H2>
+      <p>Focus is trapped inside the sheet while open and returned to the previously-focused element on close. Override with <code>initialFocusRef</code> and <code>finalFocusRef</code>.</p>
+      <CodeBlock lang="tsx" code={`const inputRef = useRef<HTMLInputElement>(null);
+const triggerRef = useRef<HTMLButtonElement>(null);
+
+<button ref={triggerRef} onClick={() => setOpen(true)}>Open</button>
+
+<SheetStyled
+  open={open}
+  onOpenChange={setOpen}
+  initialFocusRef={inputRef}
+  finalFocusRef={triggerRef}
+>
+  <input ref={inputRef} placeholder="Focused on open" />
+</SheetStyled>`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Lifecycle callbacks</H2>
+      <CodeBlock lang="tsx" code={`<SheetStyled
+  open={open}
+  onOpenChange={setOpen}
+  onAfterOpen={() => console.log("sheet fully open")}
+  onAfterClose={() => console.log("sheet fully closed")}
+>
+  <p>Content</p>
+</SheetStyled>`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Headless</H2>
+      <CodeBlock lang="tsx" code={`import { useSheet } from "@mshafiqyajid/react-sheet";
+
+const { isOpen, open, close, sheetProps, overlayProps, handleProps, dragY } = useSheet({
+  swipeToDismiss: true,
+  swipeThreshold: 60,
+});
+
+<button onClick={open}>Open</button>
+
+{isOpen && (
+  <div {...overlayProps} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)" }}>
+    <div
+      {...sheetProps}
+      style={{
+        position: "fixed",
+        bottom: 0, left: 0, right: 0,
+        background: "#fff",
+        borderRadius: "16px 16px 0 0",
+        padding: "1rem",
+        transform: dragY > 0 ? \`translateY(\${dragY}px)\` : undefined,
+      }}
+    >
+      <div {...handleProps} style={{ width: 40, height: 5, background: "#ccc", borderRadius: 9999, margin: "0 auto 1rem" }} />
+      <p>Headless sheet with drag tracking.</p>
+      <button onClick={close}>Close</button>
+    </div>
+  </div>
+)}`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>API</H2>
+      <table class="props-table">
+        <thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>open</td><td>boolean</td><td>—</td><td>Controlled open state</td></tr>
+          <tr><td>defaultOpen</td><td>boolean</td><td>false</td><td>Uncontrolled default open state</td></tr>
+          <tr><td>onOpenChange</td><td>(open: boolean) =&gt; void</td><td>—</td><td>Called when open state changes</td></tr>
+          <tr><td>onAfterOpen</td><td>() =&gt; void</td><td>—</td><td>Fires after the open transition completes</td></tr>
+          <tr><td>onAfterClose</td><td>() =&gt; void</td><td>—</td><td>Fires after the close transition completes</td></tr>
+          <tr><td>side</td><td>"bottom" | "top" | "left" | "right"</td><td>"bottom"</td><td>Which edge the sheet slides from</td></tr>
+          <tr><td>snapPoints</td><td>(string | number)[]</td><td>—</td><td>Snap heights/widths e.g. <code>["40vh", "80vh"]</code></td></tr>
+          <tr><td>defaultSnapPoint</td><td>string | number</td><td>—</td><td>Initial snap point value</td></tr>
+          <tr><td>onSnapPointChange</td><td>(snap: string | number) =&gt; void</td><td>—</td><td>Called when the active snap point changes</td></tr>
+          <tr><td>swipeToDismiss</td><td>boolean</td><td>true</td><td>Allow drag-to-dismiss</td></tr>
+          <tr><td>swipeThreshold</td><td>number</td><td>50</td><td>Pixel drag distance required to dismiss</td></tr>
+          <tr><td>closeOnOverlayClick</td><td>boolean</td><td>true</td><td>Close when clicking the overlay backdrop</td></tr>
+          <tr><td>closeOnEsc</td><td>boolean</td><td>true</td><td>Close on Escape key</td></tr>
+          <tr><td>showHandle</td><td>boolean</td><td>true</td><td>Show the drag handle pill (hidden on left/right)</td></tr>
+          <tr><td>title</td><td>ReactNode</td><td>—</td><td>Sheet heading — omit to hide the header</td></tr>
+          <tr><td>description</td><td>ReactNode</td><td>—</td><td>Accessible description linked via aria-describedby</td></tr>
+          <tr><td>footer</td><td>ReactNode</td><td>—</td><td>Footer content — omit to hide footer</td></tr>
+          <tr><td>children</td><td>ReactNode</td><td>—</td><td>Scrollable body content</td></tr>
+          <tr><td>initialFocusRef</td><td>RefObject&lt;HTMLElement&gt;</td><td>—</td><td>Element to focus when sheet opens</td></tr>
+          <tr><td>finalFocusRef</td><td>RefObject&lt;HTMLElement&gt;</td><td>—</td><td>Element to focus when sheet closes</td></tr>
+          <tr><td>lockBodyScroll</td><td>boolean</td><td>true</td><td>Lock body scroll while sheet is open</td></tr>
+          <tr><td>container</td><td>HTMLElement | null</td><td>document.body</td><td>Override the portal container</td></tr>
+          <tr><td>className</td><td>string</td><td>—</td><td>Extra class on the panel element</td></tr>
+          <tr><td>style</td><td>CSSProperties</td><td>—</td><td>Inline style on the panel element</td></tr>
+          <tr><td>ref</td><td>forwarded</td><td>—</td><td>Forwarded to the panel <code>div</code></td></tr>
+        </tbody>
+      </table>
+
+      <h3>Data attributes</h3>
+      <table class="props-table">
+        <thead><tr><th>Attribute</th><th>Values</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>data-side</td><td>"bottom" | "top" | "left" | "right"</td><td>Current side — on both overlay and panel</td></tr>
+          <tr><td>data-state</td><td>"open" | "closed"</td><td>Visibility state — on both overlay and panel</td></tr>
+          <tr><td>data-swiping</td><td>"true" | undefined</td><td>Present on panel while pointer drag is active</td></tr>
+        </tbody>
+      </table>
+
+      <h3>useSheet options &amp; return</h3>
+      <table class="props-table">
+        <thead><tr><th>Key</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>open</td><td>boolean</td><td>Controlled open state</td></tr>
+          <tr><td>defaultOpen</td><td>boolean</td><td>Uncontrolled default (false)</td></tr>
+          <tr><td>onOpenChange</td><td>(open: boolean) =&gt; void</td><td>Open change callback</td></tr>
+          <tr><td>closeOnEsc</td><td>boolean</td><td>Close on Escape (true)</td></tr>
+          <tr><td>swipeToDismiss</td><td>boolean</td><td>Track pointer drag (true)</td></tr>
+          <tr><td>swipeThreshold</td><td>number</td><td>Dismiss threshold in px (50)</td></tr>
+          <tr><td>lockBodyScroll</td><td>boolean</td><td>Lock body scroll (true)</td></tr>
+          <tr><td colspan="3"><em>Returns:</em></td></tr>
+          <tr><td>isOpen</td><td>boolean</td><td>Current open state</td></tr>
+          <tr><td>open</td><td>() =&gt; void</td><td>Open the sheet</td></tr>
+          <tr><td>close</td><td>() =&gt; void</td><td>Close the sheet</td></tr>
+          <tr><td>toggle</td><td>() =&gt; void</td><td>Toggle open/closed</td></tr>
+          <tr><td>sheetProps</td><td>SheetProps</td><td>Spread onto panel element (role, aria-*, tabIndex, id)</td></tr>
+          <tr><td>overlayProps</td><td>OverlayProps</td><td>Spread onto overlay element</td></tr>
+          <tr><td>handleProps</td><td>HandleProps</td><td>Spread onto drag handle element</td></tr>
+          <tr><td>dragY</td><td>number</td><td>Current drag offset in pixels (0 when idle)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </PackagePageShell>
+</DocLayout>

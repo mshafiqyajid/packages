@@ -1,0 +1,231 @@
+---
+import DocLayout from "~/layouts/DocLayout.astro";
+import PackagePageShell from "~/components/PackagePageShell.astro";
+import H2 from "~/components/H2.astro";
+import CodeBlock from "~/components/CodeBlock.astro";
+import FormDemo from "~/components/demos/FormDemo";
+---
+<DocLayout title="react-form" description="Headless form state management with validation, error handling, and accessible field wrappers for React." pkg="form">
+  <PackagePageShell name="react-form" description="Headless useForm hook + styled Form component. Sync/async validation, validateOn strategies, controlled mode, full ARIA wiring, error animations, and zero runtime dependencies." size="~5 KB">
+
+    <div class="pkg-section"><H2>Demo</H2><FormDemo client:load /></div>
+
+    <div class="pkg-section"><H2>Install</H2><CodeBlock lang="bash" code="npm install @mshafiqyajid/react-form" /></div>
+
+    <div class="pkg-section"><H2>Quick start — styled</H2>
+      <CodeBlock lang="tsx" code={`import { Form } from "@mshafiqyajid/react-form/styled";
+import "@mshafiqyajid/react-form/styles.css";
+
+<Form
+  defaultValues={{ email: "", password: "" }}
+  validate={(values) => {
+    const errors: Record<string, string> = {};
+    if (!values.email) errors.email = "Email is required";
+    if (String(values.password).length < 8)
+      errors.password = "At least 8 characters";
+    return errors;
+  }}
+  onSubmit={async (values) => {
+    await login(values.email as string, values.password as string);
+  }}
+>
+  {(form) => (
+    <>
+      <Form.Field name="email" label="Email" hint="Work email preferred" required>
+        <input type="email" {...form.register("email", { required: true })} />
+      </Form.Field>
+
+      <Form.Field name="password" label="Password" required>
+        <input type="password" {...form.register("password", { required: true })} />
+      </Form.Field>
+
+      <Form.Submit>Sign in</Form.Submit>
+    </>
+  )}
+</Form>`} />
+    </div>
+
+    <div class="pkg-section"><H2>Headless</H2>
+      <CodeBlock lang="tsx" code={`import { useForm } from "@mshafiqyajid/react-form";
+
+const { register, handleSubmit, formState } = useForm({
+  defaultValues: { email: "", password: "" },
+  validate: (values) => {
+    const errors: Record<string, string> = {};
+    if (!values.email) errors.email = "Email is required";
+    if (!values.password) errors.password = "Password is required";
+    return errors;
+  },
+  onSubmit: async (values, helpers) => {
+    await login(values.email as string, values.password as string);
+    helpers.reset();
+  },
+});
+
+return (
+  <form onSubmit={handleSubmit} noValidate aria-busy={formState.isSubmitting}>
+    <div>
+      <label htmlFor="rfrm-field-email">Email</label>
+      <input type="email" {...register("email")} />
+      {formState.errors.email && (
+        <span role="alert">{formState.errors.email}</span>
+      )}
+    </div>
+    <div>
+      <label htmlFor="rfrm-field-password">Password</label>
+      <input type="password" {...register("password")} />
+      {formState.errors.password && (
+        <span role="alert">{formState.errors.password}</span>
+      )}
+    </div>
+    <button type="submit" disabled={formState.isSubmitting}>
+      {formState.isSubmitting ? "Signing in…" : "Sign in"}
+    </button>
+  </form>
+);`} />
+    </div>
+
+    <div class="pkg-section"><H2>Async validation</H2>
+      <CodeBlock lang="tsx" code={`<Form
+  defaultValues={{ username: "" }}
+  validate={async (values) => {
+    const taken = await checkUsernameTaken(values.username as string);
+    return taken ? { username: "Username is already taken" } : {};
+  }}
+  validateOn="blur"
+  revalidateOn="change"
+  onSubmit={handleSubmit}
+>
+  {(form) => (
+    <>
+      <Form.Field name="username" label="Username" required>
+        <input {...form.register("username", { required: true })} />
+      </Form.Field>
+      <Form.Submit>Create account</Form.Submit>
+    </>
+  )}
+</Form>`} />
+    </div>
+
+    <div class="pkg-section"><H2>Controlled mode</H2>
+      <CodeBlock lang="tsx" code={`const [formValues, setFormValues] = useState({ search: "" });
+
+<Form
+  values={formValues}
+  onSubmit={(values) => console.log(values)}
+>
+  {(form) => (
+    <>
+      <Form.Field name="search" label="Search">
+        <input
+          {...form.register("search")}
+          onChange={(e) => setFormValues({ search: e.target.value })}
+        />
+      </Form.Field>
+      <Form.Submit>Search</Form.Submit>
+    </>
+  )}
+</Form>`} />
+    </div>
+
+    <div class="pkg-section"><H2>Programmatic control</H2>
+      <CodeBlock lang="tsx" code={`const { setValue, setError, clearErrors, reset, watch, formState } = useForm({
+  defaultValues: { role: "viewer" },
+});
+
+// Read current value
+const role = watch("role");
+
+// Set a value programmatically
+setValue("role", "admin");
+
+// Set a server-side error
+setError("email", "This email is already in use");
+
+// Clear a specific error
+clearErrors("email");
+
+// Clear all errors
+clearErrors();
+
+// Reset to defaults
+reset();
+
+// Reset to different values
+reset({ role: "editor" });`} />
+    </div>
+
+    <div class="pkg-section"><H2>useForm options</H2>
+      <table class="props-table"><thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+        <tr><td>defaultValues</td><td>Record&lt;string, unknown&gt;</td><td>{"{}"}</td><td>Initial uncontrolled values</td></tr>
+        <tr><td>values</td><td>Record&lt;string, unknown&gt;</td><td>—</td><td>Fully controlled values (external source of truth)</td></tr>
+        <tr><td>validate</td><td>(values) =&gt; Record&lt;string, string&gt; | Promise&lt;…&gt;</td><td>—</td><td>Returns a map of field name → error message</td></tr>
+        <tr><td>validateOn</td><td>"blur" | "change" | "submit"</td><td>"submit"</td><td>When to run validation for the first time</td></tr>
+        <tr><td>revalidateOn</td><td>"blur" | "change"</td><td>"change"</td><td>When to re-validate a field that already has an error</td></tr>
+        <tr><td>onSubmit</td><td>(values, helpers) =&gt; void | Promise&lt;void&gt;</td><td>—</td><td>Called only when validation passes. Receives current values and helpers.</td></tr>
+        <tr><td>onError</td><td>(errors) =&gt; void</td><td>—</td><td>Called when submit is blocked by validation errors</td></tr>
+      </tbody></table>
+    </div>
+
+    <div class="pkg-section"><H2>formState</H2>
+      <table class="props-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
+        <tr><td>isSubmitting</td><td>boolean</td><td>True while the onSubmit promise is pending</td></tr>
+        <tr><td>isValid</td><td>boolean</td><td>No validation errors currently present</td></tr>
+        <tr><td>isDirty</td><td>boolean</td><td>Any value differs from defaultValues</td></tr>
+        <tr><td>errors</td><td>Record&lt;string, string&gt;</td><td>Current field errors (field name → message)</td></tr>
+        <tr><td>touchedFields</td><td>Record&lt;string, boolean&gt;</td><td>Fields that have been blurred at least once</td></tr>
+        <tr><td>dirtyFields</td><td>Record&lt;string, boolean&gt;</td><td>Fields whose current value differs from their default</td></tr>
+      </tbody></table>
+    </div>
+
+    <div class="pkg-section"><H2>Form.Field props</H2>
+      <table class="props-table"><thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+        <tr><td>name</td><td>string</td><td>—</td><td>Field name — must match the key in your values object</td></tr>
+        <tr><td>label</td><td>string</td><td>—</td><td>Rendered as a &lt;label&gt; wired to the field's id</td></tr>
+        <tr><td>hint</td><td>string</td><td>—</td><td>Helper text shown below the input (hidden when there is an error)</td></tr>
+        <tr><td>required</td><td>boolean</td><td>false</td><td>Appends a red * to the label</td></tr>
+        <tr><td>className</td><td>string</td><td>—</td><td>Extra class on the field wrapper</td></tr>
+        <tr><td>style</td><td>CSSProperties</td><td>—</td><td>Inline style on the field wrapper</td></tr>
+        <tr><td>children</td><td>ReactNode</td><td>—</td><td>The input element(s)</td></tr>
+      </tbody></table>
+      <p class="pkg-note">Data attributes on the field wrapper: <code>data-invalid="true"</code> when there's an error, <code>data-touched="true"</code> after the first blur, <code>data-dirty="true"</code> when the value differs from the default. A shake animation plays when a field first becomes invalid on submit.</p>
+    </div>
+
+    <div class="pkg-section"><H2>Form.Submit props</H2>
+      <table class="props-table"><thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+        <tr><td>children</td><td>ReactNode</td><td>"Submit"</td><td>Button label</td></tr>
+        <tr><td>disabled</td><td>boolean</td><td>false</td><td>Force disabled state</td></tr>
+        <tr><td>className</td><td>string</td><td>—</td><td>Extra class</td></tr>
+        <tr><td>style</td><td>CSSProperties</td><td>—</td><td>Inline style</td></tr>
+      </tbody></table>
+      <p class="pkg-note">The submit button automatically sets <code>disabled</code> and <code>aria-busy="true"</code> while the form is submitting, and shows a spinner next to the label.</p>
+    </div>
+
+    <div class="pkg-section"><H2>ARIA</H2>
+      <p><code>register(name)</code> automatically wires <code>aria-invalid</code>, <code>aria-describedby</code> (pointing to the hint and error elements), and <code>aria-required</code> based on the <code>required</code> option. The form root gets <code>aria-busy="true"</code> while submitting. Error elements receive <code>role="alert"</code> so screen readers announce them immediately.</p>
+    </div>
+
+    <div class="pkg-section"><H2>CSS variables</H2>
+      <table class="props-table"><thead><tr><th>Variable</th><th>Default</th><th>Description</th></tr></thead><tbody>
+        <tr><td>--rfrm-submit-bg</td><td>#6366f1</td><td>Submit button background</td></tr>
+        <tr><td>--rfrm-submit-fg</td><td>#ffffff</td><td>Submit button text colour</td></tr>
+        <tr><td>--rfrm-submit-bg-hover</td><td>#4f46e5</td><td>Submit button hover background</td></tr>
+        <tr><td>--rfrm-submit-bg-disabled</td><td>#a5b4fc</td><td>Submit button disabled background</td></tr>
+        <tr><td>--rfrm-submit-radius</td><td>8px</td><td>Submit button border radius</td></tr>
+        <tr><td>--rfrm-label-fg</td><td>#3f3f46</td><td>Label text colour</td></tr>
+        <tr><td>--rfrm-label-font-size</td><td>0.875rem</td><td>Label font size</td></tr>
+        <tr><td>--rfrm-label-font-weight</td><td>500</td><td>Label font weight</td></tr>
+        <tr><td>--rfrm-hint-fg</td><td>#71717a</td><td>Hint text colour</td></tr>
+        <tr><td>--rfrm-hint-font-size</td><td>0.75rem</td><td>Hint font size</td></tr>
+        <tr><td>--rfrm-error-fg</td><td>#dc2626</td><td>Error text colour</td></tr>
+        <tr><td>--rfrm-error-border</td><td>#dc2626</td><td>Error border colour (for custom inputs)</td></tr>
+        <tr><td>--rfrm-required-fg</td><td>#dc2626</td><td>Required asterisk colour</td></tr>
+        <tr><td>--rfrm-form-gap</td><td>1.25rem</td><td>Vertical gap between fields</td></tr>
+        <tr><td>--rfrm-field-gap</td><td>0.3rem</td><td>Gap within a field (label → input → hint)</td></tr>
+        <tr><td>--rfrm-duration</td><td>150ms</td><td>Animation duration</td></tr>
+      </tbody></table>
+      <p class="pkg-note">Dark mode tokens are applied automatically when a <code>[data-theme="dark"]</code> ancestor is present. Never uses <code>@media (prefers-color-scheme: dark)</code>.</p>
+    </div>
+
+  </PackagePageShell>
+</DocLayout>

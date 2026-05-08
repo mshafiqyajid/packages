@@ -1,0 +1,155 @@
+/* ============================================================================
+ * react-hover-card — styled component
+ *
+ * HoverCard is portalled to document.body — position is set via inline style.
+ * Themable via CSS variables. Dark mode via [data-theme="dark"] ancestor.
+ * ========================================================================== */
+
+:root {
+  --rhc-bg: #ffffff;
+  --rhc-fg: #18181b;
+  --rhc-border: #e4e4e7;
+  --rhc-radius: 10px;
+  --rhc-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.08);
+  --rhc-duration-in: 180ms;
+  --rhc-duration-out: 120ms;
+  --rhc-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --rhc-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --rhc-arrow-size: 6px;
+  --rhc-min-width: 220px;
+  --rhc-max-width: 360px;
+  --rhc-padding: 1rem;
+}
+
+/* ============================================================================
+ * Card bubble
+ * ========================================================================== */
+.rhc-card {
+  /* position + top/left set via inline style from JS */
+  pointer-events: auto;
+  width: max-content;
+  min-width: var(--rhc-min-width);
+  max-width: var(--rhc-max-width);
+
+  background: var(--rhc-bg);
+  color: var(--rhc-fg);
+  border: 1px solid var(--rhc-border);
+  border-radius: var(--rhc-radius);
+  box-shadow: var(--rhc-shadow);
+  overflow: visible;
+
+  opacity: 0;
+  scale: 0.95;
+  transition:
+    opacity var(--rhc-duration-out) var(--rhc-ease),
+    scale var(--rhc-duration-out) var(--rhc-ease),
+    translate var(--rhc-duration-out) var(--rhc-ease);
+}
+
+.rhc-card[data-state="open"] {
+  opacity: 1;
+  scale: 1;
+  transition:
+    opacity var(--rhc-duration-in) var(--rhc-ease-spring),
+    scale var(--rhc-duration-in) var(--rhc-ease-spring),
+    translate var(--rhc-duration-in) var(--rhc-ease-spring);
+}
+
+/* Slide-in animation per placement */
+.rhc-card[data-placement="top"]    { translate: 0 4px; }
+.rhc-card[data-placement="bottom"] { translate: 0 -4px; }
+.rhc-card[data-placement="left"]   { translate: 4px 0; }
+.rhc-card[data-placement="right"]  { translate: -4px 0; }
+
+.rhc-card[data-placement^="top"][data-state="open"],
+.rhc-card[data-placement^="bottom"][data-state="open"],
+.rhc-card[data-placement^="left"][data-state="open"],
+.rhc-card[data-placement^="right"][data-state="open"] {
+  translate: 0 0;
+}
+
+/* Transform origin tracks placement for scale origin */
+.rhc-card[data-placement^="top"]    { transform-origin: bottom center; }
+.rhc-card[data-placement^="bottom"] { transform-origin: top center; }
+.rhc-card[data-placement^="left"]   { transform-origin: center right; }
+.rhc-card[data-placement^="right"]  { transform-origin: center left; }
+
+/* ============================================================================
+ * Content
+ * ========================================================================== */
+.rhc-content {
+  padding: var(--rhc-padding);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--rhc-fg);
+}
+
+/* ============================================================================
+ * Arrow — ::after pseudo-element, rotated square
+ * ========================================================================== */
+.rhc-card[data-arrow="true"]::after {
+  content: "";
+  position: absolute;
+  width: calc(var(--rhc-arrow-size) * 2);
+  height: calc(var(--rhc-arrow-size) * 2);
+  background: var(--rhc-arrow-bg, var(--rhc-bg));
+  border: 1px solid var(--rhc-arrow-border, var(--rhc-border));
+  rotate: 45deg;
+  border-radius: 2px;
+  z-index: -1;
+}
+
+.rhc-card[data-arrow="true"][data-placement^="top"]::after {
+  bottom: calc(var(--rhc-arrow-size) * -1 + 1px);
+  left: 50%;
+  translate: -50% 0;
+  border-top: none;
+  border-left: none;
+}
+
+.rhc-card[data-arrow="true"][data-placement^="bottom"]::after {
+  top: calc(var(--rhc-arrow-size) * -1 + 1px);
+  left: 50%;
+  translate: -50% 0;
+  border-bottom: none;
+  border-right: none;
+}
+
+.rhc-card[data-arrow="true"][data-placement^="left"]::after {
+  right: calc(var(--rhc-arrow-size) * -1 + 1px);
+  top: 50%;
+  translate: 0 -50%;
+  border-left: none;
+  border-bottom: none;
+}
+
+.rhc-card[data-arrow="true"][data-placement^="right"]::after {
+  left: calc(var(--rhc-arrow-size) * -1 + 1px);
+  top: 50%;
+  translate: 0 -50%;
+  border-right: none;
+  border-top: none;
+}
+
+/* ============================================================================
+ * Dark mode — [data-theme="dark"] only, no prefers-color-scheme
+ * ========================================================================== */
+[data-theme="dark"] {
+  --rhc-bg: #18181b;
+  --rhc-fg: #fafafa;
+  --rhc-border: #3f3f46;
+  --rhc-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+
+/* ============================================================================
+ * Reduced motion
+ * ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .rhc-card {
+    transition:
+      opacity var(--rhc-duration-out) ease,
+      opacity var(--rhc-duration-in) ease;
+    scale: 1 !important;
+    translate: 0 0 !important;
+  }
+}

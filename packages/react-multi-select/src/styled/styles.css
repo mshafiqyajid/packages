@@ -1,0 +1,844 @@
+/* ============================================================================
+ * react-multi-select — styled component
+ *
+ * Themable via CSS variables. Override on :root or scope to a wrapper.
+ * Dark mode: set data-theme="dark" on any ancestor element.
+ * ========================================================================== */
+
+.rmsel-root {
+  --rmsel-fg: #18181b;
+  --rmsel-fg-muted: #71717a;
+  --rmsel-fg-placeholder: #a1a1aa;
+  --rmsel-bg: #ffffff;
+  --rmsel-bg-hover: #f4f4f5;
+  --rmsel-bg-item-hover: #f4f4f5;
+  --rmsel-bg-item-focused: #eff6ff;
+  --rmsel-bg-item-selected: #eff6ff;
+  --rmsel-bg-select-all: #f8faff;
+  --rmsel-bg-disabled: #f4f4f5;
+  --rmsel-border: #e4e4e7;
+  --rmsel-border-hover: #d4d4d8;
+  --rmsel-border-focus: #6366f1;
+  --rmsel-border-invalid: #dc2626;
+  --rmsel-ring: rgba(99, 102, 241, 0.25);
+  --rmsel-ring-invalid: rgba(220, 38, 38, 0.2);
+  --rmsel-chip-bg: #e0e7ff;
+  --rmsel-chip-fg: #3730a3;
+  --rmsel-chip-border: #c7d2fe;
+  --rmsel-checkbox-bg: #ffffff;
+  --rmsel-checkbox-border: #d4d4d8;
+  --rmsel-checkbox-checked-bg: #6366f1;
+  --rmsel-checkbox-checked-fg: #ffffff;
+  --rmsel-count-bg: #e0e7ff;
+  --rmsel-count-fg: #3730a3;
+  --rmsel-radius: 8px;
+  --rmsel-radius-sm: 5px;
+  --rmsel-dropdown-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.07),
+    0 10px 30px -5px rgba(0, 0, 0, 0.1),
+    0 0 0 1px rgba(0, 0, 0, 0.04);
+
+  --rmsel-height: 2.5rem;       /* md = 40px */
+  --rmsel-font-size: 0.875rem;
+  --rmsel-padding-x: 0.75rem;
+  --rmsel-padding-y: 0.4rem;
+  --rmsel-item-height: 2.25rem;
+  --rmsel-chip-gap: 0.25rem;
+  --rmsel-duration: 180ms;
+  --rmsel-ease: cubic-bezier(0.32, 0.72, 0, 1);
+
+  display: inline-flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-family: inherit;
+  font-size: var(--rmsel-font-size);
+  color: var(--rmsel-fg);
+  width: 280px;
+}
+
+/* ============================================================================
+ * Sizes
+ * ========================================================================== */
+.rmsel-root[data-size="sm"] {
+  --rmsel-height: 2rem;         /* 32px */
+  --rmsel-font-size: 0.8125rem;
+  --rmsel-padding-x: 0.625rem;
+  --rmsel-padding-y: 0.3rem;
+  --rmsel-item-height: 2rem;
+  --rmsel-radius: 6px;
+}
+
+.rmsel-root[data-size="lg"] {
+  --rmsel-height: 3rem;         /* 48px */
+  --rmsel-font-size: 1rem;
+  --rmsel-padding-x: 1rem;
+  --rmsel-padding-y: 0.55rem;
+  --rmsel-item-height: 2.75rem;
+  --rmsel-radius: 10px;
+}
+
+/* ============================================================================
+ * Tones
+ * ========================================================================== */
+.rmsel-root[data-tone="neutral"] {
+  --rmsel-border-focus: #71717a;
+  --rmsel-ring: rgba(113, 113, 122, 0.25);
+  --rmsel-bg-item-focused: #f4f4f5;
+  --rmsel-bg-item-selected: #f4f4f5;
+  --rmsel-bg-select-all: #fafafa;
+  --rmsel-chip-bg: #e4e4e7;
+  --rmsel-chip-fg: #27272a;
+  --rmsel-chip-border: #d4d4d8;
+  --rmsel-checkbox-checked-bg: #52525b;
+  --rmsel-count-bg: #e4e4e7;
+  --rmsel-count-fg: #27272a;
+}
+
+.rmsel-root[data-tone="primary"] {
+  --rmsel-border-focus: #6366f1;
+  --rmsel-ring: rgba(99, 102, 241, 0.25);
+  --rmsel-bg-item-focused: #eff6ff;
+  --rmsel-bg-item-selected: #eff6ff;
+  --rmsel-bg-select-all: #f8faff;
+  --rmsel-chip-bg: #e0e7ff;
+  --rmsel-chip-fg: #3730a3;
+  --rmsel-chip-border: #c7d2fe;
+  --rmsel-checkbox-checked-bg: #6366f1;
+  --rmsel-count-bg: #e0e7ff;
+  --rmsel-count-fg: #3730a3;
+}
+
+.rmsel-root[data-tone="success"] {
+  --rmsel-border-focus: #16a34a;
+  --rmsel-ring: rgba(34, 197, 94, 0.25);
+  --rmsel-bg-item-focused: #f0fdf4;
+  --rmsel-bg-item-selected: #f0fdf4;
+  --rmsel-bg-select-all: #f8fff9;
+  --rmsel-chip-bg: #dcfce7;
+  --rmsel-chip-fg: #14532d;
+  --rmsel-chip-border: #bbf7d0;
+  --rmsel-checkbox-checked-bg: #16a34a;
+  --rmsel-count-bg: #dcfce7;
+  --rmsel-count-fg: #14532d;
+}
+
+.rmsel-root[data-tone="danger"] {
+  --rmsel-border-focus: #dc2626;
+  --rmsel-ring: rgba(239, 68, 68, 0.25);
+  --rmsel-bg-item-focused: #fef2f2;
+  --rmsel-bg-item-selected: #fef2f2;
+  --rmsel-bg-select-all: #fff8f8;
+  --rmsel-chip-bg: #fee2e2;
+  --rmsel-chip-fg: #7f1d1d;
+  --rmsel-chip-border: #fecaca;
+  --rmsel-checkbox-checked-bg: #dc2626;
+  --rmsel-count-bg: #fee2e2;
+  --rmsel-count-fg: #7f1d1d;
+}
+
+/* ============================================================================
+ * Label + hint + error
+ * ========================================================================== */
+.rmsel-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--rmsel-fg);
+  line-height: 1.4;
+}
+
+.rmsel-required {
+  color: var(--rmsel-border-invalid);
+}
+
+.rmsel-hint {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--rmsel-fg-muted);
+  line-height: 1.5;
+}
+
+.rmsel-error-msg {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--rmsel-border-invalid);
+  line-height: 1.5;
+}
+
+/* ============================================================================
+ * Trigger button
+ * ========================================================================== */
+.rmsel-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: var(--rmsel-height);
+  padding: var(--rmsel-padding-y) var(--rmsel-padding-x);
+  font: inherit;
+  font-size: var(--rmsel-font-size);
+  color: var(--rmsel-fg);
+  background: var(--rmsel-bg);
+  border: 1.5px solid var(--rmsel-border);
+  border-radius: var(--rmsel-radius);
+  cursor: pointer;
+  text-align: left;
+  gap: 0.5rem;
+  outline: none;
+  transition:
+    border-color var(--rmsel-duration) var(--rmsel-ease),
+    box-shadow var(--rmsel-duration) var(--rmsel-ease),
+    background-color var(--rmsel-duration) var(--rmsel-ease);
+}
+
+.rmsel-trigger:hover:not(:disabled) {
+  border-color: var(--rmsel-border-hover);
+  background: var(--rmsel-bg-hover);
+}
+
+.rmsel-trigger:focus-visible {
+  border-color: var(--rmsel-border-focus);
+  box-shadow: 0 0 0 3px var(--rmsel-ring);
+}
+
+.rmsel-root[data-open="true"] .rmsel-trigger {
+  border-color: var(--rmsel-border-focus);
+  box-shadow: 0 0 0 3px var(--rmsel-ring);
+}
+
+.rmsel-root[data-invalid="true"] .rmsel-trigger {
+  border-color: var(--rmsel-border-invalid);
+}
+
+.rmsel-root[data-invalid="true"] .rmsel-trigger:focus-visible,
+.rmsel-root[data-invalid="true"][data-open="true"] .rmsel-trigger {
+  box-shadow: 0 0 0 3px var(--rmsel-ring-invalid);
+}
+
+.rmsel-trigger:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  background: var(--rmsel-bg-disabled);
+}
+
+/* ============================================================================
+ * Trigger content
+ * ========================================================================== */
+.rmsel-trigger-content {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.rmsel-placeholder {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--rmsel-fg-placeholder);
+}
+
+.rmsel-count-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15em 0.55em;
+  background: var(--rmsel-count-bg);
+  color: var(--rmsel-count-fg);
+  border-radius: 999px;
+  font-size: 0.85em;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.rmsel-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--rmsel-chip-gap);
+  min-width: 0;
+}
+
+.rmsel-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.1em 0.35em 0.1em 0.5em;
+  background: var(--rmsel-chip-bg);
+  color: var(--rmsel-chip-fg);
+  border: 1px solid var(--rmsel-chip-border);
+  border-radius: 4px;
+  font-size: 0.8em;
+  line-height: 1.4;
+  max-width: 160px;
+  animation: rmsel-chip-in 180ms var(--rmsel-ease) both;
+}
+
+.rmsel-chip-label {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.rmsel-chip-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  padding: 0;
+  font: inherit;
+  color: currentColor;
+  opacity: 0.6;
+  background: none;
+  border: none;
+  border-radius: 2px;
+  cursor: pointer;
+  line-height: 1;
+  transition: opacity var(--rmsel-duration) var(--rmsel-ease);
+}
+
+.rmsel-chip-remove:hover {
+  opacity: 1;
+}
+
+/* ============================================================================
+ * Actions (clear + arrow)
+ * ========================================================================== */
+.rmsel-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-shrink: 0;
+  color: var(--rmsel-fg-muted);
+}
+
+.rmsel-clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+  cursor: pointer;
+  color: var(--rmsel-fg-muted);
+  transition:
+    color var(--rmsel-duration) var(--rmsel-ease),
+    background-color var(--rmsel-duration) var(--rmsel-ease);
+}
+
+.rmsel-clear:hover {
+  color: var(--rmsel-fg);
+  background: var(--rmsel-bg-hover);
+}
+
+.rmsel-arrow {
+  display: inline-flex;
+  align-items: center;
+  pointer-events: none;
+}
+
+.rmsel-arrow-icon {
+  transition: transform var(--rmsel-duration) var(--rmsel-ease);
+}
+
+.rmsel-root[data-open="true"] .rmsel-arrow-icon {
+  transform: rotate(180deg);
+}
+
+/* ============================================================================
+ * Dropdown (portalled to body — inherits no parent variables)
+ * ========================================================================== */
+.rmsel-dropdown {
+  --rmsel-fg: #18181b;
+  --rmsel-fg-muted: #71717a;
+  --rmsel-fg-placeholder: #a1a1aa;
+  --rmsel-bg: #ffffff;
+  --rmsel-bg-hover: #f4f4f5;
+  --rmsel-bg-item-hover: #f4f4f5;
+  --rmsel-bg-item-focused: #eff6ff;
+  --rmsel-bg-item-selected: #eff6ff;
+  --rmsel-bg-select-all: #f8faff;
+  --rmsel-border: #e4e4e7;
+  --rmsel-border-hover: #d4d4d8;
+  --rmsel-border-focus: #6366f1;
+  --rmsel-checkbox-bg: #ffffff;
+  --rmsel-checkbox-border: #d4d4d8;
+  --rmsel-checkbox-checked-bg: #6366f1;
+  --rmsel-checkbox-checked-fg: #ffffff;
+  --rmsel-radius: 8px;
+  --rmsel-radius-sm: 5px;
+  --rmsel-font-size: 0.875rem;
+  --rmsel-item-height: 2.25rem;
+  --rmsel-duration: 180ms;
+  --rmsel-ease: cubic-bezier(0.32, 0.72, 0, 1);
+  --rmsel-dropdown-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.07),
+    0 10px 30px -5px rgba(0, 0, 0, 0.1),
+    0 0 0 1px rgba(0, 0, 0, 0.04);
+
+  background: var(--rmsel-bg);
+  border-radius: var(--rmsel-radius);
+  box-shadow: var(--rmsel-dropdown-shadow);
+  overflow: hidden;
+  opacity: 0;
+  transform: scaleY(0.94) translateY(-6px);
+  transform-origin: top center;
+  pointer-events: none;
+  transition:
+    opacity var(--rmsel-duration) var(--rmsel-ease),
+    transform var(--rmsel-duration) var(--rmsel-ease);
+  font-family: inherit;
+  font-size: var(--rmsel-font-size);
+  color: var(--rmsel-fg);
+  min-width: 200px;
+}
+
+.rmsel-dropdown[data-open="true"] {
+  opacity: 1;
+  transform: scaleY(1) translateY(0);
+  pointer-events: auto;
+}
+
+.rmsel-dropdown[data-placement="top"] {
+  transform-origin: bottom center;
+}
+
+.rmsel-dropdown[data-placement="top"]:not([data-open="true"]) {
+  transform: scaleY(0.94) translateY(6px);
+}
+
+.rmsel-dropdown[data-size="sm"] {
+  --rmsel-font-size: 0.8125rem;
+  --rmsel-item-height: 2rem;
+  --rmsel-radius: 6px;
+}
+
+.rmsel-dropdown[data-size="lg"] {
+  --rmsel-font-size: 1rem;
+  --rmsel-item-height: 2.75rem;
+  --rmsel-radius: 10px;
+}
+
+/* Tones applied to portalled dropdown */
+.rmsel-dropdown[data-tone="neutral"] {
+  --rmsel-border-focus: #71717a;
+  --rmsel-bg-item-focused: #f4f4f5;
+  --rmsel-bg-item-selected: #f4f4f5;
+  --rmsel-bg-select-all: #fafafa;
+  --rmsel-checkbox-checked-bg: #52525b;
+}
+
+.rmsel-dropdown[data-tone="primary"] {
+  --rmsel-border-focus: #6366f1;
+  --rmsel-bg-item-focused: #eff6ff;
+  --rmsel-bg-item-selected: #eff6ff;
+  --rmsel-bg-select-all: #f8faff;
+  --rmsel-checkbox-checked-bg: #6366f1;
+}
+
+.rmsel-dropdown[data-tone="success"] {
+  --rmsel-border-focus: #16a34a;
+  --rmsel-bg-item-focused: #f0fdf4;
+  --rmsel-bg-item-selected: #f0fdf4;
+  --rmsel-bg-select-all: #f8fff9;
+  --rmsel-checkbox-checked-bg: #16a34a;
+}
+
+.rmsel-dropdown[data-tone="danger"] {
+  --rmsel-border-focus: #dc2626;
+  --rmsel-bg-item-focused: #fef2f2;
+  --rmsel-bg-item-selected: #fef2f2;
+  --rmsel-bg-select-all: #fff8f8;
+  --rmsel-checkbox-checked-bg: #dc2626;
+}
+
+/* ============================================================================
+ * Search input
+ * ========================================================================== */
+.rmsel-search-wrapper {
+  padding: 0.375rem 0.5rem;
+  border-bottom: 1px solid var(--rmsel-border);
+}
+
+.rmsel-search {
+  width: 100%;
+  padding: 0.3rem 0.5rem;
+  font: inherit;
+  font-size: var(--rmsel-font-size);
+  color: var(--rmsel-fg);
+  background: var(--rmsel-bg);
+  border: 1.5px solid var(--rmsel-border);
+  border-radius: var(--rmsel-radius-sm);
+  outline: none;
+  box-sizing: border-box;
+  transition:
+    border-color var(--rmsel-duration) var(--rmsel-ease),
+    box-shadow var(--rmsel-duration) var(--rmsel-ease);
+}
+
+.rmsel-search::placeholder {
+  color: var(--rmsel-fg-placeholder);
+}
+
+.rmsel-search:focus {
+  border-color: var(--rmsel-border-focus);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.15);
+}
+
+/* ============================================================================
+ * Listbox + items
+ * ========================================================================== */
+.rmsel-listbox {
+  list-style: none;
+  margin: 0;
+  padding: 0.25rem;
+  max-height: 260px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--rmsel-border) transparent;
+}
+
+.rmsel-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: var(--rmsel-item-height);
+  padding: 0 0.6rem;
+  border-radius: calc(var(--rmsel-radius) - 2px);
+  cursor: pointer;
+  user-select: none;
+  transition:
+    background-color var(--rmsel-duration) var(--rmsel-ease);
+}
+
+.rmsel-option:hover:not([data-disabled="true"]) {
+  background: var(--rmsel-bg-item-hover);
+}
+
+.rmsel-option[data-focused="true"]:not([data-disabled="true"]) {
+  background: var(--rmsel-bg-item-focused);
+  outline: 2px solid var(--rmsel-border-focus);
+  outline-offset: -2px;
+}
+
+.rmsel-option[data-selected="true"] {
+  background: var(--rmsel-bg-item-selected);
+}
+
+.rmsel-option[data-disabled="true"] {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Checkbox indicator */
+.rmsel-option-checkbox {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid var(--rmsel-checkbox-border);
+  border-radius: 3px;
+  background: var(--rmsel-checkbox-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background-color var(--rmsel-duration) var(--rmsel-ease),
+    border-color var(--rmsel-duration) var(--rmsel-ease);
+  color: var(--rmsel-checkbox-checked-fg);
+}
+
+.rmsel-option[data-selected="true"] .rmsel-option-checkbox {
+  background: var(--rmsel-checkbox-checked-bg);
+  border-color: var(--rmsel-checkbox-checked-bg);
+}
+
+.rmsel-option-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-weight: 400;
+}
+
+.rmsel-option[data-selected="true"] .rmsel-option-label {
+  font-weight: 500;
+}
+
+/* ============================================================================
+ * Select-all row
+ * ========================================================================== */
+.rmsel-select-all {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: var(--rmsel-item-height);
+  padding: 0 0.6rem;
+  border-radius: calc(var(--rmsel-radius) - 2px);
+  cursor: pointer;
+  user-select: none;
+  background: var(--rmsel-bg-select-all);
+  border-bottom: 1px solid var(--rmsel-border);
+  margin-bottom: 0.2rem;
+  transition: background-color var(--rmsel-duration) var(--rmsel-ease);
+}
+
+.rmsel-select-all:hover {
+  background: var(--rmsel-bg-item-hover);
+}
+
+.rmsel-option-checkbox--all {
+  border-radius: 3px;
+}
+
+.rmsel-select-all[data-all-selected="true"] .rmsel-option-checkbox--all,
+.rmsel-select-all[data-indeterminate="true"] .rmsel-option-checkbox--all {
+  background: var(--rmsel-checkbox-checked-bg);
+  border-color: var(--rmsel-checkbox-checked-bg);
+  color: var(--rmsel-checkbox-checked-fg);
+}
+
+/* ============================================================================
+ * Empty state
+ * ========================================================================== */
+.rmsel-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.5rem;
+  color: var(--rmsel-fg-muted);
+  font-size: var(--rmsel-font-size);
+  padding: 0.75rem 0.5rem;
+  cursor: default;
+  user-select: none;
+}
+
+/* ============================================================================
+ * Groups
+ * ========================================================================== */
+.rmsel-group {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.rmsel-group-label {
+  padding: 0.35rem 0.6rem 0.2rem;
+  font-size: 0.72em;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--rmsel-fg-muted);
+  user-select: none;
+}
+
+.rmsel-group-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* ============================================================================
+ * Animations
+ * ========================================================================== */
+@keyframes rmsel-chip-in {
+  from {
+    transform: scale(0.75);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes rmsel-option-in {
+  from {
+    opacity: 0;
+    transform: translateY(-3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.rmsel-dropdown[data-open="true"] .rmsel-option,
+.rmsel-dropdown[data-open="true"] .rmsel-select-all {
+  animation: rmsel-option-in 160ms var(--rmsel-ease) both;
+}
+
+.rmsel-dropdown[data-open="true"] .rmsel-option:nth-child(1)  { animation-delay:   0ms; }
+.rmsel-dropdown[data-open="true"] .rmsel-option:nth-child(2)  { animation-delay:  20ms; }
+.rmsel-dropdown[data-open="true"] .rmsel-option:nth-child(3)  { animation-delay:  40ms; }
+.rmsel-dropdown[data-open="true"] .rmsel-option:nth-child(4)  { animation-delay:  60ms; }
+.rmsel-dropdown[data-open="true"] .rmsel-option:nth-child(5)  { animation-delay:  80ms; }
+.rmsel-dropdown[data-open="true"] .rmsel-option:nth-child(n+6) { animation-delay: 100ms; }
+
+/* ============================================================================
+ * Dark mode — data-theme="dark" on any ancestor
+ * ========================================================================== */
+[data-theme="dark"] .rmsel-root {
+  --rmsel-fg: #fafafa;
+  --rmsel-fg-muted: #a1a1aa;
+  --rmsel-fg-placeholder: #71717a;
+  --rmsel-bg: #18181b;
+  --rmsel-bg-hover: #27272a;
+  --rmsel-bg-item-hover: #27272a;
+  --rmsel-bg-item-focused: #1e1b4b;
+  --rmsel-bg-item-selected: #1e1b4b;
+  --rmsel-bg-select-all: #1c1c22;
+  --rmsel-bg-disabled: #27272a;
+  --rmsel-border: #3f3f46;
+  --rmsel-border-hover: #52525b;
+  --rmsel-border-focus: #818cf8;
+  --rmsel-border-invalid: #f87171;
+  --rmsel-ring: rgba(129, 140, 248, 0.3);
+  --rmsel-ring-invalid: rgba(248, 113, 113, 0.25);
+  --rmsel-chip-bg: #312e81;
+  --rmsel-chip-fg: #c7d2fe;
+  --rmsel-chip-border: #4338ca;
+  --rmsel-checkbox-bg: #27272a;
+  --rmsel-checkbox-border: #52525b;
+  --rmsel-checkbox-checked-bg: #818cf8;
+  --rmsel-checkbox-checked-fg: #1e1b4b;
+  --rmsel-count-bg: #312e81;
+  --rmsel-count-fg: #c7d2fe;
+}
+
+[data-theme="dark"] .rmsel-root[data-tone="neutral"] {
+  --rmsel-border-focus: #a1a1aa;
+  --rmsel-ring: rgba(161, 161, 170, 0.3);
+  --rmsel-bg-item-focused: #27272a;
+  --rmsel-bg-item-selected: #27272a;
+  --rmsel-bg-select-all: #222224;
+  --rmsel-chip-bg: #3f3f46;
+  --rmsel-chip-fg: #d4d4d8;
+  --rmsel-chip-border: #52525b;
+  --rmsel-checkbox-checked-bg: #a1a1aa;
+  --rmsel-checkbox-checked-fg: #09090b;
+  --rmsel-count-bg: #3f3f46;
+  --rmsel-count-fg: #d4d4d8;
+}
+
+[data-theme="dark"] .rmsel-root[data-tone="primary"] {
+  --rmsel-border-focus: #818cf8;
+  --rmsel-ring: rgba(129, 140, 248, 0.3);
+  --rmsel-bg-item-focused: #1e1b4b;
+  --rmsel-bg-item-selected: #1e1b4b;
+  --rmsel-bg-select-all: #1c1c22;
+  --rmsel-chip-bg: #312e81;
+  --rmsel-chip-fg: #c7d2fe;
+  --rmsel-chip-border: #4338ca;
+  --rmsel-checkbox-checked-bg: #818cf8;
+  --rmsel-checkbox-checked-fg: #1e1b4b;
+  --rmsel-count-bg: #312e81;
+  --rmsel-count-fg: #c7d2fe;
+}
+
+[data-theme="dark"] .rmsel-root[data-tone="success"] {
+  --rmsel-border-focus: #4ade80;
+  --rmsel-ring: rgba(74, 222, 128, 0.3);
+  --rmsel-bg-item-focused: #052e16;
+  --rmsel-bg-item-selected: #052e16;
+  --rmsel-bg-select-all: #061a0e;
+  --rmsel-chip-bg: #14532d;
+  --rmsel-chip-fg: #86efac;
+  --rmsel-chip-border: #166534;
+  --rmsel-checkbox-checked-bg: #4ade80;
+  --rmsel-checkbox-checked-fg: #052e16;
+  --rmsel-count-bg: #14532d;
+  --rmsel-count-fg: #86efac;
+}
+
+[data-theme="dark"] .rmsel-root[data-tone="danger"] {
+  --rmsel-border-focus: #f87171;
+  --rmsel-ring: rgba(248, 113, 113, 0.3);
+  --rmsel-bg-item-focused: #450a0a;
+  --rmsel-bg-item-selected: #450a0a;
+  --rmsel-bg-select-all: #2c0606;
+  --rmsel-chip-bg: #7f1d1d;
+  --rmsel-chip-fg: #fca5a5;
+  --rmsel-chip-border: #991b1b;
+  --rmsel-checkbox-checked-bg: #f87171;
+  --rmsel-checkbox-checked-fg: #450a0a;
+  --rmsel-count-bg: #7f1d1d;
+  --rmsel-count-fg: #fca5a5;
+}
+
+/* Dark mode portalled dropdown */
+[data-theme="dark"] .rmsel-dropdown {
+  --rmsel-fg: #fafafa;
+  --rmsel-fg-muted: #a1a1aa;
+  --rmsel-fg-placeholder: #71717a;
+  --rmsel-bg: #18181b;
+  --rmsel-bg-hover: #27272a;
+  --rmsel-bg-item-hover: #27272a;
+  --rmsel-bg-item-focused: #1e1b4b;
+  --rmsel-bg-item-selected: #1e1b4b;
+  --rmsel-bg-select-all: #1c1c22;
+  --rmsel-border: #3f3f46;
+  --rmsel-border-hover: #52525b;
+  --rmsel-border-focus: #818cf8;
+  --rmsel-checkbox-bg: #27272a;
+  --rmsel-checkbox-border: #52525b;
+  --rmsel-checkbox-checked-bg: #818cf8;
+  --rmsel-checkbox-checked-fg: #1e1b4b;
+  --rmsel-dropdown-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.35),
+    0 10px 30px -5px rgba(0, 0, 0, 0.45),
+    0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+
+[data-theme="dark"] .rmsel-dropdown[data-tone="neutral"] {
+  --rmsel-border-focus: #a1a1aa;
+  --rmsel-bg-item-focused: #27272a;
+  --rmsel-bg-item-selected: #27272a;
+  --rmsel-bg-select-all: #222224;
+  --rmsel-checkbox-checked-bg: #a1a1aa;
+  --rmsel-checkbox-checked-fg: #09090b;
+}
+
+[data-theme="dark"] .rmsel-dropdown[data-tone="primary"] {
+  --rmsel-border-focus: #818cf8;
+  --rmsel-bg-item-focused: #1e1b4b;
+  --rmsel-bg-item-selected: #1e1b4b;
+  --rmsel-bg-select-all: #1c1c22;
+  --rmsel-checkbox-checked-bg: #818cf8;
+  --rmsel-checkbox-checked-fg: #1e1b4b;
+}
+
+[data-theme="dark"] .rmsel-dropdown[data-tone="success"] {
+  --rmsel-border-focus: #4ade80;
+  --rmsel-bg-item-focused: #052e16;
+  --rmsel-bg-item-selected: #052e16;
+  --rmsel-bg-select-all: #061a0e;
+  --rmsel-checkbox-checked-bg: #4ade80;
+  --rmsel-checkbox-checked-fg: #052e16;
+}
+
+[data-theme="dark"] .rmsel-dropdown[data-tone="danger"] {
+  --rmsel-border-focus: #f87171;
+  --rmsel-bg-item-focused: #450a0a;
+  --rmsel-bg-item-selected: #450a0a;
+  --rmsel-bg-select-all: #2c0606;
+  --rmsel-checkbox-checked-bg: #f87171;
+  --rmsel-checkbox-checked-fg: #450a0a;
+}
+
+/* ============================================================================
+ * Reduced motion
+ * ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .rmsel-trigger,
+  .rmsel-dropdown,
+  .rmsel-option,
+  .rmsel-select-all,
+  .rmsel-arrow-icon,
+  .rmsel-chip,
+  .rmsel-option-checkbox {
+    transition-duration: 0ms !important;
+    animation: none !important;
+  }
+}

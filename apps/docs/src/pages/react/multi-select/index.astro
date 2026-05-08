@@ -1,0 +1,196 @@
+---
+import DocLayout from "~/layouts/DocLayout.astro";
+import PackagePageShell from "~/components/PackagePageShell.astro";
+import H2 from "~/components/H2.astro";
+import CodeBlock from "~/components/CodeBlock.astro";
+import MultiSelectDemo from "~/components/demos/MultiSelectDemo";
+---
+
+<DocLayout title="react-multi-select" description="Multi-selection dropdown with chips, search, select-all, and group support." pkg="multi-select">
+  <PackagePageShell name="react-multi-select" description="Headless hook and styled multi-select dropdown for React. Chips display, count badge, searchable, select-all with indeterminate state, grouped options, max selection limit, label/hint/error form control support, portal positioning, and full keyboard navigation." size="~9 KB">
+
+    <div class="pkg-section">
+      <H2>Playground</H2>
+      <MultiSelectDemo client:load />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Install</H2>
+      <CodeBlock lang="bash" code="npm install @mshafiqyajid/react-multi-select" />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Quick start</H2>
+      <CodeBlock lang="tsx" code={`import { MultiSelectStyled } from "@mshafiqyajid/react-multi-select/styled";
+import "@mshafiqyajid/react-multi-select/styles.css";
+import { useState } from "react";
+
+const options = [
+  { value: "react",   label: "React" },
+  { value: "vue",     label: "Vue" },
+  { value: "svelte",  label: "Svelte" },
+];
+
+const [value, setValue] = useState<string[]>([]);
+
+<MultiSelectStyled
+  options={options}
+  value={value}
+  onChange={setValue}
+  placeholder="Select frameworks…"
+/>`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Grouped options</H2>
+      <p>Add a <code>group</code> key to any option — the dropdown renders section headers automatically.</p>
+      <CodeBlock lang="tsx" code={`const options = [
+  { value: "react",  label: "React",   group: "Frontend" },
+  { value: "vue",    label: "Vue",     group: "Frontend" },
+  { value: "nextjs", label: "Next.js", group: "Full-stack" },
+  { value: "nuxt",   label: "Nuxt",    group: "Full-stack" },
+];
+
+<MultiSelectStyled options={options} value={value} onChange={setValue} />`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Max selection</H2>
+      <CodeBlock lang="tsx" code={`<MultiSelectStyled
+  options={options}
+  value={value}
+  onChange={setValue}
+  maxSelected={3}
+  placeholder="Pick up to 3…"
+/>`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Trigger modes</H2>
+      <p><code>triggerMode="auto"</code> shows chips up to <code>maxChips</code> (default 3), then switches to a count badge. Use <code>"chips"</code> to always show pills, or <code>"count"</code> to always show the badge.</p>
+      <CodeBlock lang="tsx" code={`// Auto (default): chips up to 3, then "N selected"
+<MultiSelectStyled triggerMode="auto" maxChips={3} ... />
+
+// Always chips
+<MultiSelectStyled triggerMode="chips" ... />
+
+// Always count
+<MultiSelectStyled triggerMode="count" ... />`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Form control</H2>
+      <CodeBlock lang="tsx" code={`<MultiSelectStyled
+  options={options}
+  value={value}
+  onChange={setValue}
+  label="Frameworks"
+  hint="Select all that apply."
+  required
+/>
+
+// With validation error
+<MultiSelectStyled
+  options={options}
+  value={value}
+  onChange={setValue}
+  label="Frameworks"
+  error="Please select at least one framework."
+  invalid
+/>`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Custom option render</H2>
+      <CodeBlock lang="tsx" code={`<MultiSelectStyled
+  options={options}
+  value={value}
+  onChange={setValue}
+  renderOption={(option, { selected, focused }) => (
+    <span style={{ display: "flex", gap: "0.5rem", width: "100%" }}>
+      <span style={{ color: selected ? "#6366f1" : "#a1a1aa" }}>
+        {selected ? "✓" : "○"}
+      </span>
+      <span style={{ fontWeight: selected ? 600 : undefined }}>
+        {option.label}
+      </span>
+    </span>
+  )}
+/>`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>Headless hook</H2>
+      <CodeBlock lang="tsx" code={`import { useMultiSelect } from "@mshafiqyajid/react-multi-select";
+
+const options = [
+  { value: "react", label: "React" },
+  { value: "vue",   label: "Vue" },
+];
+
+const {
+  triggerProps,
+  listboxProps,
+  getOptionProps,
+  isOpen,
+  selectedValues,
+  isAllSelected,
+  isIndeterminate,
+  selectAll,
+  clearAll,
+  filteredOptions,
+} = useMultiSelect({ options });
+
+return (
+  <>
+    <button {...triggerProps}>
+      {selectedValues.length > 0 ? \`\${selectedValues.length} selected\` : "Select…"}
+    </button>
+    {isOpen && (
+      <ul {...listboxProps}>
+        {filteredOptions.map((opt) => (
+          <li key={opt.value} {...getOptionProps(opt)}>
+            {opt.label}
+          </li>
+        ))}
+      </ul>
+    )}
+  </>
+);`} />
+    </div>
+
+    <div class="pkg-section">
+      <H2>API</H2>
+      <table class="props-table">
+        <thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>options</td><td>MultiSelectOption[]</td><td>—</td><td>Array of {`{ value, label, group?, disabled? }`}</td></tr>
+          <tr><td>value</td><td>string[]</td><td>—</td><td>Controlled selected values</td></tr>
+          <tr><td>defaultValue</td><td>string[]</td><td>[]</td><td>Uncontrolled initial selection</td></tr>
+          <tr><td>onChange</td><td>(v: string[]) =&gt; void</td><td>—</td><td>Called when selection changes</td></tr>
+          <tr><td>placeholder</td><td>string</td><td>"Select options…"</td><td>Trigger placeholder</td></tr>
+          <tr><td>searchable</td><td>boolean</td><td>true</td><td>Show search input</td></tr>
+          <tr><td>searchPlaceholder</td><td>string</td><td>"Search…"</td><td>Search input placeholder</td></tr>
+          <tr><td>emptyText</td><td>string</td><td>"No results."</td><td>Text when no options match search</td></tr>
+          <tr><td>showSelectAll</td><td>boolean</td><td>true</td><td>Show select-all option</td></tr>
+          <tr><td>maxSelected</td><td>number</td><td>—</td><td>Maximum selections allowed</td></tr>
+          <tr><td>clearable</td><td>boolean</td><td>true</td><td>Show clear-all button</td></tr>
+          <tr><td>triggerMode</td><td>"chips" | "count" | "auto"</td><td>"auto"</td><td>How selections appear in trigger</td></tr>
+          <tr><td>maxChips</td><td>number</td><td>3</td><td>Chip count before switching to badge (auto mode)</td></tr>
+          <tr><td>size</td><td>"sm" | "md" | "lg"</td><td>"md"</td><td>Height: 32 / 40 / 48px</td></tr>
+          <tr><td>tone</td><td>"neutral" | "primary" | "success" | "danger"</td><td>"neutral"</td><td>Color tone</td></tr>
+          <tr><td>disabled</td><td>boolean</td><td>false</td><td>Disable interaction</td></tr>
+          <tr><td>required</td><td>boolean</td><td>false</td><td>Mark as required</td></tr>
+          <tr><td>invalid</td><td>boolean</td><td>false</td><td>Show invalid state</td></tr>
+          <tr><td>label</td><td>string</td><td>—</td><td>Label above trigger</td></tr>
+          <tr><td>hint</td><td>string</td><td>—</td><td>Helper text below trigger</td></tr>
+          <tr><td>error</td><td>string</td><td>—</td><td>Error message (enables invalid state)</td></tr>
+          <tr><td>placement</td><td>"auto" | "top" | "bottom"</td><td>"auto"</td><td>Dropdown placement</td></tr>
+          <tr><td>renderOption</td><td>(opt, state) =&gt; ReactNode</td><td>—</td><td>Custom option renderer</td></tr>
+          <tr><td>renderTrigger</td><td>(selected) =&gt; ReactNode</td><td>—</td><td>Custom trigger content renderer</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </PackagePageShell>
+</DocLayout>

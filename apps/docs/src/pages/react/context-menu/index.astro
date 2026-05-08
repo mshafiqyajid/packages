@@ -1,0 +1,150 @@
+---
+import DocLayout from "~/layouts/DocLayout.astro";
+import PackagePageShell from "~/components/PackagePageShell.astro";
+import H2 from "~/components/H2.astro";
+import CodeBlock from "~/components/CodeBlock.astro";
+import ContextMenuDemo from "~/components/demos/ContextMenuDemo";
+---
+<DocLayout title="react-context-menu" description="Right-click context menu with sub-menus, keyboard navigation, first-letter jump, and portal positioning." pkg="context-menu">
+  <PackagePageShell name="react-context-menu" description="Right-click context menu for React. Headless hook and styled component. Items, separators, section labels, icons, keyboard shortcuts, nested sub-menus, ArrowKey + first-letter navigation, viewport collision detection, scale+fade animation from click origin. Portal to document.body, ARIA-compliant." size="~4 KB">
+    <div class="pkg-section"><H2>Playground</H2><ContextMenuDemo client:load /></div>
+    <div class="pkg-section"><H2>Install</H2><CodeBlock lang="bash" code="npm install @mshafiqyajid/react-context-menu" /></div>
+
+    <div class="pkg-section"><H2>Quick start</H2>
+      <CodeBlock lang="tsx" code={`import { ContextMenuStyled } from "@mshafiqyajid/react-context-menu/styled";
+import "@mshafiqyajid/react-context-menu/styles.css";
+
+<ContextMenuStyled
+  items={[
+    { label: "Cut",   shortcut: "⌘X", onClick: () => cut() },
+    { label: "Copy",  shortcut: "⌘C", onClick: () => copy() },
+    { label: "Paste", shortcut: "⌘V", onClick: () => paste() },
+    { type: "separator" },
+    { label: "Delete", onClick: () => remove(), disabled: true },
+  ]}
+>
+  <div style={{ padding: "2rem", border: "1px dashed #ccc" }}>
+    Right-click anywhere in this area
+  </div>
+</ContextMenuStyled>`} />
+    </div>
+
+    <div class="pkg-section"><H2>Sub-menus</H2>
+      <CodeBlock lang="tsx" code={`<ContextMenuStyled
+  items={[
+    { label: "New File",   onClick: () => createFile() },
+    { label: "New Folder", onClick: () => createFolder() },
+    { type: "separator" },
+    {
+      label: "Share",
+      items: [
+        { label: "Copy link",     onClick: () => copyLink() },
+        { label: "Send by email", onClick: () => sendEmail() },
+      ],
+    },
+    { type: "separator" },
+    { label: "Delete", onClick: () => deleteItem() },
+  ]}
+>
+  <div>Right-click me</div>
+</ContextMenuStyled>`} />
+      <p>Sub-menu rows show a chevron. Hover or press <code>→</code> to open. Press <code>←</code> or <code>Escape</code> inside to close. <code>Enter</code>/<code>Space</code> activates.</p>
+    </div>
+
+    <div class="pkg-section"><H2>Section labels</H2>
+      <CodeBlock lang="tsx" code={`<ContextMenuStyled
+  items={[
+    { type: "label", label: "Edit" },
+    { label: "Cut",   onClick: () => cut() },
+    { label: "Copy",  onClick: () => copy() },
+    { type: "separator" },
+    { type: "label", label: "Clipboard" },
+    { label: "Paste", onClick: () => paste() },
+  ]}
+>
+  <div>Right-click me</div>
+</ContextMenuStyled>`} />
+    </div>
+
+    <div class="pkg-section"><H2>Controlled open state</H2>
+      <CodeBlock lang="tsx" code={`const [open, setOpen] = useState(false);
+
+<ContextMenuStyled
+  items={items}
+  open={open}
+  onOpenChange={setOpen}
+>
+  <div>Right-click me</div>
+</ContextMenuStyled>`} />
+    </div>
+
+    <div class="pkg-section"><H2>Headless</H2>
+      <CodeBlock lang="tsx" code={`import { useContextMenu } from "@mshafiqyajid/react-context-menu";
+import { createPortal } from "react-dom";
+
+const items = ["Cut", "Copy", "Paste"];
+
+function MyContextMenu() {
+  const { triggerProps, menuProps, getItemProps, isOpen } = useContextMenu({
+    itemCount: items.length,
+  });
+
+  return (
+    <>
+      <div {...triggerProps} style={{ padding: "2rem" }}>
+        Right-click here
+      </div>
+      {isOpen && createPortal(
+        <div {...menuProps} className="my-menu">
+          {items.map((label, i) => (
+            <div
+              key={label}
+              {...getItemProps(i, { onClick: () => console.log(label) })}
+            >
+              {label}
+            </div>
+          ))}
+        </div>,
+        document.body,
+      )}
+    </>
+  );
+}`} />
+    </div>
+
+    <div class="pkg-section"><H2>Keyboard navigation</H2>
+      <table class="props-table"><thead><tr><th>Key</th><th>Action</th></tr></thead><tbody>
+        <tr><td><code>↓</code> / <code>↑</code></td><td>Navigate items (skips disabled)</td></tr>
+        <tr><td><code>Enter</code> / <code>Space</code></td><td>Activate focused item</td></tr>
+        <tr><td><code>→</code></td><td>Open sub-menu</td></tr>
+        <tr><td><code>←</code> / <code>Escape</code> (in sub-menu)</td><td>Close sub-menu, return focus to parent</td></tr>
+        <tr><td><code>Escape</code></td><td>Close menu</td></tr>
+        <tr><td>Letter key</td><td>Jump to first item whose label starts with that letter</td></tr>
+      </tbody></table>
+    </div>
+
+    <div class="pkg-section"><H2>API</H2>
+      <table class="props-table"><thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+        <tr><td>children</td><td>ReactNode</td><td>—</td><td>The right-click target area</td></tr>
+        <tr><td>items</td><td>ContextMenuItem[]</td><td>—</td><td>Menu items array</td></tr>
+        <tr><td>disabled</td><td>boolean</td><td>false</td><td>Disable the context menu entirely</td></tr>
+        <tr><td>open</td><td>boolean</td><td>—</td><td>Controlled open state</td></tr>
+        <tr><td>onOpenChange</td><td>(open: boolean) =&gt; void</td><td>—</td><td>Callback when open state changes</td></tr>
+        <tr><td>className</td><td>string</td><td>—</td><td>Class on the trigger wrapper</td></tr>
+        <tr><td>style</td><td>CSSProperties</td><td>—</td><td>Style on the trigger wrapper</td></tr>
+      </tbody></table>
+    </div>
+
+    <div class="pkg-section"><H2>ContextMenuItem</H2>
+      <table class="props-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
+        <tr><td>type</td><td>"item" | "separator" | "label"</td><td>Defaults to "item". "separator" renders a horizontal rule; "label" renders a non-interactive section heading.</td></tr>
+        <tr><td>label</td><td>string?</td><td>Text content</td></tr>
+        <tr><td>icon</td><td>ReactNode?</td><td>16×16 icon rendered on the left</td></tr>
+        <tr><td>shortcut</td><td>string?</td><td>Right-aligned shortcut badge (display only)</td></tr>
+        <tr><td>disabled</td><td>boolean?</td><td>Dims item, prevents interaction and keyboard activation</td></tr>
+        <tr><td>onClick</td><td>() =&gt; void?</td><td>Callback fired on click or Enter/Space</td></tr>
+        <tr><td>items</td><td>ContextMenuItem[]?</td><td>Nested items — renders a sub-menu</td></tr>
+      </tbody></table>
+    </div>
+  </PackagePageShell>
+</DocLayout>

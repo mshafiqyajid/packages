@@ -1,0 +1,276 @@
+/* ============================================================================
+ * react-sheet — styled component
+ *
+ * Dark mode: [data-theme="dark"] on any ancestor — never prefers-color-scheme.
+ * CSS prefix: rsh-
+ * ========================================================================== */
+
+.rsh-overlay {
+  --rsh-fg: #18181b;
+  --rsh-fg-muted: #71717a;
+  --rsh-bg: #ffffff;
+  --rsh-bg-header: #fafafa;
+  --rsh-bg-footer: #fafafa;
+  --rsh-border: #e4e4e7;
+  --rsh-overlay-bg: rgba(0, 0, 0, 0.45);
+  --rsh-shadow: 0 -4px 32px rgba(0, 0, 0, 0.10), 0 -1px 8px rgba(0, 0, 0, 0.06);
+  --rsh-shadow-side: 4px 0 32px rgba(0, 0, 0, 0.10), 1px 0 8px rgba(0, 0, 0, 0.06);
+  --rsh-radius: 16px;
+  --rsh-handle-bg: #d4d4d8;
+  --rsh-duration-overlay: 220ms;
+  --rsh-duration-panel: 350ms;
+  --rsh-ease: cubic-bezier(0.32, 0.72, 0, 1);
+  --rsh-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --rsh-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  background: var(--rsh-overlay-bg);
+
+  opacity: 0;
+  transition: opacity var(--rsh-duration-overlay) var(--rsh-ease);
+  pointer-events: none;
+}
+
+.rsh-overlay--visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Side-specific overlay alignment */
+.rsh-overlay[data-side="bottom"] {
+  display: flex;
+  align-items: flex-end;
+  justify-content: stretch;
+}
+
+.rsh-overlay[data-side="top"] {
+  display: flex;
+  align-items: flex-start;
+  justify-content: stretch;
+}
+
+.rsh-overlay[data-side="left"] {
+  display: flex;
+  align-items: stretch;
+  justify-content: flex-start;
+}
+
+.rsh-overlay[data-side="right"] {
+  display: flex;
+  align-items: stretch;
+  justify-content: flex-end;
+}
+
+/* ============================================================================
+ * Panel — base
+ * ========================================================================== */
+.rsh-panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--rsh-bg);
+  outline: none;
+  overflow: hidden;
+  touch-action: none;
+  will-change: transform;
+}
+
+/* ============================================================================
+ * Bottom sheet (default)
+ * ========================================================================== */
+.rsh-panel[data-side="bottom"] {
+  width: 100%;
+  max-width: 100%;
+  max-height: 92vh;
+  border-radius: var(--rsh-radius) var(--rsh-radius) 0 0;
+  box-shadow: var(--rsh-shadow);
+  transform: translateY(100%);
+  transition: transform var(--rsh-duration-panel) var(--rsh-ease-spring);
+}
+
+.rsh-panel[data-side="bottom"].rsh-panel--visible {
+  transform: translateY(0);
+}
+
+/* ============================================================================
+ * Top sheet
+ * ========================================================================== */
+.rsh-panel[data-side="top"] {
+  width: 100%;
+  max-width: 100%;
+  max-height: 92vh;
+  border-radius: 0 0 var(--rsh-radius) var(--rsh-radius);
+  box-shadow: 0 4px 32px rgba(0, 0, 0, 0.10), 0 1px 8px rgba(0, 0, 0, 0.06);
+  transform: translateY(-100%);
+  transition: transform var(--rsh-duration-panel) var(--rsh-ease-spring);
+}
+
+.rsh-panel[data-side="top"].rsh-panel--visible {
+  transform: translateY(0);
+}
+
+/* ============================================================================
+ * Left sheet
+ * ========================================================================== */
+.rsh-panel[data-side="left"] {
+  height: 100%;
+  max-height: 100vh;
+  width: min(380px, 90vw);
+  border-radius: 0 var(--rsh-radius) var(--rsh-radius) 0;
+  box-shadow: var(--rsh-shadow-side);
+  transform: translateX(-100%);
+  transition: transform var(--rsh-duration-panel) var(--rsh-ease-spring);
+}
+
+.rsh-panel[data-side="left"].rsh-panel--visible {
+  transform: translateX(0);
+}
+
+/* ============================================================================
+ * Right sheet
+ * ========================================================================== */
+.rsh-panel[data-side="right"] {
+  height: 100%;
+  max-height: 100vh;
+  width: min(380px, 90vw);
+  border-radius: var(--rsh-radius) 0 0 var(--rsh-radius);
+  box-shadow: -4px 0 32px rgba(0, 0, 0, 0.10), -1px 0 8px rgba(0, 0, 0, 0.06);
+  transform: translateX(100%);
+  transition: transform var(--rsh-duration-panel) var(--rsh-ease-spring);
+}
+
+.rsh-panel[data-side="right"].rsh-panel--visible {
+  transform: translateX(0);
+}
+
+/* ============================================================================
+ * Drag handle pill
+ * ========================================================================== */
+.rsh-handle {
+  flex-shrink: 0;
+  width: 40px;
+  height: 5px;
+  background: var(--rsh-handle-bg);
+  border-radius: 9999px;
+  margin: 0.625rem auto 0;
+  pointer-events: none;
+}
+
+/* Side sheets: no top handle */
+.rsh-panel[data-side="left"] .rsh-handle,
+.rsh-panel[data-side="right"] .rsh-handle {
+  display: none;
+}
+
+/* Top sheet: handle at bottom */
+.rsh-panel[data-side="top"] .rsh-handle {
+  order: 99;
+  margin: 0 auto 0.625rem;
+}
+
+/* ============================================================================
+ * Swiping state — disable transition while pointer is dragging
+ * ========================================================================== */
+.rsh-panel[data-swiping="true"] {
+  transition: none !important;
+  cursor: grabbing;
+}
+
+/* ============================================================================
+ * Header
+ * ========================================================================== */
+.rsh-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.875rem 1.25rem 0.75rem;
+  background: var(--rsh-bg-header);
+  border-bottom: 1px solid var(--rsh-border);
+  flex-shrink: 0;
+}
+
+.rsh-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--rsh-fg);
+  line-height: 1.4;
+}
+
+/* ============================================================================
+ * Description
+ * ========================================================================== */
+.rsh-description {
+  margin: 0;
+  padding: 0.625rem 1.25rem 0;
+  color: var(--rsh-fg-muted);
+  font-size: 0.875rem;
+  line-height: 1.55;
+  flex-shrink: 0;
+}
+
+/* ============================================================================
+ * Body — scrollable
+ * ========================================================================== */
+.rsh-body {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 1.25rem;
+  color: var(--rsh-fg);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ============================================================================
+ * Footer
+ * ========================================================================== */
+.rsh-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.625rem;
+  padding: 0.875rem 1.25rem;
+  background: var(--rsh-bg-footer);
+  border-top: 1px solid var(--rsh-border);
+  flex-shrink: 0;
+}
+
+/* ============================================================================
+ * Dark mode — [data-theme="dark"] only, never prefers-color-scheme
+ * ========================================================================== */
+[data-theme="dark"] .rsh-overlay {
+  --rsh-fg: #fafafa;
+  --rsh-fg-muted: #a1a1aa;
+  --rsh-bg: #18181b;
+  --rsh-bg-header: #1f1f22;
+  --rsh-bg-footer: #1f1f22;
+  --rsh-border: #3f3f46;
+  --rsh-overlay-bg: rgba(0, 0, 0, 0.65);
+  --rsh-shadow: 0 -4px 32px rgba(0, 0, 0, 0.40), 0 -1px 8px rgba(0, 0, 0, 0.24);
+  --rsh-shadow-side: 4px 0 32px rgba(0, 0, 0, 0.40), 1px 0 8px rgba(0, 0, 0, 0.24);
+  --rsh-handle-bg: #52525b;
+}
+
+/* ============================================================================
+ * Reduced motion — fade only, no slide
+ * ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .rsh-overlay {
+    transition-duration: 100ms !important;
+  }
+
+  .rsh-panel {
+    transition: opacity var(--rsh-duration-overlay) linear !important;
+    transform: none !important;
+    opacity: 0;
+  }
+
+  .rsh-panel--visible {
+    opacity: 1 !important;
+  }
+}

@@ -1,0 +1,146 @@
+---
+import DocLayout from "~/layouts/DocLayout.astro";
+import PackagePageShell from "~/components/PackagePageShell.astro";
+import H2 from "~/components/H2.astro";
+import CodeBlock from "~/components/CodeBlock.astro";
+import SortableDemo from "~/components/demos/SortableDemo";
+---
+<DocLayout title="react-sortable" description="Drag-and-drop sortable list with keyboard reordering and spring animations. Zero runtime dependencies." pkg="sortable">
+  <PackagePageShell name="react-sortable" description="Headless hook and styled component for drag-and-drop lists. Native pointer events — no external DnD library. Keyboard reorder with live region announcements, spring-animated displaced items, ghost-follows-pointer drag, horizontal and vertical orientation, handle or full-item drag, reduced-motion safe." size="~5 KB">
+    <div class="pkg-section"><H2>Playground</H2><SortableDemo client:load /></div>
+    <div class="pkg-section"><H2>Install</H2><CodeBlock lang="bash" code="npm install @mshafiqyajid/react-sortable" /></div>
+
+    <div class="pkg-section"><H2>Quick start</H2>
+      <CodeBlock lang="tsx" code={`import { useState } from "react";
+import { SortableStyled } from "@mshafiqyajid/react-sortable/styled";
+import "@mshafiqyajid/react-sortable/styles.css";
+
+interface Task {
+  id: string;
+  title: string;
+}
+
+function App() {
+  const [items, setItems] = useState<Task[]>([
+    { id: "1", title: "Design tokens" },
+    { id: "2", title: "Write tests"   },
+    { id: "3", title: "Ship it"       },
+  ]);
+
+  return (
+    <SortableStyled
+      items={items}
+      onReorder={setItems}
+      renderItem={(item, { isDragging }) => (
+        <span style={{ opacity: isDragging ? 0.5 : 1 }}>
+          {(item as Task).title}
+        </span>
+      )}
+    />
+  );
+}`} />
+    </div>
+
+    <div class="pkg-section"><H2>Headless hook</H2>
+      <CodeBlock lang="tsx" code={`import { useSortable } from "@mshafiqyajid/react-sortable";
+
+const { containerProps, getItemProps, getItemState, activeId, isDragging } =
+  useSortable({ items, onReorder: setItems });
+
+const { ref, ...restContainerProps } = containerProps;
+
+return (
+  <ul ref={ref} {...restContainerProps}>
+    {items.map((item) => {
+      const { isDragging, isOver, handleProps } = getItemState(item);
+      return (
+        <li
+          key={item.id}
+          {...getItemProps(item)}
+          style={{ opacity: isDragging ? 0.4 : 1 }}
+        >
+          <span {...handleProps} style={{ cursor: "grab" }}>⠿</span>
+          {item.label}
+        </li>
+      );
+    })}
+  </ul>
+);`} />
+    </div>
+
+    <div class="pkg-section"><H2>Keyboard controls</H2>
+      <table class="props-table"><thead><tr><th>Key</th><th>Action</th></tr></thead><tbody>
+        <tr><td>Space</td><td>Pick up item at focused position</td></tr>
+        <tr><td>Enter</td><td>Drop item at current position</td></tr>
+        <tr><td>ArrowUp / ArrowDown</td><td>Move item (vertical list)</td></tr>
+        <tr><td>ArrowLeft / ArrowRight</td><td>Move item (horizontal list)</td></tr>
+        <tr><td>Escape</td><td>Cancel — restore original order</td></tr>
+      </tbody></table>
+      <p>A live region announces position changes to screen readers during keyboard reordering.</p>
+    </div>
+
+    <div class="pkg-section"><H2>API — SortableStyled</H2>
+      <table class="props-table"><thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+        <tr><td>items</td><td>SortableItem[]</td><td>—</td><td>Array of items. Each must have a unique <code>id</code> (string or number).</td></tr>
+        <tr><td>onReorder</td><td>(items: SortableItem[]) =&gt; void</td><td>—</td><td>Called with the reordered array after every drop or keyboard move.</td></tr>
+        <tr><td>renderItem</td><td>(item, state) =&gt; ReactNode</td><td>—</td><td>Render each row. Receives <code>isDragging</code>, <code>isOver</code>, <code>handleProps</code>.</td></tr>
+        <tr><td>orientation</td><td>"vertical" | "horizontal"</td><td>"vertical"</td><td>List direction. Horizontal uses ArrowLeft/Right for keyboard navigation.</td></tr>
+        <tr><td>handle</td><td>boolean</td><td>true</td><td>Show drag handle grip icon. When false the whole item is the drag target.</td></tr>
+        <tr><td>disabled</td><td>boolean</td><td>false</td><td>Disable all drag and keyboard interaction.</td></tr>
+        <tr><td>animationDuration</td><td>number</td><td>200</td><td>CSS transition duration in milliseconds for displaced items.</td></tr>
+        <tr><td>className</td><td>string</td><td>—</td><td>Extra class on the container element.</td></tr>
+        <tr><td>style</td><td>CSSProperties</td><td>—</td><td>Inline styles on the container element.</td></tr>
+      </tbody></table>
+    </div>
+
+    <div class="pkg-section"><H2>renderItem state</H2>
+      <table class="props-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
+        <tr><td>isDragging</td><td>boolean</td><td>True when this item is the active drag or keyboard-picked item.</td></tr>
+        <tr><td>isOver</td><td>boolean</td><td>True when the pointer is over this item (drop target indicator).</td></tr>
+        <tr><td>handleProps</td><td>object</td><td>Spread onto a custom handle element. Provides pointer and aria attributes.</td></tr>
+      </tbody></table>
+    </div>
+
+    <div class="pkg-section"><H2>useSortable hook</H2>
+      <CodeBlock lang="tsx" code={`import { useSortable } from "@mshafiqyajid/react-sortable";
+
+const {
+  items,          // current items array (same reference passed in)
+  containerProps, // spread on the container: role, aria-orientation, data-dragging, ref
+  getItemProps,   // (item) => props to spread on each item element
+  getItemState,   // (item) => { isDragging, isOver, handleProps }
+  activeId,       // id of the dragged/picked item, or null
+  overId,         // id of the item currently under the pointer, or null
+  isDragging,     // boolean — true when a drag is in progress
+  liveRegionText, // current announcement for screen readers
+} = useSortable({ items, onReorder, orientation, disabled, animationDuration });`} />
+    </div>
+
+    <div class="pkg-section"><H2>CSS variables</H2>
+      <CodeBlock lang="css" code={`/* Paste into your stylesheet to customise */
+:root {
+  --rsort-bg: #f4f4f5;
+  --rsort-item-bg: #ffffff;
+  --rsort-item-fg: #18181b;
+  --rsort-item-border: #e4e4e7;
+  --rsort-item-radius: 8px;
+  --rsort-item-padding: 10px 14px;
+  --rsort-handle-color: #a1a1aa;
+  --rsort-gap: 6px;
+  --rsort-font-size: 0.875rem;
+  --rsort-over-bg: #f0f0ff;
+  --rsort-over-border: #6366f1;
+  --rsort-active-opacity: 0.4;
+  --rsort-duration: 200ms;
+  --rsort-focus-ring: 0 0 0 2px #6366f1;
+}`} />
+    </div>
+
+    <div class="pkg-section"><H2>ARIA</H2>
+      <p>Container: <code>role="listbox"</code>, <code>aria-orientation</code>, <code>data-dragging</code> when active.</p>
+      <p>Items: <code>role="option"</code>, <code>aria-roledescription="sortable item"</code>, <code>aria-grabbed</code>.</p>
+      <p>Data attributes: <code>data-active</code> on the dragged item; <code>data-over</code> on the drop target; <code>data-orientation</code> on the container.</p>
+      <p>A visually-hidden live region (<code>role="status"</code>, <code>aria-live="assertive"</code>) announces position changes during keyboard reorder and cancellation.</p>
+    </div>
+  </PackagePageShell>
+</DocLayout>

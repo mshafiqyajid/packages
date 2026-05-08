@@ -1,0 +1,240 @@
+/* ============================================================================
+ * react-form — styled component
+ *
+ * Themable via CSS variables.
+ * Dark mode via [data-theme="dark"] ancestor only.
+ * ========================================================================== */
+
+:root {
+  --rfrm-duration: 150ms;
+  --rfrm-ease: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Colors — light mode */
+  --rfrm-bg: #ffffff;
+  --rfrm-fg: #18181b;
+  --rfrm-border: #d4d4d8;
+  --rfrm-border-hover: #a1a1aa;
+  --rfrm-border-focus: #6366f1;
+  --rfrm-shadow-focus: 0 0 0 3px rgba(99, 102, 241, 0.18);
+
+  --rfrm-label-fg: #3f3f46;
+  --rfrm-label-font-size: 0.875rem;
+  --rfrm-label-font-weight: 500;
+
+  --rfrm-hint-fg: #71717a;
+  --rfrm-hint-font-size: 0.75rem;
+
+  --rfrm-error-fg: #dc2626;
+  --rfrm-error-border: #dc2626;
+  --rfrm-error-shadow: 0 0 0 3px rgba(220, 38, 38, 0.18);
+  --rfrm-error-font-size: 0.75rem;
+
+  --rfrm-required-fg: #dc2626;
+
+  --rfrm-submit-bg: #6366f1;
+  --rfrm-submit-fg: #ffffff;
+  --rfrm-submit-bg-hover: #4f46e5;
+  --rfrm-submit-bg-disabled: #a5b4fc;
+  --rfrm-submit-radius: 8px;
+
+  --rfrm-field-gap: 0.3rem;
+  --rfrm-form-gap: 1.25rem;
+}
+
+/* ============================================================================
+ * Form root
+ * ========================================================================== */
+.rfrm-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rfrm-form-gap);
+  font-family: inherit;
+}
+
+.rfrm-form[data-submitting] {
+  pointer-events: none;
+}
+
+/* ============================================================================
+ * Field wrapper
+ * ========================================================================== */
+.rfrm-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rfrm-field-gap);
+}
+
+/* Shake animation fires when the field becomes invalid on submit */
+@keyframes rfrm-shake {
+  0%   { transform: translateX(0); }
+  15%  { transform: translateX(-5px); }
+  30%  { transform: translateX(5px); }
+  45%  { transform: translateX(-4px); }
+  60%  { transform: translateX(4px); }
+  75%  { transform: translateX(-2px); }
+  90%  { transform: translateX(2px); }
+  100% { transform: translateX(0); }
+}
+
+.rfrm-field[data-invalid="true"][data-just-invalid="true"] {
+  animation: rfrm-shake 350ms var(--rfrm-ease) both;
+}
+
+/* ============================================================================
+ * Label
+ * ========================================================================== */
+.rfrm-label {
+  display: block;
+  font-size: var(--rfrm-label-font-size);
+  font-weight: var(--rfrm-label-font-weight);
+  color: var(--rfrm-label-fg);
+  line-height: 1.4;
+}
+
+.rfrm-label .rfrm-required-mark {
+  color: var(--rfrm-required-fg);
+  margin-left: 0.2em;
+  font-weight: 600;
+}
+
+/* ============================================================================
+ * Hint
+ * ========================================================================== */
+.rfrm-hint {
+  font-size: var(--rfrm-hint-font-size);
+  color: var(--rfrm-hint-fg);
+  line-height: 1.4;
+}
+
+/* ============================================================================
+ * Error — slides in with max-height + opacity
+ * ========================================================================== */
+@keyframes rfrm-error-in {
+  from {
+    max-height: 0;
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    max-height: 4rem;
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.rfrm-error {
+  font-size: var(--rfrm-error-font-size);
+  color: var(--rfrm-error-fg);
+  font-weight: 500;
+  line-height: 1.4;
+  overflow: hidden;
+  animation: rfrm-error-in var(--rfrm-duration) var(--rfrm-ease) both;
+}
+
+/* ============================================================================
+ * Submit button
+ * ========================================================================== */
+.rfrm-submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 2.5rem;
+  padding: 0 1.25rem;
+  border: none;
+  border-radius: var(--rfrm-submit-radius);
+  background: var(--rfrm-submit-bg);
+  color: var(--rfrm-submit-fg);
+  font-size: 0.875rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition:
+    background var(--rfrm-duration) var(--rfrm-ease),
+    opacity var(--rfrm-duration) var(--rfrm-ease),
+    transform var(--rfrm-duration) var(--rfrm-ease);
+  outline: none;
+  user-select: none;
+}
+
+.rfrm-submit:hover:not(:disabled) {
+  background: var(--rfrm-submit-bg-hover);
+}
+
+.rfrm-submit:focus-visible {
+  box-shadow: var(--rfrm-shadow-focus);
+}
+
+.rfrm-submit:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.rfrm-submit:disabled,
+.rfrm-submit[aria-busy="true"] {
+  background: var(--rfrm-submit-bg-disabled);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Spinner inside submit button during loading */
+.rfrm-submit-spinner {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: rfrm-spin 0.65s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes rfrm-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ============================================================================
+ * Dark mode — [data-theme="dark"] only, never @media prefers-color-scheme
+ * ========================================================================== */
+[data-theme="dark"] {
+  --rfrm-bg: #18181b;
+  --rfrm-fg: #fafafa;
+  --rfrm-border: #3f3f46;
+  --rfrm-border-hover: #52525b;
+  --rfrm-border-focus: #818cf8;
+  --rfrm-shadow-focus: 0 0 0 3px rgba(129, 140, 248, 0.22);
+
+  --rfrm-label-fg: #d4d4d8;
+  --rfrm-hint-fg: #71717a;
+
+  --rfrm-error-fg: #f87171;
+  --rfrm-error-border: #f87171;
+  --rfrm-error-shadow: 0 0 0 3px rgba(248, 113, 113, 0.22);
+  --rfrm-required-fg: #f87171;
+
+  --rfrm-submit-bg: #818cf8;
+  --rfrm-submit-fg: #ffffff;
+  --rfrm-submit-bg-hover: #6366f1;
+  --rfrm-submit-bg-disabled: #4f46e5;
+}
+
+/* ============================================================================
+ * Reduced motion
+ * ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .rfrm-field[data-invalid="true"][data-just-invalid="true"] {
+    animation: none;
+  }
+
+  .rfrm-error {
+    animation: none;
+  }
+
+  .rfrm-submit {
+    transition: none;
+  }
+
+  .rfrm-submit-spinner {
+    animation: none;
+    opacity: 0.6;
+  }
+}

@@ -1,0 +1,331 @@
+/* ============================================================================
+ * react-range — styled component
+ *
+ * Prefix: rrng-
+ * CSS variables: --rrng-*
+ * Dark mode: [data-theme="dark"] ancestor only — never @media prefers-color-scheme.
+ * ========================================================================== */
+
+:root {
+  /* Dimensions */
+  --rrng-track-height: 6px;
+  --rrng-thumb-size: 20px;
+  --rrng-mark-size: 5px;
+  --rrng-radius: 9999px;
+
+  /* Motion */
+  --rrng-fill-duration: 100ms;
+  --rrng-thumb-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --rrng-thumb-duration: 200ms;
+  --rrng-tooltip-duration: 120ms;
+  --rrng-ease: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Colors — neutral base */
+  --rrng-rail-bg: #e4e4e7;
+  --rrng-fill-bg: #71717a;
+  --rrng-thumb-bg: #ffffff;
+  --rrng-thumb-border: #71717a;
+  --rrng-thumb-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+  --rrng-thumb-shadow-focus: 0 0 0 3px rgba(113, 113, 122, 0.3);
+  --rrng-mark-bg: #a1a1aa;
+  --rrng-mark-label-fg: #71717a;
+  --rrng-tooltip-bg: #18181b;
+  --rrng-tooltip-fg: #fafafa;
+  --rrng-label-fg: currentColor;
+  --rrng-hint-fg: #6b7280;
+  --rrng-error-fg: #dc2626;
+}
+
+/* ============================================================================
+ * Root
+ * ========================================================================== */
+.rrng-root {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.4rem;
+  width: 100%;
+  box-sizing: border-box;
+  user-select: none;
+  -webkit-user-select: none;
+  font-family: inherit;
+}
+
+.rrng-root[data-disabled] {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+/* ============================================================================
+ * Label / hint / error
+ * ========================================================================== */
+.rrng-label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--rrng-label-fg);
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.rrng-required {
+  color: var(--rrng-error-fg);
+  font-weight: 600;
+}
+
+.rrng-hint {
+  font-size: 0.78rem;
+  color: var(--rrng-hint-fg);
+}
+
+.rrng-error {
+  font-size: 0.78rem;
+  color: var(--rrng-error-fg);
+  font-weight: 500;
+}
+
+/* ============================================================================
+ * Track wrapper — full height = thumb size so thumb is always centered
+ * ========================================================================== */
+.rrng-track {
+  position: relative;
+  width: 100%;
+  height: var(--rrng-thumb-size);
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+/* ============================================================================
+ * Rail — background bar, centered in the track
+ * ========================================================================== */
+.rrng-rail {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: var(--rrng-track-height);
+  transform: translateY(-50%);
+  border-radius: var(--rrng-radius);
+  background: var(--rrng-rail-bg);
+  pointer-events: none;
+}
+
+/* ============================================================================
+ * Fill — colored region between thumbs (or from 0 in single mode)
+ * ========================================================================== */
+.rrng-fill {
+  position: absolute;
+  top: 50%;
+  height: var(--rrng-track-height);
+  transform: translateY(-50%);
+  border-radius: var(--rrng-radius);
+  background: var(--rrng-fill-bg);
+  transition:
+    left var(--rrng-fill-duration) var(--rrng-ease),
+    width var(--rrng-fill-duration) var(--rrng-ease);
+  pointer-events: none;
+}
+
+/* ============================================================================
+ * Thumb — circle with spring snap on release
+ * ========================================================================== */
+.rrng-thumb {
+  position: absolute;
+  top: 50%;
+  width: var(--rrng-thumb-size);
+  height: var(--rrng-thumb-size);
+  border-radius: 50%;
+  background: var(--rrng-thumb-bg);
+  border: 2px solid var(--rrng-thumb-border);
+  box-shadow: var(--rrng-thumb-shadow);
+  /* Spring easing on release (when not dragging) */
+  transition:
+    left var(--rrng-thumb-duration) var(--rrng-thumb-spring),
+    box-shadow var(--rrng-tooltip-duration) ease;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  outline: none;
+  touch-action: none;
+  cursor: grab;
+  z-index: 1;
+}
+
+/* While dragging: disable spring so thumb follows pointer exactly */
+.rrng-thumb[data-dragging="true"] {
+  transition: box-shadow var(--rrng-tooltip-duration) ease;
+  cursor: grabbing;
+}
+
+.rrng-thumb:focus-visible {
+  box-shadow: var(--rrng-thumb-shadow-focus);
+}
+
+.rrng-thumb:active {
+  cursor: grabbing;
+}
+
+/* ============================================================================
+ * Tooltip — above thumb, fade in/out
+ * ========================================================================== */
+.rrng-tooltip {
+  position: absolute;
+  bottom: calc(100% + 7px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--rrng-tooltip-bg);
+  color: var(--rrng-tooltip-fg);
+  font-size: 0.72rem;
+  font-weight: 500;
+  line-height: 1;
+  padding: 0.2rem 0.45rem;
+  border-radius: 4px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--rrng-tooltip-duration) ease;
+}
+
+.rrng-tooltip[data-visible="true"] {
+  opacity: 1;
+}
+
+/* ============================================================================
+ * Marks — tick + optional label
+ * ========================================================================== */
+.rrng-mark {
+  position: absolute;
+  top: 50%;
+  width: var(--rrng-mark-size);
+  height: var(--rrng-mark-size);
+  border-radius: 50%;
+  background: var(--rrng-mark-bg);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.rrng-mark[data-has-label] {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.rrng-mark-label {
+  margin-top: 0.65rem;
+  font-size: 0.72rem;
+  color: var(--rrng-mark-label-fg);
+  white-space: nowrap;
+}
+
+/* ============================================================================
+ * Sizes
+ * ========================================================================== */
+.rrng-root[data-size="sm"] {
+  --rrng-track-height: 4px;
+  --rrng-thumb-size: 16px;
+  --rrng-mark-size: 4px;
+}
+
+.rrng-root[data-size="lg"] {
+  --rrng-track-height: 8px;
+  --rrng-thumb-size: 24px;
+  --rrng-mark-size: 6px;
+}
+
+.rrng-root[data-size="sm"] .rrng-mark-label { font-size: 0.68rem; }
+.rrng-root[data-size="lg"] .rrng-mark-label { font-size: 0.78rem; }
+
+/* ============================================================================
+ * Tones
+ * ========================================================================== */
+.rrng-root[data-tone="primary"][data-tone] {
+  --rrng-fill-bg: #6366f1;
+  --rrng-thumb-border: #6366f1;
+  --rrng-thumb-shadow-focus: 0 0 0 3px rgba(99, 102, 241, 0.3);
+}
+
+.rrng-root[data-tone="success"][data-tone] {
+  --rrng-fill-bg: #16a34a;
+  --rrng-thumb-border: #16a34a;
+  --rrng-thumb-shadow-focus: 0 0 0 3px rgba(22, 163, 74, 0.3);
+}
+
+.rrng-root[data-tone="warning"][data-tone] {
+  --rrng-fill-bg: #d97706;
+  --rrng-thumb-border: #d97706;
+  --rrng-thumb-shadow-focus: 0 0 0 3px rgba(217, 119, 6, 0.3);
+}
+
+.rrng-root[data-tone="danger"][data-tone] {
+  --rrng-fill-bg: #dc2626;
+  --rrng-thumb-border: #dc2626;
+  --rrng-thumb-shadow-focus: 0 0 0 3px rgba(220, 38, 38, 0.3);
+}
+
+/* ============================================================================
+ * Invalid state
+ * ========================================================================== */
+.rrng-root[data-invalid="true"] {
+  --rrng-fill-bg: var(--rrng-error-fg, #dc2626);
+  --rrng-thumb-border: var(--rrng-error-fg, #dc2626);
+}
+
+/* ============================================================================
+ * Dark mode — [data-theme="dark"] ancestor only
+ * ========================================================================== */
+[data-theme="dark"] .rrng-root,
+[data-theme="dark"].rrng-root {
+  --rrng-rail-bg: #3f3f46;
+  --rrng-fill-bg: #a1a1aa;
+  --rrng-thumb-bg: #27272a;
+  --rrng-thumb-border: #a1a1aa;
+  --rrng-thumb-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+  --rrng-thumb-shadow-focus: 0 0 0 3px rgba(161, 161, 170, 0.3);
+  --rrng-mark-bg: #71717a;
+  --rrng-mark-label-fg: #a1a1aa;
+  --rrng-tooltip-bg: #fafafa;
+  --rrng-tooltip-fg: #18181b;
+  --rrng-hint-fg: #9ca3af;
+  --rrng-error-fg: #f87171;
+}
+
+[data-theme="dark"] .rrng-root[data-tone="primary"][data-tone],
+[data-theme="dark"].rrng-root[data-tone="primary"][data-tone] {
+  --rrng-fill-bg: #818cf8;
+  --rrng-thumb-border: #818cf8;
+  --rrng-thumb-shadow-focus: 0 0 0 3px rgba(129, 140, 248, 0.3);
+}
+
+[data-theme="dark"] .rrng-root[data-tone="success"][data-tone],
+[data-theme="dark"].rrng-root[data-tone="success"][data-tone] {
+  --rrng-fill-bg: #4ade80;
+  --rrng-thumb-border: #4ade80;
+  --rrng-thumb-shadow-focus: 0 0 0 3px rgba(74, 222, 128, 0.3);
+}
+
+[data-theme="dark"] .rrng-root[data-tone="warning"][data-tone],
+[data-theme="dark"].rrng-root[data-tone="warning"][data-tone] {
+  --rrng-fill-bg: #fbbf24;
+  --rrng-thumb-border: #fbbf24;
+  --rrng-thumb-shadow-focus: 0 0 0 3px rgba(251, 191, 36, 0.3);
+}
+
+[data-theme="dark"] .rrng-root[data-tone="danger"][data-tone],
+[data-theme="dark"].rrng-root[data-tone="danger"][data-tone] {
+  --rrng-fill-bg: #f87171;
+  --rrng-thumb-border: #f87171;
+  --rrng-thumb-shadow-focus: 0 0 0 3px rgba(248, 113, 113, 0.3);
+}
+
+/* ============================================================================
+ * Reduced motion — no transitions
+ * ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .rrng-fill,
+  .rrng-thumb,
+  .rrng-tooltip {
+    transition: none;
+  }
+}
