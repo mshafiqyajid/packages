@@ -92,7 +92,7 @@ export default function InputMaskDemo() {
           group: "Behaviour",
           control: { type: "toggle" },
           defaultValue: false,
-          omitWhen: true,
+          omitWhen: false,
         },
         {
           name: "showMask",

@@ -79,6 +79,18 @@ return (
   </div>
 );`} />
     </div>
+    <div class="pkg-section"><H2>Min / max bounds</H2>
+      <p>Pass <code>min</code> and <code>max</code> as <code>"HH:mm"</code> strings to restrict selectable times. Values outside the range are rejected in both the dropdown columns and keyboard arrow-key increments.</p>
+      <CodeBlock lang="tsx" code={`{/* Business hours only: 09:00–17:00 */}
+<TimePickerStyled
+  value={time}
+  onChange={setTime}
+  min="09:00"
+  max="17:00"
+  label="Appointment time"
+/>`} />
+    </div>
+
     <div class="pkg-section"><H2>API</H2>
       <table class="props-table"><thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
         <tr><td>value / defaultValue</td><td>string</td><td>—</td><td>Controlled or uncontrolled time value. "HH:mm", "HH:mm:ss", or "hh:mm AM"</td></tr>
@@ -103,6 +115,7 @@ return (
         <tr><td>locale</td><td>string</td><td>"en-US"</td><td>BCP 47 locale tag used to localise AM/PM labels in 12h mode (e.g. "fr-FR", "de-DE")</td></tr>
       </tbody></table>
     </div>
+
     <div class="pkg-section"><H2>Keyboard</H2>
       <table class="props-table"><thead><tr><th>Key</th><th>Action</th></tr></thead><tbody>
         <tr><td>Click / Focus</td><td>Opens dropdown</td></tr>
@@ -114,6 +127,37 @@ return (
         <tr><td>Enter / Space (on option)</td><td>Selects the option</td></tr>
         <tr><td>Click outside</td><td>Closes dropdown</td></tr>
       </tbody></table>
+    </div>
+    <div class="pkg-section"><H2>CSS variables</H2>
+      <CodeBlock lang="css" code={`:root {
+  --rtp-bg: #ffffff;
+  --rtp-border: #e4e4e7;
+  --rtp-border-hover: #a1a1aa;
+  --rtp-border-focus: #6366f1;
+  --rtp-fg: #18181b;
+  --rtp-label-fg: #3f3f46;
+  --rtp-hint-fg: #71717a;
+  --rtp-icon-fg: #71717a;
+  --rtp-placeholder: #a1a1aa;
+  --rtp-sep-fg: #a1a1aa;
+  --rtp-dropdown-bg: #ffffff;
+  --rtp-dropdown-border: #e4e4e7;
+  --rtp-dropdown-shadow: 0 4px 16px rgba(0, 0, 0, 0.10);
+  --rtp-option-active-bg: #eef2ff;
+  --rtp-option-active-fg: #4338ca;
+  --rtp-option-hover-bg: #f4f4f5;
+  --rtp-height-sm: 2rem;
+  --rtp-height-md: 2.5rem;
+  --rtp-height-lg: 3rem;
+  --rtp-font-size-sm: 0.8125rem;
+  --rtp-font-size-md: 0.875rem;
+  --rtp-font-size-lg: 1rem;
+  --rtp-radius-sm: 6px;
+  --rtp-radius-md: 8px;
+  --rtp-radius-lg: 10px;
+  --rtp-duration: 150ms;
+  --rtp-ease: cubic-bezier(0.4, 0, 0.2, 1);
+}`} />
     </div>
   </PackagePageShell>
 </DocLayout>
