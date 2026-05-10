@@ -1,0 +1,289 @@
+---
+import DocLayout from "~/layouts/DocLayout.astro";
+import PackagePageShell from "~/components/PackagePageShell.astro";
+import H2 from "~/components/H2.astro";
+import CodeBlock from "~/components/CodeBlock.astro";
+import MentionDemo from "~/components/demos/MentionDemo";
+---
+<DocLayout title="react-mention" description="Mention and hashtag autocomplete textarea for React. Detects trigger characters (@, #, custom) and shows a caret-positioned suggestion dropdown with full keyboard navigation and ARIA support." pkg="mention">
+  <PackagePageShell name="react-mention" description="Headless mention hook and styled autocomplete textarea. Detects trigger characters (@, #, or custom), positions a suggestion dropdown at the caret, supports async suggestion loading, avatars, descriptions, multiple triggers, full keyboard navigation, ARIA combobox/listbox, portal to document.body. Zero dependencies." size="~6 KB">
+    <div class="pkg-section"><H2>Playground</H2><MentionDemo client:load /></div>
+    <div class="pkg-section"><H2>Install</H2><CodeBlock lang="bash" code="npm install @mshafiqyajid/react-mention" /></div>
+    <div class="pkg-section"><H2>Quick start</H2>
+      <CodeBlock lang="tsx" code={`import { MentionStyled } from "@mshafiqyajid/react-mention/styled";
+import "@mshafiqyajid/react-mention/styles.css";
+
+const users = [
+  { id: "1", label: "Alice", description: "Product" },
+  { id: "2", label: "Bob",   description: "Engineering" },
+];
+
+<MentionStyled
+  label="Message"
+  placeholder="Type @ to mention someone…"
+  triggers={[{
+    char: "@",
+    loadSuggestions: (query) =>
+      users.filter(u =>
+        u.label.toLowerCase().startsWith(query.toLowerCase())
+      ),
+  }]}
+/>`} />
+    </div>
+
+    <div class="pkg-section"><H2>Multiple triggers</H2>
+      <p>Pass multiple trigger configs to support <code>@</code> mentions and <code>#</code> hashtags simultaneously. Each trigger has its own <code>loadSuggestions</code> function, making it easy to source data from different endpoints.</p>
+      <CodeBlock lang="tsx" code={`<MentionStyled
+  triggers={[
+    {
+      char: "@",
+      loadSuggestions: (q) =>
+        users.filter(u => u.label.toLowerCase().startsWith(q.toLowerCase())),
+      maxSuggestions: 8,
+    },
+    {
+      char: "#",
+      loadSuggestions: (q) =>
+        tags.filter(t => t.label.toLowerCase().startsWith(q.toLowerCase())),
+      maxSuggestions: 6,
+    },
+  ]}
+/>`} />
+    </div>
+
+    <div class="pkg-section"><H2>Async suggestions</H2>
+      <p><code>loadSuggestions</code> can return a <code>Promise</code>. The dropdown stays open and populates when the promise resolves. Stale results from cancelled queries are automatically discarded.</p>
+      <CodeBlock lang="tsx" code={`<MentionStyled
+  triggers={[{
+    char: "@",
+    loadSuggestions: async (query) => {
+      const res = await fetch(\`/api/users?q=\${query}\`);
+      const data = await res.json();
+      return data.users; // MentionSuggestion[]
+    },
+    minChars: 1,
+    maxSuggestions: 8,
+  }]}
+/>`} />
+    </div>
+
+    <div class="pkg-section"><H2>Loading state</H2>
+      <p>When <code>loadSuggestions</code> returns a <code>Promise</code>, the styled component automatically shows a CSS spinner row inside the dropdown while the promise is pending. The headless hook exposes <code>isLoading: boolean</code> so you can render your own indicator when building a custom UI.</p>
+      <CodeBlock lang="tsx" code={`// Headless — use isLoading to show a custom indicator
+const { isLoading, suggestions, isOpen } = useMention({ triggers });
+
+{isOpen && isLoading && <p>Loading…</p>}
+{isOpen && !isLoading && suggestions.map((s) => <div key={s.id}>{s.label}</div>)}`} />
+    </div>
+
+    <div class="pkg-section"><H2>Custom renderer</H2>
+      <p>Supply <code>renderSuggestion</code> on any trigger to fully control how each suggestion item is rendered. The function receives the <code>MentionSuggestion</code> and a boolean <code>isActive</code> flag (keyboard-focused). The default avatar + label + description layout is used when <code>renderSuggestion</code> is omitted.</p>
+      <CodeBlock lang="tsx" code={`<MentionStyled
+  triggers={[{
+    char: "@",
+    loadSuggestions: (q) => users.filter(u => u.label.startsWith(q)),
+    renderSuggestion: (suggestion, isActive) => (
+      <span style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+        <span
+          style={{
+            width: 32, height: 32, borderRadius: 6,
+            background: isActive ? "#eef2ff" : "#f4f4f5",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            fontWeight: 700, fontSize: "0.75rem",
+          }}
+        >
+          {suggestion.label.slice(0, 2).toUpperCase()}
+        </span>
+        <span>
+          <strong>{suggestion.label}</strong>
+          {suggestion.description && <small style={{ display: "block" }}>{suggestion.description}</small>}
+        </span>
+      </span>
+    ),
+  }]}
+/>`} />
+    </div>
+
+    <div class="pkg-section"><H2>onMentionAdd callback</H2>
+      <p>Pass <code>onMentionAdd</code> to be notified whenever a suggestion is selected and inserted. Useful for analytics, side-effects, or building a list of mentions in the document.</p>
+      <CodeBlock lang="tsx" code={`<MentionStyled
+  onMentionAdd={(triggerChar, suggestion) => {
+    console.log(\`Mentioned \${triggerChar}\${suggestion.label}\`);
+    // triggerChar → "@" | "#" | any trigger char
+    // suggestion  → MentionSuggestion
+  }}
+  triggers={[{
+    char: "@",
+    loadSuggestions: (q) => users.filter(u => u.label.startsWith(q)),
+  }]}
+/>`} />
+      <p>The callback fires only on selection — it is <strong>not</strong> called when the dropdown is dismissed with Escape or Tab.</p>
+    </div>
+
+    <div class="pkg-section"><H2>Headless</H2>
+      <p>Use <code>useMention</code> directly to wire your own UI. Spread <code>textareaProps</code> onto a <code>&lt;textarea&gt;</code>, render the dropdown yourself using <code>dropdownProps</code>, <code>getItemProps</code>, and <code>selectSuggestion</code>.</p>
+      <CodeBlock lang="tsx" code={`import { useMention } from "@mshafiqyajid/react-mention";
+
+const {
+  textareaProps,
+  dropdownProps,
+  getItemProps,
+  isOpen,
+  suggestions,
+  activeSuggestion,
+  selectSuggestion,
+  close,
+} = useMention({
+  triggers: [{
+    char: "@",
+    loadSuggestions: (q) => users.filter(u => u.label.includes(q)),
+  }],
+  onChange: (value) => console.log(value),
+});
+
+return (
+  <div style={{ position: "relative" }}>
+    <textarea {...textareaProps} />
+    {isOpen && (
+      <ul {...dropdownProps}>
+        {suggestions.map((s, i) => (
+          <li
+            key={s.id}
+            {...getItemProps(i)}
+            onMouseDown={(e) => { e.preventDefault(); selectSuggestion(i); }}
+            style={{ background: i === activeSuggestion ? "#eef2ff" : undefined }}
+          >
+            {s.label}
+          </li>
+        ))}
+      </ul>
+    )}
+  </div>
+);`} />
+    </div>
+
+    <div class="pkg-section"><H2>Keyboard</H2>
+      <table class="props-table"><thead><tr><th>Key</th><th>Action</th></tr></thead><tbody>
+        <tr><td>@ or # (trigger char)</td><td>Opens suggestion dropdown</td></tr>
+        <tr><td>ArrowDown</td><td>Move selection down</td></tr>
+        <tr><td>ArrowUp</td><td>Move selection up</td></tr>
+        <tr><td>Enter</td><td>Insert selected suggestion</td></tr>
+        <tr><td>Escape</td><td>Close dropdown (insert nothing)</td></tr>
+        <tr><td>Tab</td><td>Close dropdown (insert nothing)</td></tr>
+        <tr><td>Space (allowSpaces=false)</td><td>Close dropdown</td></tr>
+      </tbody></table>
+    </div>
+
+    <div class="pkg-section"><H2>API — MentionStyled props</H2>
+      <table class="props-table"><thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+        <tr><td>value</td><td>string</td><td>—</td><td>Controlled textarea value</td></tr>
+        <tr><td>defaultValue</td><td>string</td><td>""</td><td>Uncontrolled initial value</td></tr>
+        <tr><td>onChange</td><td>(value: string) =&gt; void</td><td>—</td><td>Called on every change with the full textarea string</td></tr>
+        <tr><td>triggers</td><td>MentionTrigger[]</td><td>[{"{"} char: "@" {"}"}]</td><td>Array of trigger configurations</td></tr>
+        <tr><td>disabled</td><td>boolean</td><td>false</td><td>Disables the textarea</td></tr>
+        <tr><td>readOnly</td><td>boolean</td><td>false</td><td>Makes the textarea read-only</td></tr>
+        <tr><td>placeholder</td><td>string</td><td>—</td><td>Textarea placeholder text</td></tr>
+        <tr><td>rows</td><td>number</td><td>3</td><td>Visible row count for the textarea</td></tr>
+        <tr><td>label</td><td>string</td><td>—</td><td>Visible field label</td></tr>
+        <tr><td>hint</td><td>string</td><td>—</td><td>Hint text rendered below the textarea</td></tr>
+        <tr><td>error</td><td>string</td><td>—</td><td>Error message — also sets data-invalid and red border</td></tr>
+        <tr><td>size</td><td>"sm" | "md" | "lg"</td><td>"md"</td><td>Font and padding scale</td></tr>
+        <tr><td>className</td><td>string</td><td>—</td><td>Extra class on root wrapper</td></tr>
+        <tr><td>style</td><td>CSSProperties</td><td>—</td><td>Inline style on root wrapper</td></tr>
+        <tr><td>onMentionAdd</td><td>(triggerChar: string, suggestion: MentionSuggestion) =&gt; void</td><td>—</td><td>Called when a suggestion is selected and inserted. Not called on Escape or Tab.</td></tr>
+        <tr><td>ref</td><td>Ref&lt;HTMLTextAreaElement&gt;</td><td>—</td><td>Forwarded to the textarea element</td></tr>
+      </tbody></table>
+    </div>
+
+    <div class="pkg-section"><H2>API — MentionTrigger</H2>
+      <table class="props-table"><thead><tr><th>Field</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+        <tr><td>char</td><td>string</td><td>required</td><td>Trigger character (e.g. "@" or "#")</td></tr>
+        <tr><td>loadSuggestions</td><td>(query: string) =&gt; MentionSuggestion[] | Promise&lt;MentionSuggestion[]&gt;</td><td>required</td><td>Returns suggestions for the current query. May be async.</td></tr>
+        <tr><td>minChars</td><td>number</td><td>0</td><td>Minimum characters typed after the trigger before the dropdown opens</td></tr>
+        <tr><td>maxSuggestions</td><td>number</td><td>8</td><td>Maximum number of items shown in the dropdown</td></tr>
+        <tr><td>allowSpaces</td><td>boolean</td><td>false</td><td>Whether the query can contain spaces (e.g. for full-name search)</td></tr>
+        <tr><td>renderSuggestion</td><td>(suggestion: MentionSuggestion, isActive: boolean) =&gt; ReactNode</td><td>—</td><td>Custom renderer for each suggestion row. When omitted the default avatar + label + description layout is used.</td></tr>
+      </tbody></table>
+    </div>
+
+    <div class="pkg-section"><H2>API — MentionSuggestion</H2>
+      <table class="props-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
+        <tr><td>id</td><td>string</td><td>Unique identifier (used as React key)</td></tr>
+        <tr><td>label</td><td>string</td><td>Display text in the dropdown</td></tr>
+        <tr><td>value</td><td>string</td><td>Text inserted into the textarea (defaults to label)</td></tr>
+        <tr><td>avatar</td><td>string</td><td>Optional image URL shown as a circular avatar</td></tr>
+        <tr><td>description</td><td>string</td><td>Optional subtitle shown below the label</td></tr>
+      </tbody></table>
+    </div>
+
+    <div class="pkg-section"><H2>API — useMention options</H2>
+      <table class="props-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
+        <tr><td>value</td><td>string</td><td>Controlled textarea value</td></tr>
+        <tr><td>defaultValue</td><td>string</td><td>Uncontrolled initial value</td></tr>
+        <tr><td>onChange</td><td>(value: string) =&gt; void</td><td>Called on every change with the full textarea string</td></tr>
+        <tr><td>triggers</td><td>MentionTrigger[]</td><td>Array of trigger configurations</td></tr>
+        <tr><td>disabled</td><td>boolean</td><td>Disables the textarea</td></tr>
+        <tr><td>readOnly</td><td>boolean</td><td>Makes the textarea read-only</td></tr>
+        <tr><td>onMentionAdd</td><td>(triggerChar: string, suggestion: MentionSuggestion) =&gt; void</td><td>Called when a suggestion is selected and inserted. Not called on Escape or Tab.</td></tr>
+      </tbody></table>
+    </div>
+
+    <div class="pkg-section"><H2>API — useMention return</H2>
+      <table class="props-table"><thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead><tbody>
+        <tr><td>textareaProps</td><td>object</td><td>Spread onto &lt;textarea&gt;. Includes value, onChange, onKeyDown, role, aria-* props</td></tr>
+        <tr><td>dropdownProps</td><td>object</td><td>Spread onto the dropdown list element. Sets id and role="listbox"</td></tr>
+        <tr><td>getItemProps</td><td>(index: number) =&gt; object</td><td>Returns id, role="option", and aria-selected for each item</td></tr>
+        <tr><td>isOpen</td><td>boolean</td><td>Whether the suggestion dropdown is open</td></tr>
+        <tr><td>isLoading</td><td>boolean</td><td>True while an async loadSuggestions Promise is pending</td></tr>
+        <tr><td>query</td><td>string</td><td>Current query string (text after the trigger char)</td></tr>
+        <tr><td>triggerChar</td><td>string</td><td>The trigger character that opened the dropdown</td></tr>
+        <tr><td>suggestions</td><td>MentionSuggestion[]</td><td>Current list of suggestions to render</td></tr>
+        <tr><td>activeSuggestion</td><td>number</td><td>Index of the keyboard-focused suggestion</td></tr>
+        <tr><td>selectSuggestion</td><td>(index: number) =&gt; void</td><td>Inserts the suggestion at the given index into the text</td></tr>
+        <tr><td>close</td><td>() =&gt; void</td><td>Closes the dropdown without inserting anything</td></tr>
+        <tr><td>value</td><td>string</td><td>Current textarea value (controlled or internal)</td></tr>
+      </tbody></table>
+    </div>
+
+    <div class="pkg-section"><H2>CSS variables</H2>
+      <CodeBlock lang="css" code={`:root {
+  --rmen-font-size-sm:    0.8125rem;
+  --rmen-font-size-md:    0.875rem;
+  --rmen-font-size-lg:    1rem;
+  --rmen-radius-sm:       6px;
+  --rmen-radius-md:       8px;
+  --rmen-radius-lg:       10px;
+  --rmen-padding-x-sm:    10px;
+  --rmen-padding-x-md:    12px;
+  --rmen-padding-x-lg:    14px;
+  --rmen-duration:        150ms;
+  --rmen-ease:            cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Colors */
+  --rmen-bg:              #ffffff;
+  --rmen-bg-readonly:     #f4f4f5;
+  --rmen-fg:              #18181b;
+  --rmen-placeholder:     #a1a1aa;
+  --rmen-border:          #d4d4d8;
+  --rmen-border-hover:    #a1a1aa;
+  --rmen-border-focus:    #6366f1;
+  --rmen-shadow-focus:    rgba(99, 102, 241, 0.18);
+  --rmen-label-fg:        #374151;
+  --rmen-hint-fg:         #6b7280;
+  --rmen-error-fg:        #dc2626;
+  --rmen-error-border:    #dc2626;
+  --rmen-error-shadow:    rgba(220, 38, 38, 0.18);
+
+  /* Dropdown */
+  --rmen-dropdown-bg:     #ffffff;
+  --rmen-dropdown-border: #e4e4e7;
+  --rmen-dropdown-shadow: 0 4px 20px rgba(0, 0, 0, 0.10);
+  --rmen-dropdown-radius: 10px;
+  --rmen-item-hover-bg:   #f4f4f5;
+  --rmen-item-active-bg:  #eef2ff;
+  --rmen-item-active-fg:  #4338ca;
+  --rmen-avatar-size:     1.75rem;
+}`} />
+    </div>
+  </PackagePageShell>
+</DocLayout>

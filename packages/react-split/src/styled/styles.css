@@ -1,0 +1,207 @@
+/* ============================================================================
+ * react-split — styled component
+ *
+ * CSS prefix: rspl-
+ * Dark mode: [data-theme="dark"] ancestor only — never @media prefers-color-scheme.
+ * ========================================================================== */
+
+:root {
+  --rspl-resizer-bg: #e4e4e7;
+  --rspl-resizer-bg-hover: #d4d4d8;
+  --rspl-resizer-bg-active: #a1a1aa;
+  --rspl-resizer-handle-bg: #a1a1aa;
+  --rspl-resizer-handle-bg-hover: #71717a;
+  --rspl-pane-transition: flex-basis 150ms ease;
+  --rspl-resizer-size: 6px;
+  --rspl-focus-ring: 0 0 0 2px #6366f1;
+}
+
+/* ============================================================================
+ * Root container
+ * ========================================================================== */
+.rspl-root {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.rspl-root[data-orientation="horizontal"] {
+  flex-direction: row;
+}
+
+.rspl-root[data-orientation="vertical"] {
+  flex-direction: column;
+}
+
+.rspl-root[data-disabled] {
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+/* ============================================================================
+ * Panes
+ * ========================================================================== */
+.rspl-pane {
+  overflow: auto;
+  box-sizing: border-box;
+  flex-grow: 0;
+  flex-shrink: 0;
+}
+
+/* Apply transition only when NOT dragging */
+.rspl-root:not([data-dragging]) .rspl-pane {
+  transition: var(--rspl-pane-transition);
+}
+
+/* Respect reduced-motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .rspl-pane {
+    transition: none !important;
+  }
+}
+
+/* ============================================================================
+ * Resizer
+ * ========================================================================== */
+.rspl-resizer {
+  flex-shrink: 0;
+  flex-grow: 0;
+  position: relative;
+  z-index: 1;
+  background-color: var(--rspl-resizer-bg);
+  transition: background-color 120ms ease;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  outline: none;
+}
+
+.rspl-resizer[data-orientation="horizontal"] {
+  width: var(--rspl-resizer-size, 6px);
+  height: 100%;
+  cursor: col-resize;
+  flex-basis: var(--rspl-resizer-size, 6px);
+}
+
+.rspl-resizer[data-orientation="vertical"] {
+  height: var(--rspl-resizer-size, 6px);
+  width: 100%;
+  cursor: row-resize;
+  flex-basis: var(--rspl-resizer-size, 6px);
+}
+
+.rspl-resizer:hover {
+  background-color: var(--rspl-resizer-bg-hover);
+}
+
+.rspl-root[data-dragging] .rspl-resizer {
+  background-color: var(--rspl-resizer-bg-active);
+}
+
+.rspl-resizer:focus-visible {
+  box-shadow: var(--rspl-focus-ring);
+  background-color: var(--rspl-resizer-bg-hover);
+}
+
+/* Resize handle indicator — centered line in the resizer */
+.rspl-resizer::before {
+  content: "";
+  position: absolute;
+  background-color: var(--rspl-resizer-handle-bg);
+  border-radius: 9999px;
+  transition: background-color 120ms ease;
+}
+
+.rspl-resizer[data-orientation="horizontal"]::before {
+  width: 2px;
+  height: 32px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.rspl-resizer[data-orientation="vertical"]::before {
+  height: 2px;
+  width: 32px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.rspl-resizer:hover::before {
+  background-color: var(--rspl-resizer-handle-bg-hover);
+}
+
+.rspl-root[data-dragging] .rspl-resizer::before {
+  background-color: var(--rspl-resizer-handle-bg-hover);
+}
+
+/* ============================================================================
+ * Collapse button
+ * ========================================================================== */
+.rspl-collapse-btn {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid var(--rspl-resizer-bg-hover);
+  background: var(--rspl-resizer-bg);
+  color: var(--rspl-resizer-handle-bg);
+  cursor: pointer;
+  padding: 0;
+  z-index: 2;
+  /* translate(-50%,-50%) is set via JS; additional rotate comes from inline style;
+     we transition all transform changes smoothly */
+  transition:
+    background-color 120ms ease,
+    color 120ms ease,
+    border-color 120ms ease,
+    transform 220ms cubic-bezier(0.4, 0, 0.2, 1);
+  outline: none;
+  line-height: 1;
+}
+
+.rspl-collapse-btn:hover {
+  background: var(--rspl-resizer-bg-hover);
+  color: var(--rspl-resizer-handle-bg-hover);
+  border-color: var(--rspl-resizer-handle-bg);
+}
+
+.rspl-collapse-btn:focus-visible {
+  box-shadow: var(--rspl-focus-ring);
+}
+
+/* Prevent the ::before handle indicator from showing when collapse button is present */
+.rspl-resizer:has(.rspl-collapse-btn)::before {
+  display: none;
+}
+
+/* ============================================================================
+ * Collapsed panes
+ * ========================================================================== */
+.rspl-pane[data-collapsed="true"] {
+  overflow: hidden;
+  flex-basis: 0% !important;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* ============================================================================
+ * Dark mode — [data-theme="dark"] only
+ * ========================================================================== */
+[data-theme="dark"] .rspl-resizer {
+  --rspl-resizer-bg: #3f3f46;
+  --rspl-resizer-bg-hover: #52525b;
+  --rspl-resizer-bg-active: #71717a;
+  --rspl-resizer-handle-bg: #71717a;
+  --rspl-resizer-handle-bg-hover: #a1a1aa;
+}

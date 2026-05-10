@@ -21,6 +21,10 @@ export const NEW_SLUGS = new Set([
   "drawer",
   "input-mask",
   "time-picker",
+  "split",
+  "signature",
+  "mention",
+  "spotlight",
 ]);
 
 export const categories: NavCategory[] = [
@@ -48,6 +52,8 @@ export const categories: NavCategory[] = [
       { slug: "tag-input",         label: "Tag Input",         icon: "🏷️" },
       { slug: "rating",            label: "Rating",            icon: "⭐" },
       { slug: "rich-text",         label: "Rich Text",         icon: "✍️" },
+      { slug: "mention",           label: "Mention",           icon: "💬" },
+      { slug: "signature",         label: "Signature",         icon: "✒️" },
       { slug: "form",              label: "Form",              icon: "📋" },
     ],
   },
@@ -78,6 +84,7 @@ export const categories: NavCategory[] = [
       { slug: "dropdown-menu",     label: "Dropdown Menu",     icon: "📋" },
       { slug: "context-menu",      label: "Context Menu",      icon: "🖱️" },
       { slug: "command-palette",   label: "Command Palette",   icon: "⌘"  },
+      { slug: "spotlight",         label: "Spotlight",         icon: "🔦" },
     ],
   },
   {
@@ -123,6 +130,7 @@ export const categories: NavCategory[] = [
       { slug: "card",              label: "Card",              icon: "🃏" },
 { slug: "divider",           label: "Divider",           icon: "➖" },
       { slug: "code-block",        label: "Code Block",        icon: "💻" },
+      { slug: "split",             label: "Split",             icon: "⬛" },
     ],
   },
   {

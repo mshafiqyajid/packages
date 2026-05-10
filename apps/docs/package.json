@@ -77,6 +77,10 @@
     "shiki": "^1.0.0",
     "@mshafiqyajid/react-skeleton": "*",
 "@mshafiqyajid/react-input-mask": "*",
+    "@mshafiqyajid/react-split": "*",
+    "@mshafiqyajid/react-signature": "*",
+    "@mshafiqyajid/react-mention": "*",
+    "@mshafiqyajid/react-spotlight": "*",
     "react": "^18.3.0",
     "react-dom": "^18.3.0"
   },

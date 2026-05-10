@@ -1,0 +1,194 @@
+/* react-signature — [data-theme="dark"] only for dark mode */
+:root {
+  --rsig-border-color: #d4d4d8;
+  --rsig-bg: #ffffff;
+  --rsig-radius: 8px;
+  --rsig-toolbar-bg: #f4f4f5;
+  --rsig-toolbar-border: #e4e4e7;
+  --rsig-btn-color: #3f3f46;
+  --rsig-btn-bg: transparent;
+  --rsig-btn-bg-hover: #e4e4e7;
+  --rsig-btn-bg-active: #d4d4d8;
+  --rsig-btn-radius: 6px;
+  --rsig-btn-font-size: 0.8125rem;
+  --rsig-focus-ring: 0 0 0 2px #3b82f6;
+}
+
+[data-theme="dark"] {
+  --rsig-border-color: #3f3f46;
+  --rsig-bg: #18181b;
+  --rsig-toolbar-bg: #27272a;
+  --rsig-toolbar-border: #3f3f46;
+  --rsig-btn-color: #d4d4d8;
+  --rsig-btn-bg-hover: #3f3f46;
+  --rsig-btn-bg-active: #52525b;
+}
+
+/* Root wrapper */
+.rsig-root {
+  display: inline-flex;
+  flex-direction: column;
+  border: 1px solid var(--rsig-border-color);
+  border-radius: var(--rsig-radius);
+  background-color: var(--rsig-bg);
+  overflow: hidden;
+  box-sizing: border-box;
+  width: 100%;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.rsig-root:focus-within {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.18);
+}
+
+/* Canvas */
+.rsig-canvas {
+  display: block;
+  width: 100%;
+  cursor: crosshair;
+  background-color: transparent;
+}
+
+.rsig-root[data-disabled] .rsig-canvas {
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.rsig-root[data-disabled] {
+  opacity: 0.55;
+}
+
+/* Canvas focus ring */
+.rsig-canvas:focus-visible {
+  outline: none;
+  box-shadow: inset var(--rsig-focus-ring);
+}
+
+/* Toolbar */
+.rsig-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 8px;
+  background-color: var(--rsig-toolbar-bg);
+  border-top: 1px solid var(--rsig-toolbar-border);
+}
+
+/* Toolbar buttons */
+.rsig-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border: none;
+  border-radius: var(--rsig-btn-radius);
+  background-color: var(--rsig-btn-bg);
+  color: var(--rsig-btn-color);
+  font-size: var(--rsig-btn-font-size);
+  font-family: inherit;
+  line-height: 1.5;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.rsig-btn:hover:not(:disabled) {
+  background-color: var(--rsig-btn-bg-hover);
+}
+
+.rsig-btn:active:not(:disabled) {
+  background-color: var(--rsig-btn-bg-active);
+}
+
+.rsig-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--rsig-focus-ring);
+}
+
+.rsig-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Disabled state disables toolbar buttons too */
+.rsig-root[data-disabled] .rsig-btn {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Spacer in toolbar to push items to the right */
+.rsig-toolbar-spacer {
+  flex: 1;
+}
+
+/* Divider between toolbar groups */
+.rsig-toolbar-divider {
+  width: 1px;
+  height: 20px;
+  background-color: var(--rsig-toolbar-border);
+  margin: 0 2px;
+  flex-shrink: 0;
+}
+
+/* Ink style buttons — slightly smaller than primary toolbar buttons */
+.rsig-btn--ink,
+.rsig-btn--taper {
+  font-size: 0.75rem;
+  padding: 3px 8px;
+}
+
+/* Label in toolbar */
+.rsig-toolbar-label {
+  font-size: 0.75rem;
+  color: var(--rsig-btn-color);
+  opacity: 0.6;
+  user-select: none;
+}
+
+/* Active state for draw/erase toggle */
+.rsig-btn[data-active] {
+  background-color: var(--rsig-btn-bg-hover);
+  font-weight: 500;
+}
+
+/* Color picker in toolbar */
+.rsig-toolbar-color {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid var(--rsig-toolbar-border);
+  border-radius: var(--rsig-btn-radius);
+  background: none;
+  cursor: pointer;
+  overflow: hidden;
+  transition: border-color 0.15s ease;
+}
+
+.rsig-toolbar-color:hover:not(:disabled) {
+  border-color: var(--rsig-border-color);
+}
+
+.rsig-toolbar-color:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Range slider in toolbar */
+.rsig-toolbar-slider {
+  width: 80px;
+  cursor: pointer;
+  accent-color: #3b82f6;
+}
+
+.rsig-toolbar-slider:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Erase mode cursor */
+.rsig-root[data-mode="erase"] .rsig-canvas {
+  cursor: cell;
+}

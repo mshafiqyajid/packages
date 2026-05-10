@@ -1,0 +1,319 @@
+---
+import DocLayout from "~/layouts/DocLayout.astro";
+import PackagePageShell from "~/components/PackagePageShell.astro";
+import H2 from "~/components/H2.astro";
+import CodeBlock from "~/components/CodeBlock.astro";
+import SpotlightDemo, { MultiStepDemo, PulseDemo, BackdropBlurDemo } from "~/components/demos/SpotlightDemo";
+---
+<DocLayout title="react-spotlight" description="Onboarding spotlight overlay for React — SVG cutout, multi-step tour, pulse ring, backdrop blur, and full accessibility." pkg="spotlight">
+  <PackagePageShell name="react-spotlight" description="Full-screen overlay with an SVG cutout that highlights any element on the page. Supports single-step highlights, multi-step guided tours with built-in prev/next navigation, pulse animation, backdrop blur, eight placement options, focus trap, Escape to close, scroll-into-view, and live tracking via ResizeObserver. Controlled and uncontrolled. Zero dependencies." size="~4 KB">
+
+    <div class="pkg-section"><H2>Playground</H2><SpotlightDemo client:load /></div>
+
+    <div class="pkg-section"><H2>Install</H2>
+      <CodeBlock lang="bash" code="npm install @mshafiqyajid/react-spotlight" />
+    </div>
+
+    <div class="pkg-section"><H2>Quick start</H2>
+      <p>Pass a <code>ref</code> (or a CSS selector string) as <code>target</code> to identify the element the overlay should cut out around. Render your tooltip content as <code>children</code>.</p>
+      <CodeBlock lang="tsx" code={`import { useRef, useState } from "react";
+import { SpotlightStyled } from "@mshafiqyajid/react-spotlight/styled";
+import "@mshafiqyajid/react-spotlight/styles.css";
+
+function App() {
+  const [open, setOpen] = useState(false);
+  const btnRef = useRef<HTMLButtonElement>(null);
+
+  return (
+    <>
+      <button ref={btnRef} onClick={() => setOpen(true)}>
+        Show spotlight
+      </button>
+
+      <SpotlightStyled
+        target={btnRef}
+        open={open}
+        onOpenChange={setOpen}
+        placement="bottom"
+      >
+        <div>
+          <strong>Welcome!</strong>
+          <p>This button starts the tour.</p>
+          <button onClick={() => setOpen(false)}>Got it</button>
+        </div>
+      </SpotlightStyled>
+    </>
+  );
+}`} />
+    </div>
+
+    <div class="pkg-section"><H2>Multi-step tour</H2>
+      <p>Pass a <code>steps</code> array to turn the spotlight into a guided tour. Each step specifies its own <code>target</code> and optionally overrides <code>padding</code>, <code>radius</code>, <code>placement</code>, and <code>content</code>. Prev / Next navigation and a step counter are rendered automatically inside the content panel. The <strong>Done</strong> button appears on the last step and closes the tour.</p>
+      <MultiStepDemo client:load />
+      <CodeBlock lang="tsx" code={`import { useRef, useState } from "react";
+import { SpotlightStyled } from "@mshafiqyajid/react-spotlight/styled";
+import "@mshafiqyajid/react-spotlight/styles.css";
+import type { SpotlightStep } from "@mshafiqyajid/react-spotlight";
+
+function GuidedTour() {
+  const [open, setOpen] = useState(false);
+  const navRef    = useRef<HTMLElement>(null);
+  const searchRef = useRef<HTMLElement>(null);
+  const actionRef = useRef<HTMLElement>(null);
+
+  const steps: SpotlightStep[] = [
+    {
+      target: navRef,
+      placement: "right",
+      content: <p>Use the sidebar to navigate between sections.</p>,
+    },
+    {
+      target: searchRef,
+      padding: 8,
+      content: <p>Search anything from here.</p>,
+    },
+    {
+      target: actionRef,
+      placement: "bottom",
+      content: <p>Create a new item with this button.</p>,
+    },
+  ];
+
+  return (
+    <>
+      {/* ... your UI elements with the refs attached ... */}
+
+      <button onClick={() => setOpen(true)}>Start tour</button>
+
+      {/* SpotlightStyled renders prev/next/done nav automatically */}
+      <SpotlightStyled
+        target={navRef}
+        open={open}
+        onOpenChange={setOpen}
+        steps={steps}
+        pulse
+      />
+    </>
+  );
+}`} />
+      <p>Control the active step yourself with <code>step</code> + <code>onStepChange</code>:</p>
+      <CodeBlock lang="tsx" code={`const [currentStep, setCurrentStep] = useState(0);
+
+<SpotlightStyled
+  target={ref}
+  open={open}
+  onOpenChange={setOpen}
+  steps={steps}
+  step={currentStep}
+  onStepChange={setCurrentStep}
+/>`} />
+    </div>
+
+    <div class="pkg-section"><H2>Pulse animation</H2>
+      <p>Add <code>pulse</code> to draw a ring that expands outward from the cutout, directing the user's attention. The animation is suppressed automatically when the user prefers reduced motion.</p>
+      <PulseDemo client:load />
+      <CodeBlock lang="tsx" code={`<SpotlightStyled target={ref} open={open} onOpenChange={setOpen} pulse>
+  <p>Look here!</p>
+</SpotlightStyled>`} />
+    </div>
+
+    <div class="pkg-section"><H2>Backdrop blur</H2>
+      <p>Set <code>backdropBlur</code> (px) to apply <code>backdrop-filter: blur()</code> behind the overlay. Reduce <code>overlayColor</code> opacity alongside it for a frosted-glass effect.</p>
+      <BackdropBlurDemo client:load />
+      <CodeBlock lang="tsx" code={`<SpotlightStyled
+  target={ref}
+  open={open}
+  onOpenChange={setOpen}
+  backdropBlur={8}
+  overlayColor="rgba(0,0,0,0.4)"
+>
+  <p>Frosted glass overlay</p>
+</SpotlightStyled>`} />
+    </div>
+
+    <div class="pkg-section"><H2>Placement</H2>
+      <p>Eight positions control where the content panel appears relative to the target. In multi-step mode each step can override this independently.</p>
+      <table class="props-table"><thead><tr><th>Value</th><th>Panel position</th></tr></thead><tbody>
+        <tr><td><code>"bottom"</code> (default)</td><td>Centered below the target</td></tr>
+        <tr><td><code>"top"</code></td><td>Centered above the target</td></tr>
+        <tr><td><code>"left"</code> / <code>"right"</code></td><td>Vertically centered beside the target</td></tr>
+        <tr><td><code>"bottom-start"</code> / <code>"bottom-end"</code></td><td>Below, aligned to start or end edge</td></tr>
+        <tr><td><code>"top-start"</code> / <code>"top-end"</code></td><td>Above, aligned to start or end edge</td></tr>
+      </tbody></table>
+    </div>
+
+    <div class="pkg-section"><H2>CSS selector target</H2>
+      <p>Pass a CSS selector string when you don't own the target element's ref — useful for highlighting third-party components or dynamically inserted DOM nodes.</p>
+      <CodeBlock lang="tsx" code={`<SpotlightStyled
+  target="#my-nav-button"
+  open={open}
+  onOpenChange={setOpen}
+>
+  <p>This is the navigation button.</p>
+</SpotlightStyled>`} />
+    </div>
+
+    <div class="pkg-section"><H2>Trigger slot</H2>
+      <p>The <code>trigger</code> prop renders a wrapper that toggles the spotlight on click — no state management required for simple use-cases.</p>
+      <CodeBlock lang="tsx" code={`import { useRef } from "react";
+import { SpotlightStyled } from "@mshafiqyajid/react-spotlight/styled";
+import "@mshafiqyajid/react-spotlight/styles.css";
+
+function App() {
+  const featureRef = useRef<HTMLDivElement>(null);
+
+  return (
+    <>
+      <div ref={featureRef}>Feature area</div>
+
+      <SpotlightStyled
+        target={featureRef}
+        trigger={<button>Highlight</button>}
+      >
+        <p>Now you see me.</p>
+      </SpotlightStyled>
+    </>
+  );
+}`} />
+    </div>
+
+    <div class="pkg-section"><H2>Accessibility</H2>
+      <p>The overlay carries <code>role="dialog"</code>, <code>aria-modal="true"</code>, and <code>aria-label="Spotlight"</code>. Focus is trapped inside while open — Tab / Shift+Tab cycle through focusable children. On close, focus returns to the previously focused element. Escape closes by default (set <code>closeOnEscape={`{false}`}</code> to opt out). Multi-step prev/next/done buttons carry descriptive <code>aria-label</code> values and the disabled prev button on step 0 is excluded from the focus cycle.</p>
+      <CodeBlock lang="tsx" code={`{/* Escape and overlay click disabled — only explicit action closes */}
+<SpotlightStyled
+  target={ref}
+  open={open}
+  onOpenChange={setOpen}
+  closeOnEscape={false}
+  closeOnOverlayClick={false}
+>
+  <div>
+    <p>You must click the button to continue.</p>
+    <button onClick={() => setOpen(false)}>Next</button>
+  </div>
+</SpotlightStyled>`} />
+    </div>
+
+    <div class="pkg-section"><H2>Headless</H2>
+      <p>Use <code>useSpotlight</code> directly when you need full control over the overlay markup — for example to use a custom SVG mask or integrate with an existing modal system.</p>
+      <CodeBlock lang="tsx" code={`import { useSpotlight } from "@mshafiqyajid/react-spotlight";
+import { createPortal } from "react-dom";
+import { useRef } from "react";
+
+function MySpotlight() {
+  const targetRef = useRef<HTMLButtonElement>(null);
+  const { isOpen, open, close, targetRect, overlayProps, spotlightProps, padding, radius } =
+    useSpotlight({ target: targetRef, placement: "bottom" });
+
+  return (
+    <>
+      <button ref={targetRef} onClick={open}>Highlight me</button>
+
+      {isOpen && createPortal(
+        <div {...overlayProps}>
+          {targetRect && (
+            <svg style={{ position: "fixed", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }}>
+              <defs>
+                <mask id="my-mask">
+                  <rect width="100%" height="100%" fill="white" />
+                  <rect
+                    x={targetRect.x - padding}  y={targetRect.y - padding}
+                    width={targetRect.width + padding * 2}
+                    height={targetRect.height + padding * 2}
+                    rx={radius}
+                    fill="black"
+                  />
+                </mask>
+              </defs>
+              <rect width="100%" height="100%" fill="rgba(0,0,0,0.6)" mask="url(#my-mask)" />
+            </svg>
+          )}
+          <div {...spotlightProps}>
+            <p>Custom content</p>
+            <button onClick={close}>Close</button>
+          </div>
+        </div>,
+        document.body
+      )}
+    </>
+  );
+}`} />
+    </div>
+
+    <div class="pkg-section"><H2>SpotlightStep type</H2>
+      <CodeBlock lang="tsx" code={`interface SpotlightStep {
+  /** Ref or CSS selector of the element to highlight */
+  target: React.RefObject<Element | null> | string;
+  /** Padding around the target in px — overrides root padding */
+  padding?: number;
+  /** Cutout border-radius in px — overrides root radius */
+  radius?: number;
+  /** Content panel placement — overrides root placement */
+  placement?: SpotlightPlacement;
+  /** Content rendered in the panel for this step */
+  content?: React.ReactNode;
+}`} />
+    </div>
+
+    <div class="pkg-section"><H2>API</H2>
+      <table class="props-table"><thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+        <tr><td>target</td><td>RefObject&lt;Element&gt; | string</td><td>—</td><td>Element to highlight. Required.</td></tr>
+        <tr><td>open</td><td>boolean</td><td>—</td><td>Controlled open state.</td></tr>
+        <tr><td>defaultOpen</td><td>boolean</td><td>false</td><td>Uncontrolled initial open state.</td></tr>
+        <tr><td>onOpenChange</td><td>(open: boolean) =&gt; void</td><td>—</td><td>Called when open state changes.</td></tr>
+        <tr><td>padding</td><td>number</td><td>8</td><td>Extra space around the target cutout in px.</td></tr>
+        <tr><td>radius</td><td>number</td><td>8</td><td>Border radius of the cutout in px.</td></tr>
+        <tr><td>placement</td><td>SpotlightPlacement</td><td>"bottom"</td><td>Content panel placement relative to target.</td></tr>
+        <tr><td>overlayColor</td><td>string</td><td>"rgba(0,0,0,0.6)"</td><td>Overlay fill color.</td></tr>
+        <tr><td>backdropBlur</td><td>number</td><td>0</td><td>Backdrop blur in px — applies <code>backdrop-filter: blur()</code>.</td></tr>
+        <tr><td>pulse</td><td>boolean</td><td>false</td><td>Show a pulsing ring around the cutout border.</td></tr>
+        <tr><td>closeOnOverlayClick</td><td>boolean</td><td>true</td><td>Close when clicking the overlay background.</td></tr>
+        <tr><td>closeOnEscape</td><td>boolean</td><td>true</td><td>Close on Escape key.</td></tr>
+        <tr><td>scrollIntoView</td><td>boolean</td><td>true</td><td>Scroll target into view on open and on step change.</td></tr>
+        <tr><td>children</td><td>ReactNode</td><td>—</td><td>Tooltip content (ignored when <code>steps</code> is set — use step <code>content</code> instead).</td></tr>
+        <tr><td>trigger</td><td>ReactNode</td><td>—</td><td>Renders a toggle wrapper — clicking it opens/closes the spotlight.</td></tr>
+        <tr><td>steps</td><td>SpotlightStep[]</td><td>—</td><td>Multi-step tour steps with built-in nav.</td></tr>
+        <tr><td>step</td><td>number</td><td>—</td><td>Controlled active step index.</td></tr>
+        <tr><td>defaultStep</td><td>number</td><td>0</td><td>Uncontrolled initial step index.</td></tr>
+        <tr><td>onStepChange</td><td>(step: number) =&gt; void</td><td>—</td><td>Called when the active step changes.</td></tr>
+        <tr><td>className</td><td>string</td><td>—</td><td>Class added to the overlay root element.</td></tr>
+        <tr><td>style</td><td>CSSProperties</td><td>—</td><td>Inline style on the overlay root element.</td></tr>
+      </tbody></table>
+    </div>
+
+    <div class="pkg-section"><H2>useSpotlight return values</H2>
+      <table class="props-table"><thead><tr><th>Name</th><th>Type</th><th>Description</th></tr></thead><tbody>
+        <tr><td>isOpen</td><td>boolean</td><td>Whether the overlay is open.</td></tr>
+        <tr><td>open</td><td>() =&gt; void</td><td>Open the spotlight.</td></tr>
+        <tr><td>close</td><td>() =&gt; void</td><td>Close the spotlight.</td></tr>
+        <tr><td>toggle</td><td>() =&gt; void</td><td>Toggle open / closed.</td></tr>
+        <tr><td>targetRect</td><td>TargetRect | null</td><td>Live measured bounding rect of the active target: <code>{`{ x, y, width, height }`}</code>.</td></tr>
+        <tr><td>padding</td><td>number</td><td>Resolved padding for the current step.</td></tr>
+        <tr><td>radius</td><td>number</td><td>Resolved cutout radius for the current step.</td></tr>
+        <tr><td>overlayProps</td><td>object</td><td>Spread onto the overlay element — role, aria-modal, aria-label, data-open, onClick, onKeyDown, style, tabIndex.</td></tr>
+        <tr><td>spotlightProps</td><td>object</td><td>Spread onto the content container — computed placement style.</td></tr>
+        <tr><td>step</td><td>number</td><td>Active step index (0 in single-step mode).</td></tr>
+        <tr><td>totalSteps</td><td>number</td><td>Total steps (0 when <code>steps</code> is not set).</td></tr>
+        <tr><td>nextStep</td><td>() =&gt; void</td><td>Advance to next step — clamped at last step.</td></tr>
+        <tr><td>prevStep</td><td>() =&gt; void</td><td>Go back one step — clamped at first step.</td></tr>
+        <tr><td>goToStep</td><td>(n: number) =&gt; void</td><td>Jump to any step index.</td></tr>
+      </tbody></table>
+    </div>
+
+    <div class="pkg-section"><H2>CSS variables</H2>
+      <CodeBlock lang="css" code={`:root {
+  --rspot-overlay-color:   rgba(0, 0, 0, 0.6);
+  --rspot-backdrop-blur:   0px;
+  --rspot-content-bg:      #ffffff;
+  --rspot-content-fg:      #18181b;
+  --rspot-content-border:  #e4e4e7;
+  --rspot-content-shadow:  0 8px 32px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.1);
+  --rspot-content-radius:  12px;
+  --rspot-duration-in:     200ms;
+  --rspot-duration-out:    150ms;
+  --rspot-ease:            cubic-bezier(0.32, 0.72, 0, 1);
+}`} />
+    </div>
+
+  </PackagePageShell>
+</DocLayout>

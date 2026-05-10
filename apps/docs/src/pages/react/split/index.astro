@@ -1,0 +1,264 @@
+---
+import DocLayout from "~/layouts/DocLayout.astro";
+import PackagePageShell from "~/components/PackagePageShell.astro";
+import H2 from "~/components/H2.astro";
+import CodeBlock from "~/components/CodeBlock.astro";
+import SplitDemo from "~/components/demos/SplitDemo";
+---
+<DocLayout title="react-split" description="Resizable split panel for React — 2 or more panes, horizontal and vertical orientation, keyboard navigation, controlled and uncontrolled modes, per-pane min/max constraints, collapsible panes, snap points, persistent sizes, double-click to equalize." pkg="split">
+  <PackagePageShell name="react-split" description="Headless split hook and styled component. Two-or-more pane resizable panel — horizontal or vertical, drag to resize, double-click any resizer to equalize all panes, full keyboard support (arrow keys, Home, End), ARIA separator role, controlled and uncontrolled modes, per-pane min/max constraints, collapsible panes with toggle button, snap points, persistent sizes via localStorage, smooth transition only when not dragging, reduced-motion support. Zero dependencies." size="~3 KB">
+    <div class="pkg-section"><H2>Playground</H2><SplitDemo client:load /></div>
+    <div class="pkg-section"><H2>Install</H2><CodeBlock lang="bash" code="npm install @mshafiqyajid/react-split" /></div>
+    <div class="pkg-section"><H2>Quick start</H2>
+      <CodeBlock lang="tsx" code={`import { SplitStyled } from "@mshafiqyajid/react-split/styled";
+import "@mshafiqyajid/react-split/styles.css";
+
+<SplitStyled style={{ height: 400 }}>
+  <div>Left pane content</div>
+  <div>Right pane content</div>
+</SplitStyled>`} />
+    </div>
+    <div class="pkg-section"><H2>Orientation</H2>
+      <p>Set <code>orientation</code> to <code>"horizontal"</code> (default, left/right panes) or <code>"vertical"</code> (top/bottom panes).</p>
+      <CodeBlock lang="tsx" code={`{/* Horizontal — left and right panes (default) */}
+<SplitStyled orientation="horizontal" style={{ height: 300 }}>
+  <div>Left</div>
+  <div>Right</div>
+</SplitStyled>
+
+{/* Vertical — top and bottom panes */}
+<SplitStyled orientation="vertical" style={{ height: 400 }}>
+  <div>Top</div>
+  <div>Bottom</div>
+</SplitStyled>`} />
+    </div>
+    <div class="pkg-section"><H2>3-pane layout</H2>
+      <p>Pass 3 or more children to get a multi-pane split with N−1 independent resizers. Use <code>defaultSizes</code> as an array of N percentages summing to 100. Double-click any resizer to equalize all panes.</p>
+      <CodeBlock lang="tsx" code={`<SplitStyled defaultSizes={[25, 50, 25]} style={{ height: 400 }}>
+  <aside>Sidebar</aside>
+  <main>Content</main>
+  <aside>Inspector</aside>
+</SplitStyled>
+
+{/* 4-pane example */}
+<SplitStyled defaultSizes={[20, 30, 30, 20]} style={{ height: 400 }}>
+  <div>Pane 1</div>
+  <div>Pane 2</div>
+  <div>Pane 3</div>
+  <div>Pane 4</div>
+</SplitStyled>`} />
+    </div>
+    <div class="pkg-section"><H2>Double-click to equalize</H2>
+      <p>Double-click any resizer to snap all panes to equal sizes (e.g. 50/50 for 2 panes, 33/33/34 for 3 panes). A native tooltip <code>"Double-click to equalize"</code> appears on hover. This works with the headless hook too via <code>getResizerProps(index).onDoubleClick</code>.</p>
+    </div>
+    <div class="pkg-section"><H2>Controlled sizes</H2>
+      <p>Pass <code>sizes</code> and <code>onResize</code> to control the panel sizes from state. Sizes are percentages that must sum to 100.</p>
+      <CodeBlock lang="tsx" code={`const [sizes, setSizes] = useState<number[]>([40, 60]);
+
+<SplitStyled
+  sizes={sizes}
+  onResize={setSizes}
+  onResizeEnd={(s) => console.log("resize ended", s)}
+  style={{ height: 300 }}
+>
+  <div>Left · {sizes[0]}%</div>
+  <div>Right · {sizes[1]}%</div>
+</SplitStyled>`} />
+    </div>
+    <div class="pkg-section"><H2>Min / max constraints</H2>
+      <p>Use <code>minSize</code> and <code>maxSize</code> to prevent panes from becoming too small or too large. Pass a single number for all panes, or an array for per-pane constraints.</p>
+      <CodeBlock lang="tsx" code={`{/* All panes: min 20%, max 80% */}
+<SplitStyled minSize={20} maxSize={80} style={{ height: 300 }}>
+  <div>Left</div>
+  <div>Right</div>
+</SplitStyled>
+
+{/* Per-pane: left min 30%, right min 15% */}
+<SplitStyled minSize={[30, 15]} style={{ height: 300 }}>
+  <div>Left</div>
+  <div>Right</div>
+</SplitStyled>`} />
+    </div>
+    <div class="pkg-section"><H2>Custom resizer size</H2>
+      <p>Control the thickness of the drag handle with <code>resizerSize</code> (pixels).</p>
+      <CodeBlock lang="tsx" code={`<SplitStyled resizerSize={12} style={{ height: 300 }}>
+  <div>Left</div>
+  <div>Right</div>
+</SplitStyled>`} />
+    </div>
+    <div class="pkg-section"><H2>Disabled</H2>
+      <p>Set <code>disabled</code> to prevent resizing. The resizer becomes non-interactive and the container gets <code>data-disabled</code>.</p>
+      <CodeBlock lang="tsx" code={`<SplitStyled disabled defaultSizes={[35, 65]} style={{ height: 300 }}>
+  <div>Fixed left</div>
+  <div>Fixed right</div>
+</SplitStyled>`} />
+    </div>
+    <div class="pkg-section"><H2>Collapsible panes</H2>
+      <p>Add <code>collapsible</code> to show a chevron toggle button in the resizer. Clicking it collapses the adjacent pane to zero width/height; clicking again restores the previous size.</p>
+      <p>Pass a boolean to make all panes collapsible, or an array to control each pane independently. Use <code>defaultCollapsed</code> to set the initial state, or <code>collapsed</code> + <code>onCollapseChange</code> for controlled mode.</p>
+      <CodeBlock lang="tsx" code={`{/* Both panes collapsible */}
+<SplitStyled collapsible style={{ height: 300 }}>
+  <div>Left</div>
+  <div>Right</div>
+</SplitStyled>
+
+{/* Only pane 0 (left/top) is collapsible */}
+<SplitStyled collapsible={[true, false]} style={{ height: 300 }}>
+  <div>Collapsible left</div>
+  <div>Always visible right</div>
+</SplitStyled>
+
+{/* Start with pane 0 collapsed */}
+<SplitStyled collapsible defaultCollapsed={[true, false]} style={{ height: 300 }}>
+  <div>Left (starts collapsed)</div>
+  <div>Right</div>
+</SplitStyled>
+
+{/* Controlled collapse */}
+const [collapsed, setCollapsed] = useState<boolean[]>([false, false]);
+
+<SplitStyled
+  collapsible
+  collapsed={collapsed}
+  onCollapseChange={setCollapsed}
+  style={{ height: 300 }}
+>
+  <div>Left</div>
+  <div>Right</div>
+</SplitStyled>`} />
+      <p>The headless hook also exposes <code>collapsed</code> and <code>collapse(index, value?)</code>:</p>
+      <CodeBlock lang="tsx" code={`const { collapsed, collapse, ...rest } = useSplit({ collapsible: true });
+
+// Collapse pane 0
+collapse(0);
+// Expand pane 1
+collapse(1, false);`} />
+    </div>
+    <div class="pkg-section"><H2>Snap points</H2>
+      <p>Pass <code>snapPoints</code> as an array of percentages. While dragging, if the first pane size comes within 3% of any snap point, it snaps smoothly to that value.</p>
+      <CodeBlock lang="tsx" code={`{/* Snap to 25%, 50%, and 75% */}
+<SplitStyled snapPoints={[25, 50, 75]} style={{ height: 300 }}>
+  <div>Left</div>
+  <div>Right</div>
+</SplitStyled>
+
+{/* Third-split snap points */}
+<SplitStyled snapPoints={[33, 66]} minSize={5} maxSize={95} style={{ height: 300 }}>
+  <div>Left</div>
+  <div>Right</div>
+</SplitStyled>`} />
+    </div>
+    <div class="pkg-section"><H2>Persistent sizes</H2>
+      <p>Set <code>persistent</code> to a unique string key. The pane sizes are saved in <code>localStorage</code> under <code>rspl:&lt;key&gt;</code> and restored on mount. This is SSR-safe — storage access is guarded with <code>typeof window !== "undefined"</code>.</p>
+      <CodeBlock lang="tsx" code={`{/* Size is saved/restored across page loads */}
+<SplitStyled persistent="my-editor-layout" style={{ height: 300 }}>
+  <div>File tree</div>
+  <div>Editor</div>
+</SplitStyled>
+
+{/* Multiple independent splits on one page */}
+<SplitStyled persistent="sidebar" style={{ height: 300 }}>
+  <div>Sidebar</div>
+  <div>Content</div>
+</SplitStyled>
+
+<SplitStyled persistent="console" orientation="vertical" style={{ height: 300 }}>
+  <div>Editor</div>
+  <div>Console</div>
+</SplitStyled>`} />
+    </div>
+    <div class="pkg-section"><H2>Keyboard navigation</H2>
+      <p>Focus the resizer (Tab to reach it) and use:</p>
+      <ul>
+        <li><kbd>ArrowLeft</kbd> / <kbd>ArrowRight</kbd> — move 1% (horizontal)</li>
+        <li><kbd>ArrowUp</kbd> / <kbd>ArrowDown</kbd> — move 1% (vertical)</li>
+        <li><kbd>Shift</kbd> + arrow — move 5%</li>
+        <li><kbd>Home</kbd> — snap to minimum</li>
+        <li><kbd>End</kbd> — snap to maximum</li>
+      </ul>
+    </div>
+    <div class="pkg-section"><H2>Headless</H2>
+      <p>Use <code>useSplit</code> directly for full control over markup and styling. <code>getResizerProps(index)</code> accepts a resizer index for multi-pane layouts.</p>
+      <CodeBlock lang="tsx" code={`import { useSplit } from "@mshafiqyajid/react-split";
+
+function MySplit() {
+  const {
+    containerProps,
+    getPaneProps,
+    getResizerProps,
+    sizes,
+    isDragging,
+    collapsed,
+    collapse,
+  } = useSplit({
+    orientation: "horizontal",
+    defaultSizes: [25, 50, 25],
+    minSize: 10,
+    maxSize: 90,
+    collapsible: true,
+    snapPoints: [25, 50, 75],
+    persistent: "my-split",
+  });
+
+  return (
+    <div {...containerProps} style={{ ...containerProps.style, height: 300 }}>
+      <div {...getPaneProps(0)} className="my-pane">
+        Left · {Math.round(sizes[0])}%
+      </div>
+      <div {...getResizerProps(0)} className="my-resizer" />
+      <div {...getPaneProps(1)} className="my-pane">
+        Center · {Math.round(sizes[1])}%
+      </div>
+      <div {...getResizerProps(1)} className="my-resizer" />
+      <div {...getPaneProps(2)} className="my-pane">
+        Right · {Math.round(sizes[2])}%
+      </div>
+    </div>
+  );
+}`} />
+    </div>
+    <div class="pkg-section"><H2>API</H2>
+      <table class="props-table"><thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+        <tr><td>orientation</td><td>"horizontal" | "vertical"</td><td>"horizontal"</td><td>Direction of the split — horizontal = left/right, vertical = top/bottom</td></tr>
+        <tr><td>defaultSizes</td><td>number[]</td><td>equal split</td><td>Initial pane sizes as percentages (must sum to 100); uncontrolled only</td></tr>
+        <tr><td>sizes</td><td>number[]</td><td>—</td><td>Controlled pane sizes as percentages</td></tr>
+        <tr><td>onResize</td><td>(sizes: number[]) =&gt; void</td><td>—</td><td>Called continuously while dragging or on each keyboard step</td></tr>
+        <tr><td>onResizeEnd</td><td>(sizes: number[]) =&gt; void</td><td>—</td><td>Called once when drag ends, keyboard key is released, or panes are equalized</td></tr>
+        <tr><td>minSize</td><td>number | number[]</td><td>10</td><td>Minimum pane size in percent — single value for all panes, or per-pane array</td></tr>
+        <tr><td>maxSize</td><td>number | number[]</td><td>90</td><td>Maximum pane size in percent — single value for all panes, or per-pane array</td></tr>
+        <tr><td>resizerSize</td><td>number</td><td>6</td><td>Thickness of the drag divider in pixels</td></tr>
+        <tr><td>disabled</td><td>boolean</td><td>false</td><td>Disable resizing; adds <code>data-disabled</code> to root</td></tr>
+        <tr><td>collapsible</td><td>boolean | boolean[]</td><td>—</td><td>Show collapse toggle button in resizer — true for all panes, or per-pane array</td></tr>
+        <tr><td>collapsed</td><td>boolean[]</td><td>—</td><td>Controlled collapsed state for each pane</td></tr>
+        <tr><td>defaultCollapsed</td><td>boolean[]</td><td>[false, ...]</td><td>Initial collapsed state; uncontrolled only</td></tr>
+        <tr><td>onCollapseChange</td><td>(collapsed: boolean[]) =&gt; void</td><td>—</td><td>Called when any pane is collapsed or expanded</td></tr>
+        <tr><td>snapPoints</td><td>number[]</td><td>—</td><td>Snap pane 0 to these percentages when dragging within 3% of each point</td></tr>
+        <tr><td>persistent</td><td>string</td><td>—</td><td>localStorage key suffix — saves/restores sizes under <code>rspl:&lt;key&gt;</code></td></tr>
+        <tr><td>children</td><td>ReactNode[]</td><td>—</td><td>Two or more children — one per pane</td></tr>
+        <tr><td>className</td><td>string</td><td>—</td><td>Extra class on root element</td></tr>
+        <tr><td>style</td><td>CSSProperties</td><td>—</td><td>Inline style override on root element (use to set height)</td></tr>
+        <tr><td>ref</td><td>Ref&lt;HTMLDivElement&gt;</td><td>—</td><td>Forwarded ref to the container div</td></tr>
+      </tbody></table>
+    </div>
+    <div class="pkg-section"><H2>Data attributes</H2>
+      <table class="props-table"><thead><tr><th>Attribute</th><th>Values</th><th>Where</th><th>Description</th></tr></thead><tbody>
+        <tr><td>data-orientation</td><td>"horizontal" | "vertical"</td><td>Root</td><td>Current orientation</td></tr>
+        <tr><td>data-dragging</td><td>"true" | absent</td><td>Root</td><td>Present while user is dragging; use to suppress pane transitions</td></tr>
+        <tr><td>data-disabled</td><td>present | absent</td><td>Root</td><td>Present when <code>disabled</code> is true</td></tr>
+        <tr><td>data-collapsed-N</td><td>"true" | absent</td><td>Root</td><td>Present when pane N is collapsed (e.g. <code>data-collapsed-0</code>, <code>data-collapsed-1</code>)</td></tr>
+        <tr><td>data-collapsed</td><td>"true" | absent</td><td>Pane</td><td>Present on a pane when it is currently collapsed</td></tr>
+      </tbody></table>
+    </div>
+    <div class="pkg-section"><H2>CSS variables</H2>
+      <CodeBlock lang="css" code={`:root {
+  --rspl-resizer-bg: #e4e4e7;          /* resizer track color */
+  --rspl-resizer-bg-hover: #d4d4d8;    /* resizer track on hover */
+  --rspl-resizer-bg-active: #a1a1aa;   /* resizer track while dragging */
+  --rspl-resizer-handle-bg: #a1a1aa;   /* center handle line color */
+  --rspl-resizer-handle-bg-hover: #71717a; /* center handle on hover */
+  --rspl-pane-transition: flex-basis 150ms ease; /* pane size transition */
+  --rspl-focus-ring: 0 0 0 2px #6366f1; /* resizer focus ring */
+}`} />
+    </div>
+  </PackagePageShell>
+</DocLayout>

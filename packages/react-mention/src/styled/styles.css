@@ -1,0 +1,419 @@
+/* react-mention — styled component
+ * Dark mode via [data-theme="dark"] ancestor only.
+ * No @media (prefers-color-scheme: dark).
+ */
+
+:root {
+  --rmen-font-size-sm:   0.8125rem;
+  --rmen-font-size-md:   0.875rem;
+  --rmen-font-size-lg:   1rem;
+
+  --rmen-radius-sm:      6px;
+  --rmen-radius-md:      8px;
+  --rmen-radius-lg:      10px;
+
+  --rmen-padding-x-sm:   10px;
+  --rmen-padding-x-md:   12px;
+  --rmen-padding-x-lg:   14px;
+  --rmen-padding-y-sm:   6px;
+  --rmen-padding-y-md:   8px;
+  --rmen-padding-y-lg:   10px;
+
+  --rmen-duration:       150ms;
+  --rmen-ease:           cubic-bezier(0.4, 0, 0.2, 1);
+
+  --rmen-bg:             #ffffff;
+  --rmen-bg-readonly:    #f4f4f5;
+  --rmen-fg:             #18181b;
+  --rmen-placeholder:    #a1a1aa;
+
+  --rmen-border:         #d4d4d8;
+  --rmen-border-hover:   #a1a1aa;
+  --rmen-border-focus:   #6366f1;
+  --rmen-shadow-focus:   rgba(99, 102, 241, 0.18);
+
+  --rmen-label-fg:       #374151;
+  --rmen-hint-fg:        #6b7280;
+  --rmen-error-fg:       #dc2626;
+  --rmen-error-border:   #dc2626;
+  --rmen-error-shadow:   rgba(220, 38, 38, 0.18);
+
+  /* Dropdown */
+  --rmen-dropdown-bg:    #ffffff;
+  --rmen-dropdown-border:#e4e4e7;
+  --rmen-dropdown-shadow:0 4px 20px rgba(0, 0, 0, 0.10);
+  --rmen-dropdown-radius:10px;
+
+  /* Suggestion items */
+  --rmen-item-hover-bg:  #f4f4f5;
+  --rmen-item-active-bg: #eef2ff;
+  --rmen-item-active-fg: #4338ca;
+
+  /* Avatar */
+  --rmen-avatar-size:    1.75rem;
+}
+
+[data-theme="dark"] {
+  --rmen-bg:             #18181b;
+  --rmen-bg-readonly:    #27272a;
+  --rmen-fg:             #fafafa;
+  --rmen-placeholder:    #52525b;
+
+  --rmen-border:         #3f3f46;
+  --rmen-border-hover:   #71717a;
+  --rmen-border-focus:   #818cf8;
+  --rmen-shadow-focus:   rgba(129, 140, 248, 0.18);
+
+  --rmen-label-fg:       #e4e4e7;
+  --rmen-hint-fg:        #a1a1aa;
+  --rmen-error-fg:       #f87171;
+  --rmen-error-border:   #f87171;
+  --rmen-error-shadow:   rgba(248, 113, 113, 0.18);
+
+  --rmen-dropdown-bg:    #27272a;
+  --rmen-dropdown-border:#3f3f46;
+  --rmen-dropdown-shadow:0 4px 20px rgba(0, 0, 0, 0.32);
+
+  --rmen-item-hover-bg:  #3f3f46;
+  --rmen-item-active-bg: #312e81;
+  --rmen-item-active-fg: #a5b4fc;
+}
+
+/* ── Root ─────────────────────────────────────────────────────────────────── */
+.rmen-root {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-family: inherit;
+  font-size: var(--rmen-font-size-md);
+  color: var(--rmen-fg);
+  width: 100%;
+  position: relative;
+}
+
+/* ── Control (textarea + highlight overlay wrapper) ───────────────────────── */
+.rmen-control {
+  position: relative;
+}
+
+.rmen-root[data-size="sm"] { font-size: var(--rmen-font-size-sm); }
+.rmen-root[data-size="md"] { font-size: var(--rmen-font-size-md); }
+.rmen-root[data-size="lg"] { font-size: var(--rmen-font-size-lg); }
+
+/* ── Label ────────────────────────────────────────────────────────────────── */
+.rmen-label {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--rmen-label-fg);
+  line-height: 1.3;
+  user-select: none;
+}
+
+/* ── Textarea ─────────────────────────────────────────────────────────────── */
+.rmen-textarea {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  appearance: none;
+  font: inherit;
+  font-size: inherit;
+  color: var(--rmen-fg);
+  background: var(--rmen-bg);
+  border: 1.5px solid var(--rmen-border);
+  border-radius: var(--rmen-radius-md);
+  padding: var(--rmen-padding-y-md) var(--rmen-padding-x-md);
+  outline: none;
+  line-height: 1.6;
+  resize: vertical;
+  transition:
+    border-color var(--rmen-duration) var(--rmen-ease),
+    box-shadow   var(--rmen-duration) var(--rmen-ease),
+    background   var(--rmen-duration) var(--rmen-ease);
+}
+
+.rmen-root[data-size="sm"] .rmen-textarea {
+  border-radius: var(--rmen-radius-sm);
+  padding: var(--rmen-padding-y-sm) var(--rmen-padding-x-sm);
+}
+.rmen-root[data-size="lg"] .rmen-textarea {
+  border-radius: var(--rmen-radius-lg);
+  padding: var(--rmen-padding-y-lg) var(--rmen-padding-x-lg);
+}
+
+.rmen-textarea::placeholder {
+  color: var(--rmen-placeholder);
+}
+
+/* Hover */
+.rmen-textarea:hover:not(:disabled):not([readonly]) {
+  border-color: var(--rmen-border-hover);
+}
+
+/* Focus */
+.rmen-textarea:focus {
+  border-color: var(--rmen-border-focus);
+  box-shadow: 0 0 0 3px var(--rmen-shadow-focus);
+}
+
+/* Invalid */
+.rmen-root[data-invalid="true"] .rmen-textarea {
+  border-color: var(--rmen-error-border);
+}
+.rmen-root[data-invalid="true"] .rmen-textarea:focus {
+  box-shadow: 0 0 0 3px var(--rmen-error-shadow);
+}
+
+/* Disabled */
+.rmen-textarea:disabled,
+.rmen-root[data-disabled="true"] .rmen-textarea {
+  opacity: 0.55;
+  cursor: not-allowed;
+  resize: none;
+}
+
+/* Read-only */
+.rmen-textarea[readonly],
+.rmen-root[data-readonly="true"] .rmen-textarea {
+  background: var(--rmen-bg-readonly);
+  cursor: default;
+}
+
+/* ── Hint / error ─────────────────────────────────────────────────────────── */
+.rmen-hint {
+  font-size: 0.75rem;
+  color: var(--rmen-hint-fg);
+  line-height: 1.4;
+}
+
+.rmen-hint[data-error="true"] {
+  color: var(--rmen-error-fg);
+  animation: rmen-error-in var(--rmen-duration) var(--rmen-ease) both;
+}
+
+@keyframes rmen-error-in {
+  from { opacity: 0; transform: translateY(-2px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Dropdown portal ──────────────────────────────────────────────────────── */
+.rmen-dropdown {
+  position: fixed;
+  z-index: 9999;
+  background: var(--rmen-dropdown-bg);
+  border: 1px solid var(--rmen-dropdown-border);
+  border-radius: var(--rmen-dropdown-radius);
+  box-shadow: var(--rmen-dropdown-shadow);
+  overflow: hidden;
+  max-height: 260px;
+  overflow-y: auto;
+  min-width: 200px;
+
+  opacity: 0;
+  transform: translateY(4px);
+  pointer-events: none;
+  transition:
+    opacity   var(--rmen-duration) var(--rmen-ease),
+    transform var(--rmen-duration) var(--rmen-ease);
+}
+
+.rmen-dropdown[data-open="true"] {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* ── Listbox ──────────────────────────────────────────────────────────────── */
+.rmen-listbox {
+  list-style: none;
+  margin: 0;
+  padding: 4px 0;
+}
+
+/* ── Suggestion item ──────────────────────────────────────────────────────── */
+.rmen-item {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.45rem 0.75rem;
+  cursor: pointer;
+  user-select: none;
+  transition: background var(--rmen-duration) var(--rmen-ease);
+}
+
+.rmen-item:hover {
+  background: var(--rmen-item-hover-bg);
+}
+
+.rmen-item[aria-selected="true"],
+.rmen-item[data-active="true"] {
+  background: var(--rmen-item-active-bg);
+  color: var(--rmen-item-active-fg);
+}
+
+/* ── Avatar ───────────────────────────────────────────────────────────────── */
+.rmen-avatar {
+  width: var(--rmen-avatar-size);
+  height: var(--rmen-avatar-size);
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.rmen-avatar-placeholder {
+  width: var(--rmen-avatar-size);
+  height: var(--rmen-avatar-size);
+  border-radius: 50%;
+  background: var(--rmen-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--rmen-hint-fg);
+  flex-shrink: 0;
+  text-transform: uppercase;
+}
+
+/* ── Item text ────────────────────────────────────────────────────────────── */
+.rmen-item-body {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.rmen-item-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: inherit;
+}
+
+.rmen-item-description {
+  font-size: 0.75rem;
+  color: var(--rmen-hint-fg);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 1px;
+}
+
+.rmen-item[aria-selected="true"] .rmen-item-description,
+.rmen-item[data-active="true"] .rmen-item-description {
+  color: var(--rmen-item-active-fg);
+  opacity: 0.75;
+}
+
+/* ── Empty state ──────────────────────────────────────────────────────────── */
+.rmen-empty {
+  padding: 0.6rem 0.75rem;
+  font-size: 0.8125rem;
+  color: var(--rmen-hint-fg);
+  text-align: center;
+}
+
+/* ── Loading state ────────────────────────────────────────────────────────── */
+.rmen-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem;
+  list-style: none;
+}
+
+.rmen-spinner {
+  display: inline-block;
+  width: 1.125rem;
+  height: 1.125rem;
+  border: 2px solid var(--rmen-border);
+  border-top-color: var(--rmen-border-focus);
+  border-radius: 50%;
+  animation: rmen-spin 0.65s linear infinite;
+}
+
+@keyframes rmen-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Highlight overlay ────────────────────────────────────────────────────── */
+.rmen-highlight-layer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  color: transparent;
+}
+
+/* ── Mention tokens ───────────────────────────────────────────────────────── */
+.rmen-mention {
+  border-radius: 3px;
+  padding: 0 1px;
+}
+
+.rmen-mention--at {
+  background: rgba(99, 102, 241, 0.15);
+  color: transparent;
+}
+
+.rmen-mention--hash {
+  background: rgba(16, 185, 129, 0.15);
+  color: transparent;
+}
+
+.rmen-mention--default {
+  background: rgba(245, 158, 11, 0.15);
+  color: transparent;
+}
+
+[data-theme="dark"] .rmen-mention--at {
+  background: rgba(129, 140, 248, 0.2);
+}
+
+[data-theme="dark"] .rmen-mention--hash {
+  background: rgba(52, 211, 153, 0.2);
+}
+
+[data-theme="dark"] .rmen-mention--default {
+  background: rgba(251, 191, 36, 0.2);
+}
+
+/* ── Keyboard hint footer ─────────────────────────────────────────────────── */
+.rmen-dropdown-hint {
+  padding: 4px 10px;
+  font-size: 0.7rem;
+  color: var(--rmen-hint-fg);
+  border-top: 1px solid var(--rmen-dropdown-border);
+  opacity: 0.7;
+  user-select: none;
+}
+
+/* ── Reduced motion ────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .rmen-textarea,
+  .rmen-item {
+    transition: none;
+  }
+
+  .rmen-dropdown {
+    transition: opacity var(--rmen-duration) var(--rmen-ease);
+    transform: none;
+  }
+
+  .rmen-dropdown[data-open="true"] {
+    transform: none;
+  }
+
+  .rmen-hint[data-error="true"] {
+    animation: none;
+  }
+
+  .rmen-spinner {
+    animation-duration: 1.5s;
+  }
+}

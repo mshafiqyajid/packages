@@ -1,0 +1,206 @@
+---
+import DocLayout from "~/layouts/DocLayout.astro";
+import PackagePageShell from "~/components/PackagePageShell.astro";
+import H2 from "~/components/H2.astro";
+import CodeBlock from "~/components/CodeBlock.astro";
+import SignatureDemo from "~/components/demos/SignatureDemo";
+---
+<DocLayout title="react-signature" description="Canvas-based signature pad for React. Velocity-sensitive strokes, Bézier smoothing, undo history, and imperative ref API for PNG/JPEG/SVG export." pkg="signature">
+  <PackagePageShell name="react-signature" description="Headless signature hook and styled pad. Pointer-events API for unified desktop and mobile drawing, Bézier curve smoothing, velocity-sensitive stroke width, undo history, and an imperative ref API. Export as PNG, JPEG, or SVG. Zero dependencies." size="~4 KB">
+    <div class="pkg-section"><H2>Playground</H2><SignatureDemo client:load /></div>
+    <div class="pkg-section"><H2>Install</H2><CodeBlock lang="bash" code="npm install @mshafiqyajid/react-signature" /></div>
+    <div class="pkg-section"><H2>Quick start</H2>
+      <CodeBlock lang="tsx" code={`import { SignatureStyled } from "@mshafiqyajid/react-signature/styled";
+import "@mshafiqyajid/react-signature/styles.css";
+
+<SignatureStyled
+  penColor="#18181b"
+  penWidth={2}
+  onEnd={(dataURL) => console.log(dataURL)}
+/>`} />
+    </div>
+    <div class="pkg-section"><H2>Pen customization</H2>
+      <p>Control the ink color, base width, and how much drawing speed tapers the stroke. <code>velocitySensitivity</code> maps pen speed to width between <code>minWidth</code> and <code>maxWidth</code> — set it to <code>0</code> for uniform strokes.</p>
+      <CodeBlock lang="tsx" code={`{/* Fountain-pen feel: fast strokes go thin, slow strokes go thick */}
+<SignatureStyled
+  penColor="#1e3a5f"
+  penWidth={3}
+  velocitySensitivity={0.85}
+  minWidth={1}
+  maxWidth={6}
+/>
+
+{/* Uniform marker — no speed taper */}
+<SignatureStyled
+  penColor="#dc2626"
+  penWidth={4}
+  velocitySensitivity={0}
+/>
+
+{/* Disable Bézier smoothing for a raw/pixelated look */}
+<SignatureStyled penColor="#18181b" smoothing={false} />`} />
+    </div>
+    <div class="pkg-section"><H2>Imperative ref API</H2>
+      <p>Forward a ref to access <code>clear()</code>, <code>undo()</code>, <code>getDataURL()</code>, and <code>isEmpty()</code> imperatively from parent components.</p>
+      <CodeBlock lang="tsx" code={`import { useRef } from "react";
+import { SignatureStyled } from "@mshafiqyajid/react-signature/styled";
+import type { SignatureHandle } from "@mshafiqyajid/react-signature/styled";
+import "@mshafiqyajid/react-signature/styles.css";
+
+function SignaturePad() {
+  const ref = useRef<SignatureHandle>(null);
+
+  return (
+    <>
+      <SignatureStyled ref={ref} height={200} />
+      <button onClick={() => ref.current?.clear()}>Clear</button>
+      <button onClick={() => ref.current?.undo()}>Undo last stroke</button>
+      <button onClick={() => {
+        if (!ref.current?.isEmpty()) {
+          const url = ref.current?.getDataURL("image/png");
+          // upload or display url
+        }
+      }}>
+        Save
+      </button>
+    </>
+  );
+}`} />
+    </div>
+    <div class="pkg-section"><H2>Export / save</H2>
+      <p><code>getDataURL()</code> accepts <code>"image/png"</code> (default), <code>"image/jpeg"</code>, or <code>"image/svg+xml"</code>. The return value is a data URL you can open, download, or POST to a server.</p>
+      <CodeBlock lang="tsx" code={`// PNG (default)
+const png = ref.current?.getDataURL();
+
+// JPEG (lossy, smaller file)
+const jpeg = ref.current?.getDataURL("image/jpeg");
+
+// SVG (vector, scalable)
+const svg = ref.current?.getDataURL("image/svg+xml");
+
+// Open in a new tab
+window.open(ref.current?.getDataURL());
+
+// Trigger a download
+const a = document.createElement("a");
+a.href = ref.current?.getDataURL() ?? "";
+a.download = "signature.png";
+a.click();`} />
+    </div>
+    <div class="pkg-section"><H2>Erase mode</H2>
+      <p>Set <code>mode="erase"</code> to switch the pointer into an eraser. Erase strokes use <code>destination-out</code> compositing to cut through existing ink. The <code>data-mode</code> attribute on the root element reflects the current mode so you can style the cursor or UI accordingly.</p>
+      <CodeBlock lang="tsx" code={`<SignatureStyled mode="erase" height={200} />
+
+{/* Toggle between draw and erase from parent state */}
+const [mode, setMode] = useState<"draw" | "erase">("draw");
+
+<SignatureStyled mode={mode} height={200} />
+<button onClick={() => setMode(m => m === "draw" ? "erase" : "draw")}>
+  {mode === "draw" ? "Switch to Erase" : "Switch to Draw"}
+</button>`} />
+    </div>
+    <div class="pkg-section"><H2>Built-in toolbar</H2>
+      <p>Add <code>showToolbar</code> to render a built-in control row beneath the canvas. The toolbar includes Draw/Erase mode buttons, a color picker, a width slider, an Undo button, and a Clear button. All controls are managed internally — no extra state needed.</p>
+      <CodeBlock lang="tsx" code={`<SignatureStyled showToolbar height={200} />
+
+{/* Toolbar respects disabled state */}
+<SignatureStyled showToolbar disabled height={200} />`} />
+    </div>
+    <div class="pkg-section"><H2>Default value</H2>
+      <p>Pass a data URL to <code>defaultValue</code> to pre-load an existing signature image onto the canvas on mount. This sets <code>isEmpty</code> to <code>false</code> immediately. It is uncontrolled — the value is only read once on mount.</p>
+      <CodeBlock lang="tsx" code={`{/* Load a previously saved signature */}
+const savedDataURL = localStorage.getItem("my-signature") ?? undefined;
+
+<SignatureStyled
+  defaultValue={savedDataURL}
+  onEnd={(url) => localStorage.setItem("my-signature", url)}
+  height={200}
+/>`} />
+    </div>
+    <div class="pkg-section"><H2>Headless</H2>
+      <p>Use the <code>useSignature</code> hook to bring your own canvas markup and controls while keeping the drawing logic.</p>
+      <CodeBlock lang="tsx" code={`import { useSignature } from "@mshafiqyajid/react-signature";
+
+function MyPad() {
+  const { canvasRef, canvasProps, isEmpty, clear, getDataURL, undo } =
+    useSignature({
+      penColor: "#18181b",
+      penWidth: 2,
+      smoothing: true,
+      onEnd: (dataURL) => console.log(dataURL),
+    });
+
+  return (
+    <div className="my-pad">
+      <canvas
+        ref={canvasRef}
+        {...canvasProps}
+        width={600}
+        height={200}
+        className="my-canvas"
+      />
+      <div className="my-toolbar">
+        <button onClick={clear} disabled={isEmpty}>Clear</button>
+        <button onClick={undo} disabled={isEmpty}>Undo</button>
+        <button onClick={() => console.log(getDataURL())} disabled={isEmpty}>
+          Save
+        </button>
+      </div>
+    </div>
+  );
+}`} />
+    </div>
+    <div class="pkg-section"><H2>API</H2>
+      <table class="props-table"><thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+        <tr><td>penColor</td><td>string</td><td>"#18181b"</td><td>Ink color (any valid CSS color string)</td></tr>
+        <tr><td>penWidth</td><td>number</td><td>2</td><td>Base stroke width in px (used as center when velocity sensitivity &gt; 0)</td></tr>
+        <tr><td>backgroundColor</td><td>string</td><td>"transparent"</td><td>Canvas fill color. Use a solid color when exporting as JPEG</td></tr>
+        <tr><td>smoothing</td><td>boolean</td><td>true</td><td>Bézier curve smoothing. Disable for a raw, pixelated look</td></tr>
+        <tr><td>velocitySensitivity</td><td>number</td><td>0.7</td><td>How much pen speed tapers stroke width. 0 = uniform, 1 = maximum taper</td></tr>
+        <tr><td>minWidth</td><td>number</td><td>1</td><td>Minimum stroke width (px) when velocity sensitivity &gt; 0</td></tr>
+        <tr><td>maxWidth</td><td>number</td><td>4</td><td>Maximum stroke width (px) when velocity sensitivity &gt; 0</td></tr>
+        <tr><td>onBegin</td><td>() =&gt; void</td><td>—</td><td>Called when a new stroke starts</td></tr>
+        <tr><td>onEnd</td><td>(dataURL: string) =&gt; void</td><td>—</td><td>Called when a stroke ends, receives the current canvas data URL</td></tr>
+        <tr><td>onChange</td><td>(isEmpty: boolean) =&gt; void</td><td>—</td><td>Called when the empty state changes</td></tr>
+        <tr><td>mode</td><td>"draw" | "erase"</td><td>"draw"</td><td>Drawing mode. Erase mode removes ink using destination-out compositing</td></tr>
+        <tr><td>defaultValue</td><td>string</td><td>—</td><td>Data URL to pre-load onto the canvas on mount (uncontrolled)</td></tr>
+        <tr><td>showToolbar</td><td>boolean</td><td>false</td><td>Show a built-in toolbar with mode toggle, color picker, width slider, undo and clear</td></tr>
+        <tr><td>disabled</td><td>boolean</td><td>false</td><td>Disable all drawing interaction</td></tr>
+        <tr><td>width</td><td>number | string</td><td>"100%"</td><td>Container width</td></tr>
+        <tr><td>height</td><td>number</td><td>200</td><td>Canvas height in px</td></tr>
+        <tr><td>className</td><td>string</td><td>—</td><td>Extra class on root wrapper</td></tr>
+        <tr><td>style</td><td>CSSProperties</td><td>—</td><td>Inline style on root wrapper</td></tr>
+      </tbody></table>
+    </div>
+    <div class="pkg-section"><H2>Imperative ref methods</H2>
+      <table class="props-table"><thead><tr><th>Method</th><th>Signature</th><th>Description</th></tr></thead><tbody>
+        <tr><td>clear</td><td>() =&gt; void</td><td>Clears all strokes and resets isEmpty to true</td></tr>
+        <tr><td>undo</td><td>() =&gt; void</td><td>Removes the last drawn stroke and redraws</td></tr>
+        <tr><td>getDataURL</td><td>(type?: "image/png" | "image/jpeg" | "image/svg+xml") =&gt; string</td><td>Exports current canvas as a data URL</td></tr>
+        <tr><td>isEmpty</td><td>() =&gt; boolean</td><td>Returns true when no strokes have been drawn (or after clear)</td></tr>
+      </tbody></table>
+    </div>
+    <div class="pkg-section"><H2>Data attributes</H2>
+      <table class="props-table"><thead><tr><th>Attribute</th><th>Element</th><th>When present</th></tr></thead><tbody>
+        <tr><td>data-disabled</td><td>.rsig-root</td><td>disabled prop is true</td></tr>
+        <tr><td>data-empty</td><td>.rsig-root</td><td>No strokes drawn (or after clear)</td></tr>
+        <tr><td>data-mode</td><td>.rsig-root</td><td>Current mode: "draw" or "erase"</td></tr>
+      </tbody></table>
+    </div>
+    <div class="pkg-section"><H2>CSS variables</H2>
+      <CodeBlock lang="css" code={`:root {
+  --rsig-border-color: #d4d4d8;
+  --rsig-bg: #ffffff;
+  --rsig-radius: 8px;
+  --rsig-toolbar-bg: #f4f4f5;
+  --rsig-toolbar-border: #e4e4e7;
+  --rsig-btn-color: #3f3f46;
+  --rsig-btn-bg-hover: #e4e4e7;
+  --rsig-btn-bg-active: #d4d4d8;
+  --rsig-btn-radius: 6px;
+  --rsig-btn-font-size: 0.8125rem;
+  --rsig-focus-ring: 0 0 0 2px #3b82f6;
+}`} />
+    </div>
+  </PackagePageShell>
+</DocLayout>

@@ -1,0 +1,265 @@
+/* ============================================================================
+ * react-spotlight — styled component
+ *
+ * Dark mode: [data-theme="dark"] on any ancestor — never prefers-color-scheme.
+ * CSS prefix: rspot-
+ * ========================================================================== */
+
+.rspot-overlay {
+  --rspot-overlay-color: rgba(0, 0, 0, 0.6);
+  --rspot-content-bg: #ffffff;
+  --rspot-content-fg: #18181b;
+  --rspot-content-border: #e4e4e7;
+  --rspot-content-shadow: 0 8px 32px rgba(0, 0, 0, 0.18), 0 2px 8px rgba(0, 0, 0, 0.1);
+  --rspot-content-radius: 12px;
+  --rspot-duration-in: 200ms;
+  --rspot-duration-out: 150ms;
+  --rspot-ease: cubic-bezier(0.32, 0.72, 0, 1);
+  --rspot-backdrop-blur: 0px;
+  --rspot-nav-bg: rgba(0, 0, 0, 0.07);
+  --rspot-nav-btn-bg: transparent;
+  --rspot-nav-btn-hover-bg: rgba(0, 0, 0, 0.08);
+  --rspot-nav-btn-disabled-opacity: 0.35;
+
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--rspot-duration-out) var(--rspot-ease);
+}
+
+.rspot-overlay--visible {
+  pointer-events: auto;
+  opacity: 1;
+  transition: opacity var(--rspot-duration-in) var(--rspot-ease);
+}
+
+/* ============================================================================
+ * Blur layer — separate masked div so backdrop-filter skips the cutout
+ * ========================================================================== */
+.rspot-blur-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  backdrop-filter: blur(0px);
+  -webkit-backdrop-filter: blur(0px);
+  transition:
+    backdrop-filter var(--rspot-duration-in) var(--rspot-ease),
+    -webkit-backdrop-filter var(--rspot-duration-in) var(--rspot-ease);
+}
+
+.rspot-blur-layer--visible {
+  backdrop-filter: blur(var(--rspot-target-blur, 0px));
+  -webkit-backdrop-filter: blur(var(--rspot-target-blur, 0px));
+}
+
+/* ============================================================================
+ * Pulse animation — pulsing ring outward from the cutout border
+ * ========================================================================== */
+@keyframes rspot-pulse {
+  0% {
+    stroke-width: 2;
+    stroke-opacity: 0.7;
+    transform: scale(1);
+  }
+  70% {
+    stroke-width: 6;
+    stroke-opacity: 0;
+    transform: scale(1.08);
+  }
+  100% {
+    stroke-width: 2;
+    stroke-opacity: 0;
+    transform: scale(1.08);
+  }
+}
+
+.rspot-overlay--visible .rspot-pulse-ring {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: rspot-pulse 1.8s var(--rspot-ease) infinite;
+}
+
+/* ============================================================================
+ * Content panel — tooltip/popover rendered adjacent to the target
+ * ========================================================================== */
+.rspot-content {
+  /* position: fixed and top/left set via JS inline style */
+  background: var(--rspot-content-bg);
+  color: var(--rspot-content-fg);
+  border: 1px solid var(--rspot-content-border);
+  border-radius: var(--rspot-content-radius);
+  box-shadow: var(--rspot-content-shadow);
+  padding: 1rem 1.25rem;
+  min-width: 200px;
+  max-width: 320px;
+  pointer-events: auto;
+
+  opacity: 0;
+  transition: opacity var(--rspot-duration-out) var(--rspot-ease);
+}
+
+.rspot-overlay--visible .rspot-content {
+  opacity: 1;
+  transition: opacity var(--rspot-duration-in) var(--rspot-ease);
+}
+
+/* ============================================================================
+ * Tour navigation — prev/next buttons + step counter
+ * ========================================================================== */
+.rspot-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.875rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--rspot-content-border);
+}
+
+.rspot-nav__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  background: var(--rspot-nav-btn-bg);
+  color: var(--rspot-content-fg);
+  border: 1px solid var(--rspot-content-border);
+  border-radius: 6px;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background var(--rspot-duration-out) ease,
+    opacity var(--rspot-duration-out) ease,
+    transform 120ms ease;
+}
+
+.rspot-nav__btn:active:not(:disabled) {
+  transform: scale(0.92);
+}
+
+.rspot-nav__btn:hover:not(:disabled) {
+  background: var(--rspot-nav-btn-hover-bg);
+}
+
+.rspot-nav__btn:disabled {
+  opacity: var(--rspot-nav-btn-disabled-opacity);
+  cursor: not-allowed;
+}
+
+.rspot-nav__dots {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.rspot-nav__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  border: none;
+  padding: 0;
+  background: var(--rspot-content-border);
+  cursor: pointer;
+  transition: width 200ms ease, background 200ms ease, border-radius 200ms ease;
+}
+
+.rspot-nav__dot--active {
+  width: 18px;
+  border-radius: 99px;
+  background: #6366f1;
+}
+
+.rspot-nav__btn--done {
+  background: #6366f1;
+  color: #ffffff;
+  border-color: #6366f1;
+  font-weight: 600;
+  padding: 0 1rem;
+  min-width: 64px;
+  width: auto;
+}
+
+.rspot-nav__btn--done:hover:not(:disabled) {
+  background: #4f46e5;
+  border-color: #4f46e5;
+}
+
+/* ============================================================================
+ * Dark mode — [data-theme="dark"] ancestor only
+ * ========================================================================== */
+[data-theme="dark"] .rspot-overlay {
+  --rspot-content-bg: #27272a;
+  --rspot-content-fg: #fafafa;
+  --rspot-content-border: #3f3f46;
+  --rspot-content-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 2px 8px rgba(0, 0, 0, 0.3);
+  --rspot-nav-btn-hover-bg: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .rspot-overlay .rspot-nav__btn--done {
+  background: #6366f1;
+  border-color: #6366f1;
+}
+
+/* ============================================================================
+ * Reduced motion — fade only, no scale transforms, no pulse
+ * ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .rspot-overlay {
+    transition: opacity var(--rspot-duration-in) linear;
+  }
+
+  .rspot-content {
+    transition: opacity var(--rspot-duration-in) linear;
+  }
+
+  .rspot-overlay--visible .rspot-content {
+    transition: opacity var(--rspot-duration-in) linear;
+  }
+
+  .rspot-overlay--visible .rspot-mask-rect {
+    transition: none;
+  }
+
+  .rspot-blur-layer {
+    transition: none;
+  }
+
+  .rspot-overlay--visible .rspot-pulse-ring {
+    animation: none;
+  }
+
+  .rspot-nav__dot {
+    transition: none;
+  }
+}
+
+/* ============================================================================
+ * Step change fade — content panel re-animates when the step index changes
+ * ========================================================================== */
+@keyframes rspot-step-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.rspot-content--step-change {
+  animation: rspot-step-in var(--rspot-duration-in) ease both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rspot-content--step-change {
+    animation: none;
+  }
+}
+
+/* ============================================================================
+ * Trigger wrapper — display: contents so it's invisible in layout
+ * ========================================================================== */
+.rspot-trigger {
+  display: contents;
+}
