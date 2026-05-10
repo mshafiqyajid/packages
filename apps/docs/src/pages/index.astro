@@ -60,6 +60,10 @@ import {
   HoverCardPreview,
   ContextMenuPreview,
   LightboxPreview,
+  MentionPreview,
+  SignaturePreview,
+  SplitPreview,
+  SpotlightPreview,
 } from "~/components/LandingPreviews";
 
 const packages = [
@@ -131,6 +135,11 @@ const packages = [
   { category: "overlays", slug: "hover-card",      name: "react-hover-card",        size: "~5 KB",  tags: ["delay", "auto-placement", "arrow"],   desc: "Hover-triggered floating card with configurable open/close delay, auto-placement, and smooth scale animation." },
   { category: "overlays", slug: "context-menu",    name: "react-context-menu",      size: "~6 KB",  tags: ["sub-menus", "keyboard", "first-letter"], desc: "Right-click context menu with nested sub-menus, full keyboard navigation, and first-letter jump." },
   { category: "overlays", slug: "lightbox",        name: "react-lightbox",          size: "~8 KB",  tags: ["thumbnails", "swipe", "zoom"],        desc: "Full-screen image lightbox with thumbnail strip, swipe-to-navigate, optional pinch/scroll zoom, and keyboard control." },
+  // ── New packages ─────────────────────────────────────────────────────────
+  { category: "inputs",   slug: "mention",          name: "react-mention",           size: "~6 KB",  tags: ["@ trigger", "highlight", "async"],    desc: "Mention textarea with inline token highlighting, multi-trigger (@, #), async suggestions, and custom renderer." },
+  { category: "inputs",   slug: "signature",        name: "react-signature",         size: "~5 KB",  tags: ["canvas", "ink taper", "toolbar"],     desc: "Canvas signature pad with velocity-sensitive width, ink taper, pen/brush/marker styles, erase mode, and toolbar." },
+  { category: "feedback", slug: "split",            name: "react-split",             size: "~4 KB",  tags: ["N-pane", "collapsible", "snap"],      desc: "Resizable split panel supporting N panes, collapsible sides, snap points, persistent sizes, and double-click equalize." },
+  { category: "overlays", slug: "spotlight",        name: "react-spotlight",         size: "~4 KB",  tags: ["onboarding", "tour", "SVG cutout"],   desc: "Onboarding spotlight with SVG cutout, animated morph between steps, multi-step tour, pulse ring, and backdrop blur." },
 ];
 
 const categories = [
@@ -274,6 +283,10 @@ const byCategory = categories.map((cat) => ({
                       {pkg.slug === "hover-card" && <HoverCardPreview client:visible />}
                       {pkg.slug === "context-menu" && <ContextMenuPreview client:visible />}
                       {pkg.slug === "lightbox" && <LightboxPreview client:visible />}
+                      {pkg.slug === "mention" && <MentionPreview client:visible />}
+                      {pkg.slug === "signature" && <SignaturePreview client:visible />}
+                      {pkg.slug === "split" && <SplitPreview client:visible />}
+                      {pkg.slug === "spotlight" && <SpotlightPreview client:visible />}
                     </div>
                     <div class="pkg-card__body">
                       <div class="pkg-card__header">

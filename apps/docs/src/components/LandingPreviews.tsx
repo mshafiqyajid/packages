@@ -946,3 +946,91 @@ export function SortablePreview() {
     </div>
   );
 }
+
+export function MentionPreview() {
+  return (
+    <div style={{ pointerEvents: "none", width: 220 }}>
+      <div style={{ background: "var(--bg-elevated)", border: "1.5px solid #6366f1", borderRadius: 8, padding: "8px 10px", fontSize: "0.78rem", color: "var(--fg)", lineHeight: 1.6, marginBottom: 6 }}>
+        Hey{" "}
+        <mark style={{ background: "rgba(99,102,241,0.15)", color: "#6366f1", borderRadius: 3, padding: "0 3px" }}>@Alice</mark>
+        {" "}can you review{" "}
+        <mark style={{ background: "rgba(16,185,129,0.15)", color: "#059669", borderRadius: 3, padding: "0 3px" }}>#react</mark>
+        {" "}PR?
+      </div>
+      <div style={{ background: "var(--bg-elevated)", border: "1px solid var(--border)", borderRadius: 8, overflow: "hidden", boxShadow: "0 4px 14px rgba(0,0,0,0.1)" }}>
+        {[{ label: "Alice", sub: "Product Design", active: true }, { label: "Bob", sub: "Engineering" }, { label: "Carol", sub: "Marketing" }].map((item) => (
+          <div key={item.label} style={{ display: "flex", alignItems: "center", gap: 8, padding: "5px 10px", background: item.active ? "rgba(99,102,241,0.08)" : "transparent" }}>
+            <div style={{ width: 22, height: 22, borderRadius: "50%", background: item.active ? "#6366f1" : "var(--bg-subtle)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.6rem", fontWeight: 700, color: item.active ? "#fff" : "var(--fg-muted)", flexShrink: 0 }}>{item.label[0]}</div>
+            <div>
+              <div style={{ fontSize: "0.72rem", fontWeight: 500, color: item.active ? "#6366f1" : "var(--fg)" }}>{item.label}</div>
+              <div style={{ fontSize: "0.62rem", color: "var(--fg-subtle)" }}>{item.sub}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export function SignaturePreview() {
+  return (
+    <div style={{ pointerEvents: "none", width: 220 }}>
+      <div style={{ background: "var(--bg-elevated)", border: "1px solid var(--border)", borderRadius: 8, overflow: "hidden" }}>
+        <div style={{ padding: "10px 12px 4px", height: 64, position: "relative" }}>
+          <svg viewBox="0 0 200 50" width="100%" height="100%" fill="none" stroke="var(--fg)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M10 35 C20 10, 30 10, 35 25 C40 38, 38 42, 35 40" />
+            <path d="M42 20 C45 15, 52 15, 55 25 C58 35, 55 40, 50 38 C60 37, 65 30, 63 22" />
+            <path d="M70 38 C72 20, 78 15, 82 25 C85 32, 83 40, 78 38" />
+            <path d="M88 15 L88 40 M88 25 C92 20, 100 18, 102 25 C104 32, 100 38, 94 37" />
+            <path d="M108 38 C112 20, 118 15, 122 28 C124 35, 120 40, 116 38" />
+          </svg>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 4, padding: "5px 8px", background: "var(--bg-subtle)", borderTop: "1px solid var(--border)" }}>
+          {["Pen", "Brush", "Marker"].map((s, i) => (
+            <div key={s} style={{ padding: "2px 7px", borderRadius: 4, fontSize: "0.62rem", background: i === 0 ? "#6366f1" : "transparent", color: i === 0 ? "#fff" : "var(--fg-muted)", border: i === 0 ? "none" : "1px solid var(--border)" }}>{s}</div>
+          ))}
+          <div style={{ marginLeft: "auto", fontSize: "0.62rem", color: "var(--fg-subtle)" }}>Undo · Clear</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function SplitPreview() {
+  return (
+    <div style={{ pointerEvents: "none", width: 220, height: 100, border: "1px solid var(--border)", borderRadius: 8, overflow: "hidden", display: "flex" }}>
+      <div style={{ flex: "0 0 38%", background: "#f0f9ff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.68rem", fontWeight: 600, color: "#0369a1" }}>Panel A</div>
+      <div style={{ width: 5, background: "var(--border)", position: "relative", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ width: 2, height: 24, borderRadius: 2, background: "var(--border-strong)" }} />
+      </div>
+      <div style={{ flex: 1, background: "#f0fdf4", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "0.68rem", fontWeight: 600, color: "#15803d" }}>Panel B</div>
+    </div>
+  );
+}
+
+export function SpotlightPreview() {
+  return (
+    <div style={{ pointerEvents: "none", width: 220, position: "relative" }}>
+      <div style={{ background: "var(--bg-elevated)", border: "1px solid var(--border)", borderRadius: 8, padding: "8px 12px", fontSize: "0.72rem", color: "var(--fg)", marginBottom: 6, opacity: 0.4 }}>
+        <div style={{ height: 6, width: "70%", borderRadius: 3, background: "var(--border)", marginBottom: 5 }} />
+        <div style={{ height: 6, width: "50%", borderRadius: 3, background: "var(--border)" }} />
+      </div>
+      <div style={{ position: "relative" }}>
+        <div style={{ background: "var(--bg-elevated)", border: "2px solid #6366f1", borderRadius: 8, padding: "8px 12px", boxShadow: "0 0 0 4px rgba(99,102,241,0.15)" }}>
+          <div style={{ fontSize: "0.72rem", fontWeight: 600, color: "var(--fg)", marginBottom: 3 }}>✨ New feature</div>
+          <div style={{ fontSize: "0.65rem", color: "var(--fg-muted)" }}>Click here to get started</div>
+        </div>
+        <div style={{ position: "absolute", top: "100%", left: 12, marginTop: 6, background: "var(--bg-elevated)", border: "1px solid var(--border)", borderRadius: 7, padding: "7px 10px", boxShadow: "0 4px 14px rgba(0,0,0,0.12)", width: 160 }}>
+          <div style={{ fontSize: "0.7rem", fontWeight: 600, marginBottom: 3, color: "var(--fg)" }}>Step 1 / 3 — Feature</div>
+          <div style={{ fontSize: "0.62rem", color: "var(--fg-muted)", marginBottom: 6 }}>Highlight any element for onboarding tours.</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+            <div style={{ flex: 1, display: "flex", gap: 3, justifyContent: "center" }}>
+              {[0,1,2].map((i) => <div key={i} style={{ height: 5, width: i === 0 ? 14 : 5, borderRadius: 99, background: i === 0 ? "#6366f1" : "var(--border)" }} />)}
+            </div>
+            <div style={{ padding: "2px 8px", borderRadius: 4, background: "#6366f1", color: "#fff", fontSize: "0.6rem", fontWeight: 600 }}>Next →</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
