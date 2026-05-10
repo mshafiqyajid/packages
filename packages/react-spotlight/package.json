@@ -1,26 +1,55 @@
 {
   "name": "@mshafiqyajid/react-spotlight",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Onboarding spotlight overlay with cutout for React.",
   "license": "MIT",
   "author": "Shafiq Yajid",
-  "repository": { "type": "git", "url": "git+https://github.com/mshafiqyajid/packages.git", "directory": "packages/react-spotlight" },
-  "bugs": { "url": "https://github.com/mshafiqyajid/packages/issues" },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mshafiqyajid/packages.git",
+    "directory": "packages/react-spotlight"
+  },
+  "bugs": {
+    "url": "https://github.com/mshafiqyajid/packages/issues"
+  },
   "homepage": "https://docs.shafiqyajid.com/react/spotlight/",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
-    ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js", "require": "./dist/index.cjs" },
-    "./styled": { "types": "./dist/styled.d.ts", "import": "./dist/styled.js", "require": "./dist/styled.cjs" },
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./styled": {
+      "types": "./dist/styled.d.ts",
+      "import": "./dist/styled.js",
+      "require": "./dist/styled.cjs"
+    },
     "./styles.css": "./dist/styles.css",
     "./package.json": "./package.json"
   },
-  "files": ["dist", "README.md", "LICENSE"],
-  "sideEffects": ["**/*.css"],
-  "scripts": { "build": "tsup", "dev": "tsup --watch", "test": "vitest run", "test:watch": "vitest", "typecheck": "tsc --noEmit", "prepublishOnly": "npm run build" },
-  "peerDependencies": { "react": ">=17.0.0" },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
+  },
+  "peerDependencies": {
+    "react": ">=17.0.0"
+  },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.4.0",
     "@testing-library/react": "^16.0.0",
@@ -36,6 +65,10 @@
     "typescript": "^5.6.0",
     "vitest": "^2.1.0"
   },
-  "publishConfig": { "access": "public" },
-  "engines": { "node": ">=18" }
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=18"
+  }
 }

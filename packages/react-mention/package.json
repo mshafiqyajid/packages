@@ -1,6 +1,6 @@
 {
   "name": "@mshafiqyajid/react-mention",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Mention and hashtag autocomplete textarea for React.",
   "keywords": [
     "react",
