@@ -1,5 +1,11 @@
 # @mshafiqyajid/react-modal
 
+## 0.4.1
+
+### Patch Changes
+
+- 9424fd5: Fix swipe/drag gesture handlers intercepting clicks on interactive elements. Buttons, links, and inputs inside the carousel track, modal sheet, and toast no longer have their click events blocked by pointer capture.
+
 ## 0.4.0
 
 ### Minor Changes
