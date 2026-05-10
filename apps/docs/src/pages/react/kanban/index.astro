@@ -5,42 +5,115 @@ import H2 from "~/components/H2.astro";
 import CodeBlock from "~/components/CodeBlock.astro";
 import KanbanDemo from "~/components/demos/KanbanDemo";
 ---
-<DocLayout title="react-kanban" description="Drag-and-drop kanban board with columns, cards, intra-column reorder, drop indicator, inline add/rename, WIP limits, custom card actions." pkg="kanban">
-  <PackagePageShell name="react-kanban" description="Headless kanban hook and styled component. HTML5 Drag and Drop API — no external DnD library. Cross-column moves, intra-column reorder, insert-at-index drop indicator, inline add card / rename column, hover card actions, WIP limits, canDrop validators, generic card data." size="~10 KB">
+<DocLayout title="react-kanban" description="A polished React kanban board: pointer-event drag with touch and keyboard support, column reorder, FLIP animations, multi-select, search, rich card metadata." pkg="kanban">
+  <PackagePageShell name="react-kanban" description="Pointer-event drag system that works with mouse, touch, and keyboard. Column reorder, smooth FLIP animations, card-shaped drop placeholder, multi-select with batch drag, built-in search, rich card metadata (assignees, due dates, tags, checklist progress, counts, covers), per-column accents, WIP limits, locked columns, and a fully accessible controlled or uncontrolled API." size="~14 KB">
     <div class="pkg-section"><H2>Playground</H2><KanbanDemo client:load /></div>
     <div class="pkg-section"><H2>Install</H2><CodeBlock lang="bash" code="npm install @mshafiqyajid/react-kanban" /></div>
+
     <div class="pkg-section"><H2>Quick start</H2>
-      <CodeBlock lang="tsx" code={`import { KanbanStyled } from "@mshafiqyajid/react-kanban/styled";
+      <CodeBlock lang="tsx" code={`import { useState } from "react";
+import { KanbanStyled } from "@mshafiqyajid/react-kanban/styled";
 import type { KanbanColumn } from "@mshafiqyajid/react-kanban";
 import "@mshafiqyajid/react-kanban/styles.css";
 
-const [columns, setColumns] = useState<KanbanColumn[]>([
-  { id: "todo",  title: "To Do",       cards: [] },
-  { id: "doing", title: "In Progress", cards: [] },
-  { id: "done",  title: "Done",        cards: [] },
-]);
+const initial: KanbanColumn[] = [
+  { id: "todo",  title: "To Do",       cards: [], accent: "blue"   },
+  { id: "doing", title: "In Progress", cards: [], accent: "amber", wipLimit: 3 },
+  { id: "done",  title: "Done",        cards: [], accent: "green"  },
+];
 
-<KanbanStyled columns={columns} onChange={setColumns} tone="primary" />`} />
+export default function Board() {
+  const [columns, setColumns] = useState<KanbanColumn[]>(initial);
+  return (
+    <KanbanStyled
+      columns={columns}
+      onChange={setColumns}
+      tone="primary"
+      searchable
+      selectable
+      columnReorderable
+      addCardPlaceholder="Add card"
+      addColumnPlaceholder="Add column"
+    />
+  );
+}`} />
     </div>
+
+    <div class="pkg-section"><H2>Why this kanban</H2>
+      <ul class="bullets">
+        <li><b>Touch + keyboard from day one.</b> Pointer events under the hood, so cards move on phones, trackpads, and screen readers.</li>
+        <li><b>Smooth, not snappy.</b> FLIP animations slide cards into place when columns reflow.</li>
+        <li><b>Real placeholder.</b> A card-shaped drop slot opens at the target index — not a 1px line.</li>
+        <li><b>Auto-scroll on edges.</b> Scroll the board horizontally and a column vertically while dragging.</li>
+        <li><b>Multi-select & batch drag.</b> Shift- or Cmd-click to grab a stack and move it together.</li>
+        <li><b>Search built in.</b> Toggle <code>searchable</code> for a board-level filter; or pass <code>filter</code> to drive it yourself.</li>
+        <li><b>Rich card metadata.</b> Assignees, due dates, tags, checklist progress, attachments / comments counts, covers, priority — all rendered by default.</li>
+        <li><b>Accessible.</b> <kbd>Space</kbd> picks up, arrows navigate, <kbd>Enter</kbd> drops, <kbd>Esc</kbd> cancels.</li>
+        <li><b>Controlled or uncontrolled.</b> Pass <code>columns</code> + <code>onChange</code>, or <code>defaultColumns</code> for self-managed state.</li>
+      </ul>
+    </div>
+
+    <div class="pkg-section"><H2>Rich cards</H2>
+      <CodeBlock lang="tsx" code={`const cards = [
+  {
+    id: "k1",
+    content: "Migrate billing portal",
+    description: "Move to v3 SDK before launch.",
+    priority: "urgent",
+    tags: ["billing", "infra"],
+    dueDate: "2026-06-01",
+    assignees: [
+      { id: "u1", name: "Maya Linn",  color: "#a78bfa" },
+      { id: "u2", name: "Sam Vega",   color: "#f97316" },
+    ],
+    checklist: { done: 3, total: 5 },
+    attachments: 2,
+    comments: 7,
+    cover: "linear-gradient(120deg, #6366f1, #ec4899)",
+  },
+];`} />
+    </div>
+
+    <div class="pkg-section"><H2>Keyboard drag-and-drop</H2>
+      <ul class="bullets">
+        <li><kbd>Tab</kbd> to focus a card.</li>
+        <li><kbd>Space</kbd> to pick it up. <kbd>↑</kbd>/<kbd>↓</kbd> reorder; <kbd>←</kbd>/<kbd>→</kbd> move across columns.</li>
+        <li><kbd>Enter</kbd> or <kbd>Space</kbd> drops; <kbd>Esc</kbd> cancels.</li>
+        <li>Same flow for column reorder when <code>columnReorderable</code> is on (focus the column header).</li>
+      </ul>
+    </div>
+
     <div class="pkg-section"><H2>Headless</H2>
       <CodeBlock lang="tsx" code={`import { useKanban } from "@mshafiqyajid/react-kanban";
 
-const initial = [
-  { id: "todo", title: "To Do", cards: [{ id: "1", content: "Ship docs" }] },
-  { id: "done", title: "Done", cards: [] },
-];
-
-const { columns, getDragProps, getDropProps } = useKanban({
-  columns: initial,
+const {
+  columns,
+  drag,
+  selection,
+  getBoardProps,
+  getCardProps,
+  getColumnDropProps,
+  getColumnHandleProps,
+  addCard,
+  removeCard,
+  moveCard,
+  reorderColumn,
+} = useKanban({
+  defaultColumns: [
+    { id: "todo", title: "To Do", cards: [{ id: "1", content: "Ship docs" }] },
+    { id: "done", title: "Done", cards: [] },
+  ],
+  reorderable: true,
+  columnReorderable: true,
 });
 
 return (
-  <div className="board">
+  <div {...getBoardProps()} className="board">
     {columns.map((col) => (
-      <div key={col.id} {...getDropProps(col.id)} className="col">
-        <h3>{col.title}</h3>
+      <div key={col.id} {...getColumnDropProps(col.id)} className="col">
+        <header {...getColumnHandleProps(col.id)}>{col.title}</header>
         {col.cards.map((card) => (
-          <div key={card.id} {...getDragProps(card.id, col.id)}>
+          <div key={card.id} {...getCardProps(card.id, col.id)}>
             {card.content}
           </div>
         ))}
@@ -49,62 +122,102 @@ return (
   </div>
 );`} />
     </div>
-    <div class="pkg-section"><H2>API</H2>
-      <table class="props-table"><thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
-        <tr><td>columns</td><td>KanbanColumn[]</td><td>—</td><td>Board columns with cards</td></tr>
-        <tr><td>onChange</td><td>(cols) =&gt; void</td><td>—</td><td>Called when columns/cards change</td></tr>
-        <tr><td>renderCard</td><td>(card, col) =&gt; ReactNode</td><td>—</td><td>Custom card renderer</td></tr>
-        <tr><td>renderColumnHeader</td><td>(col) =&gt; ReactNode</td><td>—</td><td>Custom column header</td></tr>
-        <tr><td>addCardPlaceholder</td><td>string</td><td>—</td><td>Label text for the "Add card" button. The "+" icon is rendered automatically — pass just the label (e.g. "Add card"). Empty input on Enter is ignored; Escape cancels.</td></tr>
-        <tr><td>addColumnPlaceholder</td><td>string</td><td>—</td><td>Label text for the "Add column" button. The "+" icon is rendered automatically.</td></tr>
-        <tr><td>columnMinWidth</td><td>string</td><td>"240px"</td><td>Minimum column width</td></tr>
-        <tr><td>maxColumns</td><td>number</td><td>—</td><td>Limit the number of visible columns</td></tr>
-        <tr><td>size</td><td>"sm" | "md" | "lg"</td><td>"md"</td><td>Card and text size</td></tr>
-        <tr><td>tone</td><td>"neutral" | "primary"</td><td>"neutral"</td><td>Accent color</td></tr>
-        <tr><td>disabled</td><td>boolean</td><td>false</td><td>Disable drag, add, remove, rename</td></tr>
-        <tr><td>reorderable</td><td>boolean</td><td>false</td><td>Allow drag-to-reorder within the same column</td></tr>
-        <tr><td>showDropIndicator</td><td>boolean</td><td>true</td><td>Render an insertion line between cards while dragging</td></tr>
-        <tr><td>cardActions</td><td>{`{ id, label, icon?, onAction, show? }[]`}</td><td>—</td><td>Hover-revealed action buttons on each card</td></tr>
-        <tr><td>showCardRemoveButton</td><td>boolean</td><td>false</td><td>Show a × on cards; clicking removes the card</td></tr>
-        <tr><td>renameColumnInline</td><td>boolean</td><td>false</td><td>Double-click a column title to edit; Enter commits, Escape cancels</td></tr>
-        <tr><td>onColumnRename</td><td>(columnId, title) =&gt; void</td><td>—</td><td>Fires when an inline rename commits</td></tr>
-        <tr><td>onColumnRemove</td><td>(column) =&gt; void</td><td>—</td><td>When provided, shows × in the column header</td></tr>
-        <tr><td>showWipBadge</td><td>boolean</td><td>false</td><td>Show "count / limit" instead of plain count when wipLimit is set</td></tr>
-        <tr><td>onCardAdd</td><td>(card, columnId) =&gt; void</td><td>—</td><td>Card added callback</td></tr>
-        <tr><td>onCardRemove</td><td>(card, columnId) =&gt; void</td><td>—</td><td>Card removed callback</td></tr>
-        <tr><td>onCardMove</td><td>(card, from, to, toIndex?) =&gt; void</td><td>—</td><td>Cross-column move with destination index</td></tr>
-        <tr><td>onCardReorder</td><td>(card, columnId, fromIndex, toIndex) =&gt; void</td><td>—</td><td>Intra-column reorder (requires reorderable)</td></tr>
-        <tr><td>onColumnAdd</td><td>(column) =&gt; void</td><td>—</td><td>New column added</td></tr>
-        <tr><td>canDrop</td><td>(card, from, to, toIndex?) =&gt; boolean</td><td>—</td><td>Validate before drop. Return false to reject.</td></tr>
-        <tr><td>onDropRejected</td><td>(card, from, to, reason) =&gt; void</td><td>—</td><td>Fires on rejection. reason: "canDrop" | "limit"</td></tr>
-        <tr><td>maxCardsPerColumn</td><td>number</td><td>—</td><td>Global per-column card limit (overridden by column.wipLimit)</td></tr>
-        <tr><td>cardDraggable</td><td>boolean | (card, col) =&gt; boolean</td><td>true</td><td>Control per-card drag</td></tr>
-        <tr><td>collapsible</td><td>boolean</td><td>false</td><td>Columns can collapse</td></tr>
-      </tbody></table>
-    </div>
-    <div class="pkg-section"><H2>Column WIP limits</H2>
-      <CodeBlock lang="tsx" code={`// Per-column hard cap and soft warn threshold.
-// data-wip-state="ok" | "warn" | "over" lands on the column for styling.
-const columns: KanbanColumn[] = [
-  { id: "doing", title: "In Progress", cards: [...], wipLimit: 3, wipWarnThreshold: 2 },
-];
 
-<KanbanStyled columns={columns} onChange={setColumns} showWipBadge />`} />
-    </div>
-    <div class="pkg-section"><H2>Typed card data</H2>
-      <CodeBlock lang="tsx" code={`type Task = { assignee: string; due: string };
+    <div class="pkg-section"><H2>Search & filter</H2>
+      <CodeBlock lang="tsx" code={`// Built-in board-level search bar
+<KanbanStyled columns={columns} onChange={setColumns} searchable searchPlaceholder="Search cards…" />
 
-const columns: KanbanColumn<Task>[] = [
-  { id: "todo", title: "To Do", cards: [
-    { id: "1", content: "Ship", data: { assignee: "MS", due: "2026-06-01" } },
-  ]},
-];
-
-<KanbanStyled<Task>
+// Or supply your own predicate
+<KanbanStyled
   columns={columns}
   onChange={setColumns}
-  renderCard={(card) => <>{card.content} — {card.data?.assignee}</>}
+  filter={(card) => card.priority === "urgent" || card.priority === "high"}
 />`} />
+    </div>
+
+    <div class="pkg-section"><H2>Per-column accent + locked columns</H2>
+      <CodeBlock lang="tsx" code={`const columns: KanbanColumn[] = [
+  { id: "todo",  title: "To Do",      cards: [], accent: "blue"   },
+  { id: "doing", title: "In Progress", cards: [], accent: "amber", wipLimit: 3 },
+  { id: "block", title: "Blocked",    cards: [], accent: "red", locked: true },
+  { id: "done",  title: "Shipped",    cards: [], accent: "green"  },
+];`} />
+      <p>Accents are <code>"blue" | "green" | "amber" | "red" | "violet" | "pink" | "cyan" | "neutral"</code>. <code>locked: true</code> rejects drops with reason <code>"locked"</code>.</p>
+    </div>
+
+    <div class="pkg-section"><H2>API</H2>
+      <table class="props-table"><thead><tr><th>Prop</th><th>Type</th><th>Default</th><th>Description</th></tr></thead><tbody>
+        <tr><td>columns</td><td>KanbanColumn[]</td><td>—</td><td>Controlled columns + cards.</td></tr>
+        <tr><td>defaultColumns</td><td>KanbanColumn[]</td><td>—</td><td>Uncontrolled initial value (alternative to <code>columns</code>).</td></tr>
+        <tr><td>onChange</td><td>(cols) =&gt; void</td><td>—</td><td>Fires on every state change.</td></tr>
+        <tr><td>size</td><td>"sm" | "md" | "lg"</td><td>"md"</td><td>Card &amp; text size.</td></tr>
+        <tr><td>tone</td><td>"neutral" | "primary" | "success" | "warning" | "danger"</td><td>"neutral"</td><td>Accent palette for highlights, focus rings, drop indicators.</td></tr>
+        <tr><td>columnMinWidth</td><td>string</td><td>"260px"</td><td>Minimum column width.</td></tr>
+        <tr><td>maxColumns</td><td>number</td><td>—</td><td>Cap visible columns.</td></tr>
+        <tr><td>reorderable</td><td>boolean</td><td>true</td><td>Allow intra-column drag-to-reorder.</td></tr>
+        <tr><td>columnReorderable</td><td>boolean</td><td>false</td><td>Drag column headers (or focus + Space) to reorder columns.</td></tr>
+        <tr><td>animateLayout</td><td>boolean</td><td>true</td><td>FLIP animation when cards reflow. Disable for huge boards.</td></tr>
+        <tr><td>showDropIndicator</td><td>boolean</td><td>true</td><td>Render the card-shaped drop placeholder.</td></tr>
+        <tr><td>searchable</td><td>boolean</td><td>false</td><td>Render a board-level search input.</td></tr>
+        <tr><td>searchPlaceholder</td><td>string</td><td>"Search cards…"</td><td>Search input placeholder.</td></tr>
+        <tr><td>filter</td><td>(card, col) =&gt; boolean</td><td>—</td><td>Custom predicate; return false to hide.</td></tr>
+        <tr><td>selectable</td><td>boolean</td><td>false</td><td>Enable Shift/Cmd-click multi-select with batch drag.</td></tr>
+        <tr><td>onSelectionChange</td><td>(ids) =&gt; void</td><td>—</td><td>Selection observer.</td></tr>
+        <tr><td>collapsible</td><td>boolean</td><td>false</td><td>Show a collapse chevron in the column header.</td></tr>
+        <tr><td>renameColumnInline</td><td>boolean</td><td>false</td><td>Double-click a title to edit; Enter commits, Esc cancels.</td></tr>
+        <tr><td>disabled</td><td>boolean</td><td>false</td><td>Disable drag, add, remove, rename.</td></tr>
+        <tr><td>addCardPlaceholder</td><td>string</td><td>—</td><td>Label for the "Add card" button (also enables it).</td></tr>
+        <tr><td>addCardPosition</td><td>"top" | "bottom"</td><td>"bottom"</td><td>Where new cards land.</td></tr>
+        <tr><td>addColumnPlaceholder</td><td>string</td><td>—</td><td>Label for the "Add column" tile (also enables it).</td></tr>
+        <tr><td>cardActions</td><td>{`{ id, label, icon?, onAction, show? }[]`}</td><td>—</td><td>Hover-revealed buttons on each card.</td></tr>
+        <tr><td>showCardRemoveButton</td><td>boolean</td><td>false</td><td>Show a × on cards.</td></tr>
+        <tr><td>showWipBadge</td><td>boolean</td><td>false</td><td>"count / limit" badge when <code>wipLimit</code> is set.</td></tr>
+        <tr><td>maxCardsPerColumn</td><td>number</td><td>—</td><td>Global per-column cap (overridden by <code>column.wipLimit</code>).</td></tr>
+        <tr><td>cardDraggable</td><td>boolean | (card, col) =&gt; boolean</td><td>true</td><td>Per-card drag gating.</td></tr>
+        <tr><td>renderCard</td><td>(card, col) =&gt; ReactNode</td><td>—</td><td>Replace the default card body.</td></tr>
+        <tr><td>renderCardMeta</td><td>(card, col) =&gt; ReactNode</td><td>—</td><td>Append extra chips into the card footer.</td></tr>
+        <tr><td>renderColumnHeader</td><td>(col) =&gt; ReactNode</td><td>—</td><td>Replace the default column header.</td></tr>
+        <tr><td>renderEmptyColumn</td><td>(col) =&gt; ReactNode</td><td>—</td><td>Replace the empty-state inside a column.</td></tr>
+        <tr><td>renderEmptyBoard</td><td>() =&gt; ReactNode</td><td>—</td><td>Render when there are zero columns.</td></tr>
+        <tr><td>onCardAdd</td><td>(card, columnId) =&gt; void</td><td>—</td><td>—</td></tr>
+        <tr><td>onCardRemove</td><td>(card, columnId) =&gt; void</td><td>—</td><td>—</td></tr>
+        <tr><td>onCardClick</td><td>(card, col) =&gt; void</td><td>—</td><td>Click handler that doesn't fire on drag.</td></tr>
+        <tr><td>onCardMove</td><td>(card, from, to, toIndex) =&gt; void</td><td>—</td><td>Cross-column move.</td></tr>
+        <tr><td>onCardReorder</td><td>(card, columnId, fromIndex, toIndex) =&gt; void</td><td>—</td><td>Intra-column reorder.</td></tr>
+        <tr><td>onColumnAdd</td><td>(column) =&gt; void</td><td>—</td><td>—</td></tr>
+        <tr><td>onColumnRename</td><td>(columnId, title) =&gt; void</td><td>—</td><td>—</td></tr>
+        <tr><td>onColumnRemove</td><td>(column) =&gt; void</td><td>—</td><td>When provided, shows × in the column header.</td></tr>
+        <tr><td>onColumnReorder</td><td>(columnId, fromIndex, toIndex) =&gt; void</td><td>—</td><td>—</td></tr>
+        <tr><td>canDrop</td><td>(card, from, to, toIndex) =&gt; boolean</td><td>—</td><td>Validate before drop. Return false to reject.</td></tr>
+        <tr><td>onDropRejected</td><td>(card, from, to, reason) =&gt; void</td><td>—</td><td>reason: "canDrop" | "limit" | "locked"</td></tr>
+      </tbody></table>
+    </div>
+
+    <div class="pkg-section"><H2>Card type</H2>
+      <CodeBlock lang="ts" code={`interface KanbanCard<TData = unknown> {
+  id: string;
+  content: string;
+  description?: string;
+  label?: string;
+  priority?: "low" | "medium" | "high" | "urgent";
+  assignees?: { id: string; name: string; initials?: string; color?: string; avatarUrl?: string }[];
+  dueDate?: string | Date | null;
+  tags?: string[];
+  checklist?: { done: number; total: number };
+  attachments?: number;
+  comments?: number;
+  cover?: string; // any CSS background
+  data?: TData;
+}`} />
+    </div>
+
+    <div class="pkg-section"><H2>Migrating from 0.x</H2>
+      <ul class="bullets">
+        <li>Drag is now <b>pointer events</b>, not HTML5 DnD. <code>getDragProps</code> / <code>getDropProps</code> on the headless hook were replaced by <code>getCardProps</code>, <code>getColumnDropProps</code>, <code>getColumnHandleProps</code>.</li>
+        <li><code>reorderable</code> defaults to <code>true</code>. Pass <code>reorderable=&#123;false&#125;</code> to lock intra-column order.</li>
+        <li>The headless hook now exposes <code>drag</code> (typed state), <code>selection</code>, <code>moveCard</code>, <code>reorderColumn</code>, <code>cancelDrag</code>.</li>
+        <li>The styled component still takes <code>columns</code>/<code>onChange</code> exactly as before; new opt-in props add features without forcing changes.</li>
+      </ul>
     </div>
   </PackagePageShell>
 </DocLayout>

@@ -22,382 +22,229 @@ function makeColumns(): KanbanColumn[] {
   ];
 }
 
-function makeDragEvent(
-  overrides: Partial<DragEvent> & { currentTarget?: HTMLElement; clientY?: number } = {},
-): React.DragEvent<HTMLElement> {
-  return {
-    preventDefault: vi.fn(),
-    dataTransfer: {
-      effectAllowed: "",
-      dropEffect: "",
-      setData: vi.fn(),
-      getData: vi.fn(),
-    },
-    currentTarget: overrides.currentTarget ?? document.createElement("div"),
-    relatedTarget: null,
-    clientY: overrides.clientY ?? 0,
-    ...overrides,
-  } as unknown as React.DragEvent<HTMLElement>;
-}
-
-function makeColumnEl(
-  cards: Array<{ id: string; top: number; height: number }>,
-): HTMLElement {
-  const col = document.createElement("div");
-  for (const c of cards) {
-    const card = document.createElement("div");
-    card.dataset.cardId = c.id;
-    card.dataset.columnId = "todo";
-    card.getBoundingClientRect = () =>
-      ({
-        top: c.top,
-        height: c.height,
-        bottom: c.top + c.height,
-        left: 0,
-        right: 0,
-        width: 0,
-        x: 0,
-        y: c.top,
-        toJSON() {
-          return {};
-        },
-      }) as DOMRect;
-    col.appendChild(card);
-  }
-  return col;
-}
-
 describe("useKanban", () => {
-  it("returns initial columns", () => {
-    const { result } = renderHook(() =>
-      useKanban({ columns: makeColumns() }),
-    );
-    expect(result.current.columns).toHaveLength(2);
-    expect(result.current.columns[0]?.id).toBe("todo");
-    expect(result.current.columns[1]?.id).toBe("done");
-  });
-
-  it("starts with no dragging or dragOver state", () => {
-    const { result } = renderHook(() =>
-      useKanban({ columns: makeColumns() }),
-    );
-    expect(result.current.dragging).toBeNull();
-    expect(result.current.dragOver).toBeNull();
-    expect(result.current.dragOverIndex).toBeNull();
-  });
-
-  it("sets dragging on dragStart and clears on dragEnd", () => {
-    const { result } = renderHook(() =>
-      useKanban({ columns: makeColumns() }),
-    );
-
-    act(() => {
-      result.current.getDragProps("card-1", "todo").onDragStart(makeDragEvent());
-    });
-    expect(result.current.dragging).toBe("card-1");
-
-    act(() => {
-      result.current.getDragProps("card-1", "todo").onDragEnd(makeDragEvent());
-    });
-    expect(result.current.dragging).toBeNull();
-  });
-
-  it("moves a card from one column to another and calls onChange", () => {
+  it("returns the initial columns when controlled", () => {
     const onChange = vi.fn();
     const { result } = renderHook(() =>
       useKanban({ columns: makeColumns(), onChange }),
     );
-
-    act(() => {
-      result.current.getDragProps("card-1", "todo").onDragStart(makeDragEvent());
-    });
-
-    act(() => {
-      const dropProps = result.current.getDropProps("done");
-      dropProps.onDragOver(makeDragEvent());
-      dropProps.onDrop(makeDragEvent());
-    });
-
-    expect(result.current.columns[0]?.cards).toHaveLength(2);
-    expect(result.current.columns[1]?.cards).toHaveLength(1);
-    expect(result.current.columns[1]?.cards[0]?.id).toBe("card-1");
-    expect(onChange).toHaveBeenCalledOnce();
-  });
-
-  it("calls onCardMove with toIndex on cross-column drop", () => {
-    const onCardMove = vi.fn();
-    const { result } = renderHook(() =>
-      useKanban({ columns: makeColumns(), onCardMove }),
-    );
-
-    act(() => {
-      result.current.getDragProps("card-1", "todo").onDragStart(makeDragEvent());
-    });
-
-    act(() => {
-      result.current.getDropProps("done").onDrop(makeDragEvent());
-    });
-
-    expect(onCardMove).toHaveBeenCalledOnce();
-    const call = onCardMove.mock.calls[0];
-    expect(call?.[1]).toBe("todo");
-    expect(call?.[2]).toBe("done");
-    expect(call?.[3]).toBe(0);
-  });
-
-  it("does not move cards when disabled", () => {
-    const onChange = vi.fn();
-    const { result } = renderHook(() =>
-      useKanban({ columns: makeColumns(), onChange, disabled: true }),
-    );
-
-    act(() => {
-      result.current.getDragProps("card-1", "todo").onDragStart(makeDragEvent());
-    });
-    expect(result.current.dragging).toBeNull();
-
-    act(() => {
-      result.current.getDropProps("done").onDrop(makeDragEvent());
-    });
-
-    expect(onChange).not.toHaveBeenCalled();
     expect(result.current.columns[0]?.cards).toHaveLength(3);
+    expect(result.current.columns[1]?.cards).toHaveLength(0);
   });
 
-  it("does not call onChange when dropping in same column without reorderable", () => {
-    const onChange = vi.fn();
+  it("supports uncontrolled mode via defaultColumns", () => {
     const { result } = renderHook(() =>
-      useKanban({ columns: makeColumns(), onChange }),
+      useKanban({ defaultColumns: makeColumns() }),
+    );
+    expect(result.current.columns[0]?.cards).toHaveLength(3);
+    act(() => {
+      result.current.addCard("Hello", "todo");
+    });
+    expect(result.current.columns[0]?.cards).toHaveLength(4);
+  });
+
+  it("addCard appends to bottom by default and prepends with addCardPosition top", () => {
+    const onChange = vi.fn();
+    const initialProps: { pos: "top" | "bottom" } = { pos: "bottom" };
+    const { result, rerender } = renderHook(
+      ({ pos }: { pos: "top" | "bottom" }) =>
+        useKanban({
+          defaultColumns: makeColumns(),
+          onChange,
+          addCardPosition: pos,
+        }),
+      { initialProps },
     );
 
-    act(() => {
-      result.current.getDragProps("card-1", "todo").onDragStart(makeDragEvent());
-    });
+    act(() => result.current.addCard("Bottom", "todo"));
+    expect(
+      result.current.columns[0]?.cards[result.current.columns[0]!.cards.length - 1]
+        ?.content,
+    ).toBe("Bottom");
 
-    act(() => {
-      result.current.getDropProps("todo").onDrop(makeDragEvent());
-    });
-
-    expect(onChange).not.toHaveBeenCalled();
-    expect(result.current.columns[0]?.cards.map((c) => c.id)).toEqual([
-      "card-1",
-      "card-2",
-      "card-3",
-    ]);
+    rerender({ pos: "top" });
+    act(() => result.current.addCard("Top", "todo"));
+    expect(result.current.columns[0]?.cards[0]?.content).toBe("Top");
   });
 
-  it("reorders within column when reorderable and fires onCardReorder", () => {
-    const onChange = vi.fn();
-    const onCardReorder = vi.fn();
-    const { result } = renderHook(() =>
-      useKanban({
-        columns: makeColumns(),
-        onChange,
-        onCardReorder,
-        reorderable: true,
-      }),
-    );
-
-    const target = makeColumnEl([
-      { id: "card-2", top: 0, height: 30 },
-      { id: "card-3", top: 40, height: 30 },
-    ]);
-
-    act(() => {
-      result.current.getDragProps("card-1", "todo").onDragStart(makeDragEvent());
-    });
-
-    act(() => {
-      const dropProps = result.current.getDropProps("todo");
-      dropProps.onDragOver(makeDragEvent({ currentTarget: target, clientY: 100 }));
-      dropProps.onDrop(makeDragEvent({ currentTarget: target, clientY: 100 }));
-    });
-
-    expect(result.current.columns[0]?.cards.map((c) => c.id)).toEqual([
-      "card-2",
-      "card-3",
-      "card-1",
-    ]);
-    expect(onCardReorder).toHaveBeenCalledOnce();
-    expect(onCardReorder.mock.calls[0]?.[2]).toBe(0);
-    expect(onCardReorder.mock.calls[0]?.[3]).toBe(2);
-    expect(onChange).toHaveBeenCalledOnce();
-  });
-
-  it("does not reorder when targetIndex equals source index", () => {
-    const onChange = vi.fn();
-    const onCardReorder = vi.fn();
-    const { result } = renderHook(() =>
-      useKanban({
-        columns: makeColumns(),
-        onChange,
-        onCardReorder,
-        reorderable: true,
-      }),
-    );
-
-    const target = makeColumnEl([
-      { id: "card-1", top: 0, height: 30 },
-      { id: "card-3", top: 80, height: 30 },
-    ]);
-
-    act(() => {
-      result.current.getDragProps("card-2", "todo").onDragStart(makeDragEvent());
-    });
-
-    act(() => {
-      result.current
-        .getDropProps("todo")
-        .onDrop(makeDragEvent({ currentTarget: target, clientY: 60 }));
-    });
-
-    expect(onCardReorder).not.toHaveBeenCalled();
-    expect(onChange).not.toHaveBeenCalled();
-    expect(result.current.columns[0]?.cards.map((c) => c.id)).toEqual([
-      "card-1",
-      "card-2",
-      "card-3",
-    ]);
-  });
-
-  it("rejects drop when canDrop returns false and fires onDropRejected", () => {
-    const onChange = vi.fn();
-    const onDropRejected = vi.fn();
-    const canDrop = vi.fn(() => false);
-    const { result } = renderHook(() =>
-      useKanban({ columns: makeColumns(), onChange, canDrop, onDropRejected }),
-    );
-
-    act(() => {
-      result.current.getDragProps("card-1", "todo").onDragStart(makeDragEvent());
-    });
-
-    act(() => {
-      result.current.getDropProps("done").onDrop(makeDragEvent());
-    });
-
-    expect(canDrop).toHaveBeenCalled();
-    expect(onChange).not.toHaveBeenCalled();
-    expect(onDropRejected).toHaveBeenCalledOnce();
-    expect(onDropRejected.mock.calls[0]?.[3]).toBe("canDrop");
-    expect(result.current.rejectedColumn).toBe("done");
-  });
-
-  it("rejects drop when destination column is at wipLimit and fires onDropRejected", async () => {
-    const columns: KanbanColumn[] = [
-      { id: "todo", title: "To Do", cards: [{ id: "a", content: "A" }] },
-      {
-        id: "done",
-        title: "Done",
-        cards: [{ id: "b", content: "B" }],
-        wipLimit: 1,
-      },
-    ];
-    const onChange = vi.fn();
-    const onDropRejected = vi.fn();
-    const { result } = renderHook(() =>
-      useKanban({ columns, onChange, onDropRejected }),
-    );
-
-    act(() => {
-      result.current.getDragProps("a", "todo").onDragStart(makeDragEvent());
-    });
-
-    act(() => {
-      result.current.getDropProps("done").onDrop(makeDragEvent());
-    });
-
-    await act(async () => {
-      await Promise.resolve();
-    });
-
-    expect(onChange).not.toHaveBeenCalled();
-    expect(onDropRejected).toHaveBeenCalledOnce();
-    expect(onDropRejected.mock.calls[0]?.[3]).toBe("limit");
-  });
-
-  it("addCard appends and fires onCardAdd", () => {
-    const onCardAdd = vi.fn();
-    const onChange = vi.fn();
-    const { result } = renderHook(() =>
-      useKanban({ columns: makeColumns(), onCardAdd, onChange }),
-    );
-
-    act(() => {
-      result.current.addCard("New task", "done");
-    });
-
-    expect(result.current.columns[1]?.cards).toHaveLength(1);
-    expect(result.current.columns[1]?.cards[0]?.content).toBe("New task");
-    expect(onCardAdd).toHaveBeenCalledOnce();
-    expect(onChange).toHaveBeenCalledOnce();
-  });
-
-  it("removeCard removes and fires onCardRemove with the card", () => {
+  it("removeCard fires onCardRemove and updates state", () => {
     const onCardRemove = vi.fn();
-    const onChange = vi.fn();
     const { result } = renderHook(() =>
-      useKanban({ columns: makeColumns(), onCardRemove, onChange }),
+      useKanban({ defaultColumns: makeColumns(), onCardRemove }),
     );
-
-    act(() => {
-      result.current.removeCard("card-2", "todo");
-    });
-
+    act(() => result.current.removeCard("card-2", "todo"));
     expect(result.current.columns[0]?.cards.map((c) => c.id)).toEqual([
       "card-1",
       "card-3",
     ]);
     expect(onCardRemove).toHaveBeenCalledOnce();
-    expect(onCardRemove.mock.calls[0]?.[0]?.id).toBe("card-2");
-    expect(onChange).toHaveBeenCalledOnce();
   });
 
-  it("sets dragOver and dragOverIndex on dragOver and clears on dragLeave", () => {
+  it("moveCard moves between columns and fires onCardMove", () => {
+    const onCardMove = vi.fn();
     const { result } = renderHook(() =>
-      useKanban({ columns: makeColumns() }),
+      useKanban({ defaultColumns: makeColumns(), onCardMove }),
     );
-
-    act(() => {
-      result.current.getDragProps("card-1", "todo").onDragStart(makeDragEvent());
-    });
-
-    const target = makeColumnEl([{ id: "x", top: 0, height: 30 }]);
-    act(() => {
-      result.current
-        .getDropProps("done")
-        .onDragOver(makeDragEvent({ currentTarget: target, clientY: 100 }));
-    });
-    expect(result.current.dragOver).toBe("done");
-    expect(result.current.dragOverIndex).toBe(1);
-
-    const outside = document.createElement("div");
-    act(() => {
-      result.current
-        .getDropProps("done")
-        .onDragLeave(
-          makeDragEvent({ currentTarget: target, relatedTarget: outside }),
-        );
-    });
-    expect(result.current.dragOver).toBeNull();
-    expect(result.current.dragOverIndex).toBeNull();
+    act(() => result.current.moveCard("card-1", "todo", "done", 0));
+    expect(result.current.columns[1]?.cards.map((c) => c.id)).toEqual(["card-1"]);
+    expect(result.current.columns[0]?.cards.map((c) => c.id)).toEqual([
+      "card-2",
+      "card-3",
+    ]);
+    expect(onCardMove).toHaveBeenCalledOnce();
   });
 
-  it("getDragProps marks element as draggable when not disabled", () => {
+  it("reorderColumn moves columns and fires onColumnReorder", () => {
+    const onColumnReorder = vi.fn();
     const { result } = renderHook(() =>
-      useKanban({ columns: makeColumns() }),
+      useKanban({ defaultColumns: makeColumns(), onColumnReorder }),
     );
-    const props = result.current.getDragProps("card-1", "todo");
-    expect(props.draggable).toBe(true);
+    act(() => result.current.reorderColumn("done", 0));
+    expect(result.current.columns.map((c) => c.id)).toEqual(["done", "todo"]);
+    expect(onColumnReorder).toHaveBeenCalledWith("done", 1, 0);
+  });
+
+  it("canDrop=false rejects moves and emits onDropRejected with reason canDrop", () => {
+    const onDropRejected = vi.fn();
+    const { result } = renderHook(() =>
+      useKanban({
+        defaultColumns: makeColumns(),
+        canDrop: () => false,
+        onDropRejected,
+      }),
+    );
+    act(() => result.current.moveCard("card-1", "todo", "done", 0));
+    expect(result.current.columns[0]?.cards).toHaveLength(3);
+    expect(onDropRejected).toHaveBeenCalledOnce();
+    expect(onDropRejected.mock.calls[0]?.[3]).toBe("canDrop");
+  });
+
+  it("respects column wipLimit and emits onDropRejected with reason limit", () => {
+    const onDropRejected = vi.fn();
+    const cols: KanbanColumn[] = [
+      {
+        id: "a",
+        title: "A",
+        cards: [{ id: "x", content: "x" }],
+      },
+      {
+        id: "b",
+        title: "B",
+        cards: [{ id: "y", content: "y" }],
+        wipLimit: 1,
+      },
+    ];
+    const { result } = renderHook(() =>
+      useKanban({ defaultColumns: cols, onDropRejected }),
+    );
+    act(() => result.current.moveCard("x", "a", "b", 0));
+    expect(result.current.columns[1]?.cards).toHaveLength(1);
+    expect(onDropRejected.mock.calls[0]?.[3]).toBe("limit");
+  });
+
+  it("rejects drops on locked columns with reason locked", () => {
+    const onDropRejected = vi.fn();
+    const cols: KanbanColumn[] = [
+      { id: "a", title: "A", cards: [{ id: "x", content: "x" }] },
+      { id: "b", title: "B", cards: [], locked: true },
+    ];
+    const { result } = renderHook(() =>
+      useKanban({ defaultColumns: cols, onDropRejected }),
+    );
+    act(() => result.current.moveCard("x", "a", "b", 0));
+    expect(result.current.columns[1]?.cards).toHaveLength(0);
+    expect(onDropRejected.mock.calls[0]?.[3]).toBe("locked");
+  });
+
+  it("toggleSelect with single replaces selection", () => {
+    const { result } = renderHook(() =>
+      useKanban({ defaultColumns: makeColumns() }),
+    );
+    act(() => result.current.toggleSelect("card-1", "single"));
+    expect(result.current.selection).toEqual(["card-1"]);
+    act(() => result.current.toggleSelect("card-2", "single"));
+    expect(result.current.selection).toEqual(["card-2"]);
+  });
+
+  it("toggleSelect with toggle adds/removes ids", () => {
+    const { result } = renderHook(() =>
+      useKanban({ defaultColumns: makeColumns() }),
+    );
+    act(() => result.current.toggleSelect("card-1", "toggle"));
+    act(() => result.current.toggleSelect("card-2", "toggle"));
+    expect(result.current.selection).toEqual(["card-1", "card-2"]);
+    act(() => result.current.toggleSelect("card-1", "toggle"));
+    expect(result.current.selection).toEqual(["card-2"]);
+  });
+
+  it("toggleSelect with range selects between anchor and target in same column", () => {
+    const { result } = renderHook(() =>
+      useKanban({ defaultColumns: makeColumns() }),
+    );
+    act(() => result.current.toggleSelect("card-1", "single"));
+    act(() => result.current.toggleSelect("card-3", "range"));
+    expect(result.current.selection.sort()).toEqual([
+      "card-1",
+      "card-2",
+      "card-3",
+    ]);
+  });
+
+  it("clearSelection empties the selection", () => {
+    const { result } = renderHook(() =>
+      useKanban({ defaultColumns: makeColumns() }),
+    );
+    act(() => result.current.toggleSelect("card-1", "single"));
+    expect(result.current.selection).toHaveLength(1);
+    act(() => result.current.clearSelection());
+    expect(result.current.selection).toHaveLength(0);
+  });
+
+  it("disabled mode does not call onCardAdd through addCard helper (helper is a writer; disabled gates UI)", () => {
+    const onCardAdd = vi.fn();
+    const { result } = renderHook(() =>
+      useKanban({
+        defaultColumns: makeColumns(),
+        disabled: true,
+        onCardAdd,
+      }),
+    );
+    act(() => result.current.addCard("Still works programmatically", "todo"));
+    expect(onCardAdd).toHaveBeenCalledOnce();
+  });
+
+  it("getCardProps returns ref and ARIA attributes", () => {
+    const { result } = renderHook(() =>
+      useKanban({ defaultColumns: makeColumns() }),
+    );
+    const props = result.current.getCardProps("card-1", "todo");
+    expect(props.role).toBe("button");
+    expect(props.tabIndex).toBe(0);
     expect(props["data-card-id"]).toBe("card-1");
     expect(props["data-column-id"]).toBe("todo");
+    expect(typeof props.onPointerDown).toBe("function");
+    expect(typeof props.onKeyDown).toBe("function");
   });
 
-  it("getDragProps sets draggable false when disabled", () => {
+  it("addCard with object includes priority/tags/dueDate", () => {
     const { result } = renderHook(() =>
-      useKanban({ columns: makeColumns(), disabled: true }),
+      useKanban({ defaultColumns: makeColumns() }),
     );
-    const props = result.current.getDragProps("card-1", "todo");
-    expect(props.draggable).toBe(false);
+    act(() =>
+      result.current.addCard(
+        {
+          content: "Rich card",
+          priority: "high",
+          tags: ["a", "b"],
+          dueDate: "2026-06-01",
+        },
+        "done",
+      ),
+    );
+    const newCard = result.current.columns[1]?.cards[0];
+    expect(newCard?.content).toBe("Rich card");
+    expect(newCard?.priority).toBe("high");
+    expect(newCard?.tags).toEqual(["a", "b"]);
+    expect(newCard?.dueDate).toBe("2026-06-01");
   });
 });

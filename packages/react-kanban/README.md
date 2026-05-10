@@ -1,6 +1,6 @@
 # `@mshafiqyajid/react-kanban`
 
-Headless kanban hook and styled component for React. HTML5 Drag and Drop API — zero runtime dependencies.
+A polished React kanban — pointer-event drag with touch + keyboard support, column reorder, FLIP animations, multi-select, search, rich card metadata.
 
 **[Full docs →](https://docs.shafiqyajid.com/react/kanban/)**
 
@@ -10,121 +10,116 @@ Headless kanban hook and styled component for React. HTML5 Drag and Drop API —
 npm install @mshafiqyajid/react-kanban
 ```
 
-## Headless usage
+## Highlights
+
+- **Touch + keyboard from day one.** Pointer events under the hood, so cards move on phones, trackpads, and screen readers.
+- **Smooth, not snappy.** FLIP animations slide cards into place when columns reflow.
+- **Real placeholder.** A card-shaped drop slot opens at the target index — not a 1px line.
+- **Auto-scroll on edges.** Scroll the board horizontally and a column vertically while dragging.
+- **Multi-select & batch drag.** Shift- or Cmd-click to grab a stack and move it together.
+- **Search built in.** `searchable` for a board-level filter; or `filter` to drive it yourself.
+- **Rich card metadata.** Assignees, due dates, tags, checklist progress, attachments / comments counts, covers, priority — all rendered by default.
+- **Column reorder.** Drag headers, or focus + Space + arrows.
+- **Per-column accent + tones.** Eight column accents and five tones.
+- **Controlled or uncontrolled.** `columns` + `onChange`, or `defaultColumns`.
+- **Headless or styled.** Use the hook for a custom UI, or `KanbanStyled` for a polished default.
+
+## Quick start
 
 ```tsx
-import { useKanban } from "@mshafiqyajid/react-kanban";
-
-const columns = [
-  { id: "todo", title: "To Do", cards: [{ id: "1", content: "Task one" }] },
-  { id: "done", title: "Done", cards: [] },
-];
-
-function Board() {
-  const { columns: cols, getDragProps, getDropProps, dragging } = useKanban({
-    columns,
-    onChange: (next) => console.log(next),
-  });
-
-  return (
-    <div style={{ display: "flex", gap: 16 }}>
-      {cols.map((col) => (
-        <div key={col.id} {...getDropProps(col.id)}>
-          <h3>{col.title}</h3>
-          {col.cards.map((card) => (
-            <div key={card.id} {...getDragProps(card.id, col.id)}
-              style={{ opacity: dragging === card.id ? 0.4 : 1 }}>
-              {card.content}
-            </div>
-          ))}
-        </div>
-      ))}
-    </div>
-  );
-}
-```
-
-## Styled usage
-
-```tsx
+import { useState } from "react";
 import { KanbanStyled } from "@mshafiqyajid/react-kanban/styled";
+import type { KanbanColumn } from "@mshafiqyajid/react-kanban";
 import "@mshafiqyajid/react-kanban/styles.css";
 
-const columns = [
-  { id: "todo",  title: "To Do",       cards: [{ id: "1", content: "Design review" }] },
-  { id: "wip",   title: "In Progress", cards: [{ id: "2", content: "Build feature" }] },
-  { id: "done",  title: "Done",        cards: [{ id: "3", content: "Deploy"        }] },
+const initial: KanbanColumn[] = [
+  { id: "todo",  title: "To Do",       cards: [], accent: "blue"  },
+  { id: "doing", title: "In Progress", cards: [], accent: "amber", wipLimit: 3 },
+  { id: "done",  title: "Done",        cards: [], accent: "green" },
 ];
 
-function App() {
+export default function Board() {
+  const [columns, setColumns] = useState<KanbanColumn[]>(initial);
   return (
     <KanbanStyled
       columns={columns}
-      onChange={(next) => console.log(next)}
-      size="md"
-      tone="neutral"
+      onChange={setColumns}
+      tone="primary"
+      searchable
+      selectable
+      columnReorderable
+      addCardPlaceholder="Add card"
+      addColumnPlaceholder="Add column"
     />
   );
 }
 ```
 
-## Props
+## Rich cards
 
-### `useKanban<TData>(options)`
+```tsx
+const card: KanbanCard = {
+  id: "k1",
+  content: "Migrate billing portal",
+  description: "Move to v3 SDK before launch.",
+  priority: "urgent",
+  tags: ["billing", "infra"],
+  dueDate: "2026-06-01",
+  assignees: [
+    { id: "u1", name: "Maya Linn", color: "#a78bfa" },
+    { id: "u2", name: "Sam Vega",  color: "#f97316" },
+  ],
+  checklist: { done: 3, total: 5 },
+  attachments: 2,
+  comments: 7,
+  cover: "linear-gradient(120deg, #6366f1, #ec4899)",
+};
+```
 
-| Option | Type | Default | Description |
-|---|---|---|---|
-| `columns` | `KanbanColumn<TData>[]` | — | Column data |
-| `onChange` | `(columns) => void` | — | Fired after add / remove / move / reorder |
-| `disabled` | `boolean` | `false` | Disable all drag interactions |
-| `reorderable` | `boolean` | `false` | Allow drag-to-reorder within the same column |
-| `canDrop` | `(card, from, to, toIndex?) => boolean` | — | Validate before drop |
-| `onDropRejected` | `(card, from, to, reason) => void` | — | `reason: "canDrop" \| "limit"` |
-| `onCardAdd` / `onCardRemove` | `(card, columnId) => void` | — | Add/remove callbacks |
-| `onCardMove` | `(card, from, to, toIndex?) => void` | — | Cross-column move |
-| `onCardReorder` | `(card, columnId, fromIndex, toIndex) => void` | — | Intra-column reorder |
-| `maxCardsPerColumn` | `number` | — | Global per-column cap. Overridden by `column.wipLimit`. |
+## Keyboard drag-and-drop
 
-Returns `{ columns, setColumns, getDragProps, getDropProps, dragging, dragOver, dragOverIndex, rejectedColumn, addCard, removeCard }`.
+- `Tab` to focus a card.
+- `Space` to pick up. `↑` / `↓` reorder; `←` / `→` move across columns.
+- `Enter` or `Space` to drop. `Esc` to cancel.
+- Same flow for column reorder when `columnReorderable` is on (focus a column header).
 
-### `KanbanColumn<TData>`
+## Headless
 
-| Field | Type | Description |
-|---|---|---|
-| `id` / `title` / `cards` | — | Required |
-| `wipLimit` | `number` | Hard cap; rejects drops that would exceed it |
-| `wipWarnThreshold` | `number` | Soft warn — sets `data-wip-state="warn"` on the column |
+```tsx
+import { useKanban } from "@mshafiqyajid/react-kanban";
 
-### `KanbanCard<TData>`
+const {
+  columns,
+  drag,
+  selection,
+  getBoardProps,
+  getCardProps,
+  getColumnDropProps,
+  getColumnHandleProps,
+  addCard,
+  removeCard,
+  moveCard,
+  reorderColumn,
+} = useKanban({
+  defaultColumns: [
+    { id: "todo", title: "To Do", cards: [{ id: "1", content: "Ship docs" }] },
+    { id: "done", title: "Done", cards: [] },
+  ],
+  reorderable: true,
+  columnReorderable: true,
+});
+```
 
-| Field | Type | Description |
-|---|---|---|
-| `id` / `content` | — | Required |
-| `description` | `string` | Secondary line |
-| `label` | `string` | Pill label |
-| `priority` | `"low" \| "medium" \| "high" \| "urgent"` | Adds `data-priority` for left-edge accent + dot |
-| `data` | `TData` | Arbitrary typed payload accessible in `renderCard` |
+`getCardProps` and friends return ref + ARIA + pointer/keyboard handlers ready to spread.
 
-### `KanbanStyled`
+## Migrating from `0.x`
 
-All `useKanban` options plus:
-
-| Prop | Type | Default |
-|---|---|---|
-| `size` | `"sm" \| "md" \| "lg"` | `"md"` |
-| `tone` | `"neutral" \| "primary"` | `"neutral"` |
-| `columnMinWidth` | `string` | `"240px"` |
-| `maxColumns` | `number` | — |
-| `renderCard` / `renderColumnHeader` | `(...) => ReactNode` | — |
-| `addCardPlaceholder` | `string` | — Label text only — the "+" icon is rendered automatically. Pass `"Add card"`, not `"+ Add card"`. When set, shows a button → inline input. |
-| `addColumnPlaceholder` | `string` | — Label text only — the "+" icon is rendered automatically. When set, shows a button → inline title input. |
-| `showDropIndicator` | `boolean` | `true` |
-| `showCardRemoveButton` | `boolean` | `false` |
-| `cardActions` | `{ id, label, icon?, onAction, show? }[]` | — |
-| `renameColumnInline` | `boolean` | `false` |
-| `onColumnRename` / `onColumnRemove` | callback | — |
-| `showWipBadge` | `boolean` | `false` |
-| `collapsible` / `cardDraggable` | — | — |
+- Drag is now **pointer events**, not HTML5 DnD.
+- The hook's `getDragProps` / `getDropProps` were replaced by `getCardProps`, `getColumnDropProps`, `getColumnHandleProps`.
+- `reorderable` defaults to `true`. Pass `reorderable={false}` to lock intra-column order.
+- New: `drag`, `selection`, `moveCard`, `reorderColumn`, `cancelDrag` on the hook return.
+- The styled component still takes `columns` / `onChange` exactly as before; new opt-in props add features without forcing changes.
+- `react-dom` is now a peer dep (used for the drag preview portal).
 
 ## License
 
