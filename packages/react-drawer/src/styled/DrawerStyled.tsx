@@ -234,6 +234,10 @@ export const DrawerStyled = forwardRef<HTMLDivElement, DrawerStyledProps>(
     const onPointerDown = useCallback(
       (e: React.PointerEvent<HTMLDivElement>) => {
         if (!swipeable || !isActuallyOpen) return;
+        // Don't capture swipe when the touch starts on an interactive element
+        // (button, link, input, etc.) — doing so would prevent click from firing.
+        const target = e.target as HTMLElement;
+        if (target.closest('button, a, input, select, textarea, [role="button"]')) return;
         dragStartRef.current = { x: e.clientX, y: e.clientY };
         pointerId.current = e.pointerId;
         setIsDragging(true);
