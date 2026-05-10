@@ -1,6 +1,6 @@
 {
   "name": "@mshafiqyajid/react-kanban",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "description": "A polished React kanban — pointer-event drag with touch + keyboard, column reorder, FLIP animations, multi-select, search, rich card metadata.",
   "keywords": [
     "react",

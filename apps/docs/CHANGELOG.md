@@ -1,5 +1,12 @@
 # @mshafiqyajid/docs
 
+## 0.0.22
+
+### Patch Changes
+
+- Updated dependencies [cf86ea0]
+  - @mshafiqyajid/react-kanban@1.0.0
+
 ## 0.0.21
 
 ### Patch Changes

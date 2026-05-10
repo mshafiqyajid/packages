@@ -1,6 +1,6 @@
 {
   "name": "@mshafiqyajid/docs",
-  "version": "0.0.21",
+  "version": "0.0.22",
   "private": true,
   "type": "module",
   "scripts": {
@@ -43,7 +43,7 @@
     "@mshafiqyajid/react-rich-text": "^0.4.0",
     "@mshafiqyajid/react-table": "^0.5.0",
     "@mshafiqyajid/react-chart": "^1.0.2",
-    "@mshafiqyajid/react-kanban": "^0.2.0",
+    "@mshafiqyajid/react-kanban": "^1.0.0",
     "@mshafiqyajid/react-sortable": "*",
     "@mshafiqyajid/react-command-palette": "^0.3.0",
     "@mshafiqyajid/react-stepper": "^0.3.1",
@@ -76,7 +76,7 @@
     "@mshafiqyajid/react-code-block": "*",
     "shiki": "^1.0.0",
     "@mshafiqyajid/react-skeleton": "*",
-"@mshafiqyajid/react-input-mask": "*",
+    "@mshafiqyajid/react-input-mask": "*",
     "@mshafiqyajid/react-split": "*",
     "@mshafiqyajid/react-signature": "*",
     "@mshafiqyajid/react-mention": "*",
