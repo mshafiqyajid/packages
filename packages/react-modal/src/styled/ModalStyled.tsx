@@ -307,6 +307,8 @@ export const ModalStyled = forwardRef<HTMLDivElement, ModalStyledProps>(
     // ---- Sheet drag-to-dismiss -----------------------------------------------
     const handleSheetPointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
       if (!isSheet) return;
+      const target = e.target as HTMLElement | null;
+      if (target?.closest('button, a, input, select, textarea, [role="button"]')) return;
       sheetStartYRef.current = e.clientY;
       sheetLastYRef.current = e.clientY;
       sheetLastTimeRef.current = e.timeStamp;

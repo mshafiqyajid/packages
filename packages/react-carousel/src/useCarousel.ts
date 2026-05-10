@@ -296,6 +296,8 @@ export function useCarousel({
       if (!swipe && !drag) return;
       if (e.pointerType === "mouse" && !drag) return;
       if (e.pointerType !== "mouse" && !swipe) return;
+      const target = e.target as HTMLElement | null;
+      if (target?.closest('button, a, [role="button"]')) return;
 
       dragStartRef.current = { x: e.clientX, y: e.clientY };
       currentDragOffsetRef.current = 0;

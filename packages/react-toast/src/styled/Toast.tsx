@@ -83,6 +83,8 @@ export function Toast({ toast, onDismiss, isBottom, paused }: ToastProps) {
 
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     if (!swipeEnabled || e.pointerType !== "touch") return;
+    const target = e.target as HTMLElement | null;
+    if (target?.closest('button, a, [role="button"]')) return;
     startXRef.current = e.clientX;
     e.currentTarget.setPointerCapture(e.pointerId);
   };
