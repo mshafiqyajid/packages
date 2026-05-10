@@ -16,6 +16,8 @@ import { ColorInputStyled } from "@mshafiqyajid/react-color-input/styled";
 import "@mshafiqyajid/react-color-input/styles.css";
 import { CopyButtonStyled } from "@mshafiqyajid/react-copy-button/styled";
 import "@mshafiqyajid/react-copy-button/styles.css";
+import { TabsStyled } from "@mshafiqyajid/react-tabs/styled";
+import "@mshafiqyajid/react-tabs/styles.css";
 
 // ============================================================================
 // Prop definition types
@@ -190,6 +192,21 @@ export default function PropPlayground({
     setShowFade(overflows && !atBottom);
   }, []);
 
+  const groupNames = useMemo(() => {
+    const seen = new Set<string>();
+    const out: string[] = [];
+    for (const p of props) {
+      const g = p.group ?? "Other";
+      if (!seen.has(g)) {
+        seen.add(g);
+        out.push(g);
+      }
+    }
+    return out;
+  }, [props]);
+
+  const showTabs = props.some((p) => p.group !== undefined) && groupNames.length > 1;
+
   useEffect(() => {
     checkScroll();
   }, [values, checkScroll]);
@@ -228,6 +245,79 @@ export default function PropPlayground({
     return [...props].sort((a, b) => order(a) - order(b));
   }, [props, isStacked, hasGroups]);
 
+  const renderField = (prop: PropDef) => {
+    const value = values[prop.name]!;
+    const label = prop.label ?? prop.name;
+    return (
+      <div className="pp__field" key={prop.name}>
+        <label className="pp__field-label">
+          <span className="pp__field-name">{label}</span>
+        </label>
+        {prop.control.type === "segmented" && (
+          <SegmentedControl
+            options={prop.control.options}
+            value={value as string}
+            onChange={(v) => set(prop.name, v)}
+          />
+        )}
+        {prop.control.type === "select" && (
+          <SelectStyled
+            items={prop.control.options.map((opt) => ({ value: opt, label: opt }))}
+            value={value as string}
+            onChange={(v) => set(prop.name, v as string)}
+            size="sm"
+          />
+        )}
+        {prop.control.type === "toggle" && (
+          <Toggle value={value as boolean} onChange={(v) => set(prop.name, v)} />
+        )}
+        {prop.control.type === "text" && (
+          <TextInputStyled
+            value={value as string}
+            placeholder={prop.control.placeholder}
+            onChange={(v) => set(prop.name, v)}
+            size="sm"
+          />
+        )}
+        {(prop.control.type === "number" || prop.control.type === "slider") && (
+          <SliderStyled
+            value={value as number}
+            min={prop.control.min}
+            max={prop.control.max}
+            step={prop.control.step ?? 1}
+            onChange={(v) => set(prop.name, typeof v === "number" ? v : (v as number[])[0]!)}
+            size="sm"
+            showValue
+          />
+        )}
+        {prop.control.type === "color" && (
+          <ColorInputStyled
+            value={value as string}
+            onChange={(v) => set(prop.name, v)}
+            size="sm"
+          />
+        )}
+      </div>
+    );
+  };
+
+  const tabItems = useMemo(
+    () =>
+      groupNames.map((g) => ({
+        value: g,
+        label: g,
+        content: (
+          <div className="pp__controls-body">
+            {displayProps
+              .filter((p) => (p.group ?? "Other") === g)
+              .map(renderField)}
+          </div>
+        ),
+      })),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [groupNames, displayProps, values],
+  );
+
   return (
     <div className="pp" data-layout={layout}>
       {/* Top: preview (+ controls if side-by-side) */}
@@ -253,73 +343,34 @@ export default function PropPlayground({
               Reset
             </ButtonStyled>
           </div>
-          <div className="pp__controls-scroll" ref={scrollRef} onScroll={checkScroll}>
-          <div className="pp__controls-body">
-            {displayProps.map((prop, idx) => {
-              const prevGroup = idx > 0 ? displayProps[idx - 1]?.group : undefined;
-              const showGroupHeader = prop.group !== undefined && prop.group !== prevGroup;
-              const value = values[prop.name]!;
-              const label = prop.label ?? prop.name;
-                return (
-                  <React.Fragment key={prop.name}>
-                    {showGroupHeader && (
-                      <div className="pp__group-header" aria-hidden="true">{prop.group}</div>
-                    )}
-                    <div className="pp__field">
-                  <label className="pp__field-label">
-                    <span className="pp__field-name">{label}</span>
-                  </label>
-                  {prop.control.type === "segmented" && (
-                    <SegmentedControl
-                      options={prop.control.options}
-                      value={value as string}
-                      onChange={(v) => set(prop.name, v)}
-                    />
-                  )}
-                  {prop.control.type === "select" && (
-                    <SelectStyled
-                      items={prop.control.options.map((opt) => ({ value: opt, label: opt }))}
-                      value={value as string}
-                      onChange={(v) => set(prop.name, v as string)}
-                      size="sm"
-                    />
-                  )}
-                  {prop.control.type === "toggle" && (
-                    <Toggle value={value as boolean} onChange={(v) => set(prop.name, v)} />
-                  )}
-                  {prop.control.type === "text" && (
-                    <TextInputStyled
-                      value={value as string}
-                      placeholder={prop.control.placeholder}
-                      onChange={(v) => set(prop.name, v)}
-                      size="sm"
-                    />
-                  )}
-                  {(prop.control.type === "number" || prop.control.type === "slider") && (
-                    <SliderStyled
-                      value={value as number}
-                      min={prop.control.min}
-                      max={prop.control.max}
-                      step={prop.control.step ?? 1}
-                      onChange={(v) => set(prop.name, typeof v === "number" ? v : (v as number[])[0]!)}
-                      size="sm"
-                      showValue
-                    />
-                  )}
-                  {prop.control.type === "color" && (
-                    <ColorInputStyled
-                      value={value as string}
-                      onChange={(v) => set(prop.name, v)}
-                      size="sm"
-                    />
-                  )}
-                    </div>
-                  </React.Fragment>
-                );
-            })}
-          </div>
-          {showFade && <div className="pp__controls-fade" aria-hidden="true" />}
-          </div>{/* /pp__controls-scroll */}
+          {showTabs ? (
+            <div className="pp__controls-tabs">
+              <TabsStyled
+                tabs={tabItems}
+                defaultValue={groupNames[0]}
+                size="sm"
+                variant="line"
+              />
+            </div>
+          ) : (
+            <div className="pp__controls-scroll" ref={scrollRef} onScroll={checkScroll}>
+              <div className="pp__controls-body">
+                {displayProps.map((prop, idx) => {
+                  const prevGroup = idx > 0 ? displayProps[idx - 1]?.group : undefined;
+                  const showGroupHeader = prop.group !== undefined && prop.group !== prevGroup;
+                  return (
+                    <React.Fragment key={prop.name}>
+                      {showGroupHeader && (
+                        <div className="pp__group-header" aria-hidden="true">{prop.group}</div>
+                      )}
+                      {renderField(prop)}
+                    </React.Fragment>
+                  );
+                })}
+              </div>
+              {showFade && <div className="pp__controls-fade" aria-hidden="true" />}
+            </div>
+          )}
         </div>
       </div>
 

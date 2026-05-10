@@ -3,6 +3,10 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import { categories, NEW_SLUGS } from "~/data/nav";
+import { validateNav } from "~/lib/validateNav";
+import SidebarLink from "./SidebarLink";
+
+validateNav();
 
 interface Props {
   active?: string;
@@ -42,15 +46,16 @@ const categoriesWithVersions = categories.map((cat) => ({
         <ul class="sidebar__list">
           {cat.items.map((item) => (
             <li>
-              <a
-                href={`/react/${item.slug}/`}
-                class:list={["sidebar__link", { "sidebar__link--active": active === item.slug }]}
-              >
-                <span class="sidebar__icon" aria-hidden="true">{item.icon}</span>
-                <span class="sidebar__name">{item.label}</span>
-                {item.isNew && <span class="sidebar__new" aria-label="New">new</span>}
-                <span class="sidebar__version">{item.version}</span>
-              </a>
+              <SidebarLink
+                client:visible
+                slug={item.slug}
+                label={item.label}
+                icon={item.icon}
+                description={item.description}
+                version={item.version}
+                isNew={item.isNew}
+                isActive={active === item.slug}
+              />
             </li>
           ))}
         </ul>
@@ -60,7 +65,7 @@ const categoriesWithVersions = categories.map((cat) => ({
   </div>
 </nav>
 
-<style>
+<style is:global>
   .sidebar {
     width: var(--sidebar-width);
     flex-shrink: 0;
@@ -171,6 +176,25 @@ const categoriesWithVersions = categories.map((cat) => ({
     color: #4ade80;
   }
   @media (max-width: 768px) { .sidebar { display: none; } }
+
+  /* Hover-card content shown for each sidebar package link. */
+  .sidebar-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    max-width: 260px;
+  }
+  .sidebar-card__name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--fg);
+    line-height: 1.2;
+  }
+  .sidebar-card__desc {
+    font-size: 0.78rem;
+    line-height: 1.45;
+    color: var(--fg-muted);
+  }
 </style>
 
 <script is:inline>

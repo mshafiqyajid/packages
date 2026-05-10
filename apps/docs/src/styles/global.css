@@ -416,6 +416,22 @@ h3:hover .heading-anchor { opacity: 1; }
   flex-direction: column;
   gap: 0.85rem;
 }
+
+/* TabsStyled (from @mshafiqyajid/react-tabs) when surfacing prop groups.
+   Tighten its padding/colors to fit the compact playground panel. */
+.pp__controls-tabs {
+  --rtab-fg: var(--fg);
+  --rtab-fg-muted: var(--fg-muted);
+  --rtab-fg-active: var(--accent);
+  --rtab-fg-inactive: var(--fg-muted);
+  --rtab-bg-indicator: var(--accent);
+  --rtab-border-list: var(--border);
+  --rtab-tab-padding-x: 0.7rem;
+  --rtab-tab-padding-y: 0.45rem;
+  --rtab-font-size: 0.76rem;
+  padding: 0.5rem 0.5rem 0;
+}
+.pp__controls-tabs .rtab-panel { padding: 0; }
 .pp__field {
   display: flex;
   flex-direction: column;
