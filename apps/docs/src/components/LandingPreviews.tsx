@@ -675,7 +675,7 @@ export function AvatarGroupPreview() {
     <div style={{ pointerEvents: "none" }}>
       <AvatarGroupStyled
         size="md"
-        spacing="normal"
+        gap={-8}
         showTooltip={false}
         avatars={[
           { name: "Alice Smith" },
