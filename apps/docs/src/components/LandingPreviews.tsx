@@ -32,11 +32,9 @@ import { StatStyled } from "@mshafiqyajid/react-stat/styled";
 import { CardStyled, Card } from "@mshafiqyajid/react-card/styled";
 import { DividerStyled } from "@mshafiqyajid/react-divider/styled";
 import { PaginationStyled } from "@mshafiqyajid/react-pagination/styled";
-import { BreadcrumbStyled } from "@mshafiqyajid/react-breadcrumb/styled";
 import { RangeStyled } from "@mshafiqyajid/react-range/styled";
 import { ComboboxStyled } from "@mshafiqyajid/react-combobox/styled";
 import { MultiSelectStyled } from "@mshafiqyajid/react-multi-select/styled";
-import { NavbarStyled } from "@mshafiqyajid/react-navbar/styled";
 import { SidebarStyled } from "@mshafiqyajid/react-sidebar/styled";
 import "@mshafiqyajid/react-copy-button/styles.css";
 import "@mshafiqyajid/react-otp-input/styles.css";
@@ -70,11 +68,9 @@ import "@mshafiqyajid/react-stat/styles.css";
 import "@mshafiqyajid/react-card/styles.css";
 import "@mshafiqyajid/react-divider/styles.css";
 import "@mshafiqyajid/react-pagination/styles.css";
-import "@mshafiqyajid/react-breadcrumb/styles.css";
 import "@mshafiqyajid/react-range/styles.css";
 import "@mshafiqyajid/react-combobox/styles.css";
 import "@mshafiqyajid/react-multi-select/styles.css";
-import "@mshafiqyajid/react-navbar/styles.css";
 import "@mshafiqyajid/react-sidebar/styles.css";
 
 export function CopyButtonPreview() {
@@ -733,17 +729,21 @@ export function PaginationPreview() {
 }
 
 export function BreadcrumbPreview() {
+  const items = ["Home", "Docs", "Components"];
   return (
-    <div style={{ pointerEvents: "none" }}>
-      <BreadcrumbStyled
-        size="sm"
-        separator="chevron"
-        items={[
-          { label: "Home", href: "/" },
-          { label: "Docs", href: "/docs" },
-          { label: "Components" },
-        ]}
-      />
+    <div style={{ pointerEvents: "none", display: "flex", alignItems: "center", gap: 4 }}>
+      {items.map((item, i) => (
+        <span key={item} style={{ display: "flex", alignItems: "center", gap: 4 }}>
+          <span style={{
+            fontSize: "0.8125rem",
+            color: i === items.length - 1 ? "var(--fg)" : "var(--fg-muted)",
+            fontWeight: i === items.length - 1 ? 600 : 400,
+          }}>{item}</span>
+          {i < items.length - 1 && (
+            <span style={{ color: "var(--fg-subtle)", fontSize: "0.75rem" }}>›</span>
+          )}
+        </span>
+      ))}
     </div>
   );
 }
@@ -806,18 +806,27 @@ export function MultiSelectPreview() {
 }
 
 export function NavbarPreview() {
+  const links = [
+    { label: "Home", active: true },
+    { label: "Docs" },
+    { label: "Blog" },
+  ];
   return (
-    <div style={{ pointerEvents: "none", width: 280, transform: "scale(0.9)", transformOrigin: "top left" }}>
-      <NavbarStyled
-        brand={<span style={{ fontWeight: 700, fontSize: "0.9rem" }}>Acme</span>}
-        items={[
-          { label: "Home",  href: "#", active: true },
-          { label: "Docs",  href: "#" },
-          { label: "Blog",  href: "#" },
-        ]}
-        variant="default"
-        size="sm"
-      />
+    <div style={{ pointerEvents: "none", width: "100%", display: "flex", alignItems: "center", gap: 0, background: "var(--bg-elevated)", border: "1px solid var(--border)", borderRadius: 8, padding: "0 12px", height: 44 }}>
+      <span style={{ fontWeight: 700, fontSize: "0.875rem", color: "var(--fg)", marginRight: "auto" }}>Acme</span>
+      <div style={{ display: "flex", gap: 0 }}>
+        {links.map((link) => (
+          <span key={link.label} style={{
+            padding: "0 12px",
+            fontSize: "0.8125rem",
+            fontWeight: link.active ? 600 : 400,
+            color: link.active ? "var(--accent)" : "var(--fg-muted)",
+            borderBottom: link.active ? "2px solid var(--accent)" : "2px solid transparent",
+            lineHeight: "44px",
+            display: "block",
+          }}>{link.label}</span>
+        ))}
+      </div>
     </div>
   );
 }
